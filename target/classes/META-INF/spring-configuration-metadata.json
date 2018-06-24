@@ -1,0 +1,12 @@
+{
+  "hints": [],
+  "groups": [
+    {
+      "sourceType": "juniter.Application",
+      "name": "spring.datasource",
+      "sourceMethod": "public javax.sql.DataSource dataSource() ",
+      "type": "javax.sql.DataSource"
+    }
+  ],
+  "properties": []
+}

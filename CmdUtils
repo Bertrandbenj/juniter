@@ -1,0 +1,48 @@
+## Extract blocks 
+for i in $(seq -f "%07g" 0 10); do wget https://g1.bertrandbenjamin.com/blockchain/block/$i -O data/blocks/$i.json ; done
+
+
+## inline files 
+for i in $(seq -f "%07g" 0 10); do cat data/blocks/$i.json | tr -d '\n' > data/blocks/$i.inline.json ; done
+
+## Aggregate into one file 
+for f in data/blocks/*.inline.json ; do sed -e '$s/$/\n/' $f ; done > data/blocks.json
+
+## cleanup inline
+rm data/blocks/*.inline.json
+
+
+
+DROP TABLE public.block_actives;
+DROP TABLE public.block_certification;
+DROP TABLE public.block_excluded ;
+DROP TABLE public.block_joiner;
+DROP TABLE public.block_leavers;
+DROP TABLE public.block_revoked;
+DROP TABLE public.block_transaction;
+DROP TABLE public.block;
+
+
+DROP TABLE public.certification ;
+DROP TABLE public.endpoint_values;
+DROP TABLE public.peer_endpoints;
+DROP TABLE public.endpoints;
+DROP TABLE public.joiner;
+DROP TABLE public.peer;
+
+
+DROP TABLE public.signature;
+
+DROP TABLE public.transaction_inputs;
+DROP TABLE public.transaction_outputs;
+--DROP TABLE public.transaction_pubkey;
+DROP TABLE public.transaction_signatures;
+DROP TABLE public.transaction_unlocks;
+DROP TABLE public.transaction_issuers;
+DROP TABLE public.transaction;
+DROP TABLE public.buid;
+DROP TABLE public.pubkey;
+
+
+
+keytool -genkey -alias juniter -storetype PKCS12 -keyalg RSA -keysize 2048 -keystore keystore.p12 -validity 3650
