@@ -25,7 +25,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import juniter.model.enums.EndPointType;
+import juniter.model.base.EndPointType;
 import juniter.utils.Constants;
 import juniter.utils.Validator;
 

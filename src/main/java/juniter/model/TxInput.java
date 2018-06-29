@@ -13,7 +13,7 @@ import javax.validation.constraints.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import juniter.model.enums.TxType;
+import juniter.model.base.TxType;
 import juniter.utils.Constants;
 
 //@JsonIgnoreProperties(ignoreUnknown = true)
@@ -59,7 +59,7 @@ public class TxInput implements Serializable {
 
 
 	public void setInput(String input) {
-		logger.info("parse TxInput ... "+input);
+		logger.debug("parse TxInput ... "+input);
 		//this.input = input;
 		var it = input.split(":");
 		amount = Integer.valueOf(it[0]);

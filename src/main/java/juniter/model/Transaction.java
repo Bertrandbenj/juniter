@@ -17,6 +17,9 @@ import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import juniter.utils.Constants;
@@ -25,6 +28,8 @@ import juniter.utils.Constants;
 @Table(name = "transaction", schema = "public")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Transaction implements Serializable {
+
+	private static final Logger logger = LogManager.getLogger();
 
 	private static final long serialVersionUID = -1472028218837984061L;
 
@@ -68,6 +73,7 @@ public class Transaction implements Serializable {
 	@Valid private List<TxUnlock> unlocks = new ArrayList<TxUnlock>();
 
 	@ElementCollection
+	@CollectionTable(name = "tx_signatures", joinColumns = @JoinColumn(name = "tx_id"))
 	private List<String> signatures = new ArrayList<String>();
 
 	@Size(max=255)

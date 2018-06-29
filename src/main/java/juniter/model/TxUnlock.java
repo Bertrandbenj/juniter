@@ -31,7 +31,7 @@ public class TxUnlock implements Serializable {
 	
 	public void setUnlock(String unlock) {
 		
-		logger.info("Parsing TxUnlock... "+unlock);
+		logger.debug("Parsing TxUnlock... "+unlock);
 		
 		var vals = unlock.split(":");
 		id = Integer.valueOf(vals[0]);

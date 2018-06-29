@@ -2,13 +2,23 @@ package juniter.model;
 
 import java.io.Serializable;
 
+import javax.persistence.AttributeOverride;
+import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.Valid;
+import javax.validation.constraints.Pattern;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import juniter.utils.Constants;
 
 @Entity
 @Table(name = "certification", schema = "public")
@@ -17,56 +27,52 @@ public class Certification implements Serializable {
 
 	private static final long serialVersionUID = -2973877562500906569L;
 
+	private static final Logger logger = LogManager.getLogger();
+
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 
-	private String  certif;
 	
-//	@Column(name="from")
-//	private String from;
-//	
-//	@Column(name="to")
-//	private String to;
-//	
-//	@Column(name="blockNumber")
-//	private String blockNumber;
-//	
-//	@Column(name="signature")
-//	private String signature;
+	@Valid
+	@AttributeOverride(name = "pubkey", column = @Column(name = "from"))
+	@Embedded protected PubKey from = new PubKey();
+	
+	@Valid
+	@AttributeOverride(name = "pubkey", column = @Column(name = "to"))
+	@Embedded protected PubKey to = new PubKey();
+	
+	
+	private Integer blockNumber;
+	
+	@Pattern(regexp=Constants.Regex.SIGNATURE)
+	private String signature;
 
 	public Certification() {
 	}
 
 	public Certification(String certif) {
-		this.certif = certif;
-//		from = it[0];
-//		to = it[1];
-//		blockNumber = it[2];
-//		signature = it[3];
+		setCertif(certif);
+	}
+	
+	public void setCertif(String certif) {
+		
+		logger.debug("Parsing certif ... "+certif);
+
+		var it = certif.split(":");
+		from.setPubkey(it[0]);
+		to.setPubkey(it[1]);
+		blockNumber = Integer.valueOf(it[2]);
+		signature = it[3];
 	}
 
 	public String getCertif() {
-		return from() + ":" + to() + ":" + blockNumber() + ":" + signature(); 
+		return from + ":" + to + ":" + blockNumber + ":" + signature; 
 	}
 
 	public String toRaw() {
 		return getCertif();
 	}
 
-	private String from() {
-		return certif.split(":")[0];
-	}
-	
-	private String to() {
-		return certif.split(":")[1];
-	}
-	
-	private String blockNumber() {
-		return certif.split(":")[2];
-	}
-	
-	private String signature() {
-		return certif.split(":")[3];
-	}
 }

@@ -11,9 +11,19 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.Valid;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+/**
+ * 	 pubkey : signature : buid : pseudo;
+
+ * @author ben
+ *
+ */
 @Entity
 @Table(name = "identity", schema = "public")
 public class Identity implements Serializable {
+	private static final Logger logger = LogManager.getLogger();
 
 	private static final long serialVersionUID = -9160916061297193207L;
 
@@ -49,6 +59,7 @@ public class Identity implements Serializable {
 	}
 
 	public void setIdentity(String identity) {
+		logger.debug("Parsing Identity... "+identity);
 		var vals = identity.split(":");
 		newidentity.setPubkey(vals[0]);
 		setSignature(vals[1]);

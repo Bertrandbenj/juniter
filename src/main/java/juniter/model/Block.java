@@ -70,7 +70,7 @@ public class Block implements Serializable {
 //	@JoinColumn(name = "issuer", referencedColumnName= "pubkey")
 
 	// @Pattern(regexp=Constants.Regex.PUBKEY) @Size(min=43, max=45)
-	@AttributeOverride(name = "issuer", column = @Column(name = "issuer"))
+	@AttributeOverride(name = "pubkey", column = @Column(name = "issuer"))
 	@Valid private PubKey issuer;
 
 	@Pattern(regexp = Constants.Regex.SIGNATURE)
@@ -291,6 +291,10 @@ public class Block implements Serializable {
 	 * @return the previousIssuer
 	 */
 	public String getPreviousIssuer() {
+		if(previousIssuer == null)
+			return "";
+		if(previousIssuer.getPubkey() == null)
+			return "";
 		return previousIssuer.getPubkey();
 	}
 
@@ -353,15 +357,15 @@ public class Block implements Serializable {
 	/**
 	 * @return the identities
 	 */
-	public List<Identity> getIdentities() {
-		return identities;
+	public List<String> getIdentities() {
+		return identities.stream().map(id-> id.getIdentity()).collect(Collectors.toList());
 	}
 
 	/**
 	 * @return the joiners
 	 */
-	public List<Joiner> getJoiners() {
-		return joiners;
+	public List<String> getJoiners() {
+		return joiners.stream().map(id-> id.getJoiner()).collect(Collectors.toList());
 	}
 
 	/**

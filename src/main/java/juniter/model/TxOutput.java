@@ -8,11 +8,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 @Embeddable
-public class TxOutput implements Serializable {;
+public class TxOutput implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 2208036347838232516L;
 
 	private static final Logger logger = LogManager.getLogger();
@@ -35,7 +32,7 @@ public class TxOutput implements Serializable {;
 	}
 	
 	public void setOutput(String output) {
-		logger.info("Parsing TxOutput... "+output);
+		logger.debug("Parsing TxOutput... "+output);
 
 		var vals = output.split(":");
 		amount = Integer.valueOf(vals[0]);

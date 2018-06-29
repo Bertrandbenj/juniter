@@ -59,6 +59,6 @@ public interface Constants {
     }
     
     interface Logs {
-    	String INTERRUPTED = "THE IMPOSSIBLE HAPPENED : Thread.sleep failed" ;
+    	String INTERRUPTED = "THE Improbable happened : Thread.sleep failed" ;
     }
 }
