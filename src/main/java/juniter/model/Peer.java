@@ -15,7 +15,7 @@ import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import utils.Constants;
+import juniter.utils.Constants;
 
 @Entity
 @Table(name = "peer", schema = "public")

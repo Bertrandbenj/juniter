@@ -1,10 +1,13 @@
 package juniter.service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,7 +24,7 @@ import org.springframework.web.client.RestTemplate;
 import juniter.model.Block;
 import juniter.model.wrapper.WithWrapper;
 import juniter.repository.BlockRepository;
-import utils.Constants;
+import juniter.utils.Constants;
 
 /**
  * 
@@ -57,34 +60,25 @@ public class BlockchainService {
 
 	private static final Logger logger = LogManager.getLogger();
 
-	private static final String ERROR_MESSAGE = "<ul>" //
-			+ "<li>blockchain/</li>" //
-			+ "<ul><li>block/[number]</li>" //
-			+ "<li>current</li>" //
-			+ "<li>parameters</li>" //
-			+ "<ul><li>with</li>" //
-			+ "<li>newcomers</li>" //
-			+ "<li>certs</li>" //
-			+ "<li>joiners</li>" //
-			+ "<li>actives</li>" //
-			+ "<li>leavers</li>" //
-			+ "<li>excluded</li></ul>" //
-			+ "</ul></ul>";
+	@Autowired
+	private BlockRepository repository;
+
+	//@Autowired
+	private  RestTemplate restTemplate = new RestTemplate();
 
 	@Autowired
-	BlockRepository repository;
+	private PeeringService peeringService;
 
-	@RequestMapping("/")
-	public String index() {
-		bulkLoad(Constants.Defaults.BULK_BATCH_SIZE);
-		return "Greetings from Spring Boot!<br>" + ERROR_MESSAGE;
+	@RequestMapping(value = "/", method = RequestMethod.GET)
+	void handle(HttpServletResponse response) throws IOException {
+		response.sendRedirect("/html/");
 	}
 
 	@RequestMapping(value = "/block/{id}", method = RequestMethod.GET)
 	public Block block(@PathVariable("id") Integer id) {
 
 		logger.info("Entering /blockchain/block/{number=" + id + "}");
-		return repository.findByNumber(id).orElseGet(() -> fetchBlock(id));
+		return repository.findByNumber(id).orElseGet(() -> fetchAndSaveBlock(id));
 	}
 
 	@Transactional
@@ -97,11 +91,11 @@ public class BlockchainService {
 		logger.info("---blocksToFind: " + blocksToFind);
 
 		List<Block> knownBlocks = repository.findByNumberIn(blocksToFind).collect(Collectors.toList());
-		logger.info("---known blocks: " + knownBlocks);
+		logger.info("---known blocks: " + knownBlocks.stream().map(b -> b.getNumber()).collect(Collectors.toList()));
 
 		List<Block> blocksToSave = blocksToFind.stream()
-				.filter(b -> !knownBlocks.stream().anyMatch(kb -> kb.getNumber().equals(b))).map(lg -> fetchBlock(lg))
-				.collect(Collectors.toList());
+				.filter(b -> !knownBlocks.stream().anyMatch(kb -> kb.getNumber().equals(b)))
+				.map(lg -> fetchAndSaveBlock(lg)).collect(Collectors.toList());
 
 		logger.info("---fetch blocks: " + Stream.concat(blocksToSave.stream(), knownBlocks.stream())
 				.map(b -> b.getNumber().toString()).collect(Collectors.joining(",")));
@@ -192,7 +186,7 @@ public class BlockchainService {
 	 * @param number
 	 * @return
 	 */
-	private Block fetchBlock(Integer number) {
+	private Block fetchAndSaveBlock(Integer number) {
 		return fetchBlock("block/" + number);
 	}
 
@@ -207,8 +201,8 @@ public class BlockchainService {
 		logger.info("Fetching block : " + url);
 		Block block = null;
 		try {
-			TimeUnit.MILLISECONDS.sleep(300);
-			block = new RestTemplate().getForObject(url, Block.class);
+			TimeUnit.MILLISECONDS.sleep(10);
+			block = restTemplate.getForObject(url, Block.class);
 			block = repository.findByNumber(block.getNumber()).orElse(block);
 			block = repository.save(block);
 
@@ -221,18 +215,24 @@ public class BlockchainService {
 		return block;
 	}
 
+	/**
+	 * uses /blockchain/blocks/[count]/[from]
+	 * 
+	 * @param url
+	 * @return
+	 */
 	@Transactional
 	public List<Block> fetchBlocks(String url) {
 		try {
-			TimeUnit.MILLISECONDS.sleep(300);
+			TimeUnit.MILLISECONDS.sleep(30);
 
-			var responseEntity = new RestTemplate().exchange(url, HttpMethod.GET, null,
+			var responseEntity = restTemplate.exchange(url, HttpMethod.GET, null,
 					new ParameterizedTypeReference<List<Block>>() {
 					});
 			var body = responseEntity.getBody();
 			var contentType = responseEntity.getHeaders().getContentType().toString();
 			var statusCode = responseEntity.getStatusCode().getReasonPhrase();
-			
+
 			logger.info("Fetched: " + url + "... Status: " + statusCode + " ContentType: " + contentType);
 			return body;
 
@@ -243,15 +243,15 @@ public class BlockchainService {
 		}
 		return null;
 	}
-	
+
 	private void bulkLoad(int bulkSize) {
 		var lastBLock = current().getNumber();
-		var nbBulks = Integer.divideUnsigned(lastBLock, bulkSize);
+		var nbPackage = Integer.divideUnsigned(lastBLock, bulkSize);
 
-		var result = IntStream.range(0, nbBulks).map(nbb -> (nbb * bulkSize)).boxed() // get nbBulks Integers with an
-																						// offset of bulkSize
-				.parallel() // parallelize the stream if needed
-				.map(i -> Constants.Defaults.NODE + "/blockchain/blocks/" + bulkSize + "/" + i) // build the url
+		var result = IntStream.range(0, nbPackage)// get nbPackage Integers
+				.map(nbb -> (nbb * bulkSize)).boxed() // with an offset of bulkSize
+				.sorted().parallel() // parallel stream if needed
+				.map(i -> peeringService.randomPeer() + "/blockchain/blocks/" + bulkSize + "/" + i) // build the url
 				.map(url -> fetchBlocks(url)) // Actually fetch the document containing a list of blocks
 				.map(list -> repository.saveAll(list)) // persist the collection
 				.flatMap(blocks -> blocks.stream()) // put stream as a single collection

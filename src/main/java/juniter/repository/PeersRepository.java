@@ -1,6 +1,7 @@
 package juniter.repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import javax.transaction.Transactional;
@@ -23,8 +24,7 @@ public interface PeersRepository extends JpaRepository<Peer, Long> {
 	
 	 @Transactional
 	default Peer saveOrCreate(Peer peer) {
-		return save(findByPubkey(peer.getPubkey())//
-					.stream().findFirst().orElse(peer));
+		return saveAndFlush(findByPubkey(peer.getPubkey()).orElse(peer));
 	};
 	
 	
@@ -32,7 +32,7 @@ public interface PeersRepository extends JpaRepository<Peer, Long> {
 	<S extends Peer> List<S> saveAll(Iterable<S> arg0);
 	
 
-	List<Peer> findByPubkey(String pubkey);
+	Optional<Peer> findByPubkey(String pubkey);
 	
 	List<Peer> findByPubkeyOrderByBlockDesc(String lastname);
 	

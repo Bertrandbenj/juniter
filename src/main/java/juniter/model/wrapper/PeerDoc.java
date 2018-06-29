@@ -15,6 +15,7 @@ public class PeerDoc  implements Serializable{
 	private List<Peer> peers ;
 	
 	public transient String url;
+	public transient long timeMillis;
 	
 	public PeerDoc() {
 		super();

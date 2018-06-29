@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -24,8 +25,9 @@ import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import utils.Constants;
-import utils.Validator;
+import juniter.model.enums.EndPointType;
+import juniter.utils.Constants;
+import juniter.utils.Validator;
 
 /**
  * ex : [ "BASIC_MERKLED_API metab.ucoin.io 88.174.120.187 9201" ]
@@ -33,7 +35,6 @@ import utils.Validator;
  * @author ben
  *
  */
-
 @Entity
 @Table(name = "endpoints", schema = "public")
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -55,6 +56,7 @@ public class EndPoint implements Serializable {
 	}
 
 	@Enumerated(EnumType.STRING)
+	@Column(length=32)
 	private EndPointType api;
 
 
@@ -105,15 +107,20 @@ public class EndPoint implements Serializable {
 	public String url() {
 		
 		String res = "";
-		if("443".equals(port))
+		if("443".equals(port) && !port.startsWith("https://"))
 			res+="https://";
 		
-		if(domain != null)
-			return res + domain ;
+		if(domain != null) {
+			res += domain ;
+		}else if(ip6 != null) {
+			res += "["+ ip6 +"]";
+		}else if(ip4 != null) {
+			res += ip4;
+		}
 		
 		if(!res.endsWith("/"))
 			res+="/";
-		logger.info("url: " +res);
+		logger.debug("url: " +res);
 		return res;
 	}
 	

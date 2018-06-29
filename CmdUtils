@@ -20,8 +20,9 @@ DROP TABLE public.block_joiner;
 DROP TABLE public.block_leavers;
 DROP TABLE public.block_revoked;
 DROP TABLE public.block_transaction;
+DROP TABLE public.block_identity;
 DROP TABLE public.block;
-
+DROP TABLE public.identity;
 
 DROP TABLE public.certification ;
 DROP TABLE public.endpoint_values;
@@ -33,12 +34,12 @@ DROP TABLE public.peer;
 
 DROP TABLE public.signature;
 
-DROP TABLE public.transaction_inputs;
+DROP TABLE public.tx_inputs;
 DROP TABLE public.transaction_outputs;
 --DROP TABLE public.transaction_pubkey;
 DROP TABLE public.transaction_signatures;
 DROP TABLE public.transaction_unlocks;
-DROP TABLE public.transaction_issuers;
+DROP TABLE public.tx_issuers;
 DROP TABLE public.transaction;
 DROP TABLE public.buid;
 DROP TABLE public.pubkey;

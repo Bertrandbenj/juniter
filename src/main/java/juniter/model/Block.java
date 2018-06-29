@@ -6,7 +6,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.persistence.AttributeOverride;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -16,12 +18,13 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import utils.Constants;
+import juniter.utils.Constants;
 
 @Entity
 @Table(name = "block", schema = "public")
@@ -40,55 +43,65 @@ public class Block implements Serializable {
 
 	private Integer number;
 
+	
 	private Integer powMin;
-	
-	@Temporal(TemporalType.TIMESTAMP)
+
+	@Temporal(TemporalType.TIME)
 	private Date time;
-	
+
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date medianTime;
-	
+
 	private Integer membersCount;
-	
+
 	private Long monetaryMass;
-	
+
 	private Integer unitbase;
-	
+
 	private Integer issuersCount;
-	
+
 	private Integer issuersFrame;
-	
+
 	private Integer issuersFrameVar;
-	
+
 	private String currency;
-	
+
 //	@OneToOne(cascade = CascadeType.ALL)
 //	@JoinColumn(name = "issuer", referencedColumnName= "pubkey")
-	
-	@Pattern(regexp=Constants.Regex.PUBKEY)  @Size(min=43, max=45)
-	private String issuer; 
-	
-	private Signature signature;// "DpVMlf6vaW0q+WVtcZlEs/XnDz6WtJfA448qypOqRbpi7voRqDaS9R/dG4COctxPg6sqXRbfQDieeDKU7IZWBA=="
 
-	@Pattern(regexp=Constants.Regex.HASH)
-	private String hash; 
+	// @Pattern(regexp=Constants.Regex.PUBKEY) @Size(min=43, max=45)
+	@AttributeOverride(name = "issuer", column = @Column(name = "issuer"))
+	@Valid private PubKey issuer;
 
-	private String parameters;// ""
-	
-	@Pattern(regexp=Constants.Regex.HASH)
+	@Pattern(regexp = Constants.Regex.SIGNATURE)
+	@Size(max = 88)
+	private String signature;//
+
+	@Pattern(regexp = Constants.Regex.HASH)
+	@Size(max = 64)
+	private String hash;
+
+	//@Pattern(regexp = Constants.Regex.EMPTY_STRING)
+	private String parameters;
+
+	@Pattern(regexp = Constants.Regex.HASH)
+	@Size(max = 64)
 	private String previousHash;
-	
+
 //	@OneToOne(cascade = CascadeType.ALL)
 //	@JoinColumn(name = "previousIssuer", referencedColumnName= "pubkey")
-	@Pattern(regexp=Constants.Regex.PUBKEY)  @Size(min=43, max=44)
-	private String previousIssuer;
-	
-	private String inner_hash;// "53521DF50E07EC71A8DCB618A65F4BACE4538846DC2D5B12CDD6307E2B667336"
-	
+	// @Pattern(regexp=Constants.Regex.PUBKEY) @Size(min=43, max=45)
+
+	@AttributeOverride(name = "pubkey", column = @Column(name = "previousissuer"))
+	@Valid private PubKey previousIssuer;
+
+	@Pattern(regexp = Constants.Regex.HASH)
+	@Size(max = 64)
+	private String inner_hash;
+
 	/**
-	 * Quantitative representation of the UD in cents 
-	 * <br>
-	 * ex : UD=1, g1=10.02, dividend=1002 
+	 * Quantitative representation of the daily UD in ḡ1 cents <br>
+	 * ex : UD=1, g1=10.02, dividend=1002
 	 */
 	private Integer dividend;// 1002
 
@@ -121,8 +134,7 @@ public class Block implements Serializable {
 	 */
 	public Block() {
 	}
-	
-	
+
 	public Long id() {
 		return id;
 	}
@@ -133,8 +145,6 @@ public class Block implements Serializable {
 	public String getHash() {
 		return hash;
 	}
-	
-	
 
 	/**
 	 * Format as follow Block [id=... , buid=... , hash=... , ... ]
@@ -143,15 +153,12 @@ public class Block implements Serializable {
 	 */
 	@Override
 	public String toString() {
-		return "Block [Version:" + version + ",Number:" + number + ",Currency:" + currency + "]";
-
-//		", pubkey=" + pubkey + ", uid=" + uid
-//		+ ", sig=" + sig + ", revocation_sig=" + revocation_sig + ", member=" + member + ", wasMember="
-//		+ wasMember + ", revoked=" + revoked + ", revoked_on=" + revoked_on
+		return "Block [" + version + ", " + number + ", " + currency +"]";
 	}
 
 	/**
-	 * Method returning block as  a Raw format
+	 * Method returning block as a Raw format
+	 * 
 	 * @return
 	 */
 	public String getRaw() {
@@ -254,14 +261,14 @@ public class Block implements Serializable {
 	 * @return the issuer's pubKey
 	 */
 	public String getIssuer() {
-		return issuer;
+		return issuer.getPubkey();
 	}
 
 	/**
 	 * @return the signature
 	 */
 	public String getSignature() {
-		return signature.getSignature();
+		return signature;
 	}
 
 	/**
@@ -284,7 +291,7 @@ public class Block implements Serializable {
 	 * @return the previousIssuer
 	 */
 	public String getPreviousIssuer() {
-		return previousIssuer;
+		return previousIssuer.getPubkey();
 	}
 
 	/**
@@ -389,9 +396,7 @@ public class Block implements Serializable {
 	 * @return the certifications
 	 */
 	public List<String> getCertifications() {
-		return certifications.stream().map(c->c.getCertif()).collect(Collectors.toList());
+		return certifications.stream().map(c -> c.getCertif()).collect(Collectors.toList());
 	}
-	
-
 
 }
