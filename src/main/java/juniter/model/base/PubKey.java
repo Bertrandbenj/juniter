@@ -7,11 +7,15 @@ import javax.persistence.Embeddable;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import juniter.utils.Constants;
 
 
 @Embeddable public class PubKey implements Serializable {
-	
+	private static final Logger logger = LogManager.getLogger();
+
 	private static final long serialVersionUID = -1179432682292981009L;
 
 	@Pattern(regexp=Constants.Regex.PUBKEY) @Size(min=43, max=45)
@@ -41,8 +45,11 @@ import juniter.utils.Constants;
 
 	@Override
 	public boolean equals(Object o) {
+		if (o instanceof String) {
+			return ((String)o).equals(pubkey);
+		}
 		if (o instanceof PubKey) {
-			((PubKey)o).pubkey.equals(pubkey);
+			return ((PubKey)o).pubkey.equals(pubkey);
 		}
 		return false;
 	}

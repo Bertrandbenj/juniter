@@ -42,12 +42,14 @@ public class Transaction implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
-
+	
+//	@JsonIgnoreProperties()
 	private Integer version;
 
 	@Pattern(regexp=Constants.Regex.G1)
 	private String currency;
 
+//	@JsonView(TxHistory.Summary.class)
 	private Integer locktime;
 
 	
@@ -194,11 +196,12 @@ public class Transaction implements Serializable {
 				+ signatures.stream().map(in -> in.getSignature()).collect(Collectors.joining("\n"));
 	}
 	
-	public boolean txSentBy(PubKey pubkey ) {
+	public boolean txSentBy(Object pubkey ) {
 		return issuers.stream().anyMatch(pk -> pk.equals(pubkey));
 	}
-	
-	public boolean txReceivedBy(PubKey pubkey ) {
+
+
+	public boolean txReceivedBy(Object pubkey) {
 		return issuers.stream().anyMatch(pk -> pk.equals(pubkey));
 	}
 }

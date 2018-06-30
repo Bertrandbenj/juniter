@@ -78,7 +78,7 @@ public class FileBlocksService {
 				blockRepo.save(_17500);
 				blockRepo.save(_33396);
 				blockRepo.save(_127128);
-				blockRepo.save(_102093);
+				blockRepo.findById(102093L).orElse(blockRepo.save(_102093));
 				blockRepo.save(_0);
 			}catch(Exception e) {
 				log.error("saving ", e);

@@ -6,6 +6,8 @@ import java.util.List;
 import juniter.model.tx.Transaction;
 
 public class TxHistory  implements Serializable {
+	
+	public interface Summary {}
 
 	private static final long serialVersionUID = -2101815236308787106L;
 	
@@ -14,9 +16,9 @@ public class TxHistory  implements Serializable {
 	private History history ;
 
 	
-	public TxHistory(String pk , List<Transaction> sent,List<Transaction> received) {
+	public TxHistory(String pk , List<Transaction> sent, List<Transaction> received, List<Transaction> receiving, List<Transaction> sending, List<Transaction> pending) {
 		super();
-		this.history = new History(sent, received);
+		this.history = new History(sent, received,receiving,sending,pending);
 		pubkey = pk;
 		
 	}
@@ -27,14 +29,21 @@ public class TxHistory  implements Serializable {
 		
 		private static final long serialVersionUID = -5257941146057808644L;
 		
-		private List<Transaction> sent ;
+		
+		private List<Transaction> sending ;
 		private List<Transaction> received ;
+		private List<Transaction> receiving ;		
+		private List<Transaction> sent ;
+		private List<Transaction> pending ;
 
 		
-		public History(List<Transaction> sent, List<Transaction> received) {
+		public History(List<Transaction> sent, List<Transaction> received, List<Transaction> receiving, List<Transaction> sending, List<Transaction> pending) {
 			super();
 			this.sent = sent;
 			this.received = received;
+			this.receiving = receiving;
+			this.sending = sending;
+			this.pending = pending;
 		}
 
 		public List<Transaction> getSent() {
@@ -43,6 +52,17 @@ public class TxHistory  implements Serializable {
 		
 		public List<Transaction> getReceived() {
 			return received;
+		}
+		public List<Transaction> getSending() {
+			return sending;
+		}
+
+		public List<Transaction> getReceiving() {
+			return receiving;
+		}
+
+		public List<Transaction> getPending() {
+			return pending;
 		}
 
 		
