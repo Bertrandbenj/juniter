@@ -1,4 +1,4 @@
-package juniter.model;
+package juniter.model.net;
 
 import java.io.Serializable;
 import java.util.ArrayList;

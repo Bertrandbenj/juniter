@@ -42,6 +42,7 @@ public interface Constants {
         String DOMAIN = "[a-zA-Z0-9-]{0,62}(?:\\\\.[a-z0-9][a-z0-9-]{0,62})+$"; 
         String DOMAIN2 = "^([a-zA-Z0-9][a-zA-Z0-9-]{0,62}\\.)+[A-Za-z0-9]{0,62}$";
         String WS2P_SMETHING = "[a-zA-Z0-9]{8}";
+        String G1 = "^g1$";
     }
 
     interface HttpStatus {

@@ -1,4 +1,4 @@
-package juniter.model.base;
+package juniter.model.tx;
 
 public enum TxType {
 	D("D"), // Dividend

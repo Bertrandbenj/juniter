@@ -1,4 +1,4 @@
-package juniter.model;
+package juniter.model.tx;
 
 import java.io.Serializable;
 
@@ -8,13 +8,14 @@ import javax.persistence.Embeddable;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.validation.Valid;
-import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import juniter.model.base.TxType;
-import juniter.utils.Constants;
+import juniter.model.base.Hash;
+import juniter.model.base.PubKey;
 
 //@JsonIgnoreProperties(ignoreUnknown = true)
 @Embeddable
@@ -24,10 +25,10 @@ public class TxInput implements Serializable {
 
 	private static final Logger logger = LogManager.getLogger();
 
-	// private String input;
-
+	@Min(1)
 	private Integer amount;
 
+	@Min(0) @Max(0)
 	private Integer base;
 
 	@Enumerated(EnumType.STRING)
@@ -40,8 +41,9 @@ public class TxInput implements Serializable {
 
 	private Integer dBlockID;
 
-	@Pattern(regexp = Constants.Regex.HASH)
-	private String tHash;
+	@Valid
+	@AttributeOverride(name = "hash", column = @Column(name = "thash"))
+	private Hash tHash = new Hash();
 
 	private Integer tIndex;
 
@@ -67,7 +69,7 @@ public class TxInput implements Serializable {
 		setType(TxType.valueOf(it[2]));
 
 		if (type.equals(TxType.T)) {
-			tHash = it[3];
+			tHash.setHash(it[3]);
 			tIndex = Integer.valueOf(it[4]);
 		}
 
@@ -98,7 +100,7 @@ public class TxInput implements Serializable {
 	}
 
 	public void settHash(String tHash) {
-		this.tHash = tHash;
+		this.tHash.setHash(tHash);
 	}
 
 	public void settIndex(Integer tIndex) {

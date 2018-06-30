@@ -1,4 +1,4 @@
-package juniter.model.wrapper;
+package juniter.model.net.wrappers;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import juniter.model.Peer;
+import juniter.model.net.Peer;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PeerDoc  implements Serializable{

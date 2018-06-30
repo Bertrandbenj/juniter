@@ -1,4 +1,4 @@
-package juniter.model.base;
+package juniter.model.net;
 
 public enum EndPointType {
 	BMAS("BMAS"), //

@@ -29,14 +29,14 @@ public class AppRunner implements CommandLineRunner {
 		long start = System.currentTimeMillis();
 
 		// Kick of multiple, asynchronous lookups
-		var peerDoc = CompletableFuture.runAsync(() -> contactPeers());
+		//var peerDoc = CompletableFuture.runAsync(() -> contactPeers());
 
 		// Wait until they are all done
-		CompletableFuture.allOf(peerDoc).join();
+		//CompletableFuture.allOf(peerDoc).join();
 
 		// Print results, including elapsed time
 		logger.info("Elapsed time: " + (System.currentTimeMillis() - start));
-		logger.info("--> " + peerDoc.get());
+		//logger.info("--> " + peerDoc.get());
 
 	}
 

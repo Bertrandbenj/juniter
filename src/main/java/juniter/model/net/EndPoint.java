@@ -1,4 +1,4 @@
-package juniter.model;
+package juniter.model.net;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -25,7 +25,6 @@ import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import juniter.model.base.EndPointType;
 import juniter.utils.Constants;
 import juniter.utils.Validator;
 

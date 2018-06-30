@@ -30,7 +30,7 @@ public interface BlockRepository extends JpaRepository<Block, Long> {
 	@Override
 	Optional<Block> findById(Long id);
 
-	Optional<Block> findByNumber(Integer number);
+	Optional<Block> findTop1ByNumber(Integer number);
 		
 	Stream<Block> findByNumberIn(List<Integer> number);
 
@@ -49,7 +49,7 @@ public interface BlockRepository extends JpaRepository<Block, Long> {
 	<S extends Block> S save(S block);
 
 	default <S extends Block> Block override(S block) {
-		var existingBlock = findByNumber(block.getNumber());
+		var existingBlock = findTop1ByNumber(block.getNumber());
 		var bl = existingBlock.orElse(block);
 		return save(bl);
 	};

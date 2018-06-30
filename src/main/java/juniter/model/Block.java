@@ -8,24 +8,56 @@ import java.util.stream.Collectors;
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import juniter.model.base.Hash;
+import juniter.model.base.PubKey;
+import juniter.model.base.Signature;
+import juniter.model.tx.Transaction;
+import juniter.model.wot.Active;
+import juniter.model.wot.Certification;
+import juniter.model.wot.Excluded;
+import juniter.model.wot.Identity;
+import juniter.model.wot.Joiner;
+import juniter.model.wot.Leaver;
+import juniter.model.wot.Revoked;
 import juniter.utils.Constants;
 
+/**
+ * The top / main class of the model is the Block class 
+ * 
+ * Here are some note regarding annotations : 
+ * <pre>
+ * 
+ * 	&#64;Valid  -> is useful to enforce recursive validation 
+ * 
+	&#64;AttributeOverride(name = "pubkey", column = @Column(name = "issuer"))  -> 
+	
+	private PubKey issuer = new PubKey(); -> the constructor at initialization is needed by the json parser
+ * 
+ * </pre>
+ * 
+ * 
+ * @author ben
+ *
+ */
 @Entity
 @Table(name = "block", schema = "public")
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -43,7 +75,6 @@ public class Block implements Serializable {
 
 	private Integer number;
 
-	
 	private Integer powMin;
 
 	@Temporal(TemporalType.TIME)
@@ -56,77 +87,89 @@ public class Block implements Serializable {
 
 	private Long monetaryMass;
 
+	@Min(0) @Max(0)
 	private Integer unitbase;
 
+	
 	private Integer issuersCount;
 
 	private Integer issuersFrame;
 
 	private Integer issuersFrameVar;
 
+	@Pattern(regexp = Constants.Regex.G1)
 	private String currency;
 
-//	@OneToOne(cascade = CascadeType.ALL)
-//	@JoinColumn(name = "issuer", referencedColumnName= "pubkey")
-
-	// @Pattern(regexp=Constants.Regex.PUBKEY) @Size(min=43, max=45)
+	@Valid
 	@AttributeOverride(name = "pubkey", column = @Column(name = "issuer"))
-	@Valid private PubKey issuer;
+	private PubKey issuer = new PubKey();
 
-	@Pattern(regexp = Constants.Regex.SIGNATURE)
-	@Size(max = 88)
-	private String signature;//
+	@Valid
+	@AttributeOverride(name = "signature", column = @Column(name = "signature"))
+	private Signature signature = new Signature();
 
-	@Pattern(regexp = Constants.Regex.HASH)
-	@Size(max = 64)
-	private String hash;
+	@Valid
+	@AttributeOverride(name = "hash", column = @Column(name = "block_hash"))
+	private Hash hash = new Hash();
 
-	//@Pattern(regexp = Constants.Regex.EMPTY_STRING)
+	// @Pattern(regexp = Constants.Regex.EMPTY_STRING)
 	private String parameters;
 
-	@Pattern(regexp = Constants.Regex.HASH)
-	@Size(max = 64)
-	private String previousHash;
+	@Valid
+	@AttributeOverride(name = "hash", column = @Column(name = "previous_hash"))
+	private Hash previousHash = new Hash();
 
-//	@OneToOne(cascade = CascadeType.ALL)
-//	@JoinColumn(name = "previousIssuer", referencedColumnName= "pubkey")
-	// @Pattern(regexp=Constants.Regex.PUBKEY) @Size(min=43, max=45)
+	@Valid
+	@AttributeOverride(name = "pubkey", column = @Column(name = "previous_issuer"))
+	private PubKey previousIssuer = new PubKey();
 
-	@AttributeOverride(name = "pubkey", column = @Column(name = "previousissuer"))
-	@Valid private PubKey previousIssuer;
-
-	@Pattern(regexp = Constants.Regex.HASH)
-	@Size(max = 64)
-	private String inner_hash;
+	@Valid
+	@AttributeOverride(name = "hash", column = @Column(name = "inner_hash"))
+	private Hash inner_hash = new Hash();
 
 	/**
 	 * Quantitative representation of the daily UD in ḡ1 cents <br>
 	 * ex : UD=1, g1=10.02, dividend=1002
 	 */
-	private Integer dividend;// 1002
+	private Integer dividend;
 
-	@OneToMany(cascade = { CascadeType.ALL })
+	@Valid
+	@ElementCollection
+	@CollectionTable(name = "wot_identities", joinColumns = @JoinColumn(name = "container_block"))
 	private List<Identity> identities = new ArrayList<Identity>();
 
-	@OneToMany(cascade = { CascadeType.ALL })
+	@Valid
+	@ElementCollection
+	@CollectionTable(name = "wot_joiners", joinColumns = @JoinColumn(name = "container_block"))
 	private List<Joiner> joiners = new ArrayList<Joiner>();
 
+	@Valid
 	@ElementCollection
-	private List<String> actives = new ArrayList<String>();
+	@CollectionTable(name = "wot_actives", joinColumns = @JoinColumn(name = "container_block"))
+	private List<Active> actives = new ArrayList<Active>();
 
+	@Valid
 	@ElementCollection
-	private List<String> leavers = new ArrayList<String>();
+	@CollectionTable(name = "wot_leavers", joinColumns = @JoinColumn(name = "container_block"))
+	private List<Leaver> leavers = new ArrayList<Leaver>();
 
+	@Valid
 	@ElementCollection
-	private List<String> revoked = new ArrayList<String>();
+	@CollectionTable(name = "wot_revoked", joinColumns = @JoinColumn(name = "container_block"))
+	private List<Revoked> revoked = new ArrayList<Revoked>();
 
+	@Valid
 	@ElementCollection
-	private List<String> excluded = new ArrayList<String>();
+	@CollectionTable(name = "wot_excluded", joinColumns = @JoinColumn(name = "container_block"))
+	private List<Excluded> excluded = new ArrayList<Excluded>();
 
-	@OneToMany(cascade = { CascadeType.ALL })
+	@Valid
+	@ElementCollection
+	@CollectionTable(name = "wot_certs", joinColumns = @JoinColumn(name = "container_block"))
 	private List<Certification> certifications = new ArrayList<Certification>();
 
-	@OneToMany(cascade = { CascadeType.ALL })
+	@Valid
+	@OneToMany(cascade = CascadeType.ALL)
 	private List<Transaction> transactions = new ArrayList<Transaction>();
 
 	/**
@@ -143,7 +186,7 @@ public class Block implements Serializable {
 	 * @return the hash
 	 */
 	public String getHash() {
-		return hash;
+		return hash.getHash();
 	}
 
 	/**
@@ -153,7 +196,7 @@ public class Block implements Serializable {
 	 */
 	@Override
 	public String toString() {
-		return "Block [" + version + ", " + number + ", " + currency +"]";
+		return "Block [" + version + ", " + number + ", " + currency + "]";
 	}
 
 	/**
@@ -170,10 +213,14 @@ public class Block implements Serializable {
 				+ identities.stream().map(Identity::toRaw).collect(Collectors.joining("\n"))
 				+ (identities.size() > 0 ? "\n" : "") + "Joiners:\n"
 				+ joiners.stream().map(Joiner::toRaw).collect(Collectors.joining("\n"))
-				+ (joiners.size() > 0 ? "\n" : "") + "Actives:\n" + actives.stream().collect(Collectors.joining("\n"))
-				+ (actives.size() > 0 ? "\n" : "") + "Leavers:\n" + leavers.stream().collect(Collectors.joining("\n"))
-				+ (leavers.size() > 0 ? "\n" : "") + "Revoked:\n" + revoked.stream().collect(Collectors.joining("\n"))
-				+ (revoked.size() > 0 ? "\n" : "") + "Excluded:\n" + excluded.stream().collect(Collectors.joining("\n"))
+				+ (joiners.size() > 0 ? "\n" : "") + "Actives:\n"
+				+ actives.stream().map(Active::toRaw).collect(Collectors.joining("\n"))
+				+ (actives.size() > 0 ? "\n" : "") + "Leavers:\n"
+				+ leavers.stream().map(Leaver::toRaw).collect(Collectors.joining("\n"))
+				+ (leavers.size() > 0 ? "\n" : "") + "Revoked:\n"
+				+ revoked.stream().map(Revoked::toRaw).collect(Collectors.joining("\n"))
+				+ (revoked.size() > 0 ? "\n" : "") + "Excluded:\n"
+				+ excluded.stream().map(Excluded::toRaw).collect(Collectors.joining("\n"))
 				+ (excluded.size() > 0 ? "\n" : "") + "Certifications:\n"
 				+ certifications.stream().map(Certification::toRaw).collect(Collectors.joining("\n"))
 				+ (certifications.size() > 0 ? "\n" : "") + "Transactions:\n"
@@ -268,7 +315,7 @@ public class Block implements Serializable {
 	 * @return the signature
 	 */
 	public String getSignature() {
-		return signature;
+		return signature.getSignature();
 	}
 
 	/**
@@ -279,22 +326,26 @@ public class Block implements Serializable {
 	}
 
 	/**
+	 * The only occasion previousBlock may be Null is if we are dealing with the first block 
+	 * then Here we hack the getter to avoid Nesting the Json struct
 	 * @return the previousHash
 	 */
 	public String getPreviousHash() {
-		return previousHash;
+		if(number==0) //  
+			return null;
+		return previousHash.getHash();
 	}
 
 	/**
-	 * Here we hack the getter to avoid Nesting the Json struct
+	 * The only occasion previousBlock may be Null is if we are dealing with the first block 
+
+	 * then Here we hack the getter to avoid Nesting the Json struct
 	 * 
 	 * @return the previousIssuer
 	 */
 	public String getPreviousIssuer() {
-		if(previousIssuer == null)
-			return "";
-		if(previousIssuer.getPubkey() == null)
-			return "";
+		if (number==0)
+			return null;
 		return previousIssuer.getPubkey();
 	}
 
@@ -302,7 +353,7 @@ public class Block implements Serializable {
 	 * @return the inner_hash
 	 */
 	public String getInner_hash() {
-		return inner_hash;
+		return inner_hash.getHash();
 	}
 
 	/**
@@ -358,42 +409,42 @@ public class Block implements Serializable {
 	 * @return the identities
 	 */
 	public List<String> getIdentities() {
-		return identities.stream().map(id-> id.getIdentity()).collect(Collectors.toList());
+		return identities.stream().map(id -> id.getIdentity()).collect(Collectors.toList());
 	}
 
 	/**
 	 * @return the joiners
 	 */
 	public List<String> getJoiners() {
-		return joiners.stream().map(id-> id.getJoiner()).collect(Collectors.toList());
+		return joiners.stream().map(Joiner::toString).collect(Collectors.toList());
 	}
 
 	/**
 	 * @return the active
 	 */
 	public List<String> getActives() {
-		return actives;
+		return actives.stream().map(Active::toString).collect(Collectors.toList());
 	}
 
 	/**
 	 * @return the leavers
 	 */
 	public List<String> getLeavers() {
-		return leavers;
+		return leavers.stream().map(Leaver::toString).collect(Collectors.toList());
 	}
 
 	/**
 	 * @return the revoked
 	 */
 	public List<String> getRevoked() {
-		return revoked;
+		return revoked.stream().map(Revoked::toString).collect(Collectors.toList());
 	}
 
 	/**
 	 * @return the excluded
 	 */
 	public List<String> getExcluded() {
-		return excluded;
+		return excluded.stream().map(Excluded::toString).collect(Collectors.toList());
 	}
 
 	/**

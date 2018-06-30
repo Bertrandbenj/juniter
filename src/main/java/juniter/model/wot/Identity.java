@@ -1,46 +1,43 @@
-package juniter.model;
+package juniter.model.wot;
 
 import java.io.Serializable;
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.Embeddable;
 import javax.validation.Valid;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import juniter.model.base.Buid;
+import juniter.model.base.PubKey;
+import juniter.model.base.Signature;
+
 /**
- * 	 pubkey : signature : buid : pseudo;
+ * 	 pubkey : signature : buid : buid : pseudo;
 
  * @author ben
  *
  */
-@Entity
-@Table(name = "identity", schema = "public")
+@Embeddable
 public class Identity implements Serializable {
 	private static final Logger logger = LogManager.getLogger();
 
 	private static final long serialVersionUID = -9160916061297193207L;
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
 
-	@Column(name="identity_", nullable=true, length = 350 )
-	private String identitiy;
-	
+	@Valid 
 	@AttributeOverride(name = "pubkey", column = @Column(name = "newidentity"))
-	@Valid private PubKey newidentity= new PubKey();
+	private PubKey newidentity = new PubKey();
 	
+	@Valid 
+	@AttributeOverride(name = "signature", column = @Column(name = "signature"))
+	private Signature signature = new Signature();
 	
-	private String signature; 
-	
-	@Valid private Buid buid = new Buid();
+	@Valid 
+	@AttributeOverride(name = "buid", column = @Column(name = "buid"))
+	private Buid buid = new Buid();
 	
 	private String pseudo;
 	
@@ -55,28 +52,25 @@ public class Identity implements Serializable {
 	}
 
 	public String getIdentity() {
-		return newidentity+":"+signature+":"+buid.getBuid()+":"+pseudo;
+		return newidentity+":"+signature+":"+buid+":"+pseudo;
 	}
 
 	public void setIdentity(String identity) {
 		logger.debug("Parsing Identity... "+identity);
 		var vals = identity.split(":");
 		newidentity.setPubkey(vals[0]);
-		setSignature(vals[1]);
+		signature.setSignature(vals[1]);
 		buid.setBuid(vals[2]);
-		setPseudo(vals[3]);
-		this.identitiy = identity;
+		pseudo = vals[3];
 	}
 
 	public String toRaw() {
-		return identitiy;
+		return getIdentity();
+	}
+	
+	public String toSring() {
+		return getIdentity();
 	}
 
-	public void setSignature(String signature) {
-		this.signature = signature;
-	}
-
-	public void setPseudo(String pseudo) {
-		this.pseudo = pseudo;
-	}
+	
 }

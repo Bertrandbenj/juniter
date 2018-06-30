@@ -1,11 +1,13 @@
-package juniter.model;
+package juniter.model.tx;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.persistence.AttributeOverride;
 import javax.persistence.CollectionTable;
+import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -22,6 +24,10 @@ import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import juniter.model.base.Buid;
+import juniter.model.base.Hash;
+import juniter.model.base.PubKey;
+import juniter.model.base.Signature;
 import juniter.utils.Constants;
 
 @Entity
@@ -39,44 +45,51 @@ public class Transaction implements Serializable {
 
 	private Integer version;
 
+	@Pattern(regexp=Constants.Regex.G1)
 	private String currency;
 
 	private Integer locktime;
 
-	@Pattern(regexp = Constants.Regex.HASH)
-	@Size(max = 64)
-	private String hash;
+	
+	@Valid
+	@AttributeOverride(name = "hash", column = @Column(name = "tx_hash"))
+	private Hash hash = new Hash();
 
-	private String blockstamp;
+	@Valid 
+	@AttributeOverride(name = "buid", column = @Column(name = "blockstamp"))
+	private Buid blockstamp = new Buid();
+
 
 	private Integer blockstampTime;
 
-//	@AttributeOverrides({
-//    @AttributeOverride(name="issuers", column=@Column(name="pubkey.pubkey",nullable=false)),
-//})
-	@ElementCollection
-	@Valid
-	@CollectionTable(name = "tx_issuers", joinColumns = @JoinColumn(name = "tx_id"))
-	private List<PubKey> issuers = new ArrayList<PubKey>();
 
+	@Valid 
 	@ElementCollection
+	@CollectionTable(name = "tx_issuers", joinColumns = @JoinColumn(name = "tx_id"))
+	private List<PubKey> issuers = new ArrayList<PubKey>(); //
+
+	
 	@Valid
+	@ElementCollection
 	@CollectionTable(name = "tx_inputs", joinColumns = @JoinColumn(name = "tx_id"))
 	private List<TxInput> inputs = new ArrayList<TxInput>();
 
+	@Valid
 	@ElementCollection
 	@CollectionTable(name = "tx_outputs", joinColumns = @JoinColumn(name = "tx_id"))
-	@Valid private List<TxOutput> outputs = new ArrayList<TxOutput>();
+	private List<TxOutput> outputs = new ArrayList<TxOutput>();
 
+	@Valid
 	@ElementCollection
 	@CollectionTable(name = "tx_unlocks", joinColumns = @JoinColumn(name = "tx_id"))
-	@Valid private List<TxUnlock> unlocks = new ArrayList<TxUnlock>();
+	private List<TxUnlock> unlocks = new ArrayList<TxUnlock>();
 
+	@Valid
 	@ElementCollection
 	@CollectionTable(name = "tx_signatures", joinColumns = @JoinColumn(name = "tx_id"))
-	private List<String> signatures = new ArrayList<String>();
+	private List<Signature> signatures = new ArrayList<Signature>();
 
-	@Size(max=255)
+	@Size(max = 255)
 	private String comment;
 
 	/**
@@ -104,14 +117,14 @@ public class Transaction implements Serializable {
 	 * @return the hash
 	 */
 	public String getHash() {
-		return hash;
+		return hash.getHash(); 
 	}
 
 	/**
 	 * @return the blockstamp
 	 */
 	public String getBlockstamp() {
-		return blockstamp;
+		return blockstamp.getBuid();
 	}
 
 	/**
@@ -125,35 +138,39 @@ public class Transaction implements Serializable {
 	 * @return the issuers
 	 */
 	public List<String> getIssuers() {
-		return issuers.stream().map(is -> is.getPubkey()).collect(Collectors.toList());
+		return issuers.stream().map(PubKey::getPubkey).collect(Collectors.toList());
 	}
 
+	public List<TxInput> inputs() {
+		return inputs;
+	}
+	
 	/**
 	 * @return the inputs
 	 */
 	public List<String> getInputs() {
-		return inputs.stream().map(i->i.getInput()).collect(Collectors.toList());
+		return inputs.stream().map(TxInput::getInput).collect(Collectors.toList());
 	}
 
 	/**
 	 * @return the outputs
 	 */
 	public List<String> getOutputs() {
-		return outputs.stream().map(i->i.getOutput()).collect(Collectors.toList());
+		return outputs.stream().map(TxOutput::getOutput).collect(Collectors.toList());
 	}
 
 	/**
 	 * @return the unlocks
 	 */
 	public List<String> getUnlocks() {
-		return unlocks.stream().map(i->i.getUnlock()).collect(Collectors.toList());
+		return unlocks.stream().map(TxUnlock::getUnlock).collect(Collectors.toList());
 	}
 
 	/**
 	 * @return the signatures
 	 */
 	public List<String> getSignatures() {
-		return signatures;
+		return signatures.stream().map(Signature::toString).collect(Collectors.toList());
 	}
 
 	/**
@@ -171,9 +188,17 @@ public class Transaction implements Serializable {
 		return "TX:" + version + ":" + issuers.size() + ":" + inputs.size() + ":" + unlocks.size() + ":"
 				+ outputs.size() + ":" + locktime + ":" + blockstampTime + "\n" + blockstamp + "\n"
 				+ issuers.stream().map(i -> i.getPubkey()).collect(Collectors.joining("\n")) + "\n"
-				+ inputs.stream().map(in -> in.getInput()).collect(Collectors.joining("\n")) + "\n" // 
+				+ inputs.stream().map(in -> in.getInput()).collect(Collectors.joining("\n")) + "\n" //
 				+ unlocks.stream().map(in -> in.getUnlock()).collect(Collectors.joining("\n")) + "\n"
 				+ outputs.stream().map(in -> in.getOutput()).collect(Collectors.joining("\n")) + "\n"
-				+ signatures.stream().collect(Collectors.joining("\n"));
+				+ signatures.stream().map(in -> in.getSignature()).collect(Collectors.joining("\n"));
+	}
+	
+	public boolean txSentBy(PubKey pubkey ) {
+		return issuers.stream().anyMatch(pk -> pk.equals(pubkey));
+	}
+	
+	public boolean txReceivedBy(PubKey pubkey ) {
+		return issuers.stream().anyMatch(pk -> pk.equals(pubkey));
 	}
 }

@@ -1,4 +1,4 @@
-package juniter.model;
+package juniter.model.base;
 
 import java.io.Serializable;
 
@@ -15,7 +15,7 @@ import juniter.utils.Constants;
 	private static final long serialVersionUID = -1179432682292981009L;
 
 	@Pattern(regexp=Constants.Regex.PUBKEY) @Size(min=43, max=45)
-	@Column(columnDefinition="character varying(45)", length=45)
+	@Column(length=45)
 	private String pubkey;
 
 	public PubKey() {
@@ -39,4 +39,11 @@ import juniter.utils.Constants;
 		return this.getPubkey();
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof PubKey) {
+			((PubKey)o).pubkey.equals(pubkey);
+		}
+		return false;
+	}
 }

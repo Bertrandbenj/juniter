@@ -22,8 +22,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import juniter.model.Peer;
-import juniter.model.wrapper.PeerDoc;
+import juniter.model.net.Peer;
+import juniter.model.net.wrappers.PeerDoc;
 import juniter.repository.EndPointsRepository;
 import juniter.repository.PeersRepository;
 import juniter.utils.Constants;

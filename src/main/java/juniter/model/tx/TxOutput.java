@@ -1,4 +1,4 @@
-package juniter.model;
+package juniter.model.tx;
 
 import java.io.Serializable;
 

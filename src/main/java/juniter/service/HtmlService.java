@@ -23,6 +23,13 @@ public class HtmlService {
 		return "home";
 	}
 
-	
+	@RequestMapping(value = "/tx",  method = RequestMethod.GET)
+	public String tx(Map<String, Object> model) {
+		logger.info("Entering /html/ ...");
+		model.put("time", new Date());
+		model.put("message", "Welcome");
+		model.put("title", "Welcome");
+		return "huhu";
+	}
 
 }

@@ -9,8 +9,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import juniter.model.EndPoint;
-import juniter.model.Peer;
+import juniter.model.net.EndPoint;
+import juniter.model.net.Peer;
 
 @Repository
 public interface EndPointsRepository extends JpaRepository<EndPoint, Long> {

@@ -1,4 +1,4 @@
-package juniter.model.wrapper;
+package juniter.model.net.wrappers;
 
 import java.io.Serializable;
 import java.util.ArrayList;

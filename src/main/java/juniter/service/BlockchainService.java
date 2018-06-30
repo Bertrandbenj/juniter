@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import juniter.model.Block;
-import juniter.model.wrapper.WithWrapper;
+import juniter.model.net.wrappers.WithWrapper;
 import juniter.repository.BlockRepository;
 import juniter.utils.Constants;
 
@@ -78,7 +78,7 @@ public class BlockchainService {
 	public Block block(@PathVariable("id") Integer id) {
 
 		logger.info("Entering /blockchain/block/{number=" + id + "}");
-		return repository.findByNumber(id).orElseGet(() -> fetchAndSaveBlock(id));
+		return repository.findTop1ByNumber(id).orElseGet(() -> fetchAndSaveBlock(id));
 	}
 
 	@Transactional
@@ -203,7 +203,7 @@ public class BlockchainService {
 		try {
 			TimeUnit.MILLISECONDS.sleep(10);
 			block = restTemplate.getForObject(url, Block.class);
-			block = repository.findByNumber(block.getNumber()).orElse(block);
+			block = repository.findTop1ByNumber(block.getNumber()).orElse(block);
 			block = repository.save(block);
 
 			logger.info("... saved block : " + block);

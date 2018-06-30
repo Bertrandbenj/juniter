@@ -6,11 +6,13 @@ import javax.annotation.PostConstruct;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import juniter.model.Block;
+import juniter.repository.BlockRepository;
 
 @Service
 public class FileBlocksService {
@@ -20,7 +22,7 @@ public class FileBlocksService {
 	/**
 	 * joiners/identity/certification & parameters
 	 */
-	Block _0;
+	Block _0, _1437;
 
 	/**
 	 * transactions
@@ -41,6 +43,9 @@ public class FileBlocksService {
 	 * revoked/excluded
 	 */
 	Block _33396;
+	
+	@Autowired
+	BlockRepository blockRepo ;
 
 	@PostConstruct
 	public void init() throws IOException {
@@ -53,6 +58,9 @@ public class FileBlocksService {
 			_0 = jsonMapper.readValue(cl.getResourceAsStream("blocks/0.json"), Block.class);
 			log.info("Sucessfully parsed " + _0 + "\tfrom" + cl.getResource("blocks/0.json"));
 
+			_1437 = jsonMapper.readValue(cl.getResourceAsStream("blocks/1437.json"), Block.class);
+			log.info("Sucessfully parsed " + _1437 + "\tfrom " + cl.getResource("blocks/1437.json"));
+			
 			_127128 = jsonMapper.readValue(cl.getResourceAsStream("blocks/127128.json"), Block.class);
 			log.info("Sucessfully parsed " + _127128 + "\tfrom " + cl.getResource("blocks/127128.json"));
 
@@ -65,9 +73,23 @@ public class FileBlocksService {
 			_33396 = jsonMapper.readValue(cl.getResourceAsStream("blocks/33396.json"), Block.class);
 			log.info("Sucessfully parsed " + _33396 + "\tfrom " + cl.getResource("blocks/33396.json"));
 
+			
+			try {
+				blockRepo.save(_17500);
+				blockRepo.save(_33396);
+				blockRepo.save(_127128);
+				blockRepo.save(_102093);
+				blockRepo.save(_0);
+			}catch(Exception e) {
+				log.error("saving ", e);
+			}
+			
 		} catch (Exception e) {
 			log.error("Starting FileBlocksService ... " + e);
 		}
+		
+		
+		
 		log.info("Finished Initializing " + this.getClass().getName());
 	}
 
