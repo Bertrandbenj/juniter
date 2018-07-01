@@ -15,8 +15,8 @@ import juniter.model.base.PubKey;
 import juniter.model.base.Signature;
 
 /**
- * 	 pubkey : signature : buid : buid : pseudo;
-
+ * Pubkey : signature : buid : buid : pseudo;
+ * 
  * @author ben
  *
  */
@@ -40,7 +40,6 @@ public class Identity implements Serializable {
 	private Buid buid = new Buid();
 	
 	private String pseudo;
-	
 	
 
 	public Identity() {

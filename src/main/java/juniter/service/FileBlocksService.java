@@ -75,11 +75,11 @@ public class FileBlocksService {
 
 			
 			try {
-				blockRepo.save(_17500);
-				blockRepo.save(_33396);
-				blockRepo.save(_127128);
-				blockRepo.findById(102093L).orElse(blockRepo.save(_102093));
-				blockRepo.save(_0);
+				blockRepo.findTop1ByNumber(17500).orElseGet(()->blockRepo.save(_17500));
+				blockRepo.findTop1ByNumber(33396).orElseGet(()->blockRepo.save(_33396));
+				blockRepo.findTop1ByNumber(127128).orElseGet(()->blockRepo.save(_127128));
+				blockRepo.findTop1ByNumber(102093).orElseGet(()->blockRepo.save(_102093));
+				blockRepo.findTop1ByNumber(0).orElseGet(()->blockRepo.save(_0));
 			}catch(Exception e) {
 				log.error("saving ", e);
 			}

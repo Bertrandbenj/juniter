@@ -1,12 +1,39 @@
 package juniter.service;
 
-import org.springframework.web.reactive.socket.WebSocketHandler;
-import org.springframework.web.reactive.socket.WebSocketSession;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.util.HtmlUtils;
 
-public class WS2PHandler implements WebSocketHandler {
+import juniter.model.net.Greeting;
+import juniter.model.net.HelloMessage;
 
-    @Override
-    public Mono<Void> handle(WebSocketSession session) {
-        // ...
+/**
+ * read https://spring.io/guides/gs/messaging-stomp-websocket/
+ * 
+ * 
+ * @author ben
+ *
+ */
+@Controller
+public class WS2PHandler {
+	
+	
+	private static final Logger logger = LogManager.getLogger();
+
+
+    @MessageMapping("/hello")
+    @SendTo("/topic/greetings")
+    public Greeting greeting(HelloMessage message) throws Exception {
+    	
+    	 logger.info("Entering /hello... ");
+    	
+        Thread.sleep(1000); // simulated delay
+       
+        
+        return new Greeting("Hello, " + HtmlUtils.htmlEscape(message.getName()) + "!");
     }
+
 }
