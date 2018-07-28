@@ -37,6 +37,11 @@
 	<dependencies>
 
 		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+		</dependency>
+		
+		<dependency>
 			<groupId>org.duniter</groupId>
 			<artifactId>duniter4j-core-client</artifactId>
 			<version>${duniter4j.version}</version>
@@ -47,6 +52,12 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
+
+		<!-- <dependency> -->
+		<!-- <groupId>org.springframework.boot</groupId> -->
+		<!-- <artifactId>spring-boot-devtools</artifactId> -->
+		<!-- </dependency> -->
+
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -174,14 +185,14 @@
 
 
 
-	<!-- WEBSOCKET -->
+		<!-- WEBSOCKET -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-websocket</artifactId>
 		</dependency>
 
 
-		<!-- Javascript  imported from maven, is it really so smart ?-->
+		<!-- Javascript imported from maven, is it really so smart ? -->
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>webjars-locator-core</artifactId>

@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import juniter.model.Block;
+
 public class Validator {
 
 	public static Pattern VALID_IPV4_PATTERN = Pattern.compile(Constants.Regex.IP4, Pattern.CASE_INSENSITIVE);
@@ -100,4 +102,19 @@ public class Validator {
 		return true;
 	}
 
+	/**
+	 *   return crypto
+	    .createHash("sha256")
+	    .update(str)
+	    .digest("hex")
+	    .toUpperCase()
+	 * @param b
+	 * @return
+	 */
+	public static String hash(Block b) {
+		var res = "";
+		String sha256hex = DigestUtils.sha1Hex(b.getRaw());
+		return res;
+	}
+	
 }

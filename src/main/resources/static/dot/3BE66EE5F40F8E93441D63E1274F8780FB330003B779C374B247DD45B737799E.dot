@@ -1,0 +1,78 @@
+digraph{
+	graph [rankdir=LR];
+	info [labeljust=l, shape=folder, label="blockstamp: 127126-...E599EC3\lCur: g1\lhash: 3BE66EE...737799E\llocktime: 0\l", URL="/graphviz/svg/block/127126"];
+	good [label="Product/Service\n"];
+	sum [label="sum"];
+	rank = same; good; sum;
+
+	subgraph cluster_inputs{
+		label="Inputs";
+		color=blue;
+		labelloc=t;
+		input457658053 [label="UD", URL="/graphviz/svg/block/113274", shape=circle, color=yellow, style=filled];
+		input789315063 [label="UD", URL="/graphviz/svg/block/113558", shape=circle, color=yellow, style=filled];
+		input1815056632 [label="UD", URL="/graphviz/svg/block/113820", shape=circle, color=yellow, style=filled];
+		input405429262 [label="UD", URL="/graphviz/svg/block/114082", shape=circle, color=yellow, style=filled];
+		input960104616 [label="UD", URL="/graphviz/svg/block/114358", shape=circle, color=yellow, style=filled];
+		input1236184637 [label="UD", URL="/graphviz/svg/block/114634", shape=circle, color=yellow, style=filled];
+		input1494638496 [label="UD", URL="/graphviz/svg/block/114906", shape=circle, color=yellow, style=filled];
+		input328643232 [label="UD", URL="/graphviz/svg/block/115185", shape=circle, color=yellow, style=filled];
+	}
+
+	subgraph cluster_unlocks{
+		label="Unlocks";
+		color=blue;
+		labelloc=t;
+		dbu [label="useful\nfor\nstate\nmachine", shape=cylinder];
+		unlock1971398345 [label="unlock\nSIG(0)", shape=diamond];
+		input457658053 -> unlock1971398345 ;
+		unlock733252153 [label="unlock\nSIG(0)", shape=diamond];
+		input789315063 -> unlock733252153 ;
+		unlock453961880 [label="unlock\nSIG(0)", shape=diamond];
+		input1815056632 -> unlock453961880 ;
+		unlock541018180 [label="unlock\nSIG(0)", shape=diamond];
+		input405429262 -> unlock541018180 ;
+		unlock1559533028 [label="unlock\nSIG(0)", shape=diamond];
+		input960104616 -> unlock1559533028 ;
+		unlock1394489601 [label="unlock\nSIG(0)", shape=diamond];
+		input1236184637 -> unlock1394489601 ;
+		unlock1069044178 [label="unlock\nSIG(0)", shape=diamond];
+		input1494638496 -> unlock1069044178 ;
+		unlock1696551689 [label="unlock\nSIG(0)", shape=diamond];
+		input328643232 -> unlock1696551689 ;
+	}
+
+		unlock1971398345 -> sum ;
+		unlock733252153 -> sum ;
+		unlock453961880 -> sum ;
+		unlock541018180 -> sum ;
+		unlock1559533028 -> sum ;
+		unlock1394489601 -> sum ;
+		unlock1069044178 -> sum ;
+		unlock1696551689 -> sum ;
+
+	subgraph cluster_outputs{
+		label="Outputs";
+		color=blue;
+		labelloc=t;
+		dbo [label="useful\nfor\nstate\nmachine", shape=cylinder];
+		lockOut1115927958 [label="lockOut\nSIG(DsE...tK7ech)", shape=diamond];
+		lockOut1570447828 [label="lockOut\nSIG(3c8...XRdnu1)", shape=diamond];
+	}
+		amountOut1115927958 [label="7200", shape=signature];
+		sum -> lockOut1115927958 [label="SIG",weight=10];
+		_destDsEx1pS33vzYZg4MroyBV9hCw98j1gtHEhwiZ5tK7ech [label="DsEx1pS...5tK7ech", weight=0];
+		amountOut1115927958 -> _destDsEx1pS33vzYZg4MroyBV9hCw98j1gtHEhwiZ5tK7ech [weight=0];
+		_destDsEx1pS33vzYZg4MroyBV9hCw98j1gtHEhwiZ5tK7ech -> good [label="sell", weight=0];
+		lockOut1115927958 -> amountOut1115927958;
+		amountOut1570447828 [label="816", shape=signature];
+		sum -> lockOut1570447828 [label="SIG",weight=10];
+		_dest3c8JyzfYQJbYJNbvHDfqMJhnUcM4sGxjcJvnehXRdnu1 [label="3c8Jyzf...hXRdnu1", weight=0];
+		amountOut1570447828 -> _dest3c8JyzfYQJbYJNbvHDfqMJhnUcM4sGxjcJvnehXRdnu1 [weight=0];
+		_3c8JyzfYQJbYJNbvHDfqMJhnUcM4sGxjcJvnehXRdnu1 -> _dest3c8JyzfYQJbYJNbvHDfqMJhnUcM4sGxjcJvnehXRdnu1 [weight=0, dir=back, label="the rest"];
+		lockOut1570447828 -> amountOut1570447828;
+	_3c8JyzfYQJbYJNbvHDfqMJhnUcM4sGxjcJvnehXRdnu1 [label="issuer\n3c8Jyzf...hXRdnu1"];
+	_3c8JyzfYQJbYJNbvHDfqMJhnUcM4sGxjcJvnehXRdnu1 -> unlock1971398345 [weight=0];
+	_3c8JyzfYQJbYJNbvHDfqMJhnUcM4sGxjcJvnehXRdnu1 -> good [label="buy", weight=0];
+
+}

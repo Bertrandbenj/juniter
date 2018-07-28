@@ -37,7 +37,7 @@ public class BlockRepositoryTest {
         entityManager.flush();
      
         // when
-        Block found = blockRepository.findByNumber(3).get();
+        Block found = blockRepository.findTop1ByNumber(3).get();
      
         // then
         assertThat(found.getIssuer())

@@ -5,7 +5,10 @@ import java.util.stream.Stream;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import juniter.model.tx.Transaction;
+import juniter.model.persistence.Hash;
+import juniter.model.persistence.tx.Transaction;
+import java.lang.String;
+import java.util.List;
 
 public interface TxRepository extends JpaRepository<Transaction, Long> {
 
@@ -15,6 +18,8 @@ public interface TxRepository extends JpaRepository<Transaction, Long> {
 	@Query("select t from Transaction t")
 	Stream<Transaction> streamAll();
 
+	@Query("select t from Transaction t where tx_hash = ?1")
+	List<Transaction> findByTHash(String hash);
 	
 	/**
 	 * Sent by transactions 

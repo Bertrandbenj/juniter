@@ -10,7 +10,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import juniter.service.PeeringService;
+import juniter.service.rest.PeeringService;
 
 @Component
 public class AppRunner implements CommandLineRunner {

@@ -14,7 +14,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import juniter.service.BlockchainService;
+import juniter.service.rest.BlockchainService;
 import juniter.utils.Constants;
 
 @RunWith(SpringRunner.class)

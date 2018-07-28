@@ -27,17 +27,17 @@ import javax.validation.constraints.Pattern;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import juniter.model.base.Hash;
-import juniter.model.base.PubKey;
-import juniter.model.base.Signature;
-import juniter.model.tx.Transaction;
-import juniter.model.wot.Active;
-import juniter.model.wot.Certification;
-import juniter.model.wot.Excluded;
-import juniter.model.wot.Identity;
-import juniter.model.wot.Joiner;
-import juniter.model.wot.Leaver;
-import juniter.model.wot.Revoked;
+import juniter.model.persistence.Hash;
+import juniter.model.persistence.PubKey;
+import juniter.model.persistence.Signature;
+import juniter.model.persistence.tx.Transaction;
+import juniter.model.persistence.wot.Active;
+import juniter.model.persistence.wot.Certification;
+import juniter.model.persistence.wot.Excluded;
+import juniter.model.persistence.wot.Identity;
+import juniter.model.persistence.wot.Joiner;
+import juniter.model.persistence.wot.Leaver;
+import juniter.model.persistence.wot.Revoked;
 import juniter.utils.Constants;
 
 /**
@@ -164,9 +164,8 @@ public class Block implements Serializable {
 	private List<Excluded> excluded = new ArrayList<Excluded>();
 
 	@Valid
-	@ElementCollection
-	@CollectionTable(name = "wot_certs", joinColumns = @JoinColumn(name = "container_block"))
-	private List<Certification> certifications = new ArrayList<Certification>();
+	@OneToMany(cascade = CascadeType.ALL)
+	public List<Certification> certifications = new ArrayList<Certification>();
 
 	@Valid
 	@OneToMany(cascade = CascadeType.ALL)
