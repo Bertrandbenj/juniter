@@ -6,12 +6,14 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import juniter.service.rest.PeeringService;
 
+@ConditionalOnExpression("${juniter.bma.enabled:false}")
 @Component
 public class AppRunner implements CommandLineRunner {
 

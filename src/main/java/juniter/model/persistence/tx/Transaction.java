@@ -24,7 +24,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import juniter.model.persistence.Buid;
+import juniter.model.persistence.BStamp;
 import juniter.model.persistence.Hash;
 import juniter.model.persistence.PubKey;
 import juniter.model.persistence.Signature;
@@ -59,7 +59,7 @@ public class Transaction implements Serializable {
 
 	@Valid 
 	@AttributeOverride(name = "buid", column = @Column(name = "blockstamp"))
-	private Buid blockstamp = new Buid();
+	private BStamp blockstamp = new BStamp();
 
 
 	private Integer blockstampTime;

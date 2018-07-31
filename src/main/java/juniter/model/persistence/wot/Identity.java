@@ -10,7 +10,7 @@ import javax.validation.Valid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import juniter.model.persistence.Buid;
+import juniter.model.persistence.BStamp;
 import juniter.model.persistence.PubKey;
 import juniter.model.persistence.Signature;
 
@@ -37,7 +37,7 @@ public class Identity implements Serializable {
 	
 	@Valid 
 	@AttributeOverride(name = "buid", column = @Column(name = "buid"))
-	private Buid buid = new Buid();
+	private BStamp buid = new BStamp();
 	
 	private String pseudo;
 	

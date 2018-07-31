@@ -1,0 +1,53 @@
+digraph{
+	graph [rankdir=LR];
+	info [labeljust=l, shape=folder, label="blockstamp: 127126-...E599EC3\lCur: g1\lhash: 3FD63BE...761AA7E\llocktime: 0\l", URL="/graphviz/svg/block/127126"];
+	good [label="Product/Service\nun bon pain"];
+	sum [label="sum"];
+
+	subgraph cluster_inputs{
+		label="Inputs";
+		color=blue;
+		labelloc=t;
+		input157744040 [label="UD", URL="/graphviz/svg/block/94919", shape=circle, color=yellow, style=filled];
+		input1552133188 [label="UD", URL="/graphviz/svg/block/95195", shape=circle, color=yellow, style=filled];
+	}
+
+	subgraph cluster_unlocks{
+		label="Unlocks";
+		color=blue;
+		labelloc=t;
+		dbu [label="useful\nfor\nstate\nmachine", shape=cylinder];
+		unlock504429310 [label="unlock\nSIG(0)", shape=diamond];
+		input157744040 -> unlock504429310 ;
+		unlock1467372172 [label="unlock\nSIG(0)", shape=diamond];
+		input1552133188 -> unlock1467372172 ;
+	}
+
+		unlock504429310 -> sum ;
+		unlock1467372172 -> sum ;
+
+	subgraph cluster_outputs{
+		label="Outputs";
+		color=blue;
+		labelloc=t;
+		dbo [label="useful\nfor\nstate\nmachine", shape=cylinder];
+		lockOut212233986 [label="lockOut\nSIG(CCd...VV6NwJ)", shape=diamond];
+		lockOut1763814952 [label="lockOut\nSIG(4Sv...hvpBRQ)", shape=diamond];
+	}
+		amountOut212233986 [label="2000", shape=signature];
+		sum -> lockOut212233986 [label="SIG",weight=10];
+		_destCCdjH7Pd8GPe74ZbiD1DdZ1CXQ2ggYVehk2c7iVV6NwJ [label="CCdjH7P...iVV6NwJ", weight=0];
+		amountOut212233986 -> _destCCdjH7Pd8GPe74ZbiD1DdZ1CXQ2ggYVehk2c7iVV6NwJ [weight=0];
+		_destCCdjH7Pd8GPe74ZbiD1DdZ1CXQ2ggYVehk2c7iVV6NwJ -> good [weight=0, dir=back];
+		lockOut212233986 -> amountOut212233986;
+		amountOut1763814952 [label="2", shape=signature];
+		sum -> lockOut1763814952 [label="SIG",weight=10];
+		_dest4Sv8X5CuKhgbxNAEDZwgdPXBpq8DuCfAr2JaXmhvpBRQ [label="4Sv8X5C...mhvpBRQ", weight=0];
+		amountOut1763814952 -> _dest4Sv8X5CuKhgbxNAEDZwgdPXBpq8DuCfAr2JaXmhvpBRQ [weight=0];
+		_dest4Sv8X5CuKhgbxNAEDZwgdPXBpq8DuCfAr2JaXmhvpBRQ -> good [weight=0];
+		_4Sv8X5CuKhgbxNAEDZwgdPXBpq8DuCfAr2JaXmhvpBRQ -> _dest4Sv8X5CuKhgbxNAEDZwgdPXBpq8DuCfAr2JaXmhvpBRQ [weight=0, dir=back];
+		lockOut1763814952 -> amountOut1763814952;
+	_4Sv8X5CuKhgbxNAEDZwgdPXBpq8DuCfAr2JaXmhvpBRQ [label="issuer\n4Sv8X5C...mhvpBRQ"];
+	_4Sv8X5CuKhgbxNAEDZwgdPXBpq8DuCfAr2JaXmhvpBRQ -> unlock504429310 [weight=0];
+
+}

@@ -1,5 +1,13 @@
 For simplicity the code is currently on my [Github](https://github.com/Bertrandbenj/juniter)
 
+# Install 
+
+```
+sudo apt-get install graphviz
+export JAVA_HOME=/usr/lib/jvm/java-10-oracle
+mvn package spring-boot:repackage
+```
+
 # Java model and HTTP rest api for duniter
 
 This is a java implementation that is strongly dependant on SpringBoot framework and replicate the blockchain 

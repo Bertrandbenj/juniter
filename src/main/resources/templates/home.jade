@@ -1,45 +1,12 @@
+include ./mixins/api
+
 doctype html
 html
 	head
 		title Juniter - #{title}
 	body
+		//	include:markdown-it ../../../../README.md
 		p #{message}, it's 
 			span #{time} 
-		.API
-			h1 API 
-			p 
-				| This API reflect the 
-				a(href="https://git.duniter.org/nodes/typescript/duniter/blob/dev/doc/HTTP_API.md")
-					|	HTTP-API of Duniter 
-				| and is under construction 
-			ul
-				li 
-					a(href="/blockchain") blockchain
-				ul
-					li 
-						a(href="/blockchain/block/") block/[number]
-					li 
-						a(href="/blockchain/blocks/10/300") blocks/[count]/[from]
-					li 
-						a(href="/blockchain/current") current
-					li 
-						a(href="/blockchain/with") with
-						ul
-							li 
-								a(href="/blockchain/with/newcomers") newcomers
-							li 
-								a(href="/blockchain/with/certs") certs
-							li 
-								a(href="/blockchain/with/joiners") joiners
-							li 
-								a(href="/blockchain/with/actives") actives
-							li 
-								a(href="/blockchain/with/leavers") leavers
-							li 
-								a(href="/blockchain/with/excluded") excluded
-								
-				li 
-					a(href="/network") network
-				ul
-					li
-						a(href="/network/peers") peers
+		+api(mappings)
+		//+staticAPI()

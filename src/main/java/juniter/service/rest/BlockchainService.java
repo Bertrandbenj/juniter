@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,6 +56,7 @@ import juniter.utils.Constants;
  *
  */
 @RestController
+@ConditionalOnExpression("${juniter.bma.enabled:false}")
 @RequestMapping("/blockchain")
 public class BlockchainService {
 

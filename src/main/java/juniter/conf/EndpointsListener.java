@@ -1,5 +1,7 @@
 package juniter.conf;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -8,13 +10,16 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 
 public class EndpointsListener implements ApplicationListener {
 
-    @Override
-    public void onApplicationEvent(ApplicationEvent event) {
-        if (event instanceof ContextRefreshedEvent) {
-            ApplicationContext applicationContext = ((ContextRefreshedEvent) event).getApplicationContext();
-            applicationContext.getBean(RequestMappingHandlerMapping.class).getHandlerMethods().forEach(h->{
-            	System.out.println(""+h.);
-            });
-        }
-    }
+	private static final Logger logger = LogManager.getLogger();
+
+	@Override
+	public void onApplicationEvent(ApplicationEvent event) {
+		logger.info("onApplicationEvent");
+		if (event instanceof ContextRefreshedEvent) {
+			ApplicationContext applicationContext = ((ContextRefreshedEvent) event).getApplicationContext();
+			applicationContext.getBean(RequestMappingHandlerMapping.class).getHandlerMethods().forEach((r, h) -> {
+				logger.info(" - " + r + ", " + h);
+			});
+		}
+	}
 }

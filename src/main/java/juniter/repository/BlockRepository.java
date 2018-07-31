@@ -33,9 +33,11 @@ public interface BlockRepository extends JpaRepository<Block, Long> {
 	// TODO clean this up 
 	Optional<Block> findTop1ByNumber(Integer number);
 	
+	
 	// TODO clean this up 
 //	@Query("select max(c.number) from Block c")
 	default Integer current() {
+		
 		return 139158 ; 
 	};
 		

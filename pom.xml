@@ -22,11 +22,11 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<java.version>1.10</java.version>
-		<jdk.version>1.10</jdk.version>
+		<java.version>10</java.version>
+		<jdk.version>10</jdk.version>
 		<!-- spring.version>5.0.6.RELEASE</spring.version> -->
-		<maven.compiler.source>1.10</maven.compiler.source>
-		<maven.compiler.target>1.10</maven.compiler.target>
+		<!-- <maven.compiler.source>1.10</maven.compiler.source> -->
+		<!-- <maven.compiler.target>1.10</maven.compiler.target> -->
 		<duniter4j.version>1.0.3-SNAPSHOT</duniter4j.version>
 		<thymeleaf.version>3.0.2.RELEASE</thymeleaf.version>
 		<thymeleaf-layout-dialect.version>2.1.1</thymeleaf-layout-dialect.version>
@@ -40,12 +40,12 @@
 			<groupId>commons-codec</groupId>
 			<artifactId>commons-codec</artifactId>
 		</dependency>
-		
-		<dependency>
-			<groupId>org.duniter</groupId>
-			<artifactId>duniter4j-core-client</artifactId>
-			<version>${duniter4j.version}</version>
-		</dependency>
+
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.duniter</groupId> -->
+<!-- 			<artifactId>duniter4j-core-client</artifactId> -->
+<!-- 			<version>${duniter4j.version}</version> -->
+<!-- 		</dependency> -->
 
 		<!-- ======================= Spring boot dependencies ========================== -->
 		<dependency>
@@ -57,6 +57,21 @@
 		<!-- <groupId>org.springframework.boot</groupId> -->
 		<!-- <artifactId>spring-boot-devtools</artifactId> -->
 		<!-- </dependency> -->
+		
+		<!-- https://mvnrepository.com/artifact/org.abstractj.kalium/kalium -->
+<dependency>
+    <groupId>org.abstractj.kalium</groupId>
+    <artifactId>kalium</artifactId>
+    <version>0.8.0</version>
+</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/com.lambdaworks/scrypt -->
+<dependency>
+    <groupId>com.lambdaworks</groupId>
+    <artifactId>scrypt</artifactId>
+    <version>1.4.0</version>
+</dependency>
+		
 
 
 		<dependency>
@@ -153,10 +168,10 @@
 
 
 
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.projectlombok</groupId> -->
+<!-- 			<artifactId>lombok</artifactId> -->
+<!-- 		</dependency> -->
 
 		<!-- LOGGING DEPENDENCIES -->
 		<dependency>
@@ -191,6 +206,45 @@
 			<artifactId>spring-boot-starter-websocket</artifactId>
 		</dependency>
 
+		<!-- GRAPHQL http://www.baeldung.com/spring-graphql -->
+		<dependency>
+			<groupId>com.graphql-java</groupId>
+			<artifactId>graphql-spring-boot-starter</artifactId>
+			<version>5.0.2</version>
+		</dependency>
+<!-- 	<dependency> -->
+<!-- 		<groupId>com.graphql-java</groupId> -->
+<!-- 		<artifactId>graphql-java-tools</artifactId> -->
+<!-- 		<version>3.2.0</version> -->
+		<!-- <exclusions> -->
+		<!-- <exclusion> -->
+		<!-- <artifactId></artifactId> -->
+		<!-- </exclusion></exclusions> -->
+<!-- 	</dependency> -->
+
+		<!-- https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.jetbrains.kotlin</groupId> -->
+<!-- 			<artifactId>kotlin-stdlib</artifactId> -->
+<!-- 			<version>1.2.51</version> -->
+<!-- 		</dependency> -->
+
+		<dependency>
+			<groupId>com.graphql-java</groupId>
+			<artifactId>graphiql-spring-boot-starter</artifactId>
+			<version>3.6.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.reactivex.rxjava2</groupId>
+			<artifactId>rxjava</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>io.leangen.graphql</groupId>
+			<artifactId>spqr</artifactId>
+			<version>0.9.6</version>
+		</dependency>
 
 		<!-- Javascript imported from maven, is it really so smart ? -->
 		<dependency>
@@ -230,6 +284,24 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+					<verbose>true</verbose>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>org.ow2.asm</groupId>
+						<artifactId>asm</artifactId>
+						<version>6.2</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+
+
 		</plugins>
 	</build>
 

@@ -10,7 +10,7 @@ import javax.validation.Valid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import juniter.model.persistence.Buid;
+import juniter.model.persistence.BStamp;
 import juniter.model.persistence.PubKey;
 
 @Embeddable
@@ -31,7 +31,7 @@ public class Joiner implements Serializable {
 
 	@Valid 
 	@AttributeOverride(name = "buid", column = @Column(name = "buid1"))
-	private Buid buid1 = new Buid();
+	private BStamp buid1 = new BStamp();
 	
 //	@Valid
 //	@AttributeOverride(name = "buid2", column = @Column(name = "buid2"))

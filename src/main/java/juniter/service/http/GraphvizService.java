@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -49,6 +50,7 @@ import juniter.repository.TxRepository;
 import juniter.service.rest.BlockchainService;
 
 @Controller
+@ConditionalOnExpression("${juniter.graphviz.enabled:false} && ${juniter.bma.enabled:false}")
 @RequestMapping("/graphviz")
 public class GraphvizService {
 	private static final Logger logger = LogManager.getLogger();
@@ -302,7 +304,7 @@ public class GraphvizService {
 
 			// print the main node
 			sub += "\t\t" + prefix + " [label=\"  Block #\\n" + b.getNumber() + "  \", URL=\"/graphviz/svg/block/"
-					+ b.getNumber() + "\", shape=folder];\n";
+					+ b.getNumber() + "\", shape=box3d];\n";
 
 			sub += "\t\t" + prefix + "hash [label=\"Hash: " + mini(b.getHash()) + "\"];\n";
 			if (b.getNumber() > 0) {

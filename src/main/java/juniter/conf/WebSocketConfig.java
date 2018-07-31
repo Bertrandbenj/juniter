@@ -13,13 +13,13 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
     	config.setApplicationDestinationPrefixes("/juniter");
-    	config.enableSimpleBroker("/ws");
+    	config.enableSimpleBroker("/ws2p");
         
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/gs-guide-websocket").withSockJS();
+        registry.addEndpoint("/endpoint").withSockJS();
     }
 
 }

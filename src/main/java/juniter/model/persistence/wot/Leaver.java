@@ -10,7 +10,7 @@ import javax.validation.Valid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import juniter.model.persistence.Buid;
+import juniter.model.persistence.BStamp;
 import juniter.model.persistence.PubKey;
 
 
@@ -30,7 +30,7 @@ public class Leaver implements Serializable {
 	private String signature;
 
 	@AttributeOverride(name = "buid", column = @Column(name = "buid1"))
-	@Valid private Buid buid1 = new Buid();
+	@Valid private BStamp buid1 = new BStamp();
 	
 //	@AttributeOverride(name = "buid2", column = @Column(name = "buid2"))
 	@Valid private String buid2 ;

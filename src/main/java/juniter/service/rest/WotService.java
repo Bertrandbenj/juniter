@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +20,7 @@ import juniter.model.persistence.wot.Certification;
 import juniter.repository.CertsRepository;
 
 @RestController
+@ConditionalOnExpression("${juniter.bma.enabled:false}")
 @RequestMapping("/wot")
 public class WotService {
 	private static final Logger logger = LogManager.getLogger();

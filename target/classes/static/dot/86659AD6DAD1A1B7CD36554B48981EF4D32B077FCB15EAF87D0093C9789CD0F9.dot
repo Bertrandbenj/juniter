@@ -1,0 +1,399 @@
+digraph{
+	graph [rankdir=LR];
+	info [labeljust=l, shape=folder, label="blockstamp: 102091-...BA1CBF6\lCur: g1\lhash: 86659AD...89CD0F9\llocktime: 0\l", URL="/graphviz/svg/block/102091"];
+	good [label="Product/Service\n"];
+	sum [label="sum"];
+
+	subgraph cluster_inputs{
+		label="Inputs";
+		color=blue;
+		labelloc=t;
+		input2043324661 [label="UD", URL="/graphviz/svg/block/99054", shape=circle, color=yellow, style=filled];
+		input1551467756 [label="UD", URL="/graphviz/svg/block/99326", shape=circle, color=yellow, style=filled];
+		input1268994113 [label="UD", URL="/graphviz/svg/block/99599", shape=circle, color=yellow, style=filled];
+		input1414883320 [label="UD", URL="/graphviz/svg/block/99884", shape=circle, color=yellow, style=filled];
+		input2020925575 [label="UD", URL="/graphviz/svg/block/100174", shape=circle, color=yellow, style=filled];
+		input1748649345 [label="UD", URL="/graphviz/svg/block/100469", shape=circle, color=yellow, style=filled];
+		input969548191 [label="UD", URL="/graphviz/svg/block/100746", shape=circle, color=yellow, style=filled];
+		input1180691449 [label="UD", URL="/graphviz/svg/block/101036", shape=circle, color=yellow, style=filled];
+		input426793837 [label="UD", URL="/graphviz/svg/block/101327", shape=circle, color=yellow, style=filled];
+		input593236879 [label="UD", URL="/graphviz/svg/block/101604", shape=circle, color=yellow, style=filled];
+		input1274157218 [label="UD", URL="/graphviz/svg/block/101884", shape=circle, color=yellow, style=filled];
+
+	subgraph cluster_input1925915142{
+		graph [rankdir=LR];
+		label="TxInput";
+		input1925915142 [label="amount: 4300"];
+		thash1925915142 [label="Thash: 718815A...7FA3D51"];
+		tindex1925915142 [label="Tindex: 1"];
+	}
+
+	subgraph cluster_input1769710593{
+		graph [rankdir=LR];
+		label="TxInput";
+		input1769710593 [label="amount: 501"];
+		thash1769710593 [label="Thash: B66EE04...50E070B"];
+		tindex1769710593 [label="Tindex: 1"];
+	}
+
+	subgraph cluster_input720900810{
+		graph [rankdir=LR];
+		label="TxInput";
+		input720900810 [label="amount: 301"];
+		thash720900810 [label="Thash: BE23CB8...055B7A9"];
+		tindex720900810 [label="Tindex: 1"];
+	}
+
+	subgraph cluster_input1905539135{
+		graph [rankdir=LR];
+		label="TxInput";
+		input1905539135 [label="amount: 501"];
+		thash1905539135 [label="Thash: 19CBA7E...15CDDE1"];
+		tindex1905539135 [label="Tindex: 1"];
+	}
+
+	subgraph cluster_input1524952857{
+		graph [rankdir=LR];
+		label="TxInput";
+		input1524952857 [label="amount: 501"];
+		thash1524952857 [label="Thash: 7573A1A...CE40007"];
+		tindex1524952857 [label="Tindex: 1"];
+	}
+
+	subgraph cluster_input1854608360{
+		graph [rankdir=LR];
+		label="TxInput";
+		input1854608360 [label="amount: 901"];
+		thash1854608360 [label="Thash: 149ED47...2F8079C"];
+		tindex1854608360 [label="Tindex: 1"];
+	}
+
+	subgraph cluster_input76493489{
+		graph [rankdir=LR];
+		label="TxInput";
+		input76493489 [label="amount: 801"];
+		thash76493489 [label="Thash: 63CD7CF...47DB6FE"];
+		tindex76493489 [label="Tindex: 1"];
+	}
+
+	subgraph cluster_input1418373087{
+		graph [rankdir=LR];
+		label="TxInput";
+		input1418373087 [label="amount: 8700"];
+		thash1418373087 [label="Thash: B9C597E...12D43DF"];
+		tindex1418373087 [label="Tindex: 0"];
+	}
+
+	subgraph cluster_input694883952{
+		graph [rankdir=LR];
+		label="TxInput";
+		input694883952 [label="amount: 1500"];
+		thash694883952 [label="Thash: 5EB3920...6B64025"];
+		tindex694883952 [label="Tindex: 0"];
+	}
+
+	subgraph cluster_input524899558{
+		graph [rankdir=LR];
+		label="TxInput";
+		input524899558 [label="amount: 1"];
+		thash524899558 [label="Thash: 4CAC191...A09FA61"];
+		tindex524899558 [label="Tindex: 1"];
+	}
+
+	subgraph cluster_input1647245060{
+		graph [rankdir=LR];
+		label="TxInput";
+		input1647245060 [label="amount: 500"];
+		thash1647245060 [label="Thash: FBE0C8F...97D2634"];
+		tindex1647245060 [label="Tindex: 0"];
+	}
+
+	subgraph cluster_input1671106753{
+		graph [rankdir=LR];
+		label="TxInput";
+		input1671106753 [label="amount: 3000"];
+		thash1671106753 [label="Thash: 2BA3557...C63CCCF"];
+		tindex1671106753 [label="Tindex: 0"];
+	}
+
+	subgraph cluster_input305287764{
+		graph [rankdir=LR];
+		label="TxInput";
+		input305287764 [label="amount: 500"];
+		thash305287764 [label="Thash: B0C535D...FB3E6F1"];
+		tindex305287764 [label="Tindex: 0"];
+	}
+
+	subgraph cluster_input1200216720{
+		graph [rankdir=LR];
+		label="TxInput";
+		input1200216720 [label="amount: 7500"];
+		thash1200216720 [label="Thash: 4C8D8A7...9240520"];
+		tindex1200216720 [label="Tindex: 0"];
+	}
+
+	subgraph cluster_input1376424882{
+		graph [rankdir=LR];
+		label="TxInput";
+		input1376424882 [label="amount: 10"];
+		thash1376424882 [label="Thash: 874641F...A675781"];
+		tindex1376424882 [label="Tindex: 1"];
+	}
+
+	subgraph cluster_input1772919850{
+		graph [rankdir=LR];
+		label="TxInput";
+		input1772919850 [label="amount: 5"];
+		thash1772919850 [label="Thash: B1CD8EB...EA07520"];
+		tindex1772919850 [label="Tindex: 1"];
+	}
+
+	subgraph cluster_input1770836921{
+		graph [rankdir=LR];
+		label="TxInput";
+		input1770836921 [label="amount: 5000"];
+		thash1770836921 [label="Thash: 5DE6364...2EF1F8F"];
+		tindex1770836921 [label="Tindex: 0"];
+	}
+
+	subgraph cluster_input1624824130{
+		graph [rankdir=LR];
+		label="TxInput";
+		input1624824130 [label="amount: 902"];
+		thash1624824130 [label="Thash: 509FDA8...D698E31"];
+		tindex1624824130 [label="Tindex: 1"];
+	}
+
+	subgraph cluster_input1716077032{
+		graph [rankdir=LR];
+		label="TxInput";
+		input1716077032 [label="amount: 1100"];
+		thash1716077032 [label="Thash: AC14D6C...FAB2D38"];
+		tindex1716077032 [label="Tindex: 0"];
+	}
+
+	subgraph cluster_input1804192967{
+		graph [rankdir=LR];
+		label="TxInput";
+		input1804192967 [label="amount: 1"];
+		thash1804192967 [label="Thash: 42DDE36...236E804"];
+		tindex1804192967 [label="Tindex: 1"];
+	}
+
+	subgraph cluster_input1687673620{
+		graph [rankdir=LR];
+		label="TxInput";
+		input1687673620 [label="amount: 1"];
+		thash1687673620 [label="Thash: 5A2BDD2...3DDE4A2"];
+		tindex1687673620 [label="Tindex: 1"];
+	}
+
+	subgraph cluster_input1109597197{
+		graph [rankdir=LR];
+		label="TxInput";
+		input1109597197 [label="amount: 1"];
+		thash1109597197 [label="Thash: E213E8D...563E1A6"];
+		tindex1109597197 [label="Tindex: 1"];
+	}
+
+	subgraph cluster_input1850299296{
+		graph [rankdir=LR];
+		label="TxInput";
+		input1850299296 [label="amount: 5"];
+		thash1850299296 [label="Thash: 9CD9DE0...58A2F39"];
+		tindex1850299296 [label="Tindex: 1"];
+	}
+
+	subgraph cluster_input1258505562{
+		graph [rankdir=LR];
+		label="TxInput";
+		input1258505562 [label="amount: 2"];
+		thash1258505562 [label="Thash: F10010D...731563F"];
+		tindex1258505562 [label="Tindex: 1"];
+	}
+
+	subgraph cluster_input286681173{
+		graph [rankdir=LR];
+		label="TxInput";
+		input286681173 [label="amount: 500"];
+		thash286681173 [label="Thash: E026F03...9F11624"];
+		tindex286681173 [label="Tindex: 0"];
+	}
+
+	subgraph cluster_input1267715342{
+		graph [rankdir=LR];
+		label="TxInput";
+		input1267715342 [label="amount: 1000"];
+		thash1267715342 [label="Thash: EF44D9F...A24CCBE"];
+		tindex1267715342 [label="Tindex: 0"];
+	}
+
+	subgraph cluster_input1870615436{
+		graph [rankdir=LR];
+		label="TxInput";
+		input1870615436 [label="amount: 300"];
+		thash1870615436 [label="Thash: 7FB77F0...DDAF423"];
+		tindex1870615436 [label="Tindex: 0"];
+	}
+
+	subgraph cluster_input1049096876{
+		graph [rankdir=LR];
+		label="TxInput";
+		input1049096876 [label="amount: 300"];
+		thash1049096876 [label="Thash: 253D765...AFB3AE8"];
+		tindex1049096876 [label="Tindex: 0"];
+	}
+
+	subgraph cluster_input485581289{
+		graph [rankdir=LR];
+		label="TxInput";
+		input485581289 [label="amount: 700"];
+		thash485581289 [label="Thash: 630CE05...5682DBF"];
+		tindex485581289 [label="Tindex: 0"];
+	}
+	}
+
+	subgraph cluster_unlocks{
+		label="Unlocks";
+		color=blue;
+		labelloc=t;
+		dbu [label="useful\nfor\nstate\nmachine", shape=cylinder];
+		unlock156695455 [label="unlock\nSIG(0)", shape=diamond];
+		input2043324661 -> unlock156695455 ;
+		unlock130632188 [label="unlock\nSIG(0)", shape=diamond];
+		input1551467756 -> unlock130632188 ;
+		unlock1357185188 [label="unlock\nSIG(0)", shape=diamond];
+		input1268994113 -> unlock1357185188 ;
+		unlock482599472 [label="unlock\nSIG(0)", shape=diamond];
+		input1414883320 -> unlock482599472 ;
+		unlock578250804 [label="unlock\nSIG(0)", shape=diamond];
+		input2020925575 -> unlock578250804 ;
+		unlock1874608943 [label="unlock\nSIG(0)", shape=diamond];
+		input1748649345 -> unlock1874608943 ;
+		unlock388271708 [label="unlock\nSIG(0)", shape=diamond];
+		input969548191 -> unlock388271708 ;
+		unlock351616234 [label="unlock\nSIG(0)", shape=diamond];
+		input1180691449 -> unlock351616234 ;
+		unlock224051336 [label="unlock\nSIG(0)", shape=diamond];
+		input426793837 -> unlock224051336 ;
+		unlock7491383 [label="unlock\nSIG(0)", shape=diamond];
+		input593236879 -> unlock7491383 ;
+		unlock857175819 [label="unlock\nSIG(0)", shape=diamond];
+		input1274157218 -> unlock857175819 ;
+		unlock246943727 [label="unlock\nSIG(0)", shape=diamond];
+		input1925915142 -> unlock246943727 ;
+		unlock1438498864 [label="unlock\nSIG(0)", shape=diamond];
+		input1769710593 -> unlock1438498864 ;
+		unlock1193551431 [label="unlock\nSIG(0)", shape=diamond];
+		input720900810 -> unlock1193551431 ;
+		unlock1325641351 [label="unlock\nSIG(0)", shape=diamond];
+		input1905539135 -> unlock1325641351 ;
+		unlock25823231 [label="unlock\nSIG(0)", shape=diamond];
+		input1524952857 -> unlock25823231 ;
+		unlock973990846 [label="unlock\nSIG(0)", shape=diamond];
+		input1854608360 -> unlock973990846 ;
+		unlock1551758502 [label="unlock\nSIG(0)", shape=diamond];
+		input76493489 -> unlock1551758502 ;
+		unlock249040440 [label="unlock\nSIG(0)", shape=diamond];
+		input1418373087 -> unlock249040440 ;
+		unlock1606174179 [label="unlock\nSIG(0)", shape=diamond];
+		input694883952 -> unlock1606174179 ;
+		unlock171513265 [label="unlock\nSIG(0)", shape=diamond];
+		input524899558 -> unlock171513265 ;
+		unlock970066068 [label="unlock\nSIG(0)", shape=diamond];
+		input1647245060 -> unlock970066068 ;
+		unlock2008377432 [label="unlock\nSIG(0)", shape=diamond];
+		input1671106753 -> unlock2008377432 ;
+		unlock1243330576 [label="unlock\nSIG(0)", shape=diamond];
+		input305287764 -> unlock1243330576 ;
+		unlock139307135 [label="unlock\nSIG(0)", shape=diamond];
+		input1200216720 -> unlock139307135 ;
+		unlock561157962 [label="unlock\nSIG(0)", shape=diamond];
+		input1376424882 -> unlock561157962 ;
+		unlock2111429780 [label="unlock\nSIG(0)", shape=diamond];
+		input1772919850 -> unlock2111429780 ;
+		unlock1779769351 [label="unlock\nSIG(0)", shape=diamond];
+		input1770836921 -> unlock1779769351 ;
+		unlock259941226 [label="unlock\nSIG(0)", shape=diamond];
+		input1624824130 -> unlock259941226 ;
+		unlock981695752 [label="unlock\nSIG(0)", shape=diamond];
+		input1716077032 -> unlock981695752 ;
+		unlock160246704 [label="unlock\nSIG(0)", shape=diamond];
+		input1804192967 -> unlock160246704 ;
+		unlock1255880606 [label="unlock\nSIG(0)", shape=diamond];
+		input1687673620 -> unlock1255880606 ;
+		unlock918714524 [label="unlock\nSIG(0)", shape=diamond];
+		input1109597197 -> unlock918714524 ;
+		unlock386414705 [label="unlock\nSIG(0)", shape=diamond];
+		input1850299296 -> unlock386414705 ;
+		unlock2000175499 [label="unlock\nSIG(0)", shape=diamond];
+		input1258505562 -> unlock2000175499 ;
+		unlock1682767669 [label="unlock\nSIG(0)", shape=diamond];
+		input286681173 -> unlock1682767669 ;
+		unlock1106214328 [label="unlock\nSIG(0)", shape=diamond];
+		input1267715342 -> unlock1106214328 ;
+		unlock393350724 [label="unlock\nSIG(0)", shape=diamond];
+		input1870615436 -> unlock393350724 ;
+		unlock577970488 [label="unlock\nSIG(0)", shape=diamond];
+		input1049096876 -> unlock577970488 ;
+		unlock558221076 [label="unlock\nSIG(0)", shape=diamond];
+		input485581289 -> unlock558221076 ;
+	}
+
+		unlock156695455 -> sum ;
+		unlock130632188 -> sum ;
+		unlock1357185188 -> sum ;
+		unlock482599472 -> sum ;
+		unlock578250804 -> sum ;
+		unlock1874608943 -> sum ;
+		unlock388271708 -> sum ;
+		unlock351616234 -> sum ;
+		unlock224051336 -> sum ;
+		unlock7491383 -> sum ;
+		unlock857175819 -> sum ;
+		unlock246943727 -> sum ;
+		unlock1438498864 -> sum ;
+		unlock1193551431 -> sum ;
+		unlock1325641351 -> sum ;
+		unlock25823231 -> sum ;
+		unlock973990846 -> sum ;
+		unlock1551758502 -> sum ;
+		unlock249040440 -> sum ;
+		unlock1606174179 -> sum ;
+		unlock171513265 -> sum ;
+		unlock970066068 -> sum ;
+		unlock2008377432 -> sum ;
+		unlock1243330576 -> sum ;
+		unlock139307135 -> sum ;
+		unlock561157962 -> sum ;
+		unlock2111429780 -> sum ;
+		unlock1779769351 -> sum ;
+		unlock259941226 -> sum ;
+		unlock981695752 -> sum ;
+		unlock160246704 -> sum ;
+		unlock1255880606 -> sum ;
+		unlock918714524 -> sum ;
+		unlock386414705 -> sum ;
+		unlock2000175499 -> sum ;
+		unlock1682767669 -> sum ;
+		unlock1106214328 -> sum ;
+		unlock393350724 -> sum ;
+		unlock577970488 -> sum ;
+		unlock558221076 -> sum ;
+
+	subgraph cluster_outputs{
+		label="Outputs";
+		color=blue;
+		labelloc=t;
+		dbo [label="useful\nfor\nstate\nmachine", shape=cylinder];
+		lockOut658229626 [label="lockOut\nSIG(7Pn...LcJiaz)", shape=diamond];
+	}
+		amountOut658229626 [label="50345", shape=signature];
+		sum -> lockOut658229626 [label="SIG",weight=10];
+		_7Pn2wLYhBzsC4kYCEeDMQyCLu2xpSbRUfe2StqLcJiaz [label="7Pn2wLY...qLcJiaz", weight=0];
+		amountOut658229626 -> _7Pn2wLYhBzsC4kYCEeDMQyCLu2xpSbRUfe2StqLcJiaz [weight=0];
+		_7Pn2wLYhBzsC4kYCEeDMQyCLu2xpSbRUfe2StqLcJiaz -> good [weight=0];
+		lockOut658229626 -> amountOut658229626;
+	_7Pn2wLYhBzsC4kYCEeDMQyCLu2xpSbRUfe2StqLcJiaz [label="issuer\n7Pn2wLY...qLcJiaz"];
+
+}

@@ -2,14 +2,15 @@ package juniter.service;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.duniter.core.util.crypto.SecretBox;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import juniter.repository.BlockRepository;
+import juniter.utils.SecretBox;
 
 /**
  * 
@@ -24,6 +25,7 @@ import juniter.repository.BlockRepository;
  * @author ben
  *
  */
+@ConditionalOnExpression("${juniter.utils.enabled:false}")
 @RestController
 @RequestMapping("/utils")
 public class UtilsService {
@@ -39,11 +41,11 @@ public class UtilsService {
 		return "<h1>Greetings to Juniter Utils</h1>" + "<ul><li>/utils/key/{secret}/{pass}</li><li>/utils/error</li></ul>";
 	}
 
-	@RequestMapping(value = "/error")
-	public String toError() {
-		logger.info("Entering /blockchain/error");
-		return "redirect: /error.html";
-	}
+//	@RequestMapping(value = "/error")
+//	public String toError() {
+//		logger.info("Entering /blockchain/error");
+//		return "redirect: /error.html";
+//	}
 
 	/**
 	 * request : /key/{secret}/{pass}
