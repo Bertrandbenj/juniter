@@ -1,0 +1,57 @@
+digraph{
+	graph [rankdir=TB];
+	info [labeljust=l, shape=box3d, label="blockstamp: 127124-...FE2F7EF\lCur: g1\lhash: 9D78EEB...29268BC\llocktime: 0\l", URL="/graphviz/svg/block/127124"];
+	good [label="Product/Service\n4 citrons"];
+	sum [label="sum\n14771"];
+	{rank = same; good; sum;}
+
+	subgraph cluster_inputs{
+		label="Inputs";
+		color=blue;
+		labelloc=t;
+
+	subgraph cluster_input390740038{
+		graph [rankdir=LR];
+		label="TxInput";
+		input390740038 [label="amount: 14771"];
+		thash390740038 [label="Thash: 86D011B...79FD32A"];
+		tindex390740038 [label="Tindex: 1"];
+	}
+	}
+
+	subgraph cluster_unlocks{
+		label="Unlocks";
+		color=blue;
+		labelloc=t;
+		dbu [label="useful\nfor\nstate\nmachine", shape=cylinder];
+		unlock358970103 [label="unlock\nSIG(0)", shape=diamond];
+		input390740038 -> unlock358970103 ;
+	}
+
+		unlock358970103 -> sum ;
+
+	subgraph cluster_outputs{
+		label="Outputs";
+		color=blue;
+		labelloc=t;
+		dbo [label="useful\nfor\nstate\nmachine", shape=cylinder];
+		lockOut1295921550 [label="lockOut\nSIG(FnZ...GyFaPy)", shape=diamond];
+		lockOut1936855060 [label="lockOut\nSIG(9qf...cV4Dnx)", shape=diamond];
+	}
+		amountOut1295921550 [label="2004", shape=signature];
+		sum -> lockOut1295921550 [label="SIG",weight=10];
+		_destFnZKoCVFCp4D5hVAmZJaZMYmsLvByLPon9iHRDGyFaPy [label="FnZKoCV...DGyFaPy", weight=0];
+		amountOut1295921550 -> _destFnZKoCVFCp4D5hVAmZJaZMYmsLvByLPon9iHRDGyFaPy [weight=0];
+		good -> _destFnZKoCVFCp4D5hVAmZJaZMYmsLvByLPon9iHRDGyFaPy[label="sell", weight=0];
+		lockOut1295921550 -> amountOut1295921550;
+		amountOut1936855060 [label="12767", shape=signature];
+		sum -> lockOut1936855060 [label="SIG",weight=10];
+		_dest9qf8TCzcLhPXdibFWWQxKLk1fuHgTG3hoJSBMLcV4Dnx [label="9qf8TCz...LcV4Dnx", weight=0];
+		amountOut1936855060 -> _dest9qf8TCzcLhPXdibFWWQxKLk1fuHgTG3hoJSBMLcV4Dnx [weight=0];
+		_9qf8TCzcLhPXdibFWWQxKLk1fuHgTG3hoJSBMLcV4Dnx -> _dest9qf8TCzcLhPXdibFWWQxKLk1fuHgTG3hoJSBMLcV4Dnx [weight=0, dir=back, label="the rest"];
+		lockOut1936855060 -> amountOut1936855060;
+	_9qf8TCzcLhPXdibFWWQxKLk1fuHgTG3hoJSBMLcV4Dnx [label="issuer\n9qf8TCz...LcV4Dnx"];
+	_9qf8TCzcLhPXdibFWWQxKLk1fuHgTG3hoJSBMLcV4Dnx -> unlock358970103 [weight=0];
+	_9qf8TCzcLhPXdibFWWQxKLk1fuHgTG3hoJSBMLcV4Dnx -> good [label="buy", weight=0];
+
+}
