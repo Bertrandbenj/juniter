@@ -49,8 +49,9 @@ public class BlockServiceTest {
 
 	@Test
 	public void fetchingFirstBlock() throws Exception {
-		mvc.perform(MockMvcRequestBuilders.get("/blockchain/block/0")).andExpect(status().isOk())
-				.andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+		mvc.perform(MockMvcRequestBuilders.get("/blockchain/block/0"))//
+				.andExpect(status().isOk())//
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))//
 				.andExpect(jsonPath("$.currency", is("g1")));
 	}
 

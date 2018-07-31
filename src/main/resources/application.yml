@@ -16,7 +16,6 @@ spring:
           lob:
             non_contextual_creation: true # disable an ugly exception at start 
     
-    
 server:
   port: 8443
   ssl:

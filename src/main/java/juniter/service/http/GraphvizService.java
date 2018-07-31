@@ -76,6 +76,7 @@ public class GraphvizService {
 	public @ResponseBody ResponseEntity<String> blockDot(HttpServletRequest request, HttpServletResponse response,
 			@PathVariable("block") Integer block) throws IOException {
 
+		
 		var headers = new HttpHeaders();
 		headers.setContentType(MediaType.valueOf("text/plain"));
 		var svgEntity = new ResponseEntity<String>(blockGraph(block), headers, HttpStatus.OK);
@@ -86,7 +87,7 @@ public class GraphvizService {
 	@RequestMapping(value = "/svg/block/{block}", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<String> blockSVG(HttpServletRequest request, HttpServletResponse response,
 			@PathVariable("block") Integer block) throws IOException {
-
+		logger.info( "[GET] /graphviz/svg/block/..." + request.getParameter("rankdir") );
 		// build the SVG XML as a string
 		String SVG = localConvertToSVG(blockGraph(block), block + "");
 
@@ -102,6 +103,7 @@ public class GraphvizService {
 			@PathVariable("pubkey") String pubkey) throws IOException {
 
 		var headers = new HttpHeaders();
+		
 		headers.setContentType(MediaType.valueOf("text/plain"));
 		var svgEntity = new ResponseEntity<String>(certsGraph(pubkey), headers, HttpStatus.OK);
 		return svgEntity;
@@ -155,8 +157,8 @@ public class GraphvizService {
 		res += "digraph{\n" //
 				+ "\tgraph [rankdir=TB];\n";
 
-		res += "\tinfo [labeljust=l, shape=folder, label=\"" //
-				+ "blockstamp: " + mini(tx.getBlockstamp()) //
+		res += "\tinfo [labeljust=l, shape=box3d, label=\"" //
+				+ "Bstamp: " + mini(tx.getBlockstamp()) //
 				+ "\\lCur: " + tx.getCurrency()//
 				+ "\\lhash: " + mini(tx.getHash())//
 				+ "\\llocktime: " + tx.getLocktime() //

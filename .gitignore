@@ -1,6 +1,2 @@
-/target/
-/data/
-/.classpath
-/.factorypath
-/.project
-/WebContent/
+src/main/resources/static/dot/*
+

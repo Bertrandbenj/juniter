@@ -7,7 +7,7 @@ digraph{
 		node [shape=underline]
 		style=filled;
 		color=lightgrey;
-		_127126 [label="  Block #\n127126  ", URL="/graphviz/svg/block/127126", shape=folder];
+		_127126 [label="  Block #\n127126  ", URL="/graphviz/svg/block/127126", shape=box3d];
 		_127126hash [label="Hash: 0000019...E599EC3"];
 		_127126phash [label="PHash: 0000037...6EB2984"];
 		_127126issuer [label="issuer:\n2sZF6j2...qJGn8QT", URL="/graphviz/svg/certs/2sZF6j2PkxBDNAqUde7Dgo5x3crkerZpQ4rBqqJGn8QT", shape=house];
@@ -28,7 +28,7 @@ digraph{
 		node [shape=underline]
 		style=filled;
 		color=lightgrey;
-		_127127 [label="  Block #\n127127  ", URL="/graphviz/svg/block/127127", shape=folder];
+		_127127 [label="  Block #\n127127  ", URL="/graphviz/svg/block/127127", shape=box3d];
 		_127127hash [label="Hash: 0000045...FC6519E"];
 		_127127phash [label="PHash: 0000019...E599EC3"];
 		_127127issuer [label="issuer:\n4C4jsvx...H3BMNc3", URL="/graphviz/svg/certs/4C4jsvxmFQBoHN86BHsSreTKoK2bYvQV9gAGtH3BMNc3", shape=house];
@@ -50,7 +50,7 @@ digraph{
 		node [shape=underline]
 		style=filled;
 		color=lightgrey;
-		_127128 [label="  Block #\n127128  ", URL="/graphviz/svg/block/127128", shape=folder];
+		_127128 [label="  Block #\n127128  ", URL="/graphviz/svg/block/127128", shape=box3d];
 		_127128hash [label="Hash: 000003C...D082AA7"];
 		_127128phash [label="PHash: 0000045...FC6519E"];
 		_127128issuer [label="issuer:\n4weakHx...BDhJFni", URL="/graphviz/svg/certs/4weakHxDBMJG9NShULG1g786eeGh7wwntMeLZBDhJFni", shape=house];
@@ -78,7 +78,7 @@ digraph{
 		node [shape=underline]
 		style=filled;
 		color=lightgrey;
-		_127129 [label="  Block #\n127129  ", URL="/graphviz/svg/block/127129", shape=folder];
+		_127129 [label="  Block #\n127129  ", URL="/graphviz/svg/block/127129", shape=box3d];
 		_127129hash [label="Hash: 0000023...85DFCBE"];
 		_127129phash [label="PHash: 000003C...D082AA7"];
 		_127129issuer [label="issuer:\nGfKERHn...raf2aCP", URL="/graphviz/svg/certs/GfKERHnJTYzKhKUma5h1uWhetbA8yHKymhVH2raf2aCP", shape=house];
@@ -97,7 +97,7 @@ digraph{
 		node [shape=underline]
 		style=filled;
 		color=lightgrey;
-		_127130 [label="  Block #\n127130  ", URL="/graphviz/svg/block/127130", shape=folder];
+		_127130 [label="  Block #\n127130  ", URL="/graphviz/svg/block/127130", shape=box3d];
 		_127130hash [label="Hash: 0000013...EFB2CC8"];
 		_127130phash [label="PHash: 0000023...85DFCBE"];
 		_127130issuer [label="issuer:\nFSAPnBZ...5vfwGFB", URL="/graphviz/svg/certs/FSAPnBZidfUaiURd1qxwmx4z5VGEPvYfthWfq5vfwGFB", shape=house];
