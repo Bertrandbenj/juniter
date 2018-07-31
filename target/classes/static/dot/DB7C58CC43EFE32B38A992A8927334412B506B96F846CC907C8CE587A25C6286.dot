@@ -1,0 +1,68 @@
+digraph{
+	graph [rankdir=TB];
+	info [labeljust=l, shape=folder, label="blockstamp: 127126-...E599EC3\lCur: g1\lhash: DB7C58C...25C6286\llocktime: 0\l", URL="/graphviz/svg/block/127126"];
+	good [label="Product/Service\n"];
+	sum [label="sum\n23006"];
+	{rank = same; good; sum;}
+
+	subgraph cluster_inputs{
+		label="Inputs";
+		color=blue;
+		labelloc=t;
+
+	subgraph cluster_input1492267418{
+		graph [rankdir=LR];
+		label="TxInput";
+		input1492267418 [label="amount: 3006"];
+		thash1492267418 [label="Thash: C57A23E...FC9178F"];
+		tindex1492267418 [label="Tindex: 0"];
+	}
+
+	subgraph cluster_input96243379{
+		graph [rankdir=LR];
+		label="TxInput";
+		input96243379 [label="amount: 20000"];
+		thash96243379 [label="Thash: B915B0F...DBC486D"];
+		tindex96243379 [label="Tindex: 0"];
+	}
+	}
+
+	subgraph cluster_unlocks{
+		label="Unlocks";
+		color=blue;
+		labelloc=t;
+		dbu [label="useful\nfor\nstate\nmachine", shape=cylinder];
+		unlock1011859914 [label="unlock\nSIG(0)", shape=diamond];
+		input1492267418 -> unlock1011859914 ;
+		unlock55351853 [label="unlock\nSIG(0)", shape=diamond];
+		input96243379 -> unlock55351853 ;
+	}
+
+		unlock1011859914 -> sum ;
+		unlock55351853 -> sum ;
+
+	subgraph cluster_outputs{
+		label="Outputs";
+		color=blue;
+		labelloc=t;
+		dbo [label="useful\nfor\nstate\nmachine", shape=cylinder];
+		lockOut1712282018 [label="lockOut\nSIG(2uk...VKp732)", shape=diamond];
+		lockOut24459964 [label="lockOut\nSIG(8ys...qWq73e)", shape=diamond];
+	}
+		amountOut1712282018 [label="12000", shape=signature];
+		sum -> lockOut1712282018 [label="SIG",weight=10];
+		_dest2uk8xhPMuVvQtM8gQE9q5V8PDZoFBJUBx3SKtkVKp732 [label="2uk8xhP...kVKp732", weight=0];
+		amountOut1712282018 -> _dest2uk8xhPMuVvQtM8gQE9q5V8PDZoFBJUBx3SKtkVKp732 [weight=0];
+		good -> _dest2uk8xhPMuVvQtM8gQE9q5V8PDZoFBJUBx3SKtkVKp732[label="sell", weight=0];
+		lockOut1712282018 -> amountOut1712282018;
+		amountOut24459964 [label="11006", shape=signature];
+		sum -> lockOut24459964 [label="SIG",weight=10];
+		_dest8ysx7yQe47ffx379Evv3R6Qys86ekmVxwYTiVTqWq73e [label="8ysx7yQ...TqWq73e", weight=0];
+		amountOut24459964 -> _dest8ysx7yQe47ffx379Evv3R6Qys86ekmVxwYTiVTqWq73e [weight=0];
+		_8ysx7yQe47ffx379Evv3R6Qys86ekmVxwYTiVTqWq73e -> _dest8ysx7yQe47ffx379Evv3R6Qys86ekmVxwYTiVTqWq73e [weight=0, dir=back, label="the rest"];
+		lockOut24459964 -> amountOut24459964;
+	_8ysx7yQe47ffx379Evv3R6Qys86ekmVxwYTiVTqWq73e [label="issuer\n8ysx7yQ...TqWq73e"];
+	_8ysx7yQe47ffx379Evv3R6Qys86ekmVxwYTiVTqWq73e -> unlock1011859914 [weight=0];
+	_8ysx7yQe47ffx379Evv3R6Qys86ekmVxwYTiVTqWq73e -> good [label="buy", weight=0];
+
+}

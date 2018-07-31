@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Implementation-Title: Juniter
+Implementation-Version: 0.1
+Built-By: ben
+Implementation-Vendor-Id: org.duniter
+Build-Jdk: 1.8.0_181
+Implementation-URL: https://github.com/Bertrandbenj/juniter
+Created-By: Maven Integration for Eclipse
+
