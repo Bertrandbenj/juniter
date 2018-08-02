@@ -1,17 +1,13 @@
 package juniter.service.http;
 
-import java.util.Date;
-import java.util.Map;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.*;
 import static java.util.stream.Collectors.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.file.Files;
@@ -20,6 +16,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -34,16 +31,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import juniter.model.persistence.Hash;
 import juniter.model.persistence.PubKey;
 import juniter.model.persistence.tx.Transaction;
-import juniter.model.persistence.tx.TxInput;
 import juniter.model.persistence.tx.TxOutput;
 import juniter.model.persistence.tx.TxType;
-import juniter.model.persistence.tx.TxUnlock;
 import juniter.repository.BlockRepository;
 import juniter.repository.CertsRepository;
 import juniter.repository.TxRepository;
@@ -53,7 +46,39 @@ import juniter.service.rest.BlockchainService;
 @ConditionalOnExpression("${juniter.graphviz.enabled:false} && ${juniter.bma.enabled:false}")
 @RequestMapping("/graphviz")
 public class GraphvizService {
+
 	private static final Logger logger = LogManager.getLogger();
+
+	public enum FileOutputType {
+		dot("dot"), //
+		svg("svg");
+
+		private final String gvOutputType;
+
+		FileOutputType(String ept) {
+			this.gvOutputType = ept;
+		}
+
+		public String getEndPointType() {
+			return this.gvOutputType;
+		}
+	}
+
+	public enum GraphOutput {
+		certs("certs"), //
+		block("block"), //
+		tx("tx");
+
+		private final String gvOutput;
+
+		GraphOutput(String ept) {
+			this.gvOutput = ept;
+		}
+
+		public String getEndPointType() {
+			return this.gvOutput;
+		}
+	}
 
 	@Autowired
 	private CertsRepository certsRepo;
@@ -69,123 +94,116 @@ public class GraphvizService {
 
 	private static final String svgFile = "src/main/resources/static/dot/%s.svg";
 	private static final String dotFile = "src/main/resources/static/dot/%s.dot";
-	private static final Integer RANGE = 2;
+	
 
+	/**
+	 * Generic Graphviz service of the form 
+	 * /graphviz/{fileType=[dot|svg]}/{output=[certs|block|tx]}/{identifier}
+	 * @param request
+	 * @param response
+	 * @param fileType
+	 * @param output
+	 * @param identifier
+	 * @return
+	 * @throws IOException
+	 */
 	@Transactional
-	@RequestMapping(value = "/dot/block/{block}", method = RequestMethod.GET)
-	public @ResponseBody ResponseEntity<String> blockDot(HttpServletRequest request, HttpServletResponse response,
-			@PathVariable("block") Integer block) throws IOException {
-
+	@RequestMapping(value = "/{fileType}/{output}/{identifier}", method = RequestMethod.GET)
+	public @ResponseBody ResponseEntity<String> generic(
+			HttpServletRequest request,  HttpServletResponse response, // 
+			@PathVariable("fileType") FileOutputType fileType, 
+			@PathVariable("output") GraphOutput output, 
+			@PathVariable("identifier") String identifier) throws IOException {
+		
+		var extraParams = request.getParameterMap();
+		
+		logger.info("[GET] /graphviz/{}/{}/{}", fileType, output, identifier);
+		extraParams.forEach((k,v) -> {
+			logger.info("  -  {} -> {} ", k, v);
+		});
+		
 		
 		var headers = new HttpHeaders();
-		headers.setContentType(MediaType.valueOf("text/plain"));
-		var svgEntity = new ResponseEntity<String>(blockGraph(block), headers, HttpStatus.OK);
-		return svgEntity;
-	}
-
-	@Transactional
-	@RequestMapping(value = "/svg/block/{block}", method = RequestMethod.GET)
-	public @ResponseBody ResponseEntity<String> blockSVG(HttpServletRequest request, HttpServletResponse response,
-			@PathVariable("block") Integer block) throws IOException {
-		logger.info( "[GET] /graphviz/svg/block/..." + request.getParameter("rankdir") );
-		// build the SVG XML as a string
-		String SVG = localConvertToSVG(blockGraph(block), block + "");
-
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.valueOf("image/svg+xml"));
-		ResponseEntity<String> svgEntity = new ResponseEntity<String>(SVG, headers, HttpStatus.OK);
-		return svgEntity;
-	}
-
-	@Transactional
-	@RequestMapping(value = "/dot/certs/{pubkey}", method = RequestMethod.GET)
-	public @ResponseBody ResponseEntity<String> certsDot(HttpServletRequest request, HttpServletResponse response,
-			@PathVariable("pubkey") String pubkey) throws IOException {
-
-		var headers = new HttpHeaders();
+		var outContent = "";
 		
-		headers.setContentType(MediaType.valueOf("text/plain"));
-		var svgEntity = new ResponseEntity<String>(certsGraph(pubkey), headers, HttpStatus.OK);
-		return svgEntity;
+		// Build the dot file 
+		var gv = "";
+		switch(output) {
+			case block:
+				gv = blockGraph(Integer.valueOf(identifier), extraParams);
+				break;
+			case certs:
+				gv = certsGraph(identifier);
+				break;
+			case tx:
+				gv = txGraph(identifier, extraParams);
+				break;
+		}
+		
+		// decide whether or not to compute the graph
+		switch (fileType) {
+		case dot:
+			headers.setContentType(MediaType.valueOf("text/plain"));
+			outContent = gv;
+			break;
+		case svg:
+			headers.setContentType(MediaType.valueOf("image/svg+xml"));
+			outContent = localConvertToSVG(gv, identifier);
+			break;
+		}
+		
+		return new ResponseEntity<String>(outContent, headers, HttpStatus.OK);
 	}
 
-	@Transactional
-	@RequestMapping(value = "/svg/certs/{pubkey}", method = RequestMethod.GET)
-	public @ResponseBody ResponseEntity<String> certsSVG(HttpServletRequest request, HttpServletResponse response,
-			@PathVariable("pubkey") String pubkey) throws IOException {
+	public String txGraph(String hash, Map<String, String[]> extraParams) {
 
-		// build the SVG XML as a string
-		String SVG = localConvertToSVG(certsGraph(pubkey), pubkey);
+		var rankdir = extraParams.keySet().contains("rankdir") ? extraParams.get("rankdir") : "LR";
 
-		var headers = new HttpHeaders();
-		headers.setContentType(MediaType.valueOf("image/svg+xml"));
-		var svgEntity = new ResponseEntity<String>(SVG, headers, HttpStatus.OK);
-		return svgEntity;
-	}
-
-	@Transactional
-	@RequestMapping(value = "/dot/tx/{hash}", method = RequestMethod.GET)
-	public @ResponseBody ResponseEntity<String> txDot(HttpServletRequest request, HttpServletResponse response,
-			@PathVariable("hash") String hash) throws IOException {
-
-		var headers = new HttpHeaders();
-		headers.setContentType(MediaType.valueOf("text/plain"));
-		var svgEntity = new ResponseEntity<String>(txGraph(hash), headers, HttpStatus.OK);
-		return svgEntity;
-	}
-
-	@Transactional
-	@RequestMapping(value = "/svg/tx/{hash}", method = RequestMethod.GET)
-	public @ResponseBody ResponseEntity<String> txSVG(HttpServletRequest request, HttpServletResponse response,
-			@PathVariable("hash") String hash) throws IOException {
-		logger.info("Entering... /graphviz/svg/tx/{hash=" + hash + "}");
-		// build the SVG XML as a string
-		String SVG = localConvertToSVG(txGraph(hash), hash);
-
-		var headers = new HttpHeaders();
-		headers.setContentType(MediaType.valueOf("image/svg+xml"));
-		var svgEntity = new ResponseEntity<String>(SVG, headers, HttpStatus.OK);
-		return svgEntity;
-	}
-
-	public String txGraph(String hash) {
 		var res = "";
 
 		var tx = txRepo.findByTHash(hash).get(0);
-		
 
 		res += "digraph{\n" //
-				+ "\tgraph [rankdir=TB];\n";
+				+ "\tgraph [rankdir=" + rankdir + "];\n";
 
 		res += "\tinfo [labeljust=l, shape=box3d, label=\"" //
 				+ "Bstamp: " + mini(tx.getBlockstamp()) //
 				+ "\\lCur: " + tx.getCurrency()//
 				+ "\\lhash: " + mini(tx.getHash())//
 				+ "\\llocktime: " + tx.getLocktime() //
-				+ "\\l\", URL=\"/graphviz/svg/block/"+tx.getBlockstamp().split("-")[0]+"\"];\n";
+				+ "\\l\", URL=\"/graphviz/svg/block/" + tx.getBlockstamp().split("-")[0] + "\"];\n";
 
-
-		res += "\tgood [label=\"Product/Service\\n" + tx.getComment() + "\"];\n";
-		res += "\tsum [label=\"sum\\n"+tx.inputs().stream().mapToInt(i->i.Amount()).sum()+"\"];\n";
+		res += "\tsum [label=\"sum\\n" + tx.inputs().stream().mapToInt(i -> i.Amount()).sum() + "\"];\n";
 		res += "\t{rank = same; good; sum;}\n";
 
-		
-		
 		//
-		//							DRAW THE INPUTS 
+		// DRAW THE ACTUAL TRANSACTION
 		//
 		res += "\n\tsubgraph cluster_inputs{\n" //
-				+ "\t\tlabel=\"Inputs\";\n" // 
+				+ "\t\tlabel=\"Actual transaction\";\n" //
+				+ "\t\tlabelloc=t;\n" //
+				+ "\t\tcolor=blue;\n"//
+				+ "\t\tgood -> seller [dir=back, label=\"sell\"];\n" //
+				+ "\t\tbuyer -> good [label=\"buy\"];\n"//
+				+ "\n";//
+
+		res += "\t}\n\n";//
+
+		//
+		// DRAW THE INPUTS
+		//
+		res += "\n\tsubgraph cluster_inputs{\n" //
+				+ "\t\tlabel=\"Inputs\";\n" //
 				+ "\t\tcolor=blue;\n"//
 				+ "\t\tlabelloc=t;\n";
-		for (TxInput txi : tx.inputs()) {
+		for (int i = 0; i < tx.inputs().size(); i++) {
 
-			var input = "input" + txi.hashCode();
-			
-			
+			var txi = tx.inputs().get(i);
+			var input = "input_" + i;
+
 			if (txi.Type().equals(TxType.D)) {
 				res += "\t\t" + input + " ["//
-						+ "label=\"UD\", URL=\"/graphviz/svg/block/" + txi.dBlockID() //
+						+ "label=\"UD\", mouseover=\"huhu\", URL=\"/graphviz/svg/block/" + txi.dBlockID() //
 						+ "\", shape=circle, color=yellow, style=filled];\n"; //
 			} else if (txi.Type().equals(TxType.T)) {
 				res += "\n\tsubgraph cluster_input" + txi.hashCode() + "{\n" //
@@ -193,8 +211,8 @@ public class GraphvizService {
 						+ "\t\tlabel=\"TxInput\";\n"//
 						+ "\t\t" + input + " [label=\"amount: " + txi.Amount() + "\"];\n"; //
 
-				res += "\t\tthash" + txi.hashCode() + " [label=\"Thash: " + mini(txi.tHash().toString()) + "\"];\n" //
-						+ "\t\ttindex" + txi.hashCode() + " [label=\"Tindex: " + txi.tIndex() + "\"];\n"; //
+				res += "\t\tthash" + i + " [label=\"Thash: " + mini(txi.tHash().toString()) + "\"];\n" //
+						+ "\t\ttindex" + i + " [label=\"Tindex: " + txi.tIndex() + "\"];\n"; //
 				res += "\t}\n";//
 
 			}
@@ -202,51 +220,55 @@ public class GraphvizService {
 //			res += "\t\tamount" + txi.hashCode() + " -> sum [label=\"" + txi.Amount() + "\", weight=10];\n";
 		}
 		res += "\t}\n\n";//
-		
-		
+
 		//
-		//							DRAW THE UNLOCKS 
+		// DRAW THE UNLOCKS
 		//
 		res += "\tsubgraph cluster_unlocks{\n" //
-				+ "\t\tlabel=\"Unlocks\";\n" // 
+				+ "\t\tlabel=\"Unlocks\";\n" //
 				+ "\t\tcolor=blue;\n"//
-				+ "\t\tlabelloc=t;\n"
-				+ "\t\tdbu [label=\"useful\\nfor\\nstate\\nmachine\", shape=cylinder];\n";
-		for(TxUnlock unlock : tx.unlocks()) {
+				+ "\t\tlabelloc=t;\n" + "\t\tdbu [label=\"useful\\nfor\\nstate\\nmachine\", shape=cylinder];\n";
+
+		res += "\t\tunlocks " + "" + " [shape=record, label=\"";
+		var links = "";
+		for (int i = 0; i < tx.unlocks().size(); i++) {
+			var unlock = tx.unlocks().get(i);
 			var UnlockedInput = tx.inputs().get(unlock.Id());
 			var UnlockedIssuer = tx.issuers().get(unlock.sigFuncReference()); // case SIG
-			
-			res += "\t\tunlock"+unlock.hashCode()+" [label=\"unlock\\n" + unlock.Function() + "\", shape=diamond];\n";
-			
-			//link 
-			res += "\t\tinput"+ UnlockedInput.hashCode()+" -> unlock"+unlock.hashCode()+" ;\n";
+			res += "{ <k" + i + "> " + unlock.Id() + " | <v" + i + "> " + unlock.Function() + " }";
+			if (i != tx.unlocks().size() - 1)
+				res += " | ";
+
+//			res += "\t\tunlock"+i+" [label=\"unlock\\n" + unlock.Function() + "\", shape=diamond];\n";
+
+			// link
+			links += "\t\tinput_" + i + " -> unlocks:k" + i + " [color=lightgray; style=dashed];\n";
+			links += "\t\tunlocks:v" + i + " -> sum [color=lightgray; style=dashed];\n";
+//			res += "\t\tinput"+ UnlockedInput.hashCode()+" -> unlock"+unlock.hashCode()+" ;\n";
 //			res += "\tissuer"+UnlockedIssuer.getPubkey()+" -> unlock"+ unlock.hashCode()+" ;\n";
 		}
-		
+
+		res += "\"];\n\t" + links;
+
 		res += "\t}\n\n";//
-		for(TxUnlock unlock : tx.unlocks()) {
-			res += "\t\tunlock"+unlock.hashCode()+" -> sum ;\n";
-		}
-		
-		
-		
+
 		//
-		//							DRAW THE OUTPUTS 
+		// DRAW THE OUTPUTS
 		//
 		res += "\n\tsubgraph cluster_outputs{\n" //
-				+ "\t\tlabel=\"Outputs\";\n" // 
+				+ "\t\tlabel=\"Outputs\";\n" //
 				+ "\t\tcolor=blue;\n"//
 				+ "\t\tlabelloc=t;\n"//
 				+ "\t\tdbo [label=\"useful\\nfor\\nstate\\nmachine\", shape=cylinder];\n";
-		// NODES 
+		// NODES
 		for (TxOutput out : tx.outputs()) {
-			
-			res += "\t\tlockOut"+out.hashCode()+" [label=\"lockOut\\n" + mini(out.Function()) + "\", shape=diamond];\n";
 
-			
+			res += "\t\tlockOut" + out.hashCode() + " [label=\"lockOut\\n" + mini(out.Function())
+					+ "\", shape=diamond];\n";
+
 		}
 		res += "\t}\n";//
-		
+
 		// EDGES
 		for (TxOutput out : tx.outputs()) {
 			res += "\t\tamountOut" + out.hashCode() + " [label=\"" + out.Amount() + "\", shape=signature];\n"; //
@@ -254,29 +276,35 @@ public class GraphvizService {
 			res += "\t\tsum -> " + "lockOut" + out.hashCode() + " [label=\"SIG\",weight=10];\n";
 			if (out.Function().startsWith("SIG(")) {
 				var dest = out.Function().substring(4, out.Function().length() - 1);
-				res += "\t\t_dest" + dest + " [label=\""+mini(dest)+"\", weight=0];\n";
+				res += "\t\t_dest" + dest + " [label=\"" + mini(dest) + "\", weight=0, shape=pentagon];\n";
 				res += "\t\tamountOut" + out.hashCode() + " -> _dest" + dest + " [weight=0];\n";
-				//res += "\t\t_" + dest + " -> good [weight=0];\n";
-				if(tx.issuers().stream().map(p->p.getPubkey()).anyMatch(s-> dest.equals(s))) { // is Issuer? 
+				// res += "\t\t_" + dest + " -> good [weight=0];\n";
+				if (tx.issuers().stream().map(p -> p.getPubkey()).anyMatch(s -> dest.equals(s))) { // is Issuer?
 //					res += "\t\t_dest" + dest + " -> good [weight=0];\n";
-					res += "\t\t_" + dest + " -> _dest"+dest+" [weight=0, dir=back, label=\"the rest\"];\n";
-				}else {
-					res += "\t\tgood -> _dest" + dest + "[label=\"sell\", weight=0];\n";
+					res += "\t\t_" + dest + " -> _dest" + dest + " [weight=0, dir=back, label=\"the rest\"];\n";
+				} else {
+//					res += "\t\tgood -> _dest" + dest + "[label=\"sell\", weight=0];\n";
 				}
+				res += "\t{rank = same; _dest" + dest + "; seller;}\n";
 			}
-			res += "\t\tlockOut"+out.hashCode()+" -> amountOut" + out.hashCode()+";\n";
+			res += "\t\tlockOut" + out.hashCode() + " -> amountOut" + out.hashCode() + ";\n";
 		}
-		for(PubKey issuer : tx.issuers()) {
-			res += "\t_"+issuer.getPubkey()+" [label=\"issuer\\n" + mini(issuer.getPubkey()) + "\"];\n";
-			res += "\t_" + issuer.getPubkey() + " -> unlock"+tx.unlocks().get(0).hashCode()+" [weight=0];\n";
-			res += "\t_" + issuer.getPubkey() + " -> good [label=\"buy\", weight=0];\n";
+		for (PubKey issuer : tx.issuers()) {
+			res += "\t_" + issuer.getPubkey() + " [label=\"issuer\\n" + mini(issuer.getPubkey())
+					+ "\", shape=pentagon];\n";
+			res += "\t_" + issuer.getPubkey() + " -> unlocks:0 [weight=0];\n";
+//			res += "\t_" + issuer.getPubkey() + " -> good [label=\"buy\", weight=0];\n";
+			res += "\t{rank = same; input_0; buyer;}\n";
+
 		}
 		return res + "\n}";
 
 	}
 
-	public String blockGraph(Integer blockNumber) {
-
+	public String blockGraph(Integer blockNumber, Map<String, String[]> extraParams) {
+		
+		final Integer RANGE = extraParams.containsKey("range") ? Integer.valueOf(extraParams.get("range")[0]) : 2;
+		
 		var blocks = IntStream.range(blockNumber - RANGE, blockNumber + RANGE + 1)//
 				.filter(i -> i >= 0) //
 				.filter(i -> i <= blockRepo.current()) //
@@ -314,10 +342,10 @@ public class GraphvizService {
 			}
 
 			sub += "\t\t" + prefix + "issuer [label=\"issuer:\\n" + mini(b.getIssuer())
-					+ "\", URL=\"/graphviz/svg/certs/" + b.getIssuer() + "\", shape=house];\n";
+					+ "\", URL=\"/graphviz/svg/certs/" + b.getIssuer() + "\", shape=pentagon];\n";
 			if (b.getNumber() > 0) {
 				sub += "\t\t" + prefix + "pissuer [label=\"pissuer:\\n" + mini(b.getPreviousIssuer())
-						+ "\", shape=house];\n";
+						+ "\", shape=pentagon];\n";
 			}
 
 			var deltaTime = "N/A";

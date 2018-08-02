@@ -2,9 +2,26 @@
 ## Install 
 
 ```bash
-sudo apt-get install graphviz git maven 
+sudo apt-get install graphviz git maven postgresql
 git clone https://github.com/Bertrandbenj/juniter
 mvn spring-boot:run
+
+
+
+
+
+
+
+
+su - postgres
+psql
+
+CREATE USER testuser PASSWORD 'junipass';
+CREATE SCHEMA testdb;
+GRANT ALL ON SCHEMA testdb TO testuser;
+
+
+
 ```
 
 ## Configuration
@@ -16,6 +33,7 @@ juniter.simpleloader.enabled=false
 
 
 ## Maybe useful commands
+
 https://stackoverflow.com/questions/49507160/how-to-install-jdk-10-under-ubuntu
 
 ```
@@ -27,11 +45,15 @@ sudo apt-get install oracle-java10-set-default
 ## Or simply, set java 10
 export JAVA_HOME=/usr/lib/jvm/java-10-oracle
 ```
-
 build jar jar 
 
 ```
 mvn package spring-boot:repackage
+```
+
+Certifications 
+```
+certbot certonly --force-renew --cert-name juniter.bnimajneb.online
 ```
 
 ## Java model and HTTP rest api for duniter

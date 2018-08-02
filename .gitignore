@@ -1,2 +1,4 @@
 src/main/resources/static/dot/*
 /target/
+/juniter.log
+/exec.log
