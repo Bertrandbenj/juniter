@@ -28,7 +28,8 @@ public class TxInput implements Serializable {
 	@Min(1)
 	private Integer amount;
 
-	@Min(0) @Max(0)
+	@Min(0)
+	@Max(0)
 	private Integer base;
 
 	@Enumerated(EnumType.STRING)
@@ -59,10 +60,9 @@ public class TxInput implements Serializable {
 				+ (TxType.D.equals(type) ? (dsource + ":" + dBlockID) : (tHash + ":" + tIndex));
 	}
 
-
 	public void setInput(String input) {
-		logger.debug("parse TxInput ... "+input);
-		//this.input = input;
+		logger.debug("parse TxInput ... " + input);
+		// this.input = input;
 		var it = input.split(":");
 		amount = Integer.valueOf(it[0]);
 		base = Integer.valueOf(it[1]);

@@ -16,6 +16,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
@@ -108,7 +109,7 @@ public class GraphvizService {
 	 * @throws IOException
 	 */
 	@Transactional
-	@RequestMapping(value = "/{fileType}/{output}/{identifier}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{fileType}/{output}/{identifier}", method = RequestMethod.GET )
 	public @ResponseBody ResponseEntity<String> generic(
 			HttpServletRequest request,  HttpServletResponse response, // 
 			@PathVariable("fileType") FileOutputType fileType, 
@@ -116,18 +117,23 @@ public class GraphvizService {
 			@PathVariable("identifier") String identifier) throws IOException {
 		
 		var extraParams = request.getParameterMap();
+
+		var headers = new HttpHeaders();
+		var outContent = "";
+		var gv = "";
 		
 		logger.info("[GET] /graphviz/{}/{}/{}", fileType, output, identifier);
+		
 		extraParams.forEach((k,v) -> {
 			logger.info("  -  {} -> {} ", k, v);
+			//headers.setAtt(k, Arrays.asList(v)); 
+			//TODO: forward parameters 
 		});
 		
 		
-		var headers = new HttpHeaders();
-		var outContent = "";
 		
 		// Build the dot file 
-		var gv = "";
+		
 		switch(output) {
 			case block:
 				gv = blockGraph(Integer.valueOf(identifier), extraParams);
@@ -151,6 +157,7 @@ public class GraphvizService {
 			outContent = localConvertToSVG(gv, identifier);
 			break;
 		}
+		
 		
 		return new ResponseEntity<String>(outContent, headers, HttpStatus.OK);
 	}
@@ -179,7 +186,7 @@ public class GraphvizService {
 		//
 		// DRAW THE ACTUAL TRANSACTION
 		//
-		res += "\n\tsubgraph cluster_inputs{\n" //
+		res += "\n\tsubgraph cluster_actual{\n" //
 				+ "\t\tlabel=\"Actual transaction\";\n" //
 				+ "\t\tlabelloc=t;\n" //
 				+ "\t\tcolor=blue;\n"//
@@ -192,6 +199,7 @@ public class GraphvizService {
 		//
 		// DRAW THE INPUTS
 		//
+		var links = "";
 		res += "\n\tsubgraph cluster_inputs{\n" //
 				+ "\t\tlabel=\"Inputs\";\n" //
 				+ "\t\tcolor=blue;\n"//
@@ -203,23 +211,28 @@ public class GraphvizService {
 
 			if (txi.Type().equals(TxType.D)) {
 				res += "\t\t" + input + " ["//
-						+ "label=\"UD\", mouseover=\"huhu\", URL=\"/graphviz/svg/block/" + txi.dBlockID() //
+						+ "label=\"UD\", URL=\"/graphviz/svg/block/" + txi.dBlockID() //
 						+ "\", shape=circle, color=yellow, style=filled];\n"; //
 			} else if (txi.Type().equals(TxType.T)) {
-				res += "\n\tsubgraph cluster_input" + txi.hashCode() + "{\n" //
-						+ "\t\tgraph [rankdir=LR];\n"//
-						+ "\t\tlabel=\"TxInput\";\n"//
-						+ "\t\t" + input + " [label=\"amount: " + txi.Amount() + "\"];\n"; //
-
-				res += "\t\tthash" + i + " [label=\"Thash: " + mini(txi.tHash().toString()) + "\"];\n" //
-						+ "\t\ttindex" + i + " [label=\"Tindex: " + txi.tIndex() + "\"];\n"; //
-				res += "\t}\n";//
+				
+				res += "\t\t" + input + " ["//
+						+ "label=\"TX : "+txi.Amount()+" g1\n"+ txi.tIndex() +" : "+mini(txi.tHash().toString())+"\", URL=\"/graphviz/svg/block/" + txi.dBlockID() //
+						+ "\", shape=signature, ];\n"; //
+				
+//				res += "\n\tsubgraph cluster_input" + txi.hashCode() + "{\n" //
+//						+ "\t\tgraph [rankdir=LR];\n"//
+//						+ "\t\tlabel=\"TxInput\";\n"//
+//						+ "\t\t" + input + " [label=\"amount: " + txi.Amount() + "\"];\n"; //
+//
+//				res += "\t\tthash" + i + " [label=\"Thash: " + mini(txi.tHash().toString()) + "\"];\n" //
+//						+ "\t\ttindex" + i + " [label=\"Tindex: " + txi.tIndex() + "\"];\n"; //
+//				res += "\t}\n";//
 
 			}
 
 //			res += "\t\tamount" + txi.hashCode() + " -> sum [label=\"" + txi.Amount() + "\", weight=10];\n";
 		}
-		res += "\t}\n\n";//
+		res += "\t}\n"+links+"\n\n";//
 
 		//
 		// DRAW THE UNLOCKS
@@ -230,22 +243,18 @@ public class GraphvizService {
 				+ "\t\tlabelloc=t;\n" + "\t\tdbu [label=\"useful\\nfor\\nstate\\nmachine\", shape=cylinder];\n";
 
 		res += "\t\tunlocks " + "" + " [shape=record, label=\"";
-		var links = "";
+		links = "";
 		for (int i = 0; i < tx.unlocks().size(); i++) {
 			var unlock = tx.unlocks().get(i);
-			var UnlockedInput = tx.inputs().get(unlock.Id());
-			var UnlockedIssuer = tx.issuers().get(unlock.sigFuncReference()); // case SIG
-			res += "{ <k" + i + "> " + unlock.Id() + " | <v" + i + "> " + unlock.Function() + " }";
+//			var UnlockedInput = tx.inputs().get(unlock.Id());
+//			var UnlockedIssuer = tx.issuers().get(unlock.functionReference()); // case SIG
+			res += "{ <	" + i + "> " + unlock.Id() + " | <v" + i + "> " + unlock.Function() + " }";
 			if (i != tx.unlocks().size() - 1)
 				res += " | ";
-
-//			res += "\t\tunlock"+i+" [label=\"unlock\\n" + unlock.Function() + "\", shape=diamond];\n";
-
+			
 			// link
-			links += "\t\tinput_" + i + " -> unlocks:k" + i + " [color=lightgray; style=dashed];\n";
-			links += "\t\tunlocks:v" + i + " -> sum [color=lightgray; style=dashed];\n";
-//			res += "\t\tinput"+ UnlockedInput.hashCode()+" -> unlock"+unlock.hashCode()+" ;\n";
-//			res += "\tissuer"+UnlockedIssuer.getPubkey()+" -> unlock"+ unlock.hashCode()+" ;\n";
+			links += "\t\tinput_" + i + " -> unlocks:k" + i + " [color=lightgrey, style=dashed];\n";
+			links += "\t\tunlocks:v" + i + " -> sum [color=lightgrey, style=dashed];\n";
 		}
 
 		res += "\"];\n\t" + links;
@@ -270,31 +279,32 @@ public class GraphvizService {
 		res += "\t}\n";//
 
 		// EDGES
-		for (TxOutput out : tx.outputs()) {
-			res += "\t\tamountOut" + out.hashCode() + " [label=\"" + out.Amount() + "\", shape=signature];\n"; //
+		for (int i = 0; i <  tx.outputs().size();i++) {
+			TxOutput out = tx.outputs().get(i);
+			res += "\t\tamountOut" + i + " [label=\"" + out.Amount() + "\", shape=signature];\n"; //
 
 			res += "\t\tsum -> " + "lockOut" + out.hashCode() + " [label=\"SIG\",weight=10];\n";
 			if (out.Function().startsWith("SIG(")) {
 				var dest = out.Function().substring(4, out.Function().length() - 1);
+				
 				res += "\t\t_dest" + dest + " [label=\"" + mini(dest) + "\", weight=0, shape=pentagon];\n";
-				res += "\t\tamountOut" + out.hashCode() + " -> _dest" + dest + " [weight=0];\n";
-				// res += "\t\t_" + dest + " -> good [weight=0];\n";
+
+				
 				if (tx.issuers().stream().map(p -> p.getPubkey()).anyMatch(s -> dest.equals(s))) { // is Issuer?
-//					res += "\t\t_dest" + dest + " -> good [weight=0];\n";
-					res += "\t\t_" + dest + " -> _dest" + dest + " [weight=0, dir=back, label=\"the rest\"];\n";
+					res += "\t\tamountOut" + i + " -> _dest" + dest + " [weight=0, label=\"the rest\"];\n";
 				} else {
-//					res += "\t\tgood -> _dest" + dest + "[label=\"sell\", weight=0];\n";
+					res += "\t\tamountOut" +i + " -> _dest" + dest + " [weight=0];\n";
 				}
 				res += "\t{rank = same; _dest" + dest + "; seller;}\n";
 			}
-			res += "\t\tlockOut" + out.hashCode() + " -> amountOut" + out.hashCode() + ";\n";
+			res += "\t\tlockOut" + out.hashCode() + " -> amountOut" + i + ";\n";
 		}
 		for (PubKey issuer : tx.issuers()) {
 			res += "\t_" + issuer.getPubkey() + " [label=\"issuer\\n" + mini(issuer.getPubkey())
 					+ "\", shape=pentagon];\n";
-			res += "\t_" + issuer.getPubkey() + " -> unlocks:0 [weight=0];\n";
-//			res += "\t_" + issuer.getPubkey() + " -> good [label=\"buy\", weight=0];\n";
-			res += "\t{rank = same; input_0; buyer;}\n";
+			res += "\t_" + issuer.getPubkey() + " -> unlocks:v1 [weight=0];\n";
+			
+			res += "\t{rank = same; _"+issuer.getPubkey()+"; buyer;}\n";
 
 		}
 		return res + "\n}";
@@ -370,7 +380,8 @@ public class GraphvizService {
 			if (b.getTransactions().size() > 0) {
 
 				sub += "\n\t\tsubgraph cluster_" + b.getNumber() + "Tx {\n" //
-						+ "\t\t\tgraph [rankdir=LR, style=dotted, color=black]\n" + "\t\t\tlabelloc=\"t\";\n"
+						+ "\t\t\tgraph [rankdir=LR, style=dotted, color=black]\n" // 
+						+ "\t\t\tlabelloc=\"t\";\n" // 
 						+ "\t\t\tlabel=\"Transactions\";";
 //						+ "\t\t\t" + prefix + "tx [label=\"Transaction\", shape=circle];\n"; //
 

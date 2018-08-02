@@ -41,7 +41,19 @@ public interface TxRepository extends JpaRepository<Transaction, Long> {
 	
 
 
-
+	default Transaction findTransactionWithMultipleIssuers(){
+		return streamAll() // 
+				.filter(t -> t.issuers().size()>1) // 
+				.findFirst().get();
+	};
+	
+	default Transaction findTransactionOneAndSameIssuerAndDest(){
+		return streamAll() // 
+				.filter(t -> t.issuers().size()==1) // 
+				.filter(t -> t.outputs().size()==1) // 
+				.filter(t -> t.inputs().get(0).equals(t.outputs().get(0).functionReferenceValue()))
+				.findFirst().get();
+	};
 	
 
 

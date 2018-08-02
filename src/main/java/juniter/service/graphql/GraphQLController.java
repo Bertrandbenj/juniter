@@ -4,10 +4,10 @@ import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
 import graphql.schema.GraphQLSchema;
+import io.leangen.geantyref.TypeToken;
 import io.leangen.graphql.GraphQLSchemaGenerator;
 import io.leangen.graphql.metadata.strategy.query.AnnotatedResolverBuilder;
 import io.leangen.graphql.metadata.strategy.value.jackson.JacksonValueMapperFactory;
-import juniter.service.async.SimpleLoader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,40 +28,30 @@ import java.util.Map;
 public class GraphQLController {
 	private static final Logger logger = LoggerFactory.getLogger(GraphQLController.class);
 
-    private final GraphQL graphQL;
-//    
-//    SchemaParser sc = SchemaParser.newParser()
-//    .file("my-schema.graphqls")
+	private final GraphQL graphQL;
 
-    public GraphQLController(CarService carService) {
-//        GraphQLSchema schema = new GraphQLSchemaGenerator()
-//                .withResolverBuilders(
-//                        //Resolve by annotations
-//                        new AnnotatedResolverBuilder())
-//                .withOperationsFromSingleton(carService)
-//                .withValueMapperFactory(new JacksonValueMapperFactory())
-//                .generate();
-//        graphQL = GraphQL.newGraphQL(schema).build();
-    	GraphQLSchema schema = new GraphQLSchemaGenerator()
-                .withResolverBuilders(
-                        //Resolve by annotations
-                        new AnnotatedResolverBuilder())
-                .withOperationsFromSingleton(carService)
-                .withValueMapperFactory(new JacksonValueMapperFactory())
-                .generate();
-graphQL = GraphQL.newGraphQL(schema).build();
-    }
+	public GraphQLController(BlockService bService, GQLTxService tService) {
 
-    @PostMapping(value = "/graphql", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @ResponseBody
-    public Map<String, Object> graphql(@RequestBody Map<String, String> request, HttpServletRequest raw) {
-       logger.info("[POST] /graphql "+request.get("query"));
-    	
-    	ExecutionResult executionResult = graphQL.execute(ExecutionInput.newExecutionInput()
-                .query(request.get("query"))
-                .operationName(request.get("operationName"))
-                .context(raw)
-                .build());
-        return executionResult.toSpecification();
-    }
+		GraphQLSchema schema = new GraphQLSchemaGenerator() //
+				.withResolverBuilders(new AnnotatedResolverBuilder()) //
+				.withOperationsFromSingleton(bService, BlockService.class) //
+				.withOperationsFromSingleton(tService, GQLTxService.class) //
+				.withValueMapperFactory(new JacksonValueMapperFactory()) //
+				.generate();
+		graphQL = GraphQL.newGraphQL(schema).build();
+	}
+
+	@PostMapping(value = "/graphql", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public Map<String, Object> graphql(@RequestBody Map<String, String> request, HttpServletRequest raw) {
+		logger.info("[POST] /graphql " + request.get("query"));
+
+		var executionResult = graphQL.execute(//
+				ExecutionInput.newExecutionInput() //
+						.query(request.get("query")) //
+						.operationName(request.get("operationName")) //
+						.context(raw)//
+						.build());
+		return executionResult.toSpecification();
+	}
 }

@@ -26,7 +26,7 @@ public class TxUnlock implements Serializable {
 		return function;
 	}
 	
-	public int sigFuncReference() {
+	public int functionReference() {
 		return Integer.parseInt(function.substring(4,function.length()-1));
 	}
 
@@ -48,6 +48,21 @@ public class TxUnlock implements Serializable {
 		var vals = unlock.split(":");
 		id = Integer.valueOf(vals[0]);
 		function = vals[1];
+	}
+	
+	public enum InputFct {
+		SIG("SIG"), XHX("XHX");
+
+		private final String FCT_TYPE;
+
+		InputFct(String transactionType) {
+			this.FCT_TYPE = transactionType;
+		}
+
+		public String getEndPointType() {
+			return this.FCT_TYPE;
+		}
+
 	}
 	
 }
