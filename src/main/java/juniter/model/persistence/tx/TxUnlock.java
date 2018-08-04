@@ -10,59 +10,81 @@ import org.apache.logging.log4j.Logger;
 @Embeddable
 public class TxUnlock implements Serializable {
 
+	public enum UnlockFct {
+		SIG("SIG"), XHX("XHX");
+
+		private final String FCT_UNLOCK;
+
+		UnlockFct(String unlock) {
+			FCT_UNLOCK = unlock;
+		}
+
+		@Override
+		public String toString() {
+			return FCT_UNLOCK;
+		}
+
+	}
+
 	private static final long serialVersionUID = -2759081749575814229L;
 
 	private static final Logger logger = LogManager.getLogger();
-	
-	private Integer id;
 
-	private String function; 
-	
-	public Integer Id() {
-		return id;
-	}
+	private Integer inputRef;
 
-	public String Function() {
-		return function;
-	}
-	
-	public int functionReference() {
-		return Integer.parseInt(function.substring(4,function.length()-1));
-	}
+	private UnlockFct fct;
+
+	private String fctParam;
 
 	public TxUnlock() {
 	}
-	
+
 	public TxUnlock(String unlock) {
 		setUnlock(unlock);
 	}
-	
-	public String getUnlock(){
-		return id +":"+function;
+
+	public UnlockFct getFct() {
+		return fct;
 	}
-	
+
+	public String getFctParam() {
+		return fctParam;
+	}
+
+	public String getFunction() {
+		return fct.toString() + "(" + fctParam + ")";
+	}
+
+	public Integer getInputRef() {
+		return inputRef;
+	}
+
+	public void setFct(UnlockFct fct) {
+		this.fct = fct;
+	}
+
+	public void setFctParam(String fctParam) {
+		this.fctParam = fctParam;
+	}
+
+	public void setInputRef(Integer id) {
+		inputRef = id;
+	}
+
 	public void setUnlock(String unlock) {
-		
-		logger.debug("Parsing TxUnlock... "+unlock);
-		
-		var vals = unlock.split(":");
-		id = Integer.valueOf(vals[0]);
-		function = vals[1];
+
+		logger.debug("Parsing TxUnlock... " + unlock);
+
+		final var vals = unlock.split(":");
+		inputRef = Integer.valueOf(vals[0]);
+		final var function = vals[1];
+		setFct(UnlockFct.valueOf(function.substring(0, 3)));
+		setFctParam(function.substring(4, function.length() - 1));
 	}
-	
-	public enum InputFct {
-		SIG("SIG"), XHX("XHX");
 
-		private final String FCT_TYPE;
-
-		InputFct(String transactionType) {
-			this.FCT_TYPE = transactionType;
-		}
-
-		public String getEndPointType() {
-			return this.FCT_TYPE;
-		}
-
+	@Override
+	public String toString() {
+		return inputRef + ":" + getFunction();
 	}
-	
+
 }

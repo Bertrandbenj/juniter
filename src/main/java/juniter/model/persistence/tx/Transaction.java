@@ -26,7 +26,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import juniter.model.persistence.BStamp;
 import juniter.model.persistence.Hash;
-import juniter.model.persistence.PubKey;
+import juniter.model.persistence.Pubkey;
 import juniter.model.persistence.Signature;
 import juniter.utils.Constants;
 
@@ -42,90 +42,59 @@ public class Transaction implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
-	
+
 //	@JsonIgnoreProperties()
 	private Integer version;
 
-	@Pattern(regexp=Constants.Regex.G1)
+	@Pattern(regexp = Constants.Regex.G1)
 	private String currency;
 
 //	@JsonView(TxHistory.Summary.class)
 	private Integer locktime;
 
-	
 	@Valid
 	@AttributeOverride(name = "hash", column = @Column(name = "tx_hash"))
 	private Hash hash = new Hash();
 
-	@Valid 
+	@Valid
 	@AttributeOverride(name = "buid", column = @Column(name = "blockstamp"))
 	private BStamp blockstamp = new BStamp();
 
-
 	private Integer blockstampTime;
 
-
-	@Valid 
+	@Valid
 	@ElementCollection
 	@CollectionTable(name = "tx_issuers", joinColumns = @JoinColumn(name = "tx_id"))
-	private List<PubKey> issuers = new ArrayList<PubKey>(); //
+	private List<Pubkey> issuers = new ArrayList<>(); //
 
 	@Valid
 	@ElementCollection
 	@CollectionTable(name = "tx_inputs", joinColumns = @JoinColumn(name = "tx_id"))
-	private List<TxInput> inputs = new ArrayList<TxInput>();
+	private List<TxInput> inputs = new ArrayList<>();
 
 	@Valid
 	@ElementCollection
 	@CollectionTable(name = "tx_outputs", joinColumns = @JoinColumn(name = "tx_id"))
-	private List<TxOutput> outputs = new ArrayList<TxOutput>();
+	private List<TxOutput> outputs = new ArrayList<>();
 
 	@Valid
 	@ElementCollection
 	@CollectionTable(name = "tx_unlocks", joinColumns = @JoinColumn(name = "tx_id"))
-	private List<TxUnlock> unlocks = new ArrayList<TxUnlock>();
+	private List<TxUnlock> unlocks = new ArrayList<>();
 
 	@Valid
 	@ElementCollection
 	@CollectionTable(name = "tx_signatures", joinColumns = @JoinColumn(name = "tx_id"))
-	private List<Signature> signatures = new ArrayList<Signature>();
+	private List<Signature> signatures = new ArrayList<>();
 
 	@Size(max = 255)
 	private String comment;
 
 	/**
-	 * @return the version
-	 */
-	public Integer getVersion() {
-		return version;
-	}
-
-	/**
-	 * @return the currency
-	 */
-	public String getCurrency() {
-		return currency;
-	}
-
-	/**
-	 * @return the locktime
-	 */
-	public Integer getLocktime() {
-		return locktime;
-	}
-
-	/**
-	 * @return the hash
-	 */
-	public String getHash() {
-		return hash.getHash(); 
-	}
-
-	/**
 	 * @return the blockstamp
 	 */
-	public String getBlockstamp() {
-		return blockstamp.getBuid();
+	public @Valid BStamp getBlockstamp() {
+		return blockstamp; // .getBuid();
 	}
 
 	/**
@@ -136,64 +105,85 @@ public class Transaction implements Serializable {
 	}
 
 	/**
-	 * @return the issuers
+	 * @return the comment
 	 */
-	public List<String> getIssuers() {
-		return issuers.stream().map(PubKey::getPubkey).collect(Collectors.toList());
+	public String getComment() {
+		return comment;
 	}
-	
-	public  List<PubKey> issuers(){
-		return issuers;
-	}
-	
 
-	public List<TxInput> inputs() {
-		return inputs;
+	/**
+	 * @return the currency
+	 */
+	public String getCurrency() {
+		return currency;
 	}
-	
+
+	/**
+	 * @return the hash
+	 */
+	public Hash getHash() {
+		return hash;// .toString();
+	}
+
 	/**
 	 * @return the inputs
 	 */
-	public List<String> getInputs() {
-		return inputs.stream().map(TxInput::getInput).collect(Collectors.toList());
+	public List<TxInput> getInputs() {
+		return inputs;// .stream().map(TxInput::getInput).collect(Collectors.toList());
 	}
 
 	/**
-	 * @return the outputs
+	 * @return the issuers
 	 */
-	public List<String> getOutputs() {
-		return outputs.stream().map(TxOutput::getOutput).collect(Collectors.toList());
+	public List<Pubkey> getIssuers() {
+		return issuers;// .stream().map(Pubkey::getPubkey).collect(Collectors.toList());
 	}
-	
-	public  List<TxOutput> outputs(){
+
+	/**
+	 * @return the locktime
+	 */
+	public Integer getLocktime() {
+		return locktime;
+	}
+
+	public List<TxOutput> getOutputs() {
 		return outputs;
 	}
-	
 
-	/**
-	 * @return the unlocks
-	 */
-	public List<String> getUnlocks() {
-		return unlocks.stream().map(TxUnlock::getUnlock).collect(Collectors.toList());
-	}
-	
-
-	public List<TxUnlock> unlocks() {
-		return unlocks;
-	}
-
+	// /**
+//	 * @return the outputs
+//	 */
+//	public List<String> getOutputs() {
+//		return outputs.stream().map(TxOutput::getOutput).collect(Collectors.toList());
+//	}
+//
 	/**
 	 * @return the signatures
 	 */
 	public List<String> getSignatures() {
 		return signatures.stream().map(Signature::toString).collect(Collectors.toList());
 	}
+//
+//	/**
+//	 * @return the unlocks
+//	 */
+//	public List<String> getUnlocks() {
+//		return unlocks.stream().map(TxUnlock::getUnlock).collect(Collectors.toList());
+//	}
+
+	public List<TxUnlock> getUnlocks() {
+		return unlocks;
+	}
 
 	/**
-	 * @return the comment
+	 * @return the version
 	 */
-	public String getComment() {
-		return comment;
+	public Integer getVersion() {
+		return version;
+	}
+
+	public boolean isValid() {
+		return true;
 	}
 
 	/**
@@ -205,17 +195,16 @@ public class Transaction implements Serializable {
 				+ outputs.size() + ":" + locktime + ":" + blockstampTime + "\n" + blockstamp + "\n"
 				+ issuers.stream().map(i -> i.getPubkey()).collect(Collectors.joining("\n")) + "\n"
 				+ inputs.stream().map(in -> in.getInput()).collect(Collectors.joining("\n")) + "\n" //
-				+ unlocks.stream().map(in -> in.getUnlock()).collect(Collectors.joining("\n")) + "\n"
+				+ unlocks.stream().map(in -> in.toString()).collect(Collectors.joining("\n")) + "\n"
 				+ outputs.stream().map(in -> in.getOutput()).collect(Collectors.joining("\n")) + "\n"
 				+ signatures.stream().map(in -> in.getSignature()).collect(Collectors.joining("\n"));
 	}
-	
-	public boolean txSentBy(Object pubkey ) {
+
+	public boolean txReceivedBy(Object pubkey) {
 		return issuers.stream().anyMatch(pk -> pk.equals(pubkey));
 	}
 
-
-	public boolean txReceivedBy(Object pubkey) {
+	public boolean txSentBy(Object pubkey) {
 		return issuers.stream().anyMatch(pk -> pk.equals(pubkey));
 	}
 

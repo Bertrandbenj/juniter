@@ -21,15 +21,21 @@ DROP TABLE public.wot_leavers;
 DROP TABLE public.wot_revoked;
 DROP TABLE public.block_transaction;
 DROP TABLE public.wot_identities;
+
+
+DROP TABLE public.block_certification;
+DROP TABLE public.block_identity;
+
 DROP TABLE public.block;
 DROP TABLE public.identity;
-
 DROP TABLE public.certification ;
 DROP TABLE public.endpoint_values;
 DROP TABLE public.peer_endpoints;
 DROP TABLE public.endpoints;
 DROP TABLE public.joiner;
 DROP TABLE public.peer;
+
+
 
 
 DROP TABLE public.signature;
@@ -43,6 +49,7 @@ DROP TABLE public.tx_issuers;
 DROP TABLE public.transaction;
 --DROP TABLE public.buid;
 --DROP TABLE public.pubkey;
+
 
 
 keytool -genkey -alias juniter -storetype PKCS12 -keyalg RSA -keysize 2048 -keystore keystore.p12 -validity 3650

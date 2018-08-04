@@ -1,10 +1,10 @@
-package juniter.service.async;
+package juniter.service.utils;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.scheduling.annotation.Async;
@@ -17,29 +17,12 @@ import juniter.service.rest.PeeringService;
 @Component
 public class AppRunner implements CommandLineRunner {
 
-	private static final Logger logger = LoggerFactory.getLogger(AppRunner.class);
+	private static final Logger logger = LogManager.getLogger();
 
 	private final PeeringService peeringService;
 
 	public AppRunner(PeeringService gitHubLookupService) {
-		this.peeringService = gitHubLookupService;
-	}
-
-	@Override
-	public void run(String... args) throws Exception {
-		// Start the clock
-		long start = System.currentTimeMillis();
-
-		// Kick of multiple, asynchronous lookups
-		//var peerDoc = CompletableFuture.runAsync(() -> contactPeers());
-
-		// Wait until they are all done
-		//CompletableFuture.allOf(peerDoc).join();
-
-		// Print results, including elapsed time
-		logger.info("Elapsed time: " + (System.currentTimeMillis() - start));
-		//logger.info("--> " + peerDoc.get());
-
+		peeringService = gitHubLookupService;
 	}
 
 	@Async
@@ -51,9 +34,8 @@ public class AppRunner implements CommandLineRunner {
 				.handle((stPeerDocs, ex) -> {
 					if (stPeerDocs != null) {
 						logger.info("handle: " + stPeerDocs + ""
-								+ stPeerDocs.stream()
-										.map(pd -> pd.getPeers().size()+" ")
-										//.map(p -> p.endpoints().size() + " endpoints for " + p.getPubkey())
+								+ stPeerDocs.stream().map(pd -> pd.getPeers().size() + " ")
+										// .map(p -> p.endpoints().size() + " endpoints for " + p.getPubkey())
 										.collect(Collectors.joining(" ")));
 						return stPeerDocs;
 					} else {
@@ -61,8 +43,24 @@ public class AppRunner implements CommandLineRunner {
 						return "Error handle: " + ex.getMessage();
 					}
 
-				})
-				;
+				});
+	}
+
+	@Override
+	public void run(String... args) throws Exception {
+		// Start the clock
+		final long start = System.currentTimeMillis();
+
+		// Kick of multiple, asynchronous lookups
+		// var peerDoc = CompletableFuture.runAsync(() -> contactPeers());
+
+		// Wait until they are all done
+		// CompletableFuture.allOf(peerDoc).join();
+
+		// Print results, including elapsed time
+		logger.info("Elapsed time: " + (System.currentTimeMillis() - start));
+		// logger.info("--> " + peerDoc.get());
+
 	}
 
 }

@@ -15,7 +15,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import juniter.model.persistence.Hash;
-import juniter.model.persistence.PubKey;
+import juniter.model.persistence.Pubkey;
 
 //@JsonIgnoreProperties(ignoreUnknown = true)
 @Embeddable
@@ -38,7 +38,7 @@ public class TxInput implements Serializable {
 
 	@Valid
 	@AttributeOverride(name = "pubkey", column = @Column(name = "dsource"))
-	private PubKey dsource = new PubKey();
+	private Pubkey dsource = new Pubkey();
 
 	private Integer dBlockID;
 
@@ -55,15 +55,47 @@ public class TxInput implements Serializable {
 		setInput(input);
 	}
 
+	public Integer getDBlockID() {
+		return dBlockID;
+	}
+
+	public Pubkey getDsource() {
+		return dsource;
+	}
+
+	public Integer getAmount() {
+		return amount;
+	}
+
+	public Integer getBase() {
+		return base;
+	}
+
 	public String getInput() {
 		return amount + ":" + base + ":" + type + ":"
-				+ (TxType.D.equals(type) ? (dsource + ":" + dBlockID) : (tHash + ":" + tIndex));
+				+ (TxType.D.equals(type) ? dsource + ":" + dBlockID : tHash + ":" + tIndex);
+	}
+
+	public void setAmount(Integer amount) {
+		this.amount = amount;
+	}
+
+	public void setBase(Integer base) {
+		this.base = base;
+	}
+
+	public void setdBlockID(Integer dBlockID) {
+		this.dBlockID = dBlockID;
+	}
+
+	public void setdSource(Pubkey dSource) {
+		dsource = dSource;
 	}
 
 	public void setInput(String input) {
 		logger.debug("parse TxInput ... " + input);
 		// this.input = input;
-		var it = input.split(":");
+		final var it = input.split(":");
 		amount = Integer.valueOf(it[0]);
 		base = Integer.valueOf(it[1]);
 		setType(TxType.valueOf(it[2]));
@@ -79,26 +111,6 @@ public class TxInput implements Serializable {
 		}
 	}
 
-	public void setAmount(Integer amount) {
-		this.amount = amount;
-	}
-
-	public void setBase(Integer base) {
-		this.base = base;
-	}
-
-	public void setType(TxType txType) {
-		this.type = txType;
-	}
-
-	public void setdSource(PubKey dSource) {
-		this.dsource = dSource;
-	}
-
-	public void setdBlockID(Integer dBlockID) {
-		this.dBlockID = dBlockID;
-	}
-
 	public void settHash(String tHash) {
 		this.tHash.setHash(tHash);
 	}
@@ -107,32 +119,24 @@ public class TxInput implements Serializable {
 		this.tIndex = tIndex;
 	}
 
-	public Integer Amount() {
-		return amount;
+	public void setType(TxType txType) {
+		type = txType;
 	}
 
-	public Integer Base() {
-		return base;
-	}
-
-	public TxType Type() {
-		return type;
-	}
-
-	public PubKey Dsource() {
-		return dsource;
-	}
-
-	public Integer dBlockID() {
-		return dBlockID;
-	}
-
-	public Hash tHash() {
+	public Hash getTHash() {
 		return tHash;
 	}
 
-	public Integer tIndex() {
+	public Integer getTIndex() {
 		return tIndex;
 	}
 
+	@Override
+	public String toString() {
+		return getInput();
+	}
+
+	public TxType getType() {
+		return type;
+	}
 }

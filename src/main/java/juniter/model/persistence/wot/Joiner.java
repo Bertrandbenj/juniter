@@ -11,7 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import juniter.model.persistence.BStamp;
-import juniter.model.persistence.PubKey;
+import juniter.model.persistence.Pubkey;
 
 @Embeddable
 public class Joiner implements Serializable {
@@ -25,14 +25,14 @@ public class Joiner implements Serializable {
 
 	@Valid
 	@AttributeOverride(name = "pubkey", column = @Column(name = "joinerKey"))
-	private PubKey joinerKey = new PubKey();
+	private Pubkey joinerKey = new Pubkey();
 
 	private String signature;
 
-	@Valid 
+	@Valid
 	@AttributeOverride(name = "buid", column = @Column(name = "buid1"))
 	private BStamp buid1 = new BStamp();
-	
+
 //	@Valid
 //	@AttributeOverride(name = "buid2", column = @Column(name = "buid2"))
 	private String buid2;
@@ -48,16 +48,16 @@ public class Joiner implements Serializable {
 	}
 
 	public String getJoiner() {
-		return joinerKey + ":" + signature + ":" + buid1+ ":" + buid2 +":"+pseudo;
+		return joinerKey + ":" + signature + ":" + buid1 + ":" + buid2 + ":" + pseudo;
 	}
 
 	public void setJoiner(String joiner) {
-		
-		logger.debug("Parsing Joiner... "+joiner);
-		var vals = joiner.split(":");
+
+		logger.debug("Parsing Joiner... " + joiner);
+		final var vals = joiner.split(":");
 		joinerKey.setPubkey(vals[0]);
 		signature = vals[1];
-		buid1.setBuid(vals[2]);
+		buid1.setBStamp(vals[2]);
 		buid2 = vals[3];
 		pseudo = vals[4];
 	}
@@ -65,9 +65,9 @@ public class Joiner implements Serializable {
 	public String toRaw() {
 		return getJoiner();
 	}
-	
+
 	@Override
 	public String toString() {
-		return  getJoiner();
+		return getJoiner();
 	}
 }

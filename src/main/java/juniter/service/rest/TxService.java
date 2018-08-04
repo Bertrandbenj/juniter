@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +38,9 @@ public class TxService {
 
 	@Autowired
 	private TxRepository repository;
+	
+	@Autowired
+    private ModelMapper modelMapper; 
 
 //	@Autowired
 //	private TxInRepository inRepo;

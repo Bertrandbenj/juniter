@@ -1,6 +1,5 @@
 package service;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.Test;
@@ -15,7 +14,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import juniter.service.rest.BlockchainService;
-import juniter.utils.Constants;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -29,15 +27,15 @@ public class BlockServiceTest {
 	@Autowired
 	BlockchainService blockService;
 
-	@Test
-	public void fetching10Blocks() {
-		var blocks = blockService.fetchBlocks(Constants.Defaults.NODE+"blockchain/blocks/10/50");
-		assertThat(blocks.size() == 10);
-			
-		blocks.forEach(bl->{
-			assertThat(true);
-		});
-	}
+//	@Test
+//	public void fetching10Blocks() {
+//		var blocks = blockService.fetchBlocks(Constants.Defaults.NODE+"blockchain/blocks/10/50");
+//		assertThat(blocks.size() == 10);
+//
+//		blocks.forEach(bl->{
+//			assertThat(true);
+//		});
+//	}
 
 	@Autowired
 	private MockMvc mvc;

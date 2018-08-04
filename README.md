@@ -6,11 +6,8 @@ sudo apt-get install graphviz git maven postgresql
 git clone https://github.com/Bertrandbenj/juniter
 mvn spring-boot:run
 
-
-
-
-
-
+mkdir /var/log/juniter
+chmod a+w /var/log/juniter
 
 
 su - postgres
@@ -19,17 +16,17 @@ psql
 CREATE USER testuser PASSWORD 'junipass';
 CREATE SCHEMA testdb;
 GRANT ALL ON SCHEMA testdb TO testuser;
-
-
-
 ```
 
 ## Configuration
 Check [application.yml](https://github.com/Bertrandbenj/juniter/blob/master/src/main/resources/application.yml) and overwrite it or set individual properties
 ```
 juniter.simpleloader.enabled=false
-
 ```
+
+## for nginx 
+
+http://crazypanda.fr/2018/01/23/duniter-configurer-un-noeud-derriere-un-reverse-proxy-nginx/
 
 
 ## Maybe useful commands

@@ -30,9 +30,9 @@ spring:
 ## 
 logging:
   path: /var/log/juniter
-  file: exec.log
+#  file: juniter.log
   level:
-    root: info
+    root: warn
     org.springframework.web: warn
     juniter: info
 
@@ -64,7 +64,8 @@ graphiql:
 ## 
 juniter:
   network:
-    remote: https://[fe80::f816:3eff:fed4:3e0b]/
+    trusted: https://g1.bertrandbenjamin.com/,https://duniter.normandie-libre.fr/,https://g1.duniter.org/,https://duniter.g1.1000i100.fr/,https://duniter.nayya.org/
+    bulkSize: 500
   simpleloader:
     enabled: true  
   graphviz:

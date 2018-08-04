@@ -10,7 +10,7 @@ import javax.validation.Valid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import juniter.model.persistence.PubKey;
+import juniter.model.persistence.Pubkey;
 
 @Embeddable
 public class Excluded implements Serializable {
@@ -21,7 +21,7 @@ public class Excluded implements Serializable {
 
 	@Valid
 	@AttributeOverride(name = "pubkey", column = @Column(name = "joinerKey"))
-	PubKey excluded = new PubKey();
+	Pubkey excluded = new Pubkey();
 
 	public Excluded() { }
 

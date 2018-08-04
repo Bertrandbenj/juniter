@@ -1,4 +1,4 @@
-package juniter.service;
+package juniter.service.utils;
 
 import java.io.IOException;
 
@@ -22,12 +22,14 @@ public class FileBlocksService {
 	/**
 	 * joiners/identity/certification & parameters
 	 */
-	Block _0, _1437;
+	public Block _0;
+
+	Block _1437;
 
 	/**
 	 * transactions
 	 */
-	Block _127128;
+	public Block _127128;
 
 	/**
 	 * leavers
@@ -43,16 +45,16 @@ public class FileBlocksService {
 	 * revoked/excluded
 	 */
 	Block _33396;
-	
+
 	@Autowired
-	BlockRepository blockRepo ;
+	BlockRepository blockRepo;
 
 	@PostConstruct
 	public void init() throws IOException {
 		log.info("Entering FileBlocksService.init  ");
 
-		ClassLoader cl = this.getClass().getClassLoader();
-		ObjectMapper jsonMapper = new ObjectMapper();
+		final ClassLoader cl = this.getClass().getClassLoader();
+		final ObjectMapper jsonMapper = new ObjectMapper();
 
 		try {
 			_0 = jsonMapper.readValue(cl.getResourceAsStream("blocks/0.json"), Block.class);
@@ -60,7 +62,7 @@ public class FileBlocksService {
 
 			_1437 = jsonMapper.readValue(cl.getResourceAsStream("blocks/1437.json"), Block.class);
 			log.info("Sucessfully parsed " + _1437 + "\tfrom " + cl.getResource("blocks/1437.json"));
-			
+
 			_127128 = jsonMapper.readValue(cl.getResourceAsStream("blocks/127128.json"), Block.class);
 			log.info("Sucessfully parsed " + _127128 + "\tfrom " + cl.getResource("blocks/127128.json"));
 
@@ -73,23 +75,20 @@ public class FileBlocksService {
 			_33396 = jsonMapper.readValue(cl.getResourceAsStream("blocks/33396.json"), Block.class);
 			log.info("Sucessfully parsed " + _33396 + "\tfrom " + cl.getResource("blocks/33396.json"));
 
-			
 			try {
-				blockRepo.findTop1ByNumber(17500).orElseGet(()->blockRepo.save(_17500));
-				blockRepo.findTop1ByNumber(33396).orElseGet(()->blockRepo.save(_33396));
-				blockRepo.findTop1ByNumber(127128).orElseGet(()->blockRepo.save(_127128));
-				blockRepo.findTop1ByNumber(102093).orElseGet(()->blockRepo.save(_102093));
-				blockRepo.findTop1ByNumber(0).orElseGet(()->blockRepo.save(_0));
-			}catch(Exception e) {
+				blockRepo.findTop1ByNumber(17500).orElseGet(() -> blockRepo.save(_17500));
+				blockRepo.findTop1ByNumber(33396).orElseGet(() -> blockRepo.save(_33396));
+				blockRepo.findTop1ByNumber(127128).orElseGet(() -> blockRepo.save(_127128));
+				blockRepo.findTop1ByNumber(102093).orElseGet(() -> blockRepo.save(_102093));
+				blockRepo.findTop1ByNumber(0).orElseGet(() -> blockRepo.save(_0));
+			} catch (final Exception e) {
 				log.error("saving ", e);
 			}
-			
-		} catch (Exception e) {
+
+		} catch (final Exception e) {
 			log.error("Starting FileBlocksService ... " + e);
 		}
-		
-		
-		
+
 		log.info("Finished Initializing " + this.getClass().getName());
 	}
 

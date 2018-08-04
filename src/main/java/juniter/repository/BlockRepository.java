@@ -8,7 +8,6 @@ import java.util.stream.Stream;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
 
@@ -20,35 +19,51 @@ import juniter.model.Block;
 @Repository
 public interface BlockRepository extends JpaRepository<Block, Long> {
 
+	default Optional<Block> block(Integer number) {
+		return findTop1ByNumber(number);
+	}
+
 	/**
-	 * Special customization of {@link CrudRepository#findOne(java.io.Serializable)}
-	 * to return a JDK 8 {@link Optional}.
+	 * highest block by block number in base
 	 *
-	 * @param id
 	 * @return
 	 */
+	default Optional<Block> current() {
+		return findTop1ByOrderByNumberDesc();
+	}
+
+	default Integer currentBlockNumber() {
+		return current().map(b -> b.getNumber()).orElse(140000);
+	};
+
+	List<Block> findByHash(String hash);
+
 	@Override
 	Optional<Block> findById(Long id);
 
-	// TODO clean this up 
-	Optional<Block> findTop1ByNumber(Integer number);
-	
-	
-	// TODO clean this up 
-//	@Query("select max(c.number) from Block c")
-	default Integer current() {
-		
-		return 139158 ; 
-	};
-		
-	Stream<Block> findByNumberIn(List<Integer> number);
-
-	Optional<Block> findTop1ByOrderByNumberDesc();
+	Stream<Block> findByNumberIn(List<Integer> number);;
 
 	Stream<Block> findTop10ByOrderByNumberDesc();
 
+	// TODO clean this up
+	Optional<Block> findTop1ByNumber(Integer number);
 
-	
+	/**
+	 * ALias for current()
+	 *
+	 * @return
+	 */
+	Optional<Block> findTop1ByOrderByNumberDesc();
+
+	default <S extends Block> Block override(S block) {
+		final var existingBlock = findTop1ByNumber(block.getNumber());
+		final var bl = existingBlock.orElse(block);
+		return save(bl);
+	};
+
+	@Async
+	CompletableFuture<List<Block>> readAllBy();
+
 	/**
 	 * Saves the given {@link Block}.
 	 *
@@ -57,16 +72,6 @@ public interface BlockRepository extends JpaRepository<Block, Long> {
 	 */
 	@Override
 	<S extends Block> S save(S block);
-
-	default <S extends Block> Block override(S block) {
-		var existingBlock = findTop1ByNumber(block.getNumber());
-		var bl = existingBlock.orElse(block);
-		return save(bl);
-	};
-	
-	
-	
-	List<Block> findByHash(String hash);
 
 	/**
 	 * Sample method to demonstrate support for {@link Stream} as a return type with
@@ -77,21 +82,14 @@ public interface BlockRepository extends JpaRepository<Block, Long> {
 	 */
 	@Query("select c from Block c")
 	Stream<Block> streamAllBlocks();
-	
+
+	@Query("select c from Block c where number >= ?1 AND number < ?2")
+	Stream<Block> streamBlocksFromTo(int from, int to);
 
 	default Stream<Block> with(Predicate<Block> predicate) {
-		return streamAllBlocks().filter(predicate)
+		return streamAllBlocks() //
+				.filter(predicate) //
 				.sorted((b1, b2) -> b1.getNumber().compareTo(b2.getNumber()));
-	};
-
-
-
-
-	@Async
-	CompletableFuture<List<Block>> readAllBy();
-
-	
-
-	
+	}
 
 }

@@ -1,4 +1,4 @@
-package juniter.service;
+package juniter.service.utils;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

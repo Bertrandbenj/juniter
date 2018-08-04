@@ -11,8 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import juniter.model.persistence.BStamp;
-import juniter.model.persistence.PubKey;
-
+import juniter.model.persistence.Pubkey;
 
 @Embeddable
 public class Active implements Serializable {
@@ -23,44 +22,47 @@ public class Active implements Serializable {
 
 	@Valid
 	@AttributeOverride(name = "pubkey", column = @Column(name = "active"))
-	private PubKey active = new PubKey();
+	private Pubkey active = new Pubkey();
 
 	private String signature;
 
 	@AttributeOverride(name = "buid", column = @Column(name = "buid1"))
-	@Valid private BStamp buid1 = new BStamp();
-	
+	@Valid
+	private BStamp buid1 = new BStamp();
+
 //	@AttributeOverride(name = "buid2", column = @Column(name = "buid2"))
-	@Valid private String buid2 ;
+	@Valid
+	private String buid2;
 
 	private String pseudo;
 
-	public Active() { }
+	public Active() {
+	}
 
 	public Active(String Active) {
 		setActive(Active);
 	}
 
 	public String getActive() {
-		return active + ":" + signature + ":" + buid1 + ":" + buid2 +":"+pseudo;
+		return active + ":" + signature + ":" + buid1 + ":" + buid2 + ":" + pseudo;
 	}
 
 	public void setActive(String leaver) {
-		
-		logger.info("Parsing Active... "+leaver);
-		var vals = leaver.split(":");
-		this.active.setPubkey(vals[0]);
+
+		logger.info("Parsing Active... " + leaver);
+		final var vals = leaver.split(":");
+		active.setPubkey(vals[0]);
 		signature = vals[1];
-		buid1.setBuid(vals[2]);
+		buid1.setBStamp(vals[2]);
 		buid2 = vals[3];
 		pseudo = vals[4];
-		//this.leaver = joiner;
+		// this.leaver = joiner;
 	}
 
 	public String toRaw() {
 		return getActive();
 	}
-	
+
 	@Override
 	public String toString() {
 		return getActive();

@@ -10,7 +10,7 @@ import javax.validation.Valid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import juniter.model.persistence.PubKey;
+import juniter.model.persistence.Pubkey;
 
 @Embeddable
 public class Revoked implements Serializable {
@@ -21,7 +21,7 @@ public class Revoked implements Serializable {
 
 	@Valid
 	@AttributeOverride(name = "pubkey", column = @Column(name = "revoked"))
-	private PubKey revoked = new PubKey();
+	private Pubkey revoked = new Pubkey();
 
 	private String signature;
 
