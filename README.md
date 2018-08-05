@@ -20,7 +20,7 @@ GRANT ALL ON SCHEMA testdb TO testuser;
 
 ## Configuration
 Check [application.yml](https://github.com/Bertrandbenj/juniter/blob/master/src/main/resources/application.yml) and overwrite it or set individual properties
-```
+``` 
 juniter.simpleloader.enabled=false
 ```
 

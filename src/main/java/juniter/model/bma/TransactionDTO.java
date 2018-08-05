@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class TransactionDTO implements Serializable {
 
 	private static final long serialVersionUID = 7842838617478486285L;
@@ -14,7 +16,8 @@ public class TransactionDTO implements Serializable {
 
 	private Integer locktime;
 
-	private String hash;
+	@JsonProperty("hash")
+	private String thash;
 
 	private String blockstamp;
 
@@ -48,10 +51,6 @@ public class TransactionDTO implements Serializable {
 		return currency;
 	}
 
-	public String getHash() {
-		return hash;
-	}
-
 	public List<String> getInputs() {
 		return inputs;
 	}
@@ -70,6 +69,10 @@ public class TransactionDTO implements Serializable {
 
 	public List<String> getSignatures() {
 		return signatures;
+	}
+
+	public String getThash() {
+		return thash;
 	}
 
 	public List<String> getUnlocks() {
@@ -96,10 +99,6 @@ public class TransactionDTO implements Serializable {
 		this.currency = currency;
 	}
 
-	public void setHash(String hash) {
-		this.hash = hash;
-	}
-
 	public void setInputs(List<String> inputs) {
 		this.inputs = inputs;
 	}
@@ -118,6 +117,10 @@ public class TransactionDTO implements Serializable {
 
 	public void setSignatures(List<String> signatures) {
 		this.signatures = signatures;
+	}
+
+	public void setThash(String hash) {
+		thash = hash;
 	}
 
 	public void setUnlocks(List<String> unlocks) {

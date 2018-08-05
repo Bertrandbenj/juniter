@@ -1,4 +1,4 @@
-package juniter.utils;
+package juniter.crypto;
 
 /*
  * #%L

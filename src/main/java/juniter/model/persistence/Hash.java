@@ -17,13 +17,20 @@ public class Hash implements Serializable {
 	@Pattern(regexp = Constants.Regex.HASH)
 	@Column(length = 64)
 	@Size(max = 64)
-	private String hash;
+	protected String hash;
 
 	public Hash() {
 	}
 
 	public Hash(String Hash) {
 		setHash(Hash);
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o == null)
+			return false;
+		return o.toString().equals(hash);
 	}
 
 	public String getHash() {
@@ -38,5 +45,4 @@ public class Hash implements Serializable {
 	public String toString() {
 		return getHash();
 	}
-
 }

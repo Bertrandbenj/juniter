@@ -11,7 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
 
-import juniter.model.Block;
+import juniter.model.persistence.Block;
 
 /**
  * Repository to manage {@link Block} instances.
@@ -38,8 +38,8 @@ public interface BlockRepository extends JpaRepository<Block, Long> {
 
 	List<Block> findByHash(String hash);
 
-	@Override
-	Optional<Block> findById(Long id);
+//	@Override
+//	Optional<Block> findById(Long id);
 
 	Stream<Block> findByNumberIn(List<Integer> number);;
 

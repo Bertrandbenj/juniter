@@ -7,11 +7,6 @@ public interface Constants {
 		int MAX_SAME_REQUEST_COUNT = 5; // 5 requests before to get 429 error
 	}
 
-	interface Defaults {
-		int BULK_BATCH_SIZE = 20;
-		String NODE = "https://g1.bertrandbenjamin.com/";
-	}
-
 	interface HttpStatus {
 		int SC_TOO_MANY_REQUESTS = 429;
 	}

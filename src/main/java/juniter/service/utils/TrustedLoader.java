@@ -16,7 +16,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
-import juniter.model.Block;
+import juniter.model.persistence.Block;
 import juniter.repository.BlockRepository;
 import juniter.utils.Constants;
 

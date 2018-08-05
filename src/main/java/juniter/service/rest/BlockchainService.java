@@ -21,9 +21,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import juniter.model.Block;
 import juniter.model.bma.BlockDTO;
 import juniter.model.bma.WithWrapper;
+import juniter.model.persistence.Block;
 import juniter.repository.BlockRepository;
 import juniter.service.utils.TrustedLoader;
 

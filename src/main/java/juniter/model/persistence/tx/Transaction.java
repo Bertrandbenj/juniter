@@ -23,9 +23,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import juniter.model.persistence.BStamp;
-import juniter.model.persistence.Hash;
 import juniter.model.persistence.Pubkey;
 import juniter.model.persistence.Signature;
 import juniter.utils.Constants;
@@ -41,54 +41,54 @@ public class Transaction implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
+	protected Long id;
 
 //	@JsonIgnoreProperties()
-	private Integer version;
+	protected Integer version;
 
 	@Pattern(regexp = Constants.Regex.G1)
-	private String currency;
+	protected String currency;
 
 //	@JsonView(TxHistory.Summary.class)
-	private Integer locktime;
+	protected Integer locktime;
 
 	@Valid
-	@AttributeOverride(name = "hash", column = @Column(name = "tx_hash"))
-	private Hash hash = new Hash();
+	@JsonProperty("hash")
+	protected String thash;// = new Hash();
 
 	@Valid
 	@AttributeOverride(name = "buid", column = @Column(name = "blockstamp"))
-	private BStamp blockstamp = new BStamp();
+	protected BStamp blockstamp = new BStamp();
 
-	private Integer blockstampTime;
+	protected Integer blockstampTime;
 
 	@Valid
 	@ElementCollection
 	@CollectionTable(name = "tx_issuers", joinColumns = @JoinColumn(name = "tx_id"))
-	private List<Pubkey> issuers = new ArrayList<>(); //
+	protected List<Pubkey> issuers = new ArrayList<>(); //
 
 	@Valid
 	@ElementCollection
 	@CollectionTable(name = "tx_inputs", joinColumns = @JoinColumn(name = "tx_id"))
-	private List<TxInput> inputs = new ArrayList<>();
+	protected List<TxInput> inputs = new ArrayList<>();
 
 	@Valid
 	@ElementCollection
 	@CollectionTable(name = "tx_outputs", joinColumns = @JoinColumn(name = "tx_id"))
-	private List<TxOutput> outputs = new ArrayList<>();
+	protected List<TxOutput> outputs = new ArrayList<>();
 
 	@Valid
 	@ElementCollection
 	@CollectionTable(name = "tx_unlocks", joinColumns = @JoinColumn(name = "tx_id"))
-	private List<TxUnlock> unlocks = new ArrayList<>();
+	protected List<TxUnlock> unlocks = new ArrayList<>();
 
 	@Valid
 	@ElementCollection
 	@CollectionTable(name = "tx_signatures", joinColumns = @JoinColumn(name = "tx_id"))
-	private List<Signature> signatures = new ArrayList<>();
+	protected List<Signature> signatures = new ArrayList<>();
 
 	@Size(max = 255)
-	private String comment;
+	protected String comment;
 
 	/**
 	 * @return the blockstamp
@@ -116,13 +116,6 @@ public class Transaction implements Serializable {
 	 */
 	public String getCurrency() {
 		return currency;
-	}
-
-	/**
-	 * @return the hash
-	 */
-	public Hash getHash() {
-		return hash;// .toString();
 	}
 
 	/**
@@ -170,6 +163,13 @@ public class Transaction implements Serializable {
 //	public List<String> getUnlocks() {
 //		return unlocks.stream().map(TxUnlock::getUnlock).collect(Collectors.toList());
 //	}
+
+	/**
+	 * @return the hash
+	 */
+	public String getThash() {
+		return thash;// .toString();
+	}
 
 	public List<TxUnlock> getUnlocks() {
 		return unlocks;

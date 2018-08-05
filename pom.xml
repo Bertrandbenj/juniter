@@ -11,6 +11,26 @@
 
 	<name>Juniter</name>
 	<description>Java implementation of duniter </description>
+	<url>https://github.com/Bertrandbenj/juniter</url>
+
+	<scm>
+		<connection>scm:git:git@github.com:Bertrandbenj/juniter.git</connection>
+		<developerConnection>scm:git:git@github.com:Bertrandbenj/juniter.git</developerConnection>
+		<url>https://github.com/Bertrandbenj/juniter</url>
+	</scm>
+
+	<developers>
+		<developer>
+			<id>BnimajneB</id>
+			<name>Bertrand Benjamin</name>
+			<url>https://github.com/Bertrandbenj</url>
+			<email>bertrandbenj@gmail.com</email>
+			<roles>
+				<role>Software Developer</role>
+			</roles>
+		</developer>
+	</developers>
+
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -34,65 +54,79 @@
 
 
 
+
+
 	<dependencies>
 
+		<!-- ======================= Crypto Dependencies ========================== -->
 		<dependency>
-			<groupId>commons-codec</groupId>
-			<artifactId>commons-codec</artifactId>
+			<groupId>org.abstractj.kalium</groupId>
+			<artifactId>kalium</artifactId>
+			<!-- <version>0.8.0</version> -->
+			<version>kalium-0.5.0_blavenie</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/lib/kalium-0.5.0_blavenie.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>com.github.jnr</groupId>
+			<artifactId>jnr-ffi</artifactId>
+			<version>2.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.lambdaworks</groupId>
+			<artifactId>scrypt</artifactId>
+			<version>1.4.0</version>
 		</dependency>
 
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.duniter</groupId> -->
-<!-- 			<artifactId>duniter4j-core-client</artifactId> -->
-<!-- 			<version>${duniter4j.version}</version> -->
-<!-- 		</dependency> -->
 
-		<!-- ======================= Spring boot dependencies ========================== -->
+
+		<!-- ======================= Spring-Boot dependencies ========================== -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-
-		<!-- <dependency> -->
-		<!-- <groupId>org.springframework.boot</groupId> -->
-		<!-- <artifactId>spring-boot-devtools</artifactId> -->
-		<!-- </dependency> -->
-		
-		<!-- https://mvnrepository.com/artifact/org.abstractj.kalium/kalium -->
-<dependency>
-    <groupId>org.abstractj.kalium</groupId>
-    <artifactId>kalium</artifactId>
-    <version>0.8.0</version>
-</dependency>
-		
-		<!-- https://mvnrepository.com/artifact/com.lambdaworks/scrypt -->
-<dependency>
-    <groupId>com.lambdaworks</groupId>
-    <artifactId>scrypt</artifactId>
-    <version>1.4.0</version>
-</dependency>
-		
-
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-configuration-processor</artifactId>
 			<optional>true</optional>
 		</dependency>
-
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-freemarker</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context-support</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+		</dependency>
 
 
-		<!-- ======================= Test ========================== -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.springframework.boot</groupId> -->
+		<!-- <artifactId>spring-boot-devtools</artifactId> -->
+		<!-- </dependency> -->
+
+
+		<!-- ======================= Test Dependencies ========================== -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -103,155 +137,74 @@
 			<artifactId>h2</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
-		</dependency>
-
-
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-web</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-webmvc</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context-support</artifactId>
-		</dependency>
 
 
 
-
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>jstl</artifactId>
-		</dependency>
-
+		<!-- ======================= FRONT Dependencies ========================== -->
 		<dependency>
 			<groupId>de.neuland-bfi</groupId>
 			<artifactId>spring-jade4j</artifactId>
 			<version>1.2.5</version>
 		</dependency>
-
 		<dependency>
 			<groupId>com.github.instaweb</groupId>
 			<artifactId>spring-boot-jade</artifactId>
 			<version>0.9.0-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>org.freemarker</groupId>
+			<artifactId>freemarker</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>jstl</artifactId>
+		</dependency>
 
+
+
+
+		<!-- ======================= SERVER Dependencies ========================== -->
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpcore</artifactId>
 		</dependency>
-
-		<dependency>
-			<groupId>org.postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>javax.xml.bind</groupId>
-			<artifactId>jaxb-api</artifactId>
-		</dependency>
-
-<dependency>
-    <groupId>org.modelmapper</groupId>
-    <artifactId>modelmapper</artifactId>
-    <version>2.1.0</version>
-</dependency>
-
-
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.projectlombok</groupId> -->
-<!-- 			<artifactId>lombok</artifactId> -->
-<!-- 		</dependency> -->
-
-		<!-- LOGGING DEPENDENCIES -->
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-api</artifactId>
-		</dependency>
-
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
 			<scope>test</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
 			<scope>provided</scope>
 		</dependency>
 
-		<!-- Freemarker -->
+
+
+
+		<!-- ======================= PERSISTENCE Dependencies ========================== -->
 		<dependency>
-			<groupId>org.freemarker</groupId>
-			<artifactId>freemarker</artifactId>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+
+
+
+		<!-- ======================= LOGGING Dependencies ========================== -->
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
 		</dependency>
 
 
 
 
-		<!-- WEBSOCKET -->
+		<!-- ======================= WEBSOCKET Dependencies ========================== -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-websocket</artifactId>
 		</dependency>
-
-		<!-- GRAPHQL http://www.baeldung.com/spring-graphql -->
-		<dependency>
-			<groupId>com.graphql-java</groupId>
-			<artifactId>graphql-spring-boot-starter</artifactId>
-			<version>5.0.2</version>
-		</dependency>
-<!-- 	<dependency> -->
-<!-- 		<groupId>com.graphql-java</groupId> -->
-<!-- 		<artifactId>graphql-java-tools</artifactId> -->
-<!-- 		<version>3.2.0</version> -->
-		<!-- <exclusions> -->
-		<!-- <exclusion> -->
-		<!-- <artifactId></artifactId> -->
-		<!-- </exclusion></exclusions> -->
-<!-- 	</dependency> -->
-
-		<!-- https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.jetbrains.kotlin</groupId> -->
-<!-- 			<artifactId>kotlin-stdlib</artifactId> -->
-<!-- 			<version>1.2.51</version> -->
-<!-- 		</dependency> -->
-
-		<dependency>
-			<groupId>com.graphql-java</groupId>
-			<artifactId>graphiql-spring-boot-starter</artifactId>
-			<version>3.6.0</version>
-		</dependency>
-
-		<dependency>
-			<groupId>io.reactivex.rxjava2</groupId>
-			<artifactId>rxjava</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>io.leangen.graphql</groupId>
-			<artifactId>spqr</artifactId>
-			<version>0.9.6</version>
-		</dependency>
-
-		<!-- Javascript imported from maven, is it really so smart ? -->
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>webjars-locator-core</artifactId>
@@ -278,7 +231,43 @@
 		</dependency>
 
 
+		<!-- ======================= GRAPH QL Dependencies ========================== -->
+		<dependency>
+			<groupId>com.graphql-java</groupId>
+			<artifactId>graphql-spring-boot-starter</artifactId>
+			<version>5.0.2</version>
+		</dependency>
+		<dependency>
+			<groupId>com.graphql-java</groupId>
+			<artifactId>graphiql-spring-boot-starter</artifactId>
+			<version>3.6.0</version>
+		</dependency>
+		<dependency>
+			<groupId>io.reactivex.rxjava2</groupId>
+			<artifactId>rxjava</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.leangen.graphql</groupId>
+			<artifactId>spqr</artifactId>
+			<version>0.9.6</version>
+		</dependency>
 
+
+		<!-- ======================= OTHER Dependencies ========================== -->
+		<dependency>
+			<groupId>javax.xml.bind</groupId>
+			<artifactId>jaxb-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.modelmapper</groupId>
+			<artifactId>modelmapper</artifactId>
+			<version>2.1.0</version>
+		</dependency>
+
+		<!-- <dependency> -->
+		<!-- <groupId>org.projectlombok</groupId> -->
+		<!-- <artifactId>lombok</artifactId> -->
+		<!-- </dependency> -->
 
 	</dependencies>
 
@@ -330,7 +319,16 @@
 				<enabled>true</enabled>
 			</snapshots>
 		</repository>
+
+		<repository>
+			<id>my-local-repo</id>
+			<url>file://${basedir}/lib</url>
+		</repository>
+
 	</repositories>
 
-	<url>https://github.com/Bertrandbenj/juniter</url>
+	<issueManagement>
+		<system>github</system>
+		<url>https://github.com/Bertrandbenj/juniter/issues</url>
+	</issueManagement>
 </project>

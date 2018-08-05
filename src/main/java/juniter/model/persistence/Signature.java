@@ -12,15 +12,21 @@ import juniter.utils.Constants;
 public class Signature implements Serializable {
 
 	private static final long serialVersionUID = -2140293433532805888L;
-	
+
 	@Pattern(regexp = Constants.Regex.SIGNATURE)
-	@Size(max = 88) 
+	@Size(max = 88)
 	private String signature;
 
-	public Signature() { }
+	public Signature() {
+	}
 
 	public Signature(String signature) {
 		setSignature(signature);
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		return o.toString().equals(signature);
 	}
 
 	public String getSignature() {
@@ -31,13 +37,12 @@ public class Signature implements Serializable {
 		this.signature = signature;
 	}
 
-	@Override
-	public String toString() {
-		return getSignature();
-	}
-	
 	public String toRaw() {
 		return getSignature();
 	}
 
+	@Override
+	public String toString() {
+		return getSignature();
+	}
 }

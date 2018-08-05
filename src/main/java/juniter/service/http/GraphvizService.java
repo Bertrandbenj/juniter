@@ -43,6 +43,7 @@ import juniter.repository.BlockRepository;
 import juniter.repository.CertsRepository;
 import juniter.repository.TxRepository;
 import juniter.service.rest.BlockchainService;
+import juniter.service.utils.TrustedLoader;
 
 @Controller
 @ConditionalOnExpression("${juniter.graphviz.enabled:false} && ${juniter.bma.enabled:false}")
@@ -120,7 +121,11 @@ public class GraphvizService {
 	private CertsRepository certsRepo;
 
 	@Autowired
+	private TrustedLoader trustedLoader;
+
+	@Autowired
 	private BlockRepository blockRepo;
+
 	@Autowired
 	private TxRepository txRepo;
 
@@ -134,7 +139,7 @@ public class GraphvizService {
 		final var blocks = IntStream.range(blockNumber - RANGE, blockNumber + RANGE + 1)//
 				.filter(i -> i >= 0) //
 				.filter(i -> i <= blockRepo.currentBlockNumber()) //
-				.mapToObj(b -> blockRepo.findTop1ByNumber(b).get())//
+				.mapToObj(b -> blockRepo.block(b).orElseGet(() -> trustedLoader.fetchAndSaveBlock(b)))//
 				.sorted((b1, b2) -> b1.getNumber().compareTo(b2.getNumber()))//
 				.collect(toList());
 
@@ -176,8 +181,9 @@ public class GraphvizService {
 
 			var deltaTime = "N/A";
 			if (b.getNumber() != 0) {
-				final var delta = b.getMedianTime()
-						- blockRepo.findTop1ByNumber(b.getNumber() - 1).get().getMedianTime();
+				final var delta = b.getMedianTime() - blockRepo.block(b.getNumber() - 1)//
+						.orElse(trustedLoader.fetchAndSaveBlock(b.getNumber())) //
+						.getMedianTime();
 				deltaTime = Long.divideUnsigned(delta, 60) + "m " + delta % 60 + "s";
 			}
 
@@ -203,9 +209,9 @@ public class GraphvizService {
 //						+ "\t\t\t" + prefix + "tx [label=\"Transaction\", shape=circle];\n"; //
 
 				for (final Transaction tx : b.getTransactions()) {
-					sub += "\t\t\ttx" + tx.getHash() + " [label=\"  "
+					sub += "\t\t\ttx" + tx.getThash() + " [label=\"  "
 							+ tx.getIssuers().stream().map(i -> mini(i.toString())).collect(joining("\\n")) + "  \","
-							+ "URL=\"/graphviz/svg/tx/" + tx.getHash() + "\"," + " shape=rarrow];\n";
+							+ "URL=\"/graphviz/svg/tx/" + tx.getThash() + "\"," + " shape=rarrow];\n";
 				}
 
 				sub += "\t\t}\n";
@@ -456,7 +462,7 @@ public class GraphvizService {
 		res += "\t\tinfo [labeljust=l, shape=box3d, label=\"" //
 				+ "Bstamp: " + mini(tx.getBlockstamp().toString()) //
 				+ "\\lCur: " + tx.getCurrency()//
-				+ "\\lhash: " + mini(tx.getHash().toString())//
+				+ "\\lhash: " + mini(tx.getThash().toString())//
 				+ "\\llocktime: " + tx.getLocktime() //
 				+ "\\l\", URL=\"/graphviz/svg/block/" + tx.getBlockstamp().toString().split("-")[0] + "\"];\n";
 

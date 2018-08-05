@@ -8,7 +8,8 @@ import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import juniter.model.Block;
+import juniter.crypto.DigestUtils;
+import juniter.model.persistence.Block;
 
 public class Validator {
 
@@ -42,7 +43,7 @@ public class Validator {
 	 */
 	public static String hash(Block b) {
 		final var res = "";
-		final String sha256hex = DigestUtils.sha1Hex(b.getRaw());
+		final String sha256hex = DigestUtils.sha1Hex(b.toRaw());
 		return res;
 	}
 

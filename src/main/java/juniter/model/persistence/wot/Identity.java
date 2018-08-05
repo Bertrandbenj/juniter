@@ -69,7 +69,7 @@ public class Identity implements Serializable {
 		final var vals = identity.split(":");
 		newidentity.setPubkey(vals[0]);
 		signature.setSignature(vals[1]);
-		buid.setBStamp(vals[2]);
+		buid.parse(vals[2]);
 		pseudo = vals[3];
 	}
 
@@ -79,7 +79,7 @@ public class Identity implements Serializable {
 
 	@Override
 	public String toString() {
-		return newidentity.getPubkey() + ":" + signature.getSignature() + ":" + buid.getBStamp() + ":" + pseudo;
+		return newidentity.getPubkey() + ":" + signature.getSignature() + ":" + buid + ":" + pseudo;
 	}
 
 }

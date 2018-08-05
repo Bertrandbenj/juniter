@@ -96,7 +96,7 @@ public class TxOutput implements Serializable {
 	}
 
 	public void setOutput(String output) {
-		logger.info("Parsing TxOutput... " + output);
+		logger.debug("Parsing TxOutput... " + output);
 
 		final var vals = output.split(":");
 		amount = Integer.valueOf(vals[0]);

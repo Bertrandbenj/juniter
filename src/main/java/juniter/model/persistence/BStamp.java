@@ -2,14 +2,16 @@ package juniter.model.persistence;
 
 import java.io.Serializable;
 
-import javax.persistence.AttributeOverride;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
-import javax.validation.Valid;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import juniter.utils.Constants;
 
 /**
  * ex : [ "BASIC_MERKLED_API metab.ucoin.io 88.174.120.187 9201" ]
@@ -17,6 +19,7 @@ import org.apache.logging.log4j.Logger;
  * @author ben
  *
  */
+//@Entity
 @Embeddable
 public class BStamp implements Serializable {
 
@@ -25,51 +28,66 @@ public class BStamp implements Serializable {
 	private static final Logger logger = LogManager.getLogger();
 
 	@Min(0)
-	@Column(name = "bNumber")
-	private Integer blockNumber;
+	@Column(name = "number")
+	private Integer number;
 
-	@Valid
-	@AttributeOverride(name = "hash", column = @Column(name = "bhash"))
-	private Hash blockHash = new Hash();
+	@Pattern(regexp = Constants.Regex.HASH)
+	@Column(length = 64)
+	@Size(max = 64)
+	private String hash;// = new Hash();
 
 	public BStamp() {
 	}
 
-	public BStamp(String buid) {
-		setBStamp(buid);
+	public BStamp(Integer number, String hash) {
+		this.number = number;
+		this.hash = hash;
 	}
 
-	public Hash getBlockHash() {
-		return blockHash;
+	public BStamp(String string) {
+		parse(string);
 	}
 
-	public Integer getBlockNumber() {
-		return blockNumber;
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof BStamp)
+			return ((BStamp) o).number.equals(number) //
+					&& ((BStamp) o).hash.equals(hash);
+
+		return false;
 	}
 
-	public String getBStamp() {
-		return blockNumber + "-" + blockHash.toString();
+	public String getHash() {
+		return hash;
 	}
 
-	public void setBlockHash(Hash blockHash) {
-		this.blockHash = blockHash;
+	public Integer getNumber() {
+		return number;
 	}
 
-	public void setBlockNumber(Integer blockNumber) {
-		this.blockNumber = blockNumber;
+	@Override
+	public int hashCode() {
+		return super.hashCode();
 	}
 
-	public void setBStamp(String buid) {
+	public void parse(String string) {
+		logger.debug("Parsing buid ... " + string);
 
-		logger.debug("Parsing buid ... " + buid);
+		final String[] pat = string.split("-");
+		number = Integer.valueOf(pat[0]);
+		hash = pat[1];
+	}
 
-		final String[] pat = buid.split("-");
-		blockNumber = Integer.valueOf(pat[0]);
-		blockHash.setHash(pat[1]);
+	public void setHash(String blockHash) {
+		hash = blockHash;
+	}
+
+	public void setNumber(Integer blockNumber) {
+		number = blockNumber;
 	}
 
 	@Override
 	public String toString() {
-		return getBStamp();
+		return number + "-" + hash.toString();
 	}
 }

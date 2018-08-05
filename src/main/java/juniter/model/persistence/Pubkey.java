@@ -19,7 +19,7 @@ public class Pubkey implements Serializable {
 
 	private static final long serialVersionUID = -1179432682292981009L;
 
-	@Size(min = 43, max = 45)
+	@Size(max = 45)
 	@Column(length = 45)
 	@Pattern(regexp = Constants.Regex.PUBKEY)
 	private String pubkey;
@@ -36,11 +36,7 @@ public class Pubkey implements Serializable {
 	 */
 	@Override
 	public boolean equals(Object o) {
-		if (o instanceof String)
-			return ((String) o).equals(pubkey);
-		if (o instanceof Pubkey)
-			return ((Pubkey) o).pubkey.equals(pubkey);
-		return false;
+		return o.toString().equals(pubkey);
 	}
 
 	public String getPubkey() {

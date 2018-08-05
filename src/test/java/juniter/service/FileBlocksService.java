@@ -1,20 +1,28 @@
-package juniter.service.utils;
+package juniter.service;
+
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import juniter.model.Block;
+import juniter.model.persistence.Block;
 import juniter.repository.BlockRepository;
+import juniter.service.utils.CryptoService;
 
-@Service
+@RunWith(SpringRunner.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class FileBlocksService {
 
 	private static final Logger log = LogManager.getLogger();
@@ -24,7 +32,10 @@ public class FileBlocksService {
 	 */
 	public Block _0;
 
-	Block _1437;
+	/**
+	 *
+	 */
+	public Block _1437;
 
 	/**
 	 * transactions
@@ -34,22 +45,25 @@ public class FileBlocksService {
 	/**
 	 * leavers
 	 */
-	Block _102093;
+	public Block _102093;
 
 	/**
 	 * actives
 	 */
-	Block _17500;
+	public Block _17500;
 
 	/**
 	 * revoked/excluded
 	 */
-	Block _33396;
+	public Block _33396;
 
 	@Autowired
 	BlockRepository blockRepo;
 
-	@PostConstruct
+	@Autowired
+	CryptoService cryptoService;
+
+	@Before
 	public void init() throws IOException {
 		log.info("Entering FileBlocksService.init  ");
 
@@ -59,6 +73,7 @@ public class FileBlocksService {
 		try {
 			_0 = jsonMapper.readValue(cl.getResourceAsStream("blocks/0.json"), Block.class);
 			log.info("Sucessfully parsed " + _0 + "\tfrom" + cl.getResource("blocks/0.json"));
+			assertThat(_0.getNumber(), equalTo(0));
 
 			_1437 = jsonMapper.readValue(cl.getResourceAsStream("blocks/1437.json"), Block.class);
 			log.info("Sucessfully parsed " + _1437 + "\tfrom " + cl.getResource("blocks/1437.json"));
@@ -74,7 +89,7 @@ public class FileBlocksService {
 
 			_33396 = jsonMapper.readValue(cl.getResourceAsStream("blocks/33396.json"), Block.class);
 			log.info("Sucessfully parsed " + _33396 + "\tfrom " + cl.getResource("blocks/33396.json"));
-
+//			log.info("Sucessfully parsed " + _33396.getHash());
 			try {
 				blockRepo.findTop1ByNumber(17500).orElseGet(() -> blockRepo.save(_17500));
 				blockRepo.findTop1ByNumber(33396).orElseGet(() -> blockRepo.save(_33396));
@@ -90,6 +105,45 @@ public class FileBlocksService {
 		}
 
 		log.info("Finished Initializing " + this.getClass().getName());
+	}
+
+	@Test
+	public void testBlockHash() {
+		final var unHashedBlock = _1437.toRaw(false);
+		log.info("testBlockHash " + _1437.getIssuer() + " " + _1437.getSignature() + "\n" + unHashedBlock);
+		final var hash = cryptoService.hash(unHashedBlock);
+		assertThat(hash, equalTo(_1437.getInner_hash()));
+
+	}
+
+	@Test
+	public void testTxHash() {
+
+		log.info("testTxHash " + _0.getIssuer() + " " + _0.getSignature());
+
+		assertTrue(cryptoService.verify(_0.toRaw(), _0.getSignature().toString(), _0.getIssuer()));
+	}
+
+	@Test
+	public void testValidBlockSignature() {
+
+		log.info("testValidBlockSignature " + _0.getIssuer() + " " + _0.getSignature());
+
+		assertTrue(cryptoService.verify(_0.toRaw(), _0.getSignature().toString(), _0.getIssuer()));
+	}
+
+	@Test
+	public void testValidTxSignature() {
+
+		assertTrue(_127128.getTransactions().size() > 0);
+		final var tx = _127128.getTransactions().get(0);
+
+		log.info("testValidTxSignature " + tx.toRaw());
+
+		assertTrue(cryptoService.verify( //
+				tx.toRaw(), //
+				tx.getSignatures().get(0).toString(), //
+				tx.getIssuers().get(0).toString()));
 	}
 
 }

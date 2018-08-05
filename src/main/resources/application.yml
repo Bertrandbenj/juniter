@@ -25,16 +25,11 @@ spring:
 #  autoconfigure.exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration 
       
 
+
+
 ##
 ## =========================== Web Server Configs ===========================
 ## 
-logging:
-  path: /var/log/juniter
-#  file: juniter.log
-  level:
-    root: warn
-    org.springframework.web: warn
-    juniter: info
 
 server:
   port: 8443
@@ -60,14 +55,14 @@ graphiql:
 
 
 ##
-## =========================== Business Logic Configs ===========================
+## =========================== Juniter Configs ===========================
 ## 
 juniter:
   network:
     trusted: https://g1.bertrandbenjamin.com/,https://duniter.normandie-libre.fr/,https://g1.duniter.org/,https://duniter.g1.1000i100.fr/,https://duniter.nayya.org/
     bulkSize: 500
   simpleloader:
-    enabled: true  
+    enabled: false  
   graphviz:
     enabled: true
   graphql:
@@ -78,3 +73,18 @@ juniter:
     enabled: true
   utils:
     enabled: false
+    
+
+##
+## =========================== Logging Configs ===========================
+##    
+logging:
+  path: /var/log/juniter
+#  file: juniter.log
+  level:
+    root: warn
+    org.springframework.web: warn
+    org.hibernate.SQL: warn
+    juniter: info
+#hibernate.show_sql: false
+    

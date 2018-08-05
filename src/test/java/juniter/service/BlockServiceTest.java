@@ -16,8 +16,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import juniter.service.utils.FileBlocksService;
-
 @RunWith(SpringRunner.class)
 //@SpringBootTest(
 //	    classes = BlockchainService.class,

@@ -27,7 +27,6 @@ import juniter.model.bma.PeerDoc;
 import juniter.model.net.Peer;
 import juniter.repository.EndPointsRepository;
 import juniter.repository.PeersRepository;
-import juniter.utils.Constants;
 
 /**
  * Handles network discovery, publication of up-to-date documents and getting
@@ -77,7 +76,7 @@ public class PeeringService {
 
 	@Async
 	public CompletableFuture<PeerDoc> findFirstPeers() {
-		return findPeers(Constants.Defaults.NODE);
+		return findPeers(nodesURL.get(0));
 	}
 
 	@Async

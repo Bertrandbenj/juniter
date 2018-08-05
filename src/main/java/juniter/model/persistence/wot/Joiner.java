@@ -10,7 +10,6 @@ import javax.validation.Valid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import juniter.model.persistence.BStamp;
 import juniter.model.persistence.Pubkey;
 
 @Embeddable
@@ -30,8 +29,14 @@ public class Joiner implements Serializable {
 	private String signature;
 
 	@Valid
-	@AttributeOverride(name = "buid", column = @Column(name = "buid1"))
-	private BStamp buid1 = new BStamp();
+//	@Embedded
+//	@AttributeOverride(name = "stamp", column = @Column(name = "hash"))
+//	    @AttributeOverrides( {
+//	        @AttributeOverride(name="buid1.number", column = @Column(name="") ),
+//	        @AttributeOverride(name="foundedFromOwnResources.amount", column = @Column(name="previousReport_foundedFromOwnResources")),
+//	        @AttributeOverride(name="personalContribution.amount", column = @Column(name="previousReport_personalContribution"))
+//	    } )
+	private String buid1;// = new BStamp();
 
 //	@Valid
 //	@AttributeOverride(name = "buid2", column = @Column(name = "buid2"))
@@ -52,12 +57,11 @@ public class Joiner implements Serializable {
 	}
 
 	public void setJoiner(String joiner) {
-
 		logger.debug("Parsing Joiner... " + joiner);
 		final var vals = joiner.split(":");
 		joinerKey.setPubkey(vals[0]);
 		signature = vals[1];
-		buid1.setBStamp(vals[2]);
+		buid1 = vals[2];
 		buid2 = vals[3];
 		pseudo = vals[4];
 	}

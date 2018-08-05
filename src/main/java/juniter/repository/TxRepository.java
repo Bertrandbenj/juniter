@@ -18,7 +18,7 @@ public interface TxRepository extends JpaRepository<Transaction, Long> {
 //	@Override
 //	Optional<Transaction> findById(Long id);
 
-	@Query("select t from Transaction t where tx_hash = ?1")
+	@Query("select t from Transaction t where thash = ?1")
 	List<Transaction> findByTHash(String hash);
 
 	default Stream<Transaction> findTxOneAndSameIssuerAndDest() {
@@ -59,7 +59,7 @@ public interface TxRepository extends JpaRepository<Transaction, Long> {
 	};
 
 	@Query("select t from Transaction t")
-	Stream<Transaction> streamAll();;
+	Stream<Transaction> streamAll();
 
 	/**
 	 * Received by transactions

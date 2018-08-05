@@ -28,12 +28,12 @@ import io.leangen.graphql.metadata.strategy.value.jackson.JacksonValueMapperFact
  */
 @ConditionalOnExpression("${juniter.graphql.enabled:false}")
 @RestController
-public class GraphQLController {
-	private static final Logger logger = LoggerFactory.getLogger(GraphQLController.class);
+public class GVAController {
+	private static final Logger logger = LoggerFactory.getLogger(GVAController.class);
 
 	private final GraphQL graphQL;
 
-	public GraphQLController(BlockService bService, GQLTxService tService) {
+	public GVAController(BlockService bService, GQLTxService tService) {
 
 		final GraphQLSchema schema = new GraphQLSchemaGenerator() //
 				.withResolverBuilders(new AnnotatedResolverBuilder()) //

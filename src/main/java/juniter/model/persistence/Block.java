@@ -1,4 +1,4 @@
-package juniter.model;
+package juniter.model.persistence;
 
 import static java.util.stream.Collectors.toList;
 
@@ -13,10 +13,10 @@ import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.Valid;
@@ -26,9 +26,6 @@ import javax.validation.constraints.Pattern;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import juniter.model.persistence.Hash;
-import juniter.model.persistence.Pubkey;
-import juniter.model.persistence.Signature;
 import juniter.model.persistence.tx.Transaction;
 import juniter.model.persistence.wot.Active;
 import juniter.model.persistence.wot.Certification;
@@ -59,28 +56,24 @@ import juniter.utils.Constants;
  *
  */
 @Entity
-@Table(name = "block", schema = "public")
+@Table(name = "block", schema = "public") // , indexes = @Index(columnList = "number,hash"))
 @JsonIgnoreProperties(ignoreUnknown = true)
+@IdClass(BStamp.class)
 public class Block implements Serializable {
 
 	private static final long serialVersionUID = -4464417074968456696L;
-
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
 
 	private Short version;
 
 	private Long nonce;
 
+	@Id
 	private Integer number;
 
 	private Integer powMin;
 
-//	@Temporal(TemporalType.TIMESTAMP)
 	private Long time;
 
-//	@Temporal(TemporalType.TIMESTAMP)
 	private Long medianTime;
 
 	private Integer membersCount;
@@ -109,10 +102,12 @@ public class Block implements Serializable {
 	private Signature signature = new Signature();
 
 	@Valid
-	@AttributeOverride(name = "hash", column = @Column(name = "block_hash"))
-	private Hash hash = new Hash();
+//	@AttributeOverride(name = "hash", column = @Column(name = "hash"))
+	@Id
+	protected String hash;// = new Hash();
 
 	// @Pattern(regexp = Constants.Regex.EMPTY_STRING)
+
 	private String parameters;
 
 	@Valid
@@ -139,27 +134,27 @@ public class Block implements Serializable {
 
 	@Valid
 	@ElementCollection
-	@CollectionTable(name = "wot_joiners", joinColumns = @JoinColumn(name = "container_block"))
+	@CollectionTable(name = "wot_joiners", joinColumns = { @JoinColumn(name = "number"), @JoinColumn(name = "hash") })
 	private List<Joiner> joiners = new ArrayList<>();
 
 	@Valid
 	@ElementCollection
-	@CollectionTable(name = "wot_actives", joinColumns = @JoinColumn(name = "container_block"))
+	@CollectionTable(name = "wot_actives", joinColumns = { @JoinColumn(name = "number"), @JoinColumn(name = "hash") })
 	private List<Active> actives = new ArrayList<>();
 
 	@Valid
 	@ElementCollection
-	@CollectionTable(name = "wot_leavers", joinColumns = @JoinColumn(name = "container_block"))
+	@CollectionTable(name = "wot_leavers", joinColumns = { @JoinColumn(name = "number"), @JoinColumn(name = "hash") })
 	private List<Leaver> leavers = new ArrayList<>();
 
 	@Valid
 	@ElementCollection
-	@CollectionTable(name = "wot_revoked", joinColumns = @JoinColumn(name = "container_block"))
+	@CollectionTable(name = "wot_revoked", joinColumns = { @JoinColumn(name = "number"), @JoinColumn(name = "hash") })
 	private List<Revoked> revoked = new ArrayList<>();
 
 	@Valid
 	@ElementCollection
-	@CollectionTable(name = "wot_excluded", joinColumns = @JoinColumn(name = "container_block"))
+	@CollectionTable(name = "wot_excluded", joinColumns = { @JoinColumn(name = "number"), @JoinColumn(name = "hash") })
 	private List<Excluded> excluded = new ArrayList<>();
 
 	@Valid
@@ -168,6 +163,8 @@ public class Block implements Serializable {
 
 	@Valid
 	@OneToMany(cascade = CascadeType.ALL)
+	@JoinColumns(value = { @JoinColumn(name = "Bnumber", referencedColumnName = "number"),
+			@JoinColumn(name = "Bhash", referencedColumnName = "hash") })
 	private List<Transaction> transactions = new ArrayList<>();
 
 	/**
@@ -219,14 +216,7 @@ public class Block implements Serializable {
 	 * @return the hash
 	 */
 	public String getHash() {
-		return hash.toString();
-	}
-
-	/**
-	 * @return the id
-	 */
-	protected Long getId() {
-		return id;
+		return hash;
 	}
 
 	/**
@@ -235,6 +225,13 @@ public class Block implements Serializable {
 	public List<Identity> getIdentities() {
 		return identities;// .stream().map(id -> id.getIdentity()).collect(Collectors.toList());
 	}
+
+	/**
+	 * @return the id
+	 */
+//	protected Long getId() {
+//		return id;
+//	}
 
 	/**
 	 * @return the inner_hash
@@ -365,35 +362,6 @@ public class Block implements Serializable {
 	}
 
 	/**
-	 * Method returning block as a Raw format
-	 *
-	 * @return
-	 */
-	public String getRaw() {
-		return "Version: " + version + "\nType: Block" + "\nCurrency: " + currency + "\nNumber: " + number
-				+ "\nPoWMin: " + powMin + "\nTime: " + getTime() + "\nMedianTime: " + getMedianTime() + "\nUnitBase: "
-				+ unitbase + "\nIssuer: " + issuer + "\nIssuersFrame: " + issuersFrame + "\nIssuersFrameVar: "
-				+ issuersFrameVar + "\nDifferentIssuersCount: " + issuersCount + "\nPreviousHash: " + previousHash
-				+ "\nPreviousIssuer: " + previousIssuer + "\nMembersCount: " + membersCount + "\nIdentities:\n"
-				+ identities.stream().map(Identity::toString).collect(Collectors.joining("\n"))
-				+ (identities.size() > 0 ? "\n" : "") + "Joiners:\n"
-				+ joiners.stream().map(Joiner::toRaw).collect(Collectors.joining("\n"))
-				+ (joiners.size() > 0 ? "\n" : "") + "Actives:\n"
-				+ actives.stream().map(Active::toRaw).collect(Collectors.joining("\n"))
-				+ (actives.size() > 0 ? "\n" : "") + "Leavers:\n"
-				+ leavers.stream().map(Leaver::toRaw).collect(Collectors.joining("\n"))
-				+ (leavers.size() > 0 ? "\n" : "") + "Revoked:\n"
-				+ revoked.stream().map(Revoked::toRaw).collect(Collectors.joining("\n"))
-				+ (revoked.size() > 0 ? "\n" : "") + "Excluded:\n"
-				+ excluded.stream().map(Excluded::toRaw).collect(Collectors.joining("\n"))
-				+ (excluded.size() > 0 ? "\n" : "") + "Certifications:\n"
-				+ certifications.stream().map(Certification::toRaw).collect(Collectors.joining("\n"))
-				+ (certifications.size() > 0 ? "\n" : "") + "Transactions:\n"
-				+ transactions.stream().map(Transaction::toRaw).collect(Collectors.joining("\n"))
-				+ (transactions.size() > 0 ? "\n" : "") + "InnerHash: " + inner_hash + "\nNonce: " + nonce + "\n";
-	}
-
-	/**
 	 * @return the revoked
 	 */
 	public List<Revoked> getRevoked() {
@@ -437,10 +405,6 @@ public class Block implements Serializable {
 		return version;
 	}
 
-	public Long id() {
-		return id;
-	}
-
 	public void setActives(List<Active> actives) {
 		this.actives = actives;
 	}
@@ -448,6 +412,10 @@ public class Block implements Serializable {
 	public void setCertifications(List<Certification> certifications) {
 		this.certifications = certifications;
 	}
+
+//	public Long id() {
+//		return id;
+//	}
 
 	public void setCurrency(String currency) {
 		this.currency = currency;
@@ -461,17 +429,17 @@ public class Block implements Serializable {
 		this.excluded = excluded;
 	}
 
-	public void setHash(Hash hash) {
+	public void setHash(String hash) {
 		this.hash = hash;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
 	}
 
 	public void setIdentities(List<Identity> identities) {
 		this.identities = identities;
 	}
+
+//	public void setId(Long id) {
+//		this.id = id;
+//	}
 
 	public void setInner_hash(Hash inner_hash) {
 		this.inner_hash = inner_hash;
@@ -558,6 +526,42 @@ public class Block implements Serializable {
 
 	public void setVersion(Short version) {
 		this.version = version;
+	}
+
+	public String toRaw() {
+		return toRaw(true);
+	}
+
+	/**
+	 * Method returning block as a Raw format
+	 *
+	 * @return
+	 */
+	public String toRaw(boolean withInnerHash) {
+		final var inner = withInnerHash ? "InnerHash: " + inner_hash + "\n" : "";
+
+		return "Version: " + version + "\nType: Block" + "\nCurrency: " + currency + "\nNumber: " + number
+				+ "\nPoWMin: " + powMin + "\nTime: " + getTime() + "\nMedianTime: " + getMedianTime() + "\nUnitBase: "
+				+ unitbase + "\nIssuer: " + issuer + "\nIssuersFrame: " + issuersFrame + "\nIssuersFrameVar: "
+				+ issuersFrameVar + "\nDifferentIssuersCount: " + issuersCount + "\nPreviousHash: " + previousHash
+				+ "\nPreviousIssuer: " + previousIssuer + "\nMembersCount: " + membersCount + "\nIdentities:\n"
+				+ identities.stream().map(Identity::toString).collect(Collectors.joining("\n"))
+				+ (identities.size() > 0 ? "\n" : "") + "Joiners:\n"
+				+ joiners.stream().map(Joiner::toRaw).collect(Collectors.joining("\n"))
+				+ (joiners.size() > 0 ? "\n" : "") + "Actives:\n"
+				+ actives.stream().map(Active::toRaw).collect(Collectors.joining("\n"))
+				+ (actives.size() > 0 ? "\n" : "") + "Leavers:\n"
+				+ leavers.stream().map(Leaver::toRaw).collect(Collectors.joining("\n"))
+				+ (leavers.size() > 0 ? "\n" : "") + "Revoked:\n"
+				+ revoked.stream().map(Revoked::toRaw).collect(Collectors.joining("\n"))
+				+ (revoked.size() > 0 ? "\n" : "") + "Excluded:\n"
+				+ excluded.stream().map(Excluded::toRaw).collect(Collectors.joining("\n"))
+				+ (excluded.size() > 0 ? "\n" : "") + "Certifications:\n"
+				+ certifications.stream().map(Certification::toRaw).collect(Collectors.joining("\n"))
+				+ (certifications.size() > 0 ? "\n" : "") + "Transactions:\n"
+				+ transactions.stream().map(Transaction::toRaw).collect(Collectors.joining("\n"))
+				+ (transactions.size() > 0 ? "\n" : "") //
+				+ inner + "Nonce: " + nonce + "\n";
 	}
 
 	/**
