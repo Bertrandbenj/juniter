@@ -42,8 +42,8 @@ import juniter.model.persistence.tx.TxType;
 import juniter.repository.BlockRepository;
 import juniter.repository.CertsRepository;
 import juniter.repository.TxRepository;
+import juniter.service.duniter.TrustedLoader;
 import juniter.service.rest.BlockchainService;
-import juniter.service.utils.TrustedLoader;
 
 @Controller
 @ConditionalOnExpression("${juniter.graphviz.enabled:false} && ${juniter.bma.enabled:false}")

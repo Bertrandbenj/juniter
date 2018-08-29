@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import juniter.model.persistence.Block;
 import juniter.repository.BlockRepository;
-import juniter.service.utils.CryptoService;
+import juniter.service.duniter.CryptoService;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)

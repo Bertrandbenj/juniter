@@ -2,20 +2,22 @@
 ## Install 
 
 ```bash
-sudo apt-get install graphviz git maven postgresql
+sudo apt-get install graphviz git maven postgresql libsodium-dev
 git clone https://github.com/Bertrandbenj/juniter
 mvn spring-boot:run
 
 mkdir /var/log/juniter
 chmod a+w /var/log/juniter
 
+psql -U postgres -c "drop database testdb"
 
 su - postgres
 psql
 
-CREATE USER testuser PASSWORD 'junipass';
-CREATE SCHEMA testdb;
-GRANT ALL ON SCHEMA testdb TO testuser;
+psql -U postgres -c "CREATE USER testuser PASSWORD 'junipass';"
+psql -U postgres -c "CREATE SCHEMA testdb;"
+psql -U postgres -c "CREATE DATABASE testdb;"
+psql -U postgres -c "GRANT ALL ON SCHEMA testdb TO testuser;"
 ```
 
 ## Configuration

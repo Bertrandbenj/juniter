@@ -15,6 +15,8 @@ public class Validator {
 
 	private static final Logger logger = LogManager.getLogger();
 
+	public static Pattern BASE58_PATTERN = Pattern.compile(Constants.Regex.BASE58 + "{43,45}");
+
 	public static Pattern VALID_IPV4_PATTERN = Pattern.compile(Constants.Regex.IP4, Pattern.CASE_INSENSITIVE);
 	public static Pattern VALID_IPV6_PATTERN = Pattern.compile(Constants.Regex.IP6, Pattern.CASE_INSENSITIVE);
 	public static Pattern VALID_PORT_PATTERN = Pattern.compile(Constants.Regex.PORT, Pattern.CASE_INSENSITIVE);
@@ -113,6 +115,10 @@ public class Validator {
 
 	public static boolean validatePortNumber(String port) {
 		return VALID_PORT_PATTERN.matcher(port).matches() || "443".equals(port) || "80".equals(port);
+	}
+
+	public static boolean validatePubkey(String item) {
+		return BASE58_PATTERN.matcher(item).matches();
 	}
 
 	public static boolean validateWS2PSTH(String item) {

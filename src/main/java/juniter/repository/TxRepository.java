@@ -29,7 +29,7 @@ public interface TxRepository extends JpaRepository<Transaction, Long> {
 					final var iss = t.getIssuers().get(0);
 					final var dest = t.getOutputs().get(0);
 					logger.info(iss.getPubkey() + " " + dest.getOutputCondition());
-					return iss.getPubkey().equals(dest.getFctParam());
+					return iss.getPubkey().equals(dest.getOutputCondition());
 				});
 	}
 

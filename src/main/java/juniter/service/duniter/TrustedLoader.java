@@ -1,4 +1,4 @@
-package juniter.service.utils;
+package juniter.service.duniter;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -20,6 +20,16 @@ import juniter.model.persistence.Block;
 import juniter.repository.BlockRepository;
 import juniter.utils.Constants;
 
+/**
+ * Controller connecting to the comma separated properties
+ *
+ * <pre>
+ * juniter.network.trusted=node1,node2,node3
+ * </pre>
+ *
+ * @author ben
+ *
+ */
 @Controller
 public class TrustedLoader {
 
@@ -91,7 +101,7 @@ public class TrustedLoader {
 	 */
 	@Transactional
 	public Block fetchAndSaveBlock(String id) {
-		final var node = rotating();
+		final var node = any();
 		final var url = node + "blockchain/" + id;
 		logger.info("Fetching block : " + url);
 		Block block = null;

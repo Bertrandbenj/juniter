@@ -2,17 +2,12 @@ package juniter.utils;
 
 public interface Constants {
 
-	interface Config {
-		int TOO_MANY_REQUEST_RETRY_TIME = 500; // 500 ms
-		int MAX_SAME_REQUEST_COUNT = 5; // 5 requests before to get 429 error
-	}
-
 	interface HttpStatus {
 		int SC_TOO_MANY_REQUESTS = 429;
 	}
 
 	interface Logs {
-		String INTERRUPTED = "THE Improbable happened : Thread.sleep failed";
+		String INTERRUPTED = "THE UNEXPECTED HAPPENED : Thread.sleep failed";
 	}
 
 	interface Regex {
@@ -34,6 +29,8 @@ public interface Constants {
 		 * ex: "53521DF50E07EC71A8DCB618A65F4BACE4538846DC2D5B12CDD6307E2B667336"
 		 */
 		String HASH = "[A-Z0-9]{64}";
+
+		String BASE58 = "[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]";
 
 		/**
 		 * ex: ""

@@ -1,4 +1,4 @@
-package juniter.service.utils;
+package juniter.service.duniter;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;

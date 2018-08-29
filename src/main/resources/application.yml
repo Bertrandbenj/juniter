@@ -59,10 +59,10 @@ graphiql:
 ## 
 juniter:
   network:
-    trusted: https://g1.bertrandbenjamin.com/,https://duniter.normandie-libre.fr/,https://g1.duniter.org/,https://duniter.g1.1000i100.fr/,https://duniter.nayya.org/
+    trusted: https://g1.bertrandbenjamin.com/,https://g1.duniter.org/,https://duniter.g1.1000i100.fr/,https://duniter.nayya.org/
     bulkSize: 500
   simpleloader:
-    enabled: false  
+    enabled: true  
   graphviz:
     enabled: true
   graphql:

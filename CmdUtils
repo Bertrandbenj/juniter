@@ -53,3 +53,21 @@ DROP TABLE public.transaction;
 
 
 keytool -genkey -alias juniter -storetype PKCS12 -keyalg RSA -keysize 2048 -keystore keystore.p12 -validity 3650
+
+
+
+## Grammar stuff 
+cd /src/main/antlr4
+antlr4 WS2Pv1.g4 -Dlanguage=[Python2|Python3|Java|Javascript|CSharp|Cpp|Go]
+javac WS2Pv1*.java
+grun WS2Pv1 document -gui
+... 
+...
+Ctrl+D
+
+##  One liner recompile and show 
+antlr4 -Dlanguage=Java WS2Pv1.g4 ; javac WS2Pv1*.java ; grun WS2Pv1 document -gui ../antlr4/tests/identity_spec
+
+
+## more java
+javac target/generated-sources/juniter/grammar/antlr4/*.java

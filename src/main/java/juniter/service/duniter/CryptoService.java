@@ -1,4 +1,4 @@
-package juniter.service.utils;
+package juniter.service.duniter;
 
 import static org.abstractj.kalium.NaCl.sodium;
 import static org.abstractj.kalium.NaCl.Sodium.CRYPTO_BOX_CURVE25519XSALSA20POLY1305_BOXZEROBYTES;

@@ -1,4 +1,4 @@
-package juniter.service.utils;
+package juniter.service.duniter;
 
 import static java.util.stream.Collectors.toList;
 

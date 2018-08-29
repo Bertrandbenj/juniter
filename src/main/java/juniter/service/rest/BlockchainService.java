@@ -25,7 +25,7 @@ import juniter.model.bma.BlockDTO;
 import juniter.model.bma.WithWrapper;
 import juniter.model.persistence.Block;
 import juniter.repository.BlockRepository;
-import juniter.service.utils.TrustedLoader;
+import juniter.service.duniter.TrustedLoader;
 
 /**
  *

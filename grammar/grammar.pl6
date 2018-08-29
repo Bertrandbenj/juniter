@@ -36,10 +36,19 @@ grammar Ğ1Primitives {
   token cltv        { 'CLTV(' <integer> ')' }
 
   method panic($e)  { die $e; }
-  method nopanic($e){ $*ERR.say: '❌❌❌ ', $e; }
+  method nopanic($e){ $*ERR.say: '❌❌❌ 🔔 ', $e; }
 }
 
-say "==== Test sig: ", Ğ1Primitives.parse("SIG(HgTTJLAQ5sqfknMq7yLPZbehtuLSsKj9CxWN7k8QvYJd)", :token('cond'));
+class Validactions {
+    method TOP     ($/) { make $<cond>.made; }
+    method cond    ($/) { make $/ }
+    method sig     ($/) { make $/.Str }
+    method xhx     ($/) { make $/.Str }
+    method csv     ($/) { make $/.Str }
+    method cltv    ($/) { make $/.Str }
+}
+
+say "==== Test sig: ", Ğ1Primitives.parse("SIG(HgTTJLAQ5sqfknMq7yLPZbehtuLSsKj9CxWN7k8QvYJd)", actions => Validactions.new).made;
 say "==== Test xhx: ", Ğ1Primitives.parse("XHX(8AFC8DF633FC158F9DB4864ABED696C1AA0FE5D617A7B5F7AB8DE7CA2EFCD4CB)", :token('cond'));
 say "==== Test buid: ", Ğ1Primitives.parse("32-DB30D958EE5CB75186972286ED3F4686B8A1C2CD", :token('buid'));
 say "==== Test userid: ", Ğ1Primitives.parse("lolcat", :token('userid'));
@@ -51,11 +60,11 @@ say "==== Test Endpoints : ", Ğ1Primitives.parse("BASIC_MERKLED_API some.dns.na
 #say "==== Test Outputs: ", Ğ1.parse("Outputs:\n50:2:XHX(8AFC8DF633FC158F9DB4864ABED696C1AA0FE5D617A7B5F7AB8DE7CA2EFCD4CB)\n51:3:XHX(8BFC8DF633FC158F9DB4864ABED696C1AA0FE5D617A7B5F7AB8DE7CA2EFCD4CB)", :token('outputs'));
 #say "==== Test Signatures: ", Ğ1.parse("Signatures:\nDpVMlf6vaW0q+WVtcZlEs/XnDz6WtJfA448qypOqRbpi7voRqDaS9R/dG4COctxPg6sqXRbfQDieeDKU7IZWBA==", :token('signatures'));
 #say "==== Test Comment: ", Ğ1.parse("Comment: HUHUAHAHA", :token('comment'));
-#say "==== Test Recursive Condition ", Ğ1.parse("(SIG(HgTTJLAQ5sqfknMq7yLPZbehtuLSsKj9CxWN7k8QvYJd) && (CSV(0123456) || XHX(8AFC8DF633FC158F9DB4864ABED696C1AA0FE5D617A7B5F7AB8DE7CA2EFCD4CB)))", :rule('cond')); #, actions => Calculations).made;
+say "==== Test Recursive Condition ", Ğ1Primitives.parse("(SIG(HgTTJLAQ5sqfknMq7yLPZbehtuLSsKj9CxWN7k8QvYJd) && (CSV(0123456) || XHX(8AFC8DF633FC158F9DB4864ABED696C1AA0FE5D617A7B5F7AB8DE7CA2EFCD4CB)))", actions => Validactions.new).made;
 
 
 say 'Finished 🤗 Ğ1Primitives tests !';
-
+die;
 
 grammar Ğ1Theory is Ğ1Primitives {
   # Main structures
@@ -108,6 +117,8 @@ grammar Ğ11 is Ğ1Theory  {
   rule TOP          { <document> || <.nopanic: "Ğ11 parsing failed"> }
   token version     { 11 }
 }
+
+
 
 my $peerString =  q:to/PEEREND/;
 Version: 10
@@ -238,11 +249,7 @@ say 'Finished 🤗 Ğ2 !';
 
 say "==== Test Ğ11 Identity ==== \n";
 say Ğ11.parse($identityString);
-say "==== Test Ğ10 Identity ==== ", Ğ10.parse($identityString);
+say "==== Test Ğ10 Identity ==== ";
+say Ğ10.parse($identityString);
 
 say 'Finished 🤗 Ğ10-11 !';
-
-
-class Validactions {
-    method TOP     ($/) { make $<cond>.made; }
-}
