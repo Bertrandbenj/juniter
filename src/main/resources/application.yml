@@ -13,7 +13,7 @@ spring:
     jdbcUrl: jdbc:postgresql://localhost/testdb
 
   jpa:  
-    database: default
+    database: default 
     generate-ddl: true
     show-sql: false
     hibernate.ddl-auto: create-drop
@@ -24,7 +24,6 @@ spring:
 #      suffix: .jsp
 #  autoconfigure.exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration 
       
-
 
 
 ##
@@ -88,3 +87,6 @@ logging:
     juniter: info
 #hibernate.show_sql: false
     
+    
+    
+

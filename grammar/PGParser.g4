@@ -6,117 +6,269 @@ options {tokenVocab = PGLexer;}
 @members{
 	String acceptVersion="10";
 	String acceptCurrency="g1";
+	int nbIssu=0;
+	int nbSign=0;
+	int maxEndpoints=3;
 }
 
-doc: 				version ( identity | membership | revocation | transaction ) ;
-					
-					
-transaction:		DT_TRAN 
-					currency 
-					blockstamp 
-					locktime 
-					issuers
-					inputs
-					unlocks
-					outputs
-					signatures
-					comment ;
+doc: 										{System.out.println("doc:");}
+	version 								{System.out.println("  version: "+$version.text);}
+	(   	
+		DOCTYPE_TRAN currency transaction 	
+		| DOCTYPE_PEER currency peer 		
+		| wot 										
+	) 										
+;
 
-identity:			DT_IDTY 
-					currency 
-					pubkey 
-					userid 
-					timestamp 
-					signature;
 
-membership:			DT_MEMB
-					currency
-					issuer
-					block
-					member
-					userID
-					certTS
-					signature;
-					
-revocation:			DT_REVO
-					currency
-					issuer
-					idtyUniqueID
-					idtyTimestamp
-					idtySignature
-					signature;
+
+peer: 										{System.out.println("  peer: ");}
+	pubkey 									{System.out.println("    pubkey: "+$pubkey.text);}
+	block 									{System.out.println("    block: "+$block.text);}
+	endpoints  								
+;
+
+
+transaction:								{System.out.println("  transaction:");}
+	blockstamp 								{System.out.println("    blockstamp: "+$blockstamp.text);}
+	locktime 								{System.out.println("    locktime: "+$locktime.text);}
+	issuers									
+	inputs									
+	unlocks									
+	outputs									
+	signatures								{System.out.println("    signatures: "+$signatures.text);}
+	comment 								{System.out.println("    comment: "+$comment.text);}
+;
+
+
+wot: 										{System.out.println("  wot: #  Identity, Certification, Membership, Revocation");}
+	(
+		DOCTYPE_IDTY currency identity		 
+		| DOCTYPE_MEMB currency membership			
+		| DOCTYPE_REVO currency revocation 
+		| DOCTYPE_CERT currency certification
+	)
+	signature								{System.out.println("    signature: "+$signature.text);}
+;
+
+identity:									{System.out.println("    identity:");}
+	issuer 									{System.out.println("      issuer: "+$issuer.text);}
+	userid 									{System.out.println("      userid: "+$userid.text);}
+	timestamp 								{System.out.println("      timestamp: "+$timestamp.text);}
+;
+
+certification: 								{System.out.println("    certification: ");}
+	iss=issuer 								{System.out.println("      issuer: "+$iss.text);}
+	idi=idtyIssuer 							{System.out.println("      idtyIssuer: "+$idi.text);}
+	uid=idtyUniqueID 						{System.out.println("      idtyUniqueID: "+$uid.text);}
+	idt=idtyTimestamp 						{System.out.println("      idtyTimestamp: "+$idt.text);}
+	ids=idtySignature 						{System.out.println("      idtySignature: "+$ids.text);}
+	cer=certTimestamp 						{System.out.println("      certTimestamp: "+$cer.text);}
+;
+
+membership:									{System.out.println("    membership:");}
+	issuer									{System.out.println("      issuer: "+$issuer.text);}
+	block									{System.out.println("      block: "+$block.text);}
+	member									{System.out.println("      member: "+$member.text);}
+	userID									{System.out.println("      userID: "+$userID.text);}
+	certTS									{System.out.println("      certTS: "+$certTS.text);}
+;
+
+revocation:									{System.out.println("    revocation:");}
+	issuer									{System.out.println("      issuer: "+$issuer.text);}
+	idtyUniqueID							{System.out.println("      idtyUniqueID: "+$idtyUniqueID.text);}
+	idtyTimestamp							{System.out.println("      idtyTimestamp: "+$idtyTimestamp.text);}
+	idtySignature							{System.out.println("      idtySignature: "+$idtySignature.text);}
+;
+
+
+certTimestamp: 		buid;
+idtyIssuer: 		pubkey;
+
+endpoints 
+locals [int i=0]: 
+											{System.out.println("    endpoints: ");}
+( 
+	{$i<maxEndpoints}? 
+											{System.out.println("      "+ $i++ +": ");}
+	enpoint 						
+)+
+| EOF 
+;
+
+enpoint: 					
+	endpointType 							{System.out.println("        type: "+$endpointType.text);}
+	( 
+		dns 								{System.out.println("        dns: "+$dns.text);}
+		| ip4 								{System.out.println("        ip4: "+$ip4.text);}
+		| ip6								{System.out.println("        ip6: "+$ip6.text);}
+	)+ 
+	port 									{System.out.println("        port: "+$port.text);}
+;
+  port: 			PORT;
+  ip6: 				IP6;
+  ip4: 				IP4;
+  dns: 				DNS;
+  endpointType: 	ENDPOINT_TYPE;
+
 
 
 idtySignature: 		signature;
 idtyTimestamp: 		buid;
 idtyUniqueID: 		USERID;
 
-unlocks: 			(unlock UNLOCK_SEP)+;
-signatures: 		(signature SIGN_SEP)+;
+
+signatures
+locals[int i=0]
+:(
+	{$i<=nbIssu}? signature {$i++;} 
+	SIGN_SEP
+)+;
 comment: 			COMMENT;
-outputs: 			(output OUTPUT_SEP)+;
-inputs: 			(input INPUT_SEP)+;
-issuers: 			(issuer ISSUER_SEP)+;
+
+
+issuers
+locals[int i=0]
+: 	{System.out.println("    issuers: ");}		
+	(
+		pubkey
+		{System.out.println("      "+ $i++ +": "+ $pubkey.text);}
+	)+
+;
 locktime: 			NUMB;
 blockstamp: 		NUMB;
 
 
+inputs
+locals[int i=0]
+: 	
+											{System.out.println("    inputs: ");}
+	(
+											{System.out.println("      "+ $i++ +": ");}
+		input								
+	)+
+;
 
-input:				inAmount INPUT_FIELD_SEP inBase INPUT_FIELD_SEP
-					(
-						(DIVIDEND_TYPE INPUT_FIELD_SEP HASH INPUT_FIELD_SEP INT) 
-						| 	
-						(TRANSACTION_TYPE INPUT_FIELD_SEP inTHash INPUT_FIELD_SEP inTBlock)
-					);
+input:										
+	amount  								{System.out.println("        amount: "+$amount.text);}
+	base  									{System.out.println("        base: "+$base.text);}
+	( 
+		(DIVIDEND_TYPE ubi)					
+		|
+		(TRANSACTION_TYPE tx)
+	);	
 
-inTHash: 			HASH;
-inTBlock: 			INNUMB;
-inBase: 			INNUMB;
-inAmount: 			INNUMB;
+ubi:										{System.out.println("        ubi:  # Universal Basic Income");}
+  	pubkey 									{System.out.println("          pubkey: "+$pubkey.text+" # of this pubkey");}
+  	bnum									{System.out.println("          bnum: "+$bnum.text+ " # at that block number ");}
+;						
 
-unlock:				UNNUMB UNLOCK_FIELD_SEP (unsig | unxhx);
-unsig:				SIG LP UNNUMB RP;
-unxhx:				XHX LP UNNUMB RP;
-output:				outAmount OUTPUT_FIELD_SEP outBase OUTPUT_FIELD_SEP cond;
+tx:											{System.out.println("        tx:  # a previous Transaction");}
+  	bhash 									{System.out.println("          bhash: "+$bhash.text+" # in this block hash");}
+  	tindex									{System.out.println("          tindex: "+$tindex.text+" # at that index");}
+;
 
-outBase: 			OUTNUMB;
-outAmount: 			OUTNUMB;
+amount: 			INNUMB | OUT_AMOUT_BASE;
+base: 				INNUMB | OUT_AMOUT_BASE;
+tindex: 			INNUMB;
 
-//endpoint:			STR (' ' STR)+ INT;
+unlocks
+locals[int i=0]
+: 			
+											{System.out.println("    unlocks: ");}
+	(
+											{System.out.println("      "+ $i++ +": ");}	
+		unlock 								
+	)+				
+;
+
+unlock
+: 											
+	in_index 								{System.out.println("        in_index: "+$in_index.text+"");}
+											{System.out.println("        ul_condition: ");}
+	(
+		UNSIG unsig 						{System.out.println("          unsig: "+$unsig.text+"");}
+		| UNXHX unxhx						{System.out.println("          unxhx: "+$unxhx.text+"");}
+	)
+;
+in_index:		UNNUMB;
+unsig:			UNNUMB ;
+unxhx:			UNNUMB ;
 
 
+//SIG(PUBLIC_KEY), XHX(SHA256_HASH), CLTV(INTEGER), CSV(INTEGER)
+outputs
+locals[int i=0]
+: {System.out.println("    outputs: ");}
+( {System.out.println("      "+$i++ +": ");}
+	output OUTPUT_SEP
+)+						
+;
+output:				
+	amount 									{System.out.println("        amount: "+$amount.text+"");}
+	base 									{System.out.println("        base: "+$base.text+"");}
+	cond								
+;
+ 
+cond:										{System.out.println("        cond: ");}
+(
+	sig 									{System.out.println("          sig: "+$sig.text+"");}
+  	| xhx 									{System.out.println("          xhx: "+$xhx.text+"");}	
+  	| csv 									{System.out.println("          csv: "+$csv.text+"");}
+  	| cltv 									{System.out.println("          cltv: "+$cltv.text+"");}
+  	| or  									{System.out.println("          or: ");}
+  	| and 									{System.out.println("          and: ");}
+);
 
-
-// ====== OUTUTS CONDITION 
-cond:				(sig | xhx | csv | cltv | or | and);
-  and:				LP cond  AND  cond RP;
-  or:				LP cond  OR  cond RP;
-  sig:				SIG LP pubkey RP;
-  xhx:				XHX LP HASH RP;
-  csv:				CSV LP INT RP;
-  cltv:				CLTV LP INT RP; 
+and:			OUTLP cond AND cond OUTRP;
+or:				OUTLP cond OR cond OUTRP;
+sig:			SIG  pubkey ;
+xhx:			XHX  bhash  ;
+csv:			CSV  outParam  ;
+cltv:			CLTV  outParam  ; 
+outParam:		OUTNUMB ;
 
 
 block: 				bl=buid					 ; 
-issuer: 			i=(	PUBKEY_INLINED 
-					| 	PUBKEY_MULTILN)		{System.out.println("issuer "+":"+$i+";");} ; 
-member: 			mem=MEMBER_TYPE			{System.out.println("membership "+":"+$mem+";");};
+issuer:				
+i=	(	
+	PUBKEY_INLINED 
+	| PUBKEY_MULTILN
+	) {nbIssu++;}	
+; 
+member: 			mem=MEMBER_TYPE			;
 certTS: 			buid					;
-userID: 			uid=USERID				{System.out.println("userId "+":"+$uid+";");};
+userID: 			uid=USERID				;
 
 timestamp: 			buid					;	
-typeIdty: 			DT_IDTY					{System.out.println("type "+":"+$DT_IDTY+";");} ; 
-typeMemb: 			DT_MEMB;
-signature: 			SIGN					{System.out.println("signature "+":"+$SIGN+";");} ; 
-userid: 			USERID					{System.out.println("userid "+":"+$USERID+";");} ; 
-pubkey: 			pk=PUBKEY_INLINED 		{System.out.println("pubkey "+":"+$pk+";");} ; 
-currency: 			c=CURRENCY				{System.out.println("currency "+acceptCurrency+" .equals?"+(acceptVersion.equals($c.text))+";");} ; 
-version: 			v=VERSION				{System.out.println("version "+acceptVersion+" .equals?"+(acceptVersion.equals($v.text)));} ; 
+
+signature: 			SIGN 
+					| MULTISIGN
+					| (SIGN EOSIGN)
+					 {nbSign++;} 
+					 ; 
+userid: 			USERID					; 
+pubkey: 			pk=PUBKEY_INLINED 
+					| PUBKEY_MULTILN 
+					| OUTPUBK 
+					|INHASH 				; 
+					
+			
+currency: 			c=CURRENCY				{System.out.println("    currency: "+$c.text);}; 
+version: 			v=VERSION				; 
 
 testpubk: 			Issuer_ pubkey EOPUBK?; // (INLINE_SEP buids)* EOL ;
-testsign: 			UniqueID_ signature  EOSIGN?; // (INLINE_SEP buids)* EOL ;
+testsign: 			UniqueID_ signature EOSIGN?; // (INLINE_SEP buids)* EOL ;
 testbuid: 			Timestamp_ buid  EOBUID?; // (INLINE_SEP buids)* EOL ;
 
-buid:				bnum d=DASH_INLINED bhash 	{System.out.println("buid "+$bnum.text+$d.text+$bhash.text+";");} ;  // BUID; 
-  bnum: 			a=NUMBER 					{System.out.println("bnum "+":"+$a+";");} ; 
-  bhash: 			HASH_INLINED				{System.out.println("bhash "+$HASH_INLINED+":"+";");};  
+buid:				bnum d=DASH_INLINED bhash 	 ;  // BUID; 
+  bnum: 			a=NUMBER 
+  					| INNUMB				 ;
+  bhash: 			HASH_INLINED
+  					| INHASH
+  					| OUTHASH				;
+
+  
+//endpoint:			STR (' ' STR)+ INT;
+
+  

@@ -1,9 +1,7 @@
-grammar Juniter;
-import DUPLexer, DUPParser;
- 
+parser grammar DUPParser;
+
 options {
 	tokenVocab = DUPLexer;
-	language = Java; 
 }
 @header { 
 package juniter.grammar.antlr4; 
@@ -13,6 +11,17 @@ package juniter.grammar.antlr4;
 int count = 0;  
 String val = "_";
 }
+
+@after {System.out.println("Finished parsing "+count+" Issuer, val: "+this);}
+
+					
+doc: 				version 
+					 (( DOCTYPE_IDTY currency identity )  
+					| ( DOCTYPE_MEMB currency membership ) 
+					| ( DOCTYPE_REVO currency revocation )  
+					| ( DOCTYPE_TRAN currency transaction ) 
+					| ( DOCTYPE_PEER currency peer )
+					| ( DOCTYPE_CERT currency certification ))  ;
 
 
 certification: 		issuer 
@@ -151,5 +160,7 @@ buid:				bnum d=DASH_INLINED bhash 	{System.out.println("buid "+$bnum.text+$d.te
   bnum: 			a=NUMBER 					{System.out.println("bnum "+":"+$a+";");} ; 
   bhash: 			HASH_INLINED				{System.out.println("bhash "+$HASH_INLINED+":"+";");};
 
+  
+//endpoint:			STR (' ' STR)+ INT;
 
   
