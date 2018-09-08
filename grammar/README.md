@@ -11,7 +11,7 @@ copy [PGLexer.g4](PGLexer.g4) and [PGParser.g4](PGParser.g4)
 ```
  antlr4 PG*.g4 ; javac PG*.java;  grun PG doc tests/tx.dup
 ```
-
+ 
 
 ## Background 
 
