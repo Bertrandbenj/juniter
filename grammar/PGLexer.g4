@@ -10,10 +10,10 @@ Version_:      		'Version' VALUE_START 		-> skip, pushMode(VERS_INLINED) ;
 Block_:       		'Block' VALUE_START 		-> skip, pushMode(BUID_INLINED) ;
 Member_:   			'Membership' VALUE_START 	-> skip, pushMode(MEMB_INLINED) ;
 CertTS_:       		'CertTS' VALUE_START	 	-> skip, pushMode(SIGN_INLINED),pushMode(BUID_INLINED) ;
-CertTimestamp_:     'CertTimestamp' VALUE_START	-> skip, pushMode(SIGN_INLINED),pushMode(BUID_INLINED) ;
+CertTimestamp_:     'CertTimestamp' VALUE_START	-> skip,  pushMode(BUID_INLINED) ;
 
 UserID_:       		'UserID' VALUE_START		-> skip, pushMode(USER_INLINED) ;
-IdtySignature_:		'IdtySignature' VALUE_START -> skip, pushMode(SIGN_INLINED) ;
+IdtySignature_:		'IdtySignature' VALUE_START -> skip, pushMode(SIGN_INLINED), pushMode(SIGN_INLINED) ;
 IdtyTimestamp_:		'IdtyTimestamp' VALUE_START -> skip, pushMode(BUID_INLINED) ;
 IdtyUniqueID_: 		'IdtyUniqueID' VALUE_START 	-> skip, pushMode(USER_INLINED) ;
 IdtyIssuer_:		'IdtyIssuer'VALUE_START		-> skip, pushMode(PUBK_INLINED) ;
@@ -42,12 +42,14 @@ fragment NL:		'\n';
 fragment WS: 		' ';
 fragment COLON: 	':'  ;
 fragment BASE9: 	[123456789];
+fragment BASE2: 	[12];
 fragment BASE10: 	[0123456789];
 fragment BASE16: 	[0123456789ABCDEF];
 fragment BASE16LC: 	[0123456789abcdef];	
 fragment BASE58: 	[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz];
 fragment BASE64: 	[0-9a-zA-Z/+=-];
 fragment INT: 		BASE10 | ( BASE9 BASE10+ );
+fragment INT256: 	BASE10 | ( BASE9 BASE10 ) | ( BASE2 BASE10 BASE10 );
 
 mode BUID_INLINED;
   NUMBER : 			INT;
@@ -68,6 +70,7 @@ EOTYPE:				NL 						-> skip,popMode ;
 
 mode SIGN_INLINED;
   SIGN:				BASE64+;
+EOCERT:				CertTimestamp_			-> skip,popMode, pushMode(SIGN_INLINED), pushMode(BUID_INLINED) ; 
 EOSIGN:				NL 						-> skip,popMode ;
 
 mode VERS_INLINED;
@@ -105,30 +108,30 @@ EOCOMM:				NL 						-> skip,popMode ;
 
 mode SIGN_MULTILN;
   MULTISIGN:		BASE64+;
-  SIGN_SEP:			NL;
+  SIGN_SEP:			NL -> skip;
 EOSIGNS:			Comment_				-> skip,popMode, pushMode(COMM_INLINED) ;
 
 mode OUTP_MULTILN;
   OUT_AMOUT_BASE:	BASE10 | BASE9 BASE10+;
   OUTPUT_FIELD_SEP:	COLON 					-> skip ;
-  SIG:				'SIG(' 					->  pushMode(FCT_PARAM_PUBK);
-  XHX:				'XHX(' 					->  pushMode(FCT_PARAM_HASH);
-  CSV:				'CSV';
-  CLTV:				'CLTV';
+  SIG:				'SIG' LP 				->  skip, pushMode(FCT_PARAM_PUBK);
+  XHX:				'XHX' LP				->  skip, pushMode(FCT_PARAM_HASH);
+  CSV:				'CSV' LP				->  skip, pushMode(FCT_PARAM_NUMB);
+  CLTV:				'CLTV' LP				->  skip, pushMode(FCT_PARAM_NUMB);
   OR:				' || ';
   AND:				' && ';
-  OUTLP:			'(';
-  OUTRP:			')';
-  OUTPUT_SEP:		NL;
+  OUTLP:			LP;// -> skip;
+  OUTRP:			RP;// -> skip;
+  OUTPUT_SEP:		NL -> skip;
 EOOUTP:				Signatures_				-> skip, popMode, pushMode(SIGN_MULTILN) ;
 
 mode FCT_PARAM_HASH;
   OUTHASH: 			BASE16+; 
-ENDHASH:			RP						-> popMode, more;
+ENDHASH:			RP						-> popMode, skip;
 
 mode FCT_PARAM_PUBK;
   OUTPUBK: 			BASE58+; 
-ENDPUBK:			RP  					-> popMode, more;
+ENDPUBK:			RP  					-> popMode, skip;
 
 
 mode FCT_PARAM_NUMB;
@@ -162,13 +165,14 @@ EOISSU:				Inputs_					-> skip, popMode, pushMode(INPT_MULTILN) ;
 
 
 mode ENDPT_MULTILN;
-  IP4:				BASE10+ '.' BASE10+ '.' BASE10+ '.' BASE10+ ; 
+  PORT:				PORT_NUMBER ;
+
+  IP4:				INT256 '.' INT256 '.' INT256'.' INT256 ; 
   IP6:				OCT ':' OCT ':' OCT ':' OCT ':' OCT ':' OCT ':' OCT; 
   OCT:				BASE16LC+;
   DNS: 				[a-z]+ ('.' [a-z]+)+;
   FIELD_SEP:		' ' 					-> skip;
-  PORT:				PORT_NUMBER ENDPT_SEP;
-  PORT_NUMBER:		BASE10 BASE10 BASE10 BASE10;
+  PORT_NUMBER:		'443' | '8443' | BASE9 BASE10 BASE10 BASE10;
   ENDPOINT_TYPE:	[A-Z_]+	;
-  ENDPT_SEP:		NL 						 -> skip, popMode; 
+  ENDPT_SEP:		NL 						 -> skip; 
 //EOENDPT:			Inputs_					{System.out.println("POP ISSU_MULTILN");} -> skip, popMode, pushMode(INPT_MULTILN) ;
