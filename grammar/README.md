@@ -5,14 +5,6 @@
  - Write non ambiguous specifications
  - Spend time fixing my grammars 
  
- 
-## Usage
-copy [PGLexer.g4](PGLexer.g4) and [PGParser.g4](PGParser.g4)
-```
- antlr4 PG*.g4 ; javac PG*.java;  grun PG doc tests/tx.dup
-```
- 
-
 ## Background 
 
 Grammars help you get the semantic of the data structure. its generic and universal, meaning it can specify any non ambiguous language. 
@@ -91,13 +83,17 @@ My part of the reward is for antlr4 implementations, half of it for any other gr
  - 100 Ğ1 [BIN_LEXER]   : write the BINARY lexer  
  - 100 Ğ1 [GRAM_DOC] 	: improve the documentation 
  
- - **1400 Ğ1** total
+ - **1600 Ğ1** total
  
  
 ## Status of the PlayGround
  
 PGParser presently contains a simplified grammar that output a yaml representation to the console as it parses the DUP protocol documents. run next to the PGLexer.g4 and PGParser.g4
 
+```
+ antlr4 PG*.g4 ; javac PG*.java;  grun PG doc tests/tx.dup
+
+``` 
 
 
 
