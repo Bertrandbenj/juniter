@@ -49,7 +49,7 @@ public class AntlrTests {
 	@Test
 	public void testCertification() throws Exception {
 		final var parser = juniterParser(CharStreams.fromFileName("certif_spec.juniter"));
-		parser.certification();
+		parser.certificationDoc();
 	}
 
 	@Test
@@ -67,7 +67,7 @@ public class AntlrTests {
 				+ "J3G9oM5AKYZNLAB5Wx499w61NuUoS57JVccTShUbGpCMjCqj9yXXqNq7dyZpDWA6BxipsiaMZhujMeBfCznzyci\n";
 
 		final var parser = juniterParser(CharStreams.fromPath(path));
-		final var idtyContext = parser.identity();
+		final var idtyContext = parser.identityDoc();
 		logger.info(idtyContext.getText() + "\n=======\n" + doc);
 
 		assertTrue("parsed identity different", idtyContext.getText().equals(doc));
@@ -90,19 +90,19 @@ public class AntlrTests {
 	@Test
 	public void testMembership() throws Exception {
 		final var parser = juniterParser(CharStreams.fromFileName("/membership_spec"));
-		parser.membership();
+		parser.membershipDoc();
 	}
 
 	@Test
 	public void testPeer() throws Exception {
 		final var parser = juniterParser(CharStreams.fromFileName("/peer_spec"));
-		parser.peer();
+		parser.peerDoc();
 	}
 
 	@Test
 	public void testRevocation() throws Exception {
 		final var parser = juniterParser(CharStreams.fromFileName("/revocation_spec"));
-		parser.revocation();
+		parser.revocationDoc();
 	}
 
 	@Test
@@ -117,7 +117,7 @@ public class AntlrTests {
 	@Test
 	public void testTX() throws Exception {
 		final var parser = juniterParser(CharStreams.fromFileName("/tx_spec"));
-		parser.transaction();
+		parser.transactionDoc();
 	}
 
 	@Test

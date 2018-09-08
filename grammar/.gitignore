@@ -11,3 +11,12 @@
 /grammar.pl6
 /JavaScriptĞ1.g4
 /PythonĞ1.g4
+/DUPBaseListener.java
+/DUPLexer.java
+/DUPListener.java
+/DUPParser.java
+/DUPPrimitives.java
+/JuniterBaseListener.java
+/JuniterLexer.java
+/JuniterListener.java
+/JuniterParser.java

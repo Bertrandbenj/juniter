@@ -1,4 +1,31 @@
-lexer grammar PGLexer ;
+lexer grammar DUPLexer ;
+
+ SIGNATURE:			BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64
+					BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64
+					BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64
+					BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64
+					BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64
+					BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64
+					BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64
+					BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64
+					BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64; // 88  
+//J3G9oM5AKYZNLAB5Wx499w61NuUoS57JVccTShUbGpCMjCqj9yXXqNq7dyZpDWA6BxipsiaMZhujMeBfCznzyci
+
+INT : 				BASE9 BASE10+;
+//HASH: 				BASE16+;
+HASH:				BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 
+					BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 
+					BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 
+					BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 
+					BASE16  ;	// 41   
+					
+TXHASH:				BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 
+					BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 
+					BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 
+					BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 
+					BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 
+					BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 
+					BASE16 BASE16 BASE16 BASE16   ;	// 64   
 
 
 Timestamp_: 		'Timestamp' VALUE_START 	-> skip, pushMode(SIGN_INLINED),pushMode(BUID_INLINED) ;
@@ -10,7 +37,7 @@ Version_:      		'Version' VALUE_START 		-> skip, pushMode(VERS_INLINED) ;
 Block_:       		'Block' VALUE_START 		-> skip, pushMode(BUID_INLINED) ;
 Member_:   			'Membership' VALUE_START 	-> skip, pushMode(MEMB_INLINED) ;
 CertTS_:       		'CertTS' VALUE_START	 	-> skip, pushMode(SIGN_INLINED),pushMode(BUID_INLINED) ;
-CertTimestamp_:     'CertTimestamp' VALUE_START	-> skip, pushMode(SIGN_INLINED),pushMode(BUID_INLINED) ;
+CertTimestamp_:     'CertTimestamp' VALUE_START	-> skip, pushMode(BUID_INLINED) ;
 
 UserID_:       		'UserID' VALUE_START		-> skip, pushMode(USER_INLINED) ;
 IdtySignature_:		'IdtySignature' VALUE_START -> skip, pushMode(SIGN_INLINED) ;
@@ -35,7 +62,6 @@ Endpoints_: 		'Endpoints' ARRAY_START		-> skip, pushMode(ENDPT_MULTILN) ;
 
 VALUE_START:		COLON WS ;
 ARRAY_START:		COLON NL ;
-//INT:				BASE9 BASE10+;
 fragment LP: 		'('; 
 fragment RP: 		')';
 fragment NL:		'\n';
@@ -46,14 +72,13 @@ fragment BASE10: 	[0123456789];
 fragment BASE16: 	[0123456789ABCDEF];
 fragment BASE16LC: 	[0123456789abcdef];	
 fragment BASE58: 	[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz];
-fragment BASE64: 	[0-9a-zA-Z/+=-];
-fragment INT: 		BASE10 | ( BASE9 BASE10+ );
+fragment BASE64: 	[0-9a-zA-Z/+-];
 
 mode BUID_INLINED;
-  NUMBER : 			INT;
+  NUMBER : 			BASE10 | ( BASE9 BASE10+ );
   DASH_INLINED: 	'-' ;
   HASH_INLINED: 	BASE16+ ;
-EOBUID:				NL						-> skip,popMode ;
+EOBUID:				NL 						{System.out.println("POP BUID_INLINED");} -> skip,popMode ;
 
 mode TYPE_INLINED;
   DOCTYPE_IDTY:     		'Identity' 				;//-> skip;
@@ -64,101 +89,88 @@ mode TYPE_INLINED;
   DOCTYPE_TRAN:     		'Transaction' 			;//-> skip;
 //  DOCTYPE: 			DT_IDTY | DT_CERT | 'Membership' | 'Revocation' | 'Peer' | 'Transaction' ;
   
-EOTYPE:				NL 						-> skip,popMode ;
+EOTYPE:				NL 						{System.out.println("POP TYPE_INLINED");} -> skip,popMode ;
 
 mode SIGN_INLINED;
   SIGN:				BASE64+;
-EOSIGN:				NL 						-> skip,popMode ;
+EOSIGN:				NL 						{System.out.println("POP SIGN_INLINED");} -> skip,popMode ;
 
 mode VERS_INLINED;
   VERSION:			BASE9 BASE10+;
-EOVERS:				NL 						-> skip,popMode ;
+EOVERS:				NL 						{System.out.println("POP VERS_INLINED");} -> skip,popMode ;
 
 mode PUBK_INLINED;
   PUBKEY_INLINED:	BASE58+; 
-EOPARM:				RP 						-> popMode ;
-EOPUBK:				NL 						-> skip, popMode ;
+EOPUBK:				NL 						{System.out.println("POP PUBK_INLINED");} -> skip,popMode ;
 
 mode CURR_INLINED;
   CURRENCY:			(BASE64 | '_' )+; 
-EOCURR:				NL 						-> skip,popMode ;
+EOCURR:				NL 						{System.out.println("POP CURR_INLINED");} -> skip,popMode ;
 
 mode USER_INLINED;
   USERID:    		(BASE64 | '_' )+; 
-EOUSER:				NL 						-> skip,popMode ;
+EOUSER:				NL 						{System.out.println("POP USER_INLINED");} -> skip,popMode ;
 
 mode NUMB_INLINED;
   NUMB:    			BASE9 BASE10+; 
-EONUMB:				NL 						-> skip,popMode ;
+EONUMB:				NL 						{System.out.println("POP NUMB_INLINED");} -> skip,popMode ;
 
 
 mode MEMB_INLINED;
   MEMBER_TYPE:    	'IN' | 'OUT'; 
-EOMEMB:				NL 						-> skip,popMode ;
+EOMEMB:				NL 						{System.out.println("POP MEMB_INLINED");} -> skip,popMode ;
 
 
 
 mode COMM_INLINED;
-  COMMENT: 			(BASE64 | '_' )+;
-EOCOMM:				NL 						-> skip,popMode ;
+COMMENT: 			(BASE64 | '_' )+;
+EOCOMM:				NL 						{System.out.println("POP COMM_INLINED");} -> skip,popMode ;
 
 
 mode SIGN_MULTILN;
-  MULTISIGN:		BASE64+;
-  SIGN_SEP:			NL;
-EOSIGNS:			Comment_				-> skip,popMode, pushMode(COMM_INLINED) ;
+MULTISIGN:			BASE64+;
+SIGN_SEP:			NL;
+EOSIGNS:			Comment_				{System.out.println("POP SIGN_MULTILN");} ->  skip,popMode, pushMode(COMM_INLINED) ;
 
 mode OUTP_MULTILN;
-  OUT_AMOUT_BASE:	BASE10 | BASE9 BASE10+;
-  OUTPUT_FIELD_SEP:	COLON 					-> skip ;
-  SIG:				'SIG(' 					->  pushMode(FCT_PARAM_PUBK);
-  XHX:				'XHX(' 					->  pushMode(FCT_PARAM_HASH);
-  CSV:				'CSV';
-  CLTV:				'CLTV';
-  OR:				' || ';
-  AND:				' && ';
-  OUTLP:			'(';
-  OUTRP:			')';
-  OUTPUT_SEP:		NL;
-EOOUTP:				Signatures_				-> skip, popMode, pushMode(SIGN_MULTILN) ;
-
-mode FCT_PARAM_HASH;
-  OUTHASH: 			BASE16+; 
-ENDHASH:			RP						-> popMode, more;
-
-mode FCT_PARAM_PUBK;
-  OUTPUBK: 			BASE58+; 
-ENDPUBK:			RP  					-> popMode, more;
-
-
-mode FCT_PARAM_NUMB;
-  OUTNUMB:			INT;
-ENDNUMB:			RP  					-> popMode;
-
+OUTNUMB:			BASE10+;
+SIG:				'SIG';
+XHX:				'XHX' ;
+CSV:				'CSV';
+CLTV:				'CLTV';
+OR:					' || ';
+AND:				' && ';
+OUTLP:				'(';
+OUTRP:				')';
+OUTHASH: 			BASE16+; //TXHASH;
+OUTINT:				INT;
+OUTPUT_FIELD_SEP:	COLON ;
+OUTPUT_SEP:			NL;
+EOOUTP:				Signatures_				{System.out.println("POP OUTP_MULTILN");} -> skip, popMode, pushMode(SIGN_MULTILN) ;
 
 mode ULCK_MULTILN;
-  UNLOCK_SEP:		NL 						-> skip ;
-  UNSIG:			'SIG'  ;
-  UNXHX:			'XHX'  ;
-  UNLP:				'(' 					-> skip;
-  UNRP:				')' 					-> skip;
-  UNNUMB: 			BASE10+;
-  UNLOCK_FIELD_SEP:	COLON -> skip;
-EOULK:				Outputs_				-> skip, popMode, pushMode(OUTP_MULTILN) ;
+UNLOCK_SEP:			NL;
+UNSIG:				'SIG';
+UNXHX:				'XHX';
+UNLP:				'(';
+UNRP:				')';
+UNNUMB: 			BASE10+;
+UNLOCK_FIELD_SEP:	COLON;
+EOULK:				Outputs_				{System.out.println("POP ULCK_MULTILN");}  -> skip, popMode, pushMode(OUTP_MULTILN) ;
 
 mode INPT_MULTILN;
-  INNUMB:			INT;
-  INHASH:			BASE16+;
-  INFIELD_SEP:		COLON -> skip;
-  DIVIDEND_TYPE:	'D';
-  TRANSACTION_TYPE:	'T';
-  INPUT_SEP:		NL -> skip;
-EOINPT:				Unlocks_				-> skip, popMode, pushMode(ULCK_MULTILN) ;
+INNUMB:				BASE10+;
+INHASH:				BASE16+;
+INFIELD_SEP:		COLON;
+DIVIDEND_TYPE:		'D';
+TRANSACTION_TYPE:	'T';
+INPUT_SEP:			NL;
+EOINPT:				Unlocks_				{System.out.println("POP INPT_MULTILN");} -> skip, popMode, pushMode(ULCK_MULTILN) ;
 
 mode ISSU_MULTILN;
   PUBKEY_MULTILN:	BASE58+; 
-  ISSUER_SEP:		NL 						-> skip;
-EOISSU:				Inputs_					-> skip, popMode, pushMode(INPT_MULTILN) ;
+ISSUER_SEP:			NL 						;
+EOISSU:				Inputs_					{System.out.println("POP ISSU_MULTILN");} -> skip, popMode, pushMode(INPT_MULTILN) ;
 
 
 mode ENDPT_MULTILN;

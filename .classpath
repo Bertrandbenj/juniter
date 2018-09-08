@@ -20,7 +20,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="data"/>
-	<classpathentry excluding="WS2Pv1BaseListener.java|WS2Pv1Lexer.java|WS2Pv1Listener.java|WS2Pv1Parser.java|tests/" kind="src" path="grammar"/>
+	<classpathentry excluding="WS2Pv1BaseListener.java|WS2Pv1Lexer.java|WS2Pv1Listener.java|WS2Pv1Parser.java|tests/|doc/|more/" kind="src" path="grammar"/>
 	<classpathentry kind="src" path="grammar/tests"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-10">
 		<attributes>
