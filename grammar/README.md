@@ -11,7 +11,7 @@ copy [PGLexer.g4](PGLexer.g4) and [PGParser.g4](PGParser.g4)
 run next to the PGLexer.g4 and PGParser.g4
 
 ```
- antlr4 PG*.g4 ; javac PG*.java;  grun PG doc tests/tx.dup
+ antlr4 PG*.g4 ; javac PG*.java;  grun PG doc -gui tests/tx.dup
 ```
  
  
@@ -21,8 +21,7 @@ Grammars help you get the semantic of the data structure. its generic and univer
 
 ![antlr does that](doc/antlr4.png)
 
-Using -gui you get a tool to visualize the graph
-![applied example](doc/antlr4_parse_tree.svg)
+
 
 ## ANTLR4 particularities 
 
@@ -100,5 +99,81 @@ My part of the reward is for antlr4 implementations, half of it for any other gr
  
 PGParser presently contains a simplified grammar that output a yaml representation to the console as it parses the DUP protocol documents. 
 
+it looks like that for a membership document
 
+```yml
+doc:
+  version: 10
+  wot: #  Identity, Certification, Membership, Revocation
+    currency: beta_brousouf
+    membership:
+      issuer: DNann1Lh55eZMEDXeYt59bzHbA3NJR46DeQYCS2qQdLV
+      block: 
+        buid.bnum: 32
+        buid.bhash: DB30D958EE5CB75186972286ED3F4686B8A1C2CD
+      member: IN
+      userID: USER_ID
+      certTS: 
+        buid.bnum: 32
+        buid.bhash: DB30D958EE5CB75186972286ED3F4686B8A1C2CD
+    signature: SoKwoa8PFfCDJWZ6dNCv7XstezHcc2BbKiJgVDXv82R5zYR83nis9dShLgWJ5w48noVUHimdngzYQneNYSMV3rk
+```
 
+And like this for a transaction, try out the rest !
+
+```yml
+antlr4 PG*.g4 ; javac PG*.java;  grun PG doc -gui tests/tx.dup 
+doc:
+  version: 10
+  transaction:
+    currency: g1
+    blockstamp: 12345
+    locktime: 98765
+    issuers: 
+      0: HgTTJLAQ5sqfknMq7yLPZbehtuLSsKj9CxWN7k8QvYJd
+      1: GgTTJLAQ5sqfknMq7yLPZbehtuLSsKj9CxWN7k8QvYJd
+    inputs: 
+      0: 
+        amount: 25
+        base: 2
+        tx:  # a previous Transaction
+          bhash: 6991C993631BED4733972ED7538E41CCC33660F554E3C51963E2A0AC4D6453D3 # in this block hash
+          tindex: 0 # at that index
+      1: 
+        amount: 25
+        base: 2
+        tx:  # a previous Transaction
+          bhash: 6991C993631BED4733972ED7538E41CCC33660F554E3C51963E2A0AC4D6453D3 # in this block hash
+          tindex: 65 # at that index
+    unlocks: 
+      0: 
+        in_index: 0
+        ul_condition: 
+          unsig: 1
+      1: 
+        in_index: 0
+        ul_condition: 
+          unxhx: 1
+    outputs: 
+      0: 
+        amount: 50
+        base: 2
+        condition: 
+          or: 
+            sig: HgTTJLAQ5sqfknMq7yLPZbehtuLSsKj9CxWN7k8QvYJd
+            and: 
+              sig: DNann1Lh55eZMEDXeYt59bzHbA3NJR46DeQYCS2qQdLV
+              xhx: 309BC5E644F797F53E5A2065EAF38A173437F2E6
+      1: 
+        amount: 50
+        base: 2
+        condition: 
+          xhx: 8AFC8DF633FC158F9DB4864ABED696C1AA0FE5D617A7B5F7AB8DE7CA2EFCD4CB
+    signatures: 
+      0: DpVMlf6vaW0q+WVtcZlEs/XnDz6WtJfA448qypOqRbpi7voRqDaS9R/dG4COctxPg6sqXRbfQDieeDKU7IZWBA==
+      1: DpVMlf6vaW0q+WVtcZlEs/XnDz6WtJfA448qypOqRbpi7voRqDaS9R/dG4COctxPg6sqXRbfQDieeDKU7IZWBA==
+    comment: huhuhaha
+```
+
+Using -gui you get a tool to visualize the graph
+![applied example](doc/antlr4_parse_tree.png)
