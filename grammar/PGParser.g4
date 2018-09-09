@@ -237,12 +237,9 @@ cond:
   	| {System.out.println(indent+"and: ");} and 									
 );
 
-and: {indent+="  ";}
-	OUTLP 
-	cond 
-	AND 
-	cond 
-	OUTRP
+and: 
+	{indent+="  ";}
+	OUTLP cond AND cond  OUTRP
 	{indent = indent.substring(2);}
 ;
 or:	{indent+="  ";}

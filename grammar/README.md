@@ -175,5 +175,53 @@ doc:
     comment: huhuhaha
 ```
 
-Using -gui you get a tool to visualize the graph
+## Using -gui you get a tool to visualize the graph
 ![applied example](doc/antlr4_parse_tree.png)
+Some tokens remains visible that should be cleaned up
+
+## Basic validation
+
+The number of signature is bounded at parse time by  the number of issuers.
+
+```
+@members{
+	int nbIssu=0;
+}
+
+signatures
+locals[int i=0]
+:
+(
+	{ $i < nbIssu }?   // the predicate 
+	signature 	
+	{ $i++; }		 // the action		 
+)+;
+```
+
+## Indenting the yaml 
+Simple but works
+ 
+
+```
+and: 
+	{indent+="  ";}
+	OUTLP cond AND cond  OUTRP
+	{indent = indent.substring(2);}
+;
+
+cond:										
+(
+	sig 				{System.out.println(indent+"sig: "+$sig.text+"");}
+  	| xhx 			{System.out.println(indent+"xhx: "+$xhx.text+"");}									
+  	| 				{System.out.println(indent+"and: ");} 
+  	and 									
+);
+```
+
+note how the logging message for the 'and' rule precede the rule unlike for sig and xhx. this way we  produce properly indented output
+
+```
+  and: 
+    sig: DNann1Lh55eZMEDXeYt59bzHbA3NJR46DeQYCS2qQdLV
+    xhx: 309BC5E644F797F53E5A2065EAF38A173437F2E6
+```
