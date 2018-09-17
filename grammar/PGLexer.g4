@@ -48,6 +48,7 @@ fragment BASE16: 	[0123456789ABCDEF];
 fragment BASE16LC: 	[0123456789abcdef];	
 fragment BASE58: 	[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz];
 fragment BASE64: 	[0-9a-zA-Z/+=-];
+fragment CURCY:		[0-9a-zA-Z_- ];
 fragment INT: 		BASE10 | ( BASE9 BASE10+ );
 fragment INT256: 	BASE10 | ( BASE9 BASE10 ) | ( BASE2 BASE10 BASE10 );
 
@@ -87,7 +88,7 @@ mode CURR_INLINED;
 EOCURR:				NL 						-> skip,popMode ;
 
 mode USER_INLINED;
-  USERID:    		(BASE64 | '_' )+; 
+  USERID:    		CURCY+; 
 EOUSER:				NL 						-> skip,popMode ;
 
 mode NUMB_INLINED;

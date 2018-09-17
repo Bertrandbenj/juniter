@@ -3,3 +3,6 @@ src/main/resources/static/dot/*
 /juniter.log
 /exec.log
 *.class
+/build/
+/.gradle/
+/bin/

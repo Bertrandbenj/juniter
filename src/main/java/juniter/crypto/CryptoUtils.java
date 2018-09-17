@@ -1,8 +1,12 @@
 package juniter.crypto;
 
+import static org.abstractj.kalium.NaCl.sodium;
+
 import java.nio.charset.Charset;
 
 import org.abstractj.kalium.crypto.Util;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /*
  * #%L
@@ -28,12 +32,16 @@ import org.abstractj.kalium.crypto.Util;
 
 import com.lambdaworks.codec.Base64;
 
+import jnr.ffi.byref.LongLongByReference;
 import juniter.exception.TechnicalException;
 
 public class CryptoUtils extends Util {
+	private static final Logger logger = LogManager.getLogger();
 
 	public static final Charset CHARSET_UTF8 = Charset.forName("UTF-8");
 	public static final Charset CHARSET_ASCII = Charset.forName("US-ASCII");
+
+	private static final int SIGNATURE_BYTES = 64;
 
 	public static byte[] copyEnsureLength(byte[] source, int length) {
 		final byte[] result = zeros(length);
@@ -84,19 +92,23 @@ public class CryptoUtils extends Util {
 		return result;
 	}
 
-	/**
-	 * /** Verify a signature against data & public key. Return true of false as
-	 * callback argument.
-	 *
-	 * @param rawMsg
-	 * @param rawSig
-	 * @param rawPub
-	 */
+	static boolean verify(byte[] message, byte[] signature, byte[] publicKey) {
+		final byte[] sigAndMsg = new byte[SIGNATURE_BYTES + message.length];
+		for (int i = 0; i < SIGNATURE_BYTES; i++) {
+			sigAndMsg[i] = signature[i];
+		}
+		for (int i = 0; i < message.length; i++) {
+			sigAndMsg[i + SIGNATURE_BYTES] = message[i];
+		}
+		final byte[] buffer = new byte[SIGNATURE_BYTES + message.length];
+		final LongLongByReference bufferLength = new LongLongByReference(0);
 
-	public static void verify(String rawMsg, String rawSig, String rawPub) {
-		final var msg = decodeUTF8(rawMsg);
-		final var sig = decodeBase64(rawSig);
-		final var pub = decodeBase58(rawPub);
+		final int result = sodium().crypto_sign_ed25519_open(buffer, bufferLength, sigAndMsg, sigAndMsg.length,
+				publicKey);
+		final boolean validSignature = result == 0;
+		// logger.info("verified " + sigAndMsg.length + "bytes, result: " + result);
+
+		return validSignature;
 	}
 	// export function verify(rawMsg:string, rawSig:string, rawPub:string) {
 //  const msg = decodeUTF8(rawMsg);
@@ -111,6 +123,24 @@ public class CryptoUtils extends Util {
 //  // Call to verification lib...
 //  return naclBinding.verify(m, sm, pub);
 //}
+
+	/**
+	 * Verify a signature against data & public key. Return true of false as
+	 * callback argument.
+	 *
+	 * @param rawMsg
+	 * @param rawSig
+	 * @param rawPub
+	 */
+
+	public static boolean verify(String rawMsg, String rawSig, String rawPub) {
+		final var msg = decodeUTF8(rawMsg);
+		final var sig = decodeBase64(rawSig);
+		final var pub = decodeBase58(rawPub);
+
+		// checkLength(sig, SIGNATURE_BYTES);
+		return verify(msg, sig, pub);
+	}
 
 	public static byte[] zeros(int n) {
 		return new byte[n];

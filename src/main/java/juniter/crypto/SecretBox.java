@@ -13,6 +13,8 @@ import static org.abstractj.kalium.crypto.Util.removeZeros;
 import java.security.GeneralSecurityException;
 
 import org.abstractj.kalium.crypto.Util;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /*
  * #%L
@@ -42,6 +44,7 @@ import jnr.ffi.byref.LongLongByReference;
 import juniter.exception.TechnicalException;
 
 public class SecretBox {
+	private static final Logger logger = LogManager.getLogger();
 
 	// Length of the key
 	private static int SEED_LENGTH = 32;
@@ -97,7 +100,7 @@ public class SecretBox {
 
 	/**
 	 * Retrun the public key, encode in Base58
-	 * 
+	 *
 	 * @return
 	 */
 	public String getPublicKey() {
@@ -106,7 +109,7 @@ public class SecretBox {
 
 	/**
 	 * Return the secret key, encode in Base58
-	 * 
+	 *
 	 * @return
 	 */
 	public String getSecretKey() {

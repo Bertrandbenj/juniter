@@ -11,7 +11,7 @@ public interface Constants {
 	}
 
 	interface Regex {
-		String USER_ID = "[A-Za-z0-9_-]+";
+		String USER_ID = "[A-Za-z0-9_- ]{2,50}+";
 		String CURRENCY_NAME = "[A-Za-z0-9_-]";
 
 		/**

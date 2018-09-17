@@ -233,8 +233,10 @@ cond:
   	| xhx 									{System.out.println(indent+"xhx: "+$xhx.text+"");}	
   	| csv 									{System.out.println(indent+"csv: "+$csv.text+"");}
   	| cltv 									{System.out.println(indent+"cltv: "+$cltv.text+"");}
-  	| {System.out.println(indent+"or: ");} or  									
-  	| {System.out.println(indent+"and: ");} and 									
+  	| 										{System.out.println(indent+"or: ");}
+  	 or  									
+  	| 										{System.out.println(indent+"and: ");} 
+  	and 									
 );
 
 and: 
@@ -281,7 +283,7 @@ userid: 			USERID					;
 pubkey: 			pk=PUBKEY_INLINED 
 					| PUBKEY_MULTILN 
 					| OUTPUBK 
-					|INHASH 				; 
+					| INHASH 				; 
 					
 			
 currency: 			c=CURRENCY				{System.out.println("    currency: "+$c.text);}; 

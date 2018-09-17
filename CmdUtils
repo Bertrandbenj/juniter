@@ -1,17 +1,3 @@
-## Extract blocks 
-for i in $(seq -f "%07g" 0 10); do wget https://g1.bertrandbenjamin.com/blockchain/block/$i -O data/blocks/$i.json ; done
-
-
-## inline files 
-for i in $(seq -f "%07g" 0 10); do cat data/blocks/$i.json | tr -d '\n' > data/blocks/$i.inline.json ; done
-
-## Aggregate into one file 
-for f in data/blocks/*.inline.json ; do sed -e '$s/$/\n/' $f ; done > data/blocks.json
-
-## cleanup inline
-rm data/blocks/*.inline.json
-
-
 
 DROP TABLE public.wot_actives;
 DROP TABLE public.wot_certs;
@@ -21,7 +7,6 @@ DROP TABLE public.wot_leavers;
 DROP TABLE public.wot_revoked;
 DROP TABLE public.block_transaction;
 DROP TABLE public.wot_identities;
-
 
 DROP TABLE public.block_certification;
 DROP TABLE public.block_identity;
@@ -35,20 +20,14 @@ DROP TABLE public.endpoints;
 DROP TABLE public.joiner;
 DROP TABLE public.peer;
 
-
-
-
 DROP TABLE public.signature;
 
 DROP TABLE public.tx_inputs;
 DROP TABLE public.tx_outputs;
---DROP TABLE public.transaction_pubkey;
 DROP TABLE public.tx_signatures;
 DROP TABLE public.tx_unlocks;
 DROP TABLE public.tx_issuers;
 DROP TABLE public.transaction;
---DROP TABLE public.buid;
---DROP TABLE public.pubkey;
 
 
 

@@ -3,55 +3,58 @@ package juniter.grammar;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class JuniterListener extends JuniterListener {
+import antlr.main.JuniterParser.DocContext;
+import antlr.main.JuniterParser.IdentityContext;
+import antlr.main.JuniterParser.PeerContext;
+import antlr.main.JuniterParser.WotContext;
+import antlr.main.JuniterParserBaseVisitor;
+import juniter.model.net.Document;
+import juniter.model.net.IdentityDocument;
+import juniter.model.net.PeerDocument;
+import juniter.model.persistence.BStamp;
+import juniter.utils.LocalValid;
+
+public class JuniterListener extends JuniterParserBaseVisitor<Document> implements LocalValid {
 
 	private static final Logger logger = LogManager.getLogger();
 
 	@Override
-	public void exitAnd(AndContext ctx) {
-		super.exitAnd(ctx);
-		logger.info("exitAnd " + ctx + " " + ctx.toStringTree());
+	public Document visitDoc(DocContext ctx) {
 
+		final var res = super.visitDoc(ctx);
+
+		return res.isValid() ? res : null;
 	}
 
 	@Override
-	public void exitBuid(BuidContext ctx) {
-		super.exitBuid(ctx);
-		logger.info("exitBuid " + ctx + " " + ctx.toStringTree());
+	public Document visitIdentity(IdentityContext ctx) {
 
+		final var res = new IdentityDocument();
+		res.setIssuer(ctx.issuer().getText());
+		res.setCurrency(ctx.currency().getText());
+		res.setUniqueID(ctx.userid().getText());
+
+		final var bstamp = ctx.timestamp().buid();
+		res.setTimestamp(new BStamp( //
+				Integer.parseInt(bstamp.bnum().getText()), //
+				bstamp.bhash().getText()));
+		res.setVersion(ctx.version().getText());
+		res.setSignature(((WotContext) ctx.getParent()).signature().getText());
+		logger.info("parsed: \n" + res);
+		return res;
 	}
 
 	@Override
-	public void exitCurrency(CurrencyContext ctx) {
-		super.exitCurrency(ctx);
-		logger.info("exitCurrency " + ctx + " " + ctx.toStringTree());
+	public Document visitPeer(PeerContext ctx) {
 
-	}
-
-	@Override
-	public void exitDoctype(DoctypeContext ctx) {
-		super.exitDoctype(ctx);
-		logger.info("exitDoctype " + ctx + " " + ctx.toStringTree());
-
-	}
-
-	@Override
-	public void exitIssuer(IssuerContext ctx) {
-		super.exitIssuer(ctx);
-		logger.info("exitIssuer " + ctx + " " + ctx.toStringTree());
-	}
-
-	@Override
-	public void exitTimestamp_(Timestamp_Context ctx) {
-		super.exitTimestamp_(ctx);
-		logger.info("exitTimestamp_ " + ctx + " " + ctx.toStringTree());
-
-	}
-
-	@Override
-	public void exitVersion_(Version_Context ctx) {
-		super.exitVersion_(ctx);
-		logger.info("Exiting Version " + ctx + " " + ctx.toStringTree());
+		final var res = new PeerDocument();
+		res.setPubkey(ctx.pubkey().getText());
+		res.setCurrency(ctx.currency().getText());
+		final var bnum = Integer.parseInt(ctx.block().buid().bnum().getText());
+		final var bhash = ctx.block().buid().bhash().getText();
+		res.setBlock(new BStamp(bnum, bhash));
+		logger.info("parsed: \n" + res);
+		return res;
 	}
 
 }
