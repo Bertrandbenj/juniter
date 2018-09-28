@@ -58,7 +58,7 @@ import java.util.stream.Stream;
  */
 public interface GlobalValid {
 
-	public class BINDEX {
+	public class BINDEX implements Comparable<BINDEX> {
 
 		Integer version;
 		Integer size;
@@ -85,6 +85,11 @@ public interface GlobalValid {
 		Long udTime = null;
 		Long diffTime = null;
 		Long speed = null;
+
+		@Override
+		public int compareTo(BINDEX o) {
+			return number.compareTo(o.number);
+		}
 
 	}
 
@@ -1846,17 +1851,17 @@ public interface GlobalValid {
 	Integer computeIssuersCount();
 
 	default BINDEX head() {
-		return heads()[0];
+		return indexB()[0];
 	}
 
-	BINDEX[] heads();
+	BINDEX[] indexB();
 
 	default BINDEX prevHead() {
-		return heads()[1];
+		return indexB()[1];
 	}
 
 	default Stream<BINDEX> range(long m) {
 		final var i = head().number - m;
-		return Stream.of(heads()).filter(h -> h.number > i);
+		return Stream.of(indexB()).sorted().filter(h -> h.number > i);
 	}
 }
