@@ -60,12 +60,13 @@ juniter:
   network:
     trusted: https://g1.bertrandbenjamin.com/,https://g1.duniter.org/,https://duniter.g1.1000i100.fr/,https://duniter.nayya.org/
     bulkSize: 500
+    webSocketPoolSize: 5
   simpleloader:
     enabled: true  
   graphviz:
     enabled: true
   graphql:
-    enabled: true
+    enabled: false # FIXME dependencies ? 
   bma:
     enabled: true
   ws2p:
@@ -81,10 +82,10 @@ logging:
   path: /var/log/juniter
 #  file: juniter.log
   level:
-    root: warn
-    org.springframework.web: warn
+    root: info
+    org.springframework.web: info
     org.hibernate.SQL: warn
-    juniter: info
+    juniter: debug
 #hibernate.show_sql: false
     
     

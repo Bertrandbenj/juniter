@@ -41,7 +41,7 @@ public interface BlockRepository extends JpaRepository<Block, Long> {
 //	@Override
 //	Optional<Block> findById(Long id);
 
-	Stream<Block> findByNumberIn(List<Integer> number);;
+	Stream<Block> findByNumberIn(List<Integer> number);
 
 	Stream<Block> findTop10ByOrderByNumberDesc();
 
@@ -68,18 +68,11 @@ public interface BlockRepository extends JpaRepository<Block, Long> {
 	 * Saves the given {@link Block}.
 	 *
 	 * @param block
-	 * @return
+	 * @return the block saved
 	 */
 	@Override
 	<S extends Block> S save(S block);
 
-	/**
-	 * Sample method to demonstrate support for {@link Stream} as a return type with
-	 * a custom query. The query is executed in a streaming fashion which means that
-	 * the method returns as soon as the first results are ready.
-	 *
-	 * @return
-	 */
 	@Query("select c from Block c")
 	Stream<Block> streamAllBlocks();
 

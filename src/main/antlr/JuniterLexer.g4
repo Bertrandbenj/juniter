@@ -19,7 +19,6 @@ package antlr.main;
 					BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64; // 88  
 //J3G9oM5AKYZNLAB5Wx499w61NuUoS57JVccTShUbGpCMjCqj9yXXqNq7dyZpDWA6BxipsiaMZhujMeBfCznzyci
 
-INT : 				BASE9 BASE10+;
 //HASH: 				BASE16+;
 HASH:				BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 
 					BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 
@@ -65,21 +64,50 @@ Outputs_: 			'Outputs' ARRAY_START		-> skip, pushMode(OUTP_MULTILN) ;
 Endpoints_: 		'Endpoints' ARRAY_START		-> skip, pushMode(ENDPT_MULTILN) ;
 
 
-Number_: 			'Number' VALUE_START		-> skip, pushMode(NUMB_INLINED) ;
-PoWMin_: 			'PoWMin' VALUE_START		-> skip, pushMode(NUMB_INLINED) ;
-Time_: 				'Time' VALUE_START			-> skip, pushMode(NUMB_INLINED) ;
-MedianTime_: 		'MedianTime' VALUE_START	-> skip, pushMode(NUMB_INLINED) ;
-UniversalDividend_: 'UniversalDividend' VALUE_START		-> skip, pushMode(NUMB_INLINED) ;
-UnitBase_: 			'UnitBase' VALUE_START		-> skip, pushMode(NUMB_INLINED) ;
-IssuersFrame_: 		'IssuersFrame' VALUE_START	-> skip, pushMode(NUMB_INLINED) ;
-IssuersFrameVar_: 	'IssuersFrameVar' VALUE_START		-> skip, pushMode(NUMB_INLINED) ;
-DifferentIssuersCount_: 'differentIssuersCount' VALUE_START		-> skip, pushMode(PUBK_INLINED) ;
-PreviousHash_: 		'PreviousHash' VALUE_START		-> skip, pushMode(HASH_INLINED) ;
-PreviousIssuer_: 	'PreviousIssuer' VALUE_START		-> skip, pushMode(PUBK_INLINED) ;
-Parameters_: 		'Parameters' VALUE_START		-> skip, pushMode() ;
+Number_: 			'Number' VALUE_START			-> skip, pushMode(NUMB_INLINED) ;
+PoWMin_: 			'PoWMin' VALUE_START			-> skip, pushMode(NUMB_INLINED) ;
+Time_: 				'Time' VALUE_START				-> skip, pushMode(NUMB_INLINED) ;
+MedianTime_: 		'MedianTime' VALUE_START		-> skip, pushMode(NUMB_INLINED) ;
+UniversalDividend_: 'UniversalDividend' VALUE_START	->  skip, pushMode(NUMB_INLINED) ;
+UnitBase_: 			'UnitBase' VALUE_START			->  skip, pushMode(NUMB_INLINED) ;
+IssuersFrame_: 		'IssuersFrame' VALUE_START		-> skip, pushMode(NUMB_INLINED) ;
+IssuersFrameVar_: 	'IssuersFrameVar' VALUE_START	-> skip, pushMode(NUMB_INLINED) ;
+DiffIssuersCount_: 	'DifferentIssuersCount' VALUE_START		-> skip, pushMode(NUMB_INLINED) ;
+PreviousHash_: 		'PreviousHash' VALUE_START		-> skip, pushMode(BUID_INLINED) ;
+PreviousIssuer_: 	'PreviousIssuer' VALUE_START	-> skip, pushMode(PUBK_INLINED) ;
+Parameters_: 		'Parameters' VALUE_START		-> skip, pushMode(BLOCK_FIELD) ;
 MembersCount_: 		'MembersCount' VALUE_START		-> skip, pushMode(NUMB_INLINED) ;
-Nonce_: 			'Nonce' VALUE_START			-> skip, pushMode(NUMB_INLINED) ;
-InnerHash_: 		'InnerHash' VALUE_START		-> skip, pushMode(HASH_INLINED) ;
+Nonce_: 			'Nonce' VALUE_START				-> skip, pushMode(NUMB_INLINED) ;
+InnerHash_: 		'InnerHash' VALUE_START			-> skip, pushMode(BUID_INLINED) ;
+Transactions_:		'Transactions' ARRAY_START		;//-> pushMode(BLOCK_FIELD);
+Certifications_:	'Certifications' ARRAY_START	-> pushMode(WOT_MULTILN) ; //-> skip, pushMode(WOT_MULTILN) ;
+Excluded_:			'Excluded' ARRAY_START			; //-> pushMode(ISSU_MULTILN) ;
+Revoked_:			'Revoked' ARRAY_START			;
+Leavers_:			'Leavers' ARRAY_START			;
+Actives_:			'Actives' ARRAY_START			;
+Joiners_:			'Joiners' ARRAY_START			;
+Identities_:		'Identities' ARRAY_START		;//-> pushMode(WOT_MULTILN) ;
+TX: 				'TX:' 							-> pushMode(COMPACT_TX), pushMode(SIGN_INLINED),pushMode(COMM_INLINED),pushMode(OUTP_MULTILN),pushMode(ULCK_MULTILN),pushMode(INPT_MULTILN),pushMode(ISSU_MULTILN),pushMode(BUID_INLINED),pushMode(BLOCK_FIELD);
+
+mode COMPACT_TX;
+
+EOTXCPT: TX -> more, popMode;
+
+
+mode WOT_MULTILN; 
+  WOTNUMB:			INT; 
+  WOTPUBK:			BASE58+; 
+  WOTSIGN:			SIGNTRE; 
+  WOTSEP:			COLON 							->skip;
+  WOTNL:			NL								->skip;
+
+EOWOT:				(Joiners_ 
+					| Actives_ 
+					| Leavers_ 
+					| Revoked_	
+					| Excluded_						
+					| Certifications_)		 		-> more, popMode, pushMode(WOT_MULTILN) ;
+EOWOT2: 			 Transactions_	 				-> more, popMode;
 
 
 //SIGN_INLINE_START:	INLINE_START 			{ System.out.println("PUSH SIGN_INLINED"); } -> pushMode(SIGN_INLINED) ;
@@ -92,13 +120,18 @@ fragment RP: 		')';
 fragment NL:		'\n';
 fragment WS: 		' ';
 fragment COLON: 	':'  ;
+fragment BASE2: 	[12];
 fragment BASE9: 	[123456789];
 fragment BASE10: 	[0123456789];
 fragment BASE16: 	[0123456789ABCDEF];
 fragment BASE16LC: 	[0123456789abcdef];	
 fragment BASE58: 	[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz];
 fragment BASE64: 	[0-9a-zA-Z/+-];
-fragment SIGN_CHAR:	BASE64+ '='*;
+fragment CURCY:		[0-9a-zA-Z_-];
+fragment INT: 		BASE10 | ( BASE9 BASE10+ );
+fragment INT256: 	BASE10 | ( BASE9 BASE10 ) | ( BASE2 BASE10 BASE10 );
+
+fragment SIGNTRE:	BASE64+ '='*;
 
 mode BUID_INLINED;
   NUMBER : 			BASE10 | ( BASE9 BASE10+ );
@@ -113,16 +146,17 @@ mode TYPE_INLINED;
   DOCTYPE_REVO:     		'Revocation' 			;//-> skip;
   DOCTYPE_PEER:     		'Peer' 					;//-> skip;
   DOCTYPE_TRAN:     		'Transaction' 			;//-> skip;
+  DOCTYPE_BLCK:     		'Block' 			;//-> skip;
 //  DOCTYPE: 			DT_IDTY | DT_CERT | 'Membership' | 'Revocation' | 'Peer' | 'Transaction' ;
   
 EOTYPE:				NL 						 -> skip,popMode ;
 
 mode SIGN_INLINED;
-  SIGN:				SIGN_CHAR;
+  SIGN:				SIGNTRE;
 EOSIGN:				NL 						-> skip,popMode ;
 
 mode VERS_INLINED;
-  VERSION:			BASE9 BASE10+;
+  VERSION:			INT;
 EOVERS:				NL 						 -> skip,popMode ;
 
 mode PUBK_INLINED;
@@ -138,7 +172,7 @@ mode USER_INLINED;
 EOUSER:				NL 						 -> skip,popMode ;
 
 mode NUMB_INLINED;
-  NUMB:    			BASE9 BASE10+; 
+  NUMB:    			INT; 
 EONUMB:				NL 						 -> skip,popMode ;
 
 
@@ -149,12 +183,12 @@ EOMEMB:				NL 						 -> skip,popMode ;
 
 
 mode COMM_INLINED;
-COMMENT: 			(BASE64 | '_' )+;
+  COMMENT: 			(BASE64 | '_' )+;
 EOCOMM:				NL 						 -> skip,popMode ;
 
 
 mode SIGN_MULTILN;
-MULTISIGN:			SIGN_CHAR+;
+MULTISIGN:			SIGNTRE;
 SIGN_SEP:			NL;
 EOSIGNS:			Comment_				->  skip,popMode, pushMode(COMM_INLINED) ;
 
@@ -186,6 +220,15 @@ UNNUMB: 			BASE10+;
 UNLOCK_FIELD_SEP:	COLON;
 EOULK:				Outputs_				-> skip, popMode, pushMode(OUTP_MULTILN) ;
 
+
+mode BLOCK_FIELD;
+
+BLNUMB: 			INT;
+BLPERCENT: 			'0.' BASE10+;
+BLOCK_FIELD_SEP:	COLON -> skip;
+EOBLK:				NL						-> skip, popMode ;
+
+
 mode INPT_MULTILN;
 INNUMB:				BASE10+;
 INHASH:				BASE16+;
@@ -198,11 +241,12 @@ EOINPT:				Unlocks_				 -> skip, popMode, pushMode(ULCK_MULTILN) ;
 mode ISSU_MULTILN;
   PUBKEY_MULTILN:	BASE58+; 
 ISSUER_SEP:			NL 						;
-EOISSU:				Inputs_					-> skip, popMode, pushMode(INPT_MULTILN) ;
+//ISSUER_STOP:		ISSUER_SEP 				{System.out.println("POP ISSU_MULTILN");}-> more, popMode;
+EOISSU:				Inputs_					{System.out.println("POP ISSU_MULTILN");} -> skip, popMode, pushMode(INPT_MULTILN) ;
 
 
 mode ENDPT_MULTILN;
-  IP4:				BASE10+ '.' BASE10+ '.' BASE10+ '.' BASE10+ ; 
+  IP4:				INT256 '.' INT256 '.' INT256 '.' INT256 ; 
   IP6:				OCT ':' OCT ':' OCT ':' OCT ':' OCT ':' OCT ':' OCT; 
   OCT:				BASE16LC+;
   DNS: 				[a-z]+ ('.' [a-z]+)+;

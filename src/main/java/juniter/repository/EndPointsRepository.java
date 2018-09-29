@@ -14,21 +14,22 @@ import juniter.model.net.Peer;
 
 @Repository
 public interface EndPointsRepository extends JpaRepository<EndPoint, Long> {
+
+	@Query("select ep from EndPoint ep where api = 'BMAS' and port = '443' ")
+	Stream<EndPoint> endpointsBMA();
+
+	@Query("select ep from EndPoint ep where api = 'WS2P'  ")
+	Stream<EndPoint> endpointsWS2P();
+
+	default List<String> enpointsURL() {
+		return endpointsBMA().filter(ep -> ep.getDomain() != null).map(ep -> ep.url()).collect(Collectors.toList());
+	}
+
+	Optional<EndPoint> findByPeerAndEndpoint(Peer pubkey, String ep_string);
+
 	@Override
 	<S extends EndPoint> S save(S endpoint);
-	
-	Optional<EndPoint> findByPeerAndEndpoint(Peer pubkey, String ep_string);
-	
-	@Query("select ep from EndPoint ep where api = 'BMAS' and port = '443' ")
-	Stream<EndPoint> streamUsableEndpoints();
-	
-	default List<String> enpointsURL(){
-		return streamUsableEndpoints()
-				.filter(ep-> ep.getDomain() != null)
-				.map(ep -> ep.url())
-				.collect(Collectors.toList());
-	};
-	
+
 	@Override
 	<S extends EndPoint> List<S> saveAll(Iterable<S> entities);
 //	@Override
@@ -36,4 +37,5 @@ public interface EndPointsRepository extends JpaRepository<EndPoint, Long> {
 //		PeeringService.logger.info("Saving stuff ");
 //		return super.saveAll(entities);
 //	};
+
 }

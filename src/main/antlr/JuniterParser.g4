@@ -7,11 +7,12 @@ options {
 
 @header { 
 package antlr.main; 
-import juniter.crypto.CryptoUtils;
+//import juniter.crypto.CryptoUtils;
+import java.lang.Integer;
 }
 
 @members {
-	int nbIssu=0;
+	int nbIssu=0, nbInputs=0;int nbIssuersExpected=0;
 	int nbSign=0;
 	int maxEndpoints=3;
 	String indent="          ";	
@@ -20,7 +21,7 @@ import juniter.crypto.CryptoUtils;
 	String issuerPK = "";
 	String docSignature="";
 	boolean isValid = true;  
-	boolean quickCheck = CryptoUtils.verify("testSignature", "i1KoUGRU/AxpE4FmdZuFjBuzOv4wD8Nbj7+aeaSjC2R10FaFH15vWBLPcq+ghDHthMg40xJ+OKYzIAPG1l3/BQ==", "3LJRrLQCio4GL7Xd48ydnYuuaeWAgqX4qXYFbXDTJpAa");
+	//boolean quickCheck = CryptoUtils.verify("testSignature", "i1KoUGRU/AxpE4FmdZuFjBuzOv4wD8Nbj7+aeaSjC2R10FaFH15vWBLPcq+ghDHthMg40xJ+OKYzIAPG1l3/BQ==", "3LJRrLQCio4GL7Xd48ydnYuuaeWAgqX4qXYFbXDTJpAa");
 	public String rawUnsigned (int lastChar){
 		CharStream cs = _ctx.start.getTokenSource().getInputStream();
 		return cs.getText(
@@ -43,77 +44,235 @@ doc
 
 block_
 :
-	version DOCTYPE_BLCK currency number powMin time medianTime universalDividend
-	unitBase issuer issuersFrame issuersFrameVar differentIssuersCount
-	previousHash previousIssuer parameters membersCount identities joiners actives
-	leavers revoked excluded certifications transactions innerHash nonce signature
-;
+	{System.out.println("  block: ");}
 
-nonce
-:
-;
+	version
+	{System.out.println("    version: "+$version.text );}
 
-innerHash
-:
-	bhash
+	DOCTYPE_BLCK currency
+	{System.out.println("    currency: "+$version.text );}
+
+	number
+	{System.out.println("    number: "+$number.text );}
+
+	powMin
+	{System.out.println("    powMin: "+$powMin.text );}
+
+	time
+	{System.out.println("    time: "+$time.text );}
+
+	medianTime
+	{System.out.println("    medianTime: "+$medianTime.text );}
+
+	(
+		universalDividend
+		{System.out.println("    universalDividend: "+$universalDividend.text );}
+
+	)? unitBase
+	{System.out.println("    unitBase: "+$unitBase.text );}
+
+	issuer
+	{System.out.println("    issuer: "+$issuer.text );}
+
+	issuersFrame
+	{System.out.println("    issuersFrame: "+$issuersFrame.text );}
+
+	issuersFrameVar
+	{System.out.println("    issuersFrameVar: "+$issuersFrameVar.text );}
+
+	differentIssuersCount
+	{System.out.println("    differentIssuersCount: "+$differentIssuersCount.text );}
+
+	previousHash
+	{System.out.println("    previousHash: "+$previousHash.text );}
+
+	previousIssuer
+	{System.out.println("    previousIssuer: "+$previousIssuer.text );}
+
+	parameters? membersCount
+	{System.out.println("    membersCount: "+$membersCount.text );}
+
+	identities joiners actives leavers revoked excluded certifications
+	transactions innerHash
+	{System.out.println("    innerHash: "+$innerHash.text );}
+
+	nonce
+	{System.out.println("    nonce: "+$nonce.text );}
+
+	signature
+	{System.out.println("    signature: "+$signature.text+ " # isValid? " );} //+ CryptoUtils.verify(rawUnsigned(_localctx.signature.start.getStartIndex()-1), $signature.text, issuerPK)) ;}
+
 ;
 
 transactions
+locals [int i=0]
 :
-//Transactions:
-//COMPACT_TRANSACTION
+	{System.out.println("    transactions: ");}
 
+	Transactions_
+	(
+	{
+			nbIssu=0;
+			System.out.println("      "+ $i++ +": ");
+		}
+//COMPACT_TRANSACTION
+		compactTransaction
+	)*
+;
+
+compactTransaction
+locals [int nbIn=0, int nbUn=0, int nbOut=0; ]
+:
+	TX version
+	{System.out.println("        version: " + Integer.parseInt($version.text));}
+
+	nbIssuer
+	{ 
+		nbIssuersExpected = Integer.parseInt($nbIssuer.text);
+		System.out.println("        nbIssuer: " + nbIssuersExpected );
+	}
+
+	nbInput
+	{$nbIn= Integer.parseInt($nbInput.text); System.out.println("        nbInput: " +$nbIn);}
+
+	nbUnlock
+	{System.out.println("        nbUnlock: " + Integer.parseInt($version.text));}
+
+	nbOutput
+	{System.out.println("        nbOutput: " + Integer.parseInt($version.text));}
+
+	locktime
+	{System.out.println("        locktime: " + Integer.parseInt($version.text));}
+
+	blockstampTime
+	{System.out.println("        blockstampTime: " + Integer.parseInt($version.text));}
+
+	{
+		indent="          ";
+		nbIssu=0; 
+		System.out.println("        bstamp: ");
+	}
+
+	buid issuers_compact
+	{nbInputs <= 8}?
+
+	inputs
+	{$nbUn++ < 8}?
+
+	unlocks
+	{$nbOut++ < 2}?
+
+	outputs comment? signature
+;
+
+issuers_compact
+:
+	{System.out.println("        issuers: ");}
+
+	pubkey
+	{System.out.println("          "+ nbIssu +": "+ $pubkey.text); nbIssu++;}
+
+	(
+		{nbIssu < nbIssuersExpected}?
+
+		(
+			ISSUER_SEP pubkey
+			{System.out.println("          "+ nbIssu +": "+ $pubkey.text); nbIssu++;}
+
+		)
+	)+ ISSUER_SEP
 ;
 
 certifications
+locals [int i=0]
 :
-//Certifications:
-//PUBKEY_FROM:PUBKEY_TO:BLOCK_ID:SIGNATURE
+	{System.out.println("    certifications: ");}
 
+	Certifications_
+	(
+		{System.out.println("      "+ $i++ +": ");}
+
+		fromPK
+		{System.out.println("        from: " +$fromPK.text);}
+
+		toPK
+		{System.out.println("        to: "+$toPK.text);}
+
+		bnum
+		{System.out.println("        bnum: "+$bnum.text);}
+
+		signature
+		{System.out.println("        signature: "+$signature.text);}
+
+	)*
 ;
 
 excluded
+locals [int i=0]
 :
+	{System.out.println("    excluded: ");}
 
-//Excluded:
-//PUBLIC_KEY
+	Excluded_
+	(
+		pubkey
+		{System.out.println("      "+ $i++ +".pubkey: "+$pubkey.text);}
 
+	)*
 ;
 
 revoked
+locals [int i=0]
 :
-//Revoked:
-//PUBLIC_KEY:SIGNATURE
+	{System.out.println("    revoked: ");}
 
+	Revoked_
+	(
+		pubkey signature
+	)*
 ;
 
 leavers
+locals [int i=0]
 :
-//Leavers:
-//PUBLIC_KEY:SIGNATURE:M_BLOCK_UID:I_BLOCK_UID:USER_ID
+	{System.out.println("    leavers: ");}
 
+	Leavers_
+	(
+		pubkey signature mBlockUid iBlockUid userid
+	)*
 ;
 
 actives
+locals [int i=0]
 :
-//Actives:
-//PUBLIC_KEY:SIGNATURE:M_BLOCK_UID:I_BLOCK_UID:USER_ID
+	{System.out.println("    actives: ");}
 
+	Actives_
+	(
+		pubkey signature mBlockUid iBlockUid userid
+	)*
 ;
 
 joiners
+locals [int i=0]
 :
+	{System.out.println("    joiners: ");}
 
-//Joiners:
-//PUBLIC_KEY:SIGNATURE:M_BLOCK_UID:I_BLOCK_UID:USER_ID
-
+	Joiners_
+	(
+		pubkey signature mBlockUid iBlockUid userid
+	)*
 ;
 
 identities
+locals [int i=0]
 :
-//Identities:
-//PUBLIC_KEY:SIGNATURE:I_BLOCK_UID:USER_ID
+	{System.out.println("    identities: ");}
 
+	Identities_
+	(
+		pubkey signature iBlockUid userid
+	)*
 ;
 
 membersCount
@@ -123,63 +282,74 @@ membersCount
 
 parameters
 :
-//Parameters: PARAMETERS
+	{System.out.println("    parameters: ");}
 
-;
+	c
+	{System.out.println("      c: "+$c.text+" 		# The %growth of the UD every [dt] period ");}
 
-previousIssuer
-:
-	pubkey
-;
+	dt
+	{System.out.println("      dt: "+$dt.text+" 		# Time period between two UD. ");}
 
-previousHash
-:
-	bhash
-;
+	dtReeval
+	{System.out.println("      dtReeval: "+$dtReeval.text+" 		# Time period between two re-evaluation of the UD. ");}
 
-differentIssuersCount
-:
-	pubkey
-;
+	ud0
+	{System.out.println("      ud0: "+$ud0.text+" # UD(0), i.e. initial Universal Dividend ");}
 
-issuersFrameVar
-:
-	NUMB
-;
+	udTime0
+	{System.out.println("      udTime0: "+$udTime0.text+" # Time of first UD. ");}
 
-issuersFrame
-:
-	NUMB
-;
+	udReevalTime0
+	{System.out.println("      udReevalTime0: "+$udReevalTime0.text+" # Time of first reevaluation of the UD. ");}
 
-unitBase
-:
-	NUMB
-;
+	sigPeriod
+	{System.out.println("      sigPeriod: "+$sigPeriod.text+" # Minimum delay between 2 certifications of a same issuer, in seconds. Must be positive or zero. ");}
 
-universalDividend
-:
-	NUMB
-;
+	msPeriod
+	{System.out.println("      msPeriod: "+$msPeriod.text+" # Minimum delay between 2 memberships of a same issuer, in seconds. Must be positive or zero. ");}
 
-medianTime
-:
-	NUMB
-;
+	sigStock
+	{System.out.println("      sigStock: "+$sigStock.text+" # Maximum quantity of active certifications made by member. ");}
 
-time
-:
-	NUMB
-;
+	sigWindow
+	{System.out.println("      sigWindow: "+$sigWindow.text+" # Maximum delay a certification can wait before being expired for non-writing. ");}
 
-powMin
-:
-	NUMB
-;
+	sigValidity
+	{System.out.println("      sigValidity: "+$sigValidity.text+" # Maximum age of an active signature (in seconds) ");}
 
-number
-:
-	NUMB
+	sigQty
+	{System.out.println("      sigQty: "+$sigQty.text+" # Minimum quantity of signatures to be part of the WoT ");}
+
+	idtyWindow
+	{System.out.println("      idtyWindow: "+$idtyWindow.text+" # Maximum delay an identity can wait before being expired for non-writing. ");}
+
+	msWindow
+	{System.out.println("      msWindow: "+$msWindow.text+" # Maximum delay a membership can wait before being expired for non-writing. ");}
+
+	xpercent
+	{System.out.println("      xpercent: "+$xpercent.text+" # Minimum % of sentries to reach to match the distance rule ");}
+
+	msValidity
+	{System.out.println("      msValidity: "+$msValidity.text+" # Maximum age of an active membership (in seconds) ");}
+
+	stepMax
+	{System.out.println("      stepMax: "+$stepMax.text+" # Maximum distance between each WoT member and a newcomer ");}
+
+	medianTimeBlocks
+	{System.out.println("      medianTimeBlocks: "+$medianTimeBlocks.text+" # Number of blocks used for calculating median time. ");}
+
+	avgGenTime
+	{System.out.println("      avgGenTime: "+$avgGenTime.text+" # The average time for writing 1 block (wished time) ");}
+
+	dtDiffEval
+	{System.out.println("      dtDiffEval: "+$dtDiffEval.text+" # The number of blocks required to evaluate again PoWMin value ");}
+
+	percentRot
+	{System.out.println("      percentRot: "+$percentRot.text+" # The % of previous issuers to reach for personalized difficulty ");}
+
+	txWindow
+	{System.out.println("      txWindow: "+$txWindow.text+" # = 3600 * 24 * 7. Maximum delay a transaction can wait before being expired for non-writing. ");}
+
 ;
 
 peer
@@ -231,7 +401,7 @@ wot
 		| revocation
 		| certification
 	) signature
-	{System.out.println("    signature: "+$signature.text + " # isValid? " + CryptoUtils.verify(rawUnsigned(_localctx.signature.start.getStartIndex()-1), $signature.text, issuerPK)) ;} //+  }
+	{System.out.println("    signature: "+$signature.text + " # isValid? " );} //+ CryptoUtils.verify(rawUnsigned(_localctx.signature.start.getStartIndex()-1), $signature.text, issuerPK)) ;} //+  }
 
 ;
 
@@ -306,7 +476,7 @@ membership
 	userID
 	{System.out.println("      userID: "+$userID.text);}
 
-	{System.out.println("      certTS: ");}
+	{System.out.println("      certTS: ");indent="        ";}
 
 	certTS
 ;
@@ -332,16 +502,6 @@ revocation
 	idtyTimestamp idtySignature
 	{System.out.println("      idtySignature: "+$idtySignature.text);}
 
-;
-
-certTimestamp
-:
-	buid
-;
-
-idtyIssuer
-:
-	pubkey
 ;
 
 endpoints
@@ -377,36 +537,6 @@ enpoint
 	)+ port
 	{System.out.println("        port: "+$port.text);}
 
-;
-
-port
-:
-	PORT
-;
-
-ip6
-:
-	IP6
-;
-
-ip4
-:
-	IP4
-;
-
-dns
-:
-	DNS
-;
-
-endpointType
-:
-	ENDPOINT_TYPE
-;
-
-idtySignature
-:
-	signature
 ;
 
 idtyTimestamp
@@ -454,6 +584,7 @@ issuers
 locktime
 :
 	NUMB
+	| BLNUMB
 ;
 
 blockstamp
@@ -696,8 +827,6 @@ member
 
 certTS
 :
-	{indent="        ";}
-
 	buid
 ;
 
@@ -708,8 +837,6 @@ userID
 
 timestamp
 :
-	{indent="      ";}
-
 	buid
 ;
 
@@ -717,6 +844,7 @@ signature
 :
 	SIGN
 	| MULTISIGN
+	| WOTSIGN
 	|
 	(
 		SIGN EOSIGN
@@ -735,7 +863,7 @@ pubkey
 	pk = PUBKEY_INLINED
 	| PUBKEY_MULTILN
 	| OUTPUBK
-	| INHASH
+	| WOTPUBK
 ;
 
 currency
@@ -745,7 +873,9 @@ currency
 
 version
 :
-	v = VERSION
+	VERSION
+	| WOTNUMB
+	| BLNUMB
 ;
 
 testpubk
@@ -777,6 +907,7 @@ bnum
 :
 	a = NUMBER
 	| INNUMB
+	| WOTNUMB
 ;
 
 bhash
@@ -786,5 +917,264 @@ bhash
 	| OUTHASH
 ;
 
-//endpoint:			STR (' ' STR)+ INT;
+txWindow
+:
+	BLNUMB
+;
 
+percentRot
+:
+	BLPERCENT
+;
+
+dtDiffEval
+:
+	BLNUMB
+;
+
+avgGenTime
+:
+	BLNUMB
+;
+
+medianTimeBlocks
+:
+	BLNUMB
+;
+
+stepMax
+:
+;
+
+msValidity
+:
+	BLNUMB
+;
+
+xpercent
+:
+	BLPERCENT
+;
+
+msWindow
+:
+	BLNUMB
+;
+
+idtyWindow
+:
+	BLNUMB
+;
+
+sigQty
+:
+	BLNUMB
+;
+
+sigValidity
+:
+	BLNUMB
+;
+
+sigWindow
+:
+	BLNUMB
+;
+
+sigStock
+:
+	BLNUMB
+;
+
+msPeriod
+:
+	BLNUMB
+;
+
+sigPeriod
+:
+	BLNUMB
+;
+
+udReevalTime0
+:
+	BLNUMB
+;
+
+udTime0
+:
+	BLNUMB
+;
+
+dtReeval
+:
+	BLNUMB
+;
+
+dt
+:
+	BLNUMB
+;
+
+c
+:
+	BLPERCENT
+;
+
+ud0
+:
+;
+
+previousIssuer
+:
+	pubkey
+;
+
+previousHash
+:
+	bhash
+;
+
+differentIssuersCount
+:
+	NUMB
+;
+
+issuersFrameVar
+:
+	NUMB
+;
+
+issuersFrame
+:
+	NUMB
+;
+
+unitBase
+:
+	NUMB
+;
+
+universalDividend
+:
+	NUMB
+;
+
+medianTime
+:
+	NUMB
+;
+
+time
+:
+	NUMB
+;
+
+powMin
+:
+	NUMB
+;
+
+number
+:
+	NUMB
+;
+
+nonce
+:
+	BLNUMB
+;
+
+innerHash
+:
+	bhash
+;
+
+certTimestamp
+:
+	buid
+;
+
+idtyIssuer
+:
+	pubkey
+;
+
+port
+:
+	PORT
+;
+
+ip6
+:
+	IP6
+;
+
+ip4
+:
+	IP4
+;
+
+dns
+:
+	DNS
+;
+
+iBlockUid
+:
+	bnum
+	{System.out.println("    iBlockUid.bnum: " + $bnum.text);}
+
+;
+
+mBlockUid
+:
+	bnum
+	{System.out.println("    mBlockUid.bnum: " + $bnum.text);}
+
+;
+
+endpointType
+:
+	ENDPOINT_TYPE
+;
+
+toPK
+:
+	pubkey
+;
+
+blockstampTime
+:
+	BLNUMB
+;
+
+nbOutput
+:
+	BLNUMB
+;
+
+nbUnlock
+:
+	BLNUMB
+;
+
+nbInput
+:
+	BLNUMB
+;
+
+nbIssuer
+:
+	BLNUMB
+;
+
+fromPK
+:
+	pubkey
+;
+
+idtySignature
+:
+	signature
+;

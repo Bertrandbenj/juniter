@@ -454,7 +454,7 @@ public class GraphvizService {
 				+ "\t\tlabel=\"Actual transaction\";\n" //
 				+ "\t\tlabelloc=t;\n" //
 				+ "\t\tcolor=blue;\n"//
-				+ "\t\tgood [label=\"Product/Good\\n" + tx.getComment() + "\"];\n"
+				+ "\t\tgood [label=\"Product/Service\\n" + tx.getComment() + "\"];\n"
 				+ "\t\tgood -> seller [dir=back, label=\"sell\"];\n" //
 				+ "\t\tbuyer -> good [label=\"buy\"];\n"//
 				+ "\n";//

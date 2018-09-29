@@ -36,7 +36,7 @@ import jnr.ffi.byref.LongLongByReference;
 import juniter.exception.TechnicalException;
 
 public class CryptoUtils extends Util {
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger LOG = LogManager.getLogger();
 
 	public static final Charset CHARSET_UTF8 = Charset.forName("UTF-8");
 	public static final Charset CHARSET_ASCII = Charset.forName("US-ASCII");
@@ -106,23 +106,10 @@ public class CryptoUtils extends Util {
 		final int result = sodium().crypto_sign_ed25519_open(buffer, bufferLength, sigAndMsg, sigAndMsg.length,
 				publicKey);
 		final boolean validSignature = result == 0;
-		// logger.info("verified " + sigAndMsg.length + "bytes, result: " + result);
+		LOG.debug("verified " + sigAndMsg.length + "bytes, result: " + result);
 
 		return validSignature;
 	}
-	// export function verify(rawMsg:string, rawSig:string, rawPub:string) {
-//  const msg = decodeUTF8(rawMsg);
-//  const sig = decodeBase64(rawSig);
-//  const pub = Base58decode(rawPub);
-//  const m = new Uint8Array(crypto_sign_BYTES + msg.length);
-//  const sm = new Uint8Array(crypto_sign_BYTES + msg.length);
-//  let i;
-//  for (i = 0; i < crypto_sign_BYTES; i++) sm[i] = sig[i];
-//  for (i = 0; i < msg.length; i++) sm[i+crypto_sign_BYTES] = msg[i];
-//
-//  // Call to verification lib...
-//  return naclBinding.verify(m, sm, pub);
-//}
 
 	/**
 	 * Verify a signature against data & public key. Return true of false as

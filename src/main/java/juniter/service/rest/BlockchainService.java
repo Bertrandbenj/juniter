@@ -60,7 +60,7 @@ import juniter.service.duniter.TrustedLoader;
 @RequestMapping("/blockchain")
 public class BlockchainService {
 
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger LOG = LogManager.getLogger();
 
 	@Autowired
 	private BlockRepository repository;
@@ -75,12 +75,12 @@ public class BlockchainService {
 	@RequestMapping(value = "/all", method = RequestMethod.GET)
 	public List<Block> all() {
 
-		logger.info("Entering /blockchain/all");
+		LOG.info("Entering /blockchain/all");
 
 		try (Stream<Block> items = repository.findTop10ByOrderByNumberDesc()) {
 			return items.collect(toList());
 		} catch (final Exception e) {
-			logger.error(e);
+			LOG.error(e);
 			return null;
 		}
 
@@ -89,7 +89,7 @@ public class BlockchainService {
 	@RequestMapping(value = "/block/{id}", method = RequestMethod.GET)
 	public BlockDTO block(@PathVariable("id") Integer id) {
 
-		logger.info("Entering /blockchain/block/{number=" + id + "}");
+		LOG.info("Entering /blockchain/block/{number=" + id + "}");
 		final var block = repository.findTop1ByNumber(id).orElseGet(() -> trustedLoader.fetchAndSaveBlock(id));
 
 		return convertToDto(block);
@@ -99,19 +99,19 @@ public class BlockchainService {
 	@RequestMapping(value = "/blocks/{count}/{from}", method = RequestMethod.GET)
 	public List<BlockDTO> block(@PathVariable("count") Integer count, @PathVariable("from") Integer from) {
 
-		logger.info("Entering /blockchain/blocks/{count=" + count + "}/{from=" + from + "}");
+		LOG.info("Entering /blockchain/blocks/{count=" + count + "}/{from=" + from + "}");
 
 		final List<Integer> blocksToFind = IntStream.range(from, from + count).boxed().collect(toList());
-		logger.info("---blocksToFind: " + blocksToFind);
+		LOG.info("---blocksToFind: " + blocksToFind);
 
 		final List<Block> knownBlocks = repository.findByNumberIn(blocksToFind).collect(toList());
-		logger.info("---known blocks: " + knownBlocks.stream().map(b -> b.getNumber()).collect(toList()));
+		LOG.info("---known blocks: " + knownBlocks.stream().map(b -> b.getNumber()).collect(toList()));
 
 		final List<Block> blocksToSave = blocksToFind.stream()
 				.filter(b -> !knownBlocks.stream().anyMatch(kb -> kb.getNumber().equals(b)))
 				.map(lg -> trustedLoader.fetchAndSaveBlock(lg)).collect(toList());
 
-		logger.info("---fetch blocks: " + Stream.concat(blocksToSave.stream(), knownBlocks.stream())
+		LOG.info("---fetch blocks: " + Stream.concat(blocksToSave.stream(), knownBlocks.stream())
 				.map(b -> b.getNumber().toString()).collect(joining(",")));
 
 		repository.saveAll(blocksToSave);
@@ -122,7 +122,7 @@ public class BlockchainService {
 	}
 
 	private BlockDTO convertToDto(Block block) {
-		logger.info(" - Converting block " + block);
+		LOG.info(" - Converting block " + block);
 
 		final BlockDTO postDto = modelMapper.map(block, BlockDTO.class);
 
@@ -132,7 +132,7 @@ public class BlockchainService {
 	@Transactional
 	@RequestMapping(value = "/current", method = RequestMethod.GET)
 	public BlockDTO current() {
-		logger.info("Entering /blockchain/current");
+		LOG.info("Entering /blockchain/current");
 		final var b = repository.findTop1ByOrderByNumberDesc()//
 				.orElse(trustedLoader.fetchAndSaveBlock("current"));
 
@@ -161,7 +161,7 @@ public class BlockchainService {
 	@Transactional(readOnly = true)
 	public WithWrapper with(@PathVariable("what") String what) {
 
-		logger.info("Entering /blockchain/with/{newcomers,certs,actives,leavers,excluded,ud,tx}");
+		LOG.info("Entering /blockchain/with/{newcomers,certs,actives,leavers,excluded,ud,tx}");
 		Stream<Block> st;
 		switch (what) {
 		case "newcomers":
@@ -190,7 +190,7 @@ public class BlockchainService {
 		try (Stream<Integer> items = st.map(b -> b.getNumber())) {
 			return new WithWrapper(items.collect(toList()));
 		} catch (final Exception e) {
-			logger.error(e);
+			LOG.error(e);
 			return null;
 		}
 

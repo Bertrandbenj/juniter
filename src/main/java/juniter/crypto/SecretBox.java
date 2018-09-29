@@ -44,7 +44,7 @@ import jnr.ffi.byref.LongLongByReference;
 import juniter.exception.TechnicalException;
 
 public class SecretBox {
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger LOG = LogManager.getLogger();
 
 	// Length of the key
 	private static int SEED_LENGTH = 32;

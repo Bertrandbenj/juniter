@@ -1,4 +1,5 @@
 src/main/resources/static/dot/*
+**/antlr/main
 /target/
 /juniter.log
 /exec.log
@@ -6,3 +7,8 @@ src/main/resources/static/dot/*
 /build/
 /.gradle/
 /bin/
+docs/javadoc
+*.interp
+*.tokens
+/.settings/
+/.classpath

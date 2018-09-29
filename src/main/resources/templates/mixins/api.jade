@@ -33,13 +33,13 @@ mixin staticAPI()
 				a(href="/blockchain") blockchain
 			ul
 				li 
-					a(href="/blockchain/block/") block/[number]
+					a(href="/blockchain/block/0") block/[number]
 				li 
 					a(href="/blockchain/blocks/10/300") blocks/[count]/[from]
 				li 
 					a(href="/blockchain/current") current
 				li 
-					a(href="/blockchain/with") with
+					with
 					ul
 						li 
 							a(href="/blockchain/with/newcomers") newcomers
@@ -54,8 +54,27 @@ mixin staticAPI()
 						li 
 							a(href="/blockchain/with/excluded") excluded
 							
-			li 
-				a(href="/network") network
+			li  network
 			ul
 				li
 					a(href="/network/peers") peers
+					
+			li  graphviz
+				
+			ul
+				li dot
+				ul
+					li
+						a(href="/graphviz/dot/block/127128") block
+					li
+						a(href="/graphviz/dot/certs/CvcFAv8iRd7qoCcpAvs6ckRMxwsjg1Czi7XELwKz9f7X") certs
+					li
+						a(href="/graphviz/dot/tx/695306FDD83A22ED042DB7E97F2C60B64ECDE973337299A69C32972629B8A63C") tx
+				li svg
+				ul
+					li
+						a(href="/graphviz/svg/block/127128") block
+					li
+						a(href="/graphviz/svg/certs/CvcFAv8iRd7qoCcpAvs6ckRMxwsjg1Czi7XELwKz9f7X") certs
+					li
+						a(href="/graphviz/svg/tx/695306FDD83A22ED042DB7E97F2C60B64ECDE973337299A69C32972629B8A63C") tx

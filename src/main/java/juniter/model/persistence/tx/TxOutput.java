@@ -46,7 +46,7 @@ public class TxOutput implements Serializable {
 	private Integer base;
 	private Integer amount;
 
-	private OutCondition condition;
+	private String condition;
 
 	public TxOutput() {
 	}
@@ -86,7 +86,7 @@ public class TxOutput implements Serializable {
 		amount = Integer.valueOf(vals[0]);
 		base = Integer.valueOf(vals[1]);
 		try {
-			condition = OutCondition.parse(vals[2]);
+			condition = OutCondition.parse(vals[2]).toString();
 		} catch (final Exception e) {
 			logger.error("Error parsing " + output, e);
 		}

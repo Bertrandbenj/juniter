@@ -36,7 +36,7 @@ public class GVAController {
 	public GVAController(BlockService bService, GQLTxService tService) {
 
 		final GraphQLSchema schema = new GraphQLSchemaGenerator() //
-				.withResolverBuilders(new AnnotatedResolverBuilder()) //
+				.withBasePackages("juniter.graphql").withResolverBuilders(new AnnotatedResolverBuilder()) //
 				.withOperationsFromSingleton(bService, BlockService.class) //
 				.withOperationsFromSingleton(tService, GQLTxService.class) //
 				.withValueMapperFactory(new JacksonValueMapperFactory()) //

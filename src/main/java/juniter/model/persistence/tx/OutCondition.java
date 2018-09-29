@@ -149,25 +149,25 @@ public interface OutCondition {
 		// Simple cases SIG first because its the most frequent
 		if ("SIG".equals(cond.substring(0, 3))) {
 			res = new SIG(cond.substring(4, cond.length() - 1));
-			TxOutput.logger.info("Parsed SIG " + cond);
+			TxOutput.logger.debug("Parsed SIG " + cond);
 		}
 		if ("XHX".equals(cond.substring(0, 3))) {
 			res = new XHX(cond.substring(4, cond.length() - 1));
-			TxOutput.logger.info("Parsed XHX " + cond);
+			TxOutput.logger.debug("Parsed XHX " + cond);
 		}
 		if ("CSV".equals(cond.substring(0, 3))) {
 			res = new CSV(cond.substring(4, cond.length() - 1));
-			TxOutput.logger.info("Parsed CSV " + cond);
+			TxOutput.logger.debug("Parsed CSV " + cond);
 		}
 		if ("CLTV".equals(cond.substring(0, 4))) {
 			res = new CSV(cond.substring(5, cond.length() - 1));
-			TxOutput.logger.info("Parsed CLTV " + cond);
+			TxOutput.logger.debug("Parsed CLTV " + cond);
 		}
 
 		// recursive cases
 		if (cond.startsWith("(")) {
 			final String subcond = cond.substring(1, cond.length() - 1);
-			TxOutput.logger.info(" - subcond " + subcond + "\nwhen parsing " + cond);
+			TxOutput.logger.debug(" - subcond " + subcond + "\nwhen parsing " + cond);
 			var i = 0;
 
 			while ((i = subcond.indexOf("&&", i)) != -1) { // for each occurence of operator
@@ -211,6 +211,10 @@ public interface OutCondition {
 			throw new Exception("while Parsing " + cond);
 
 		return res;
+	}
+
+	default String getCondition() {
+		return toString();
 	}
 
 }
