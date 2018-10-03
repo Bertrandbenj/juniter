@@ -1,6 +1,11 @@
 package juniter.utils;
 
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import juniter.model.persistence.BStamp;
@@ -85,7 +90,7 @@ public interface GlobalValid {
 		Long dividend = null;
 		Long mass = null;
 		Long massReeval = null;
-		Integer unitBase = null;
+		Long unitBase = null;
 		Long powMin;
 
 		Long udTime = null;
@@ -171,22 +176,22 @@ public interface GlobalValid {
 		String op;
 		String issuer;
 		String receiver;
-
 		BStamp created_on;
+
 		String written_on;
 		String sig;
-
 		Long expires_on;
+
 		Long expired_on;
 		Long chainable_on;
-
 		Object from_wid;
-		Object to_wid;
 
+		Object to_wid;
 		Integer writtenOn;
 
 		// FIXME these shouldnt be in the model
 		public long unchainables;
+
 		public long age;
 		public long stock;
 		public boolean fromMember;
@@ -196,6 +201,19 @@ public interface GlobalValid {
 		public boolean isReplay;
 		public boolean sigOK;
 
+		public CINDEX(String string, String issuer2, String receiver2, BStamp created_on2, Long medianTime) {
+
+			op = string;
+			issuer = issuer2;
+			receiver = receiver2;
+			created_on = created_on2;
+			expired_on = medianTime;
+		}
+
+	}
+
+	class Conf {
+		long txWindow = 604800; // 3600 * 24 * 7
 	}
 
 	/**
@@ -408,21 +426,61 @@ public interface GlobalValid {
 	public class SINDEX {
 
 		String op;
+
 		String tx;
+
 		String identifier;
 		Integer pos;
 		String created_on;
 		String written_on;
 		Long written_time;
+		long amount;
+		long base;
 
-		Integer amount;
-		Integer base;
-
-		Integer locktime;
-		Integer consumed;
+		long locktime;
+		boolean consumed;
 
 		String condition;
 		Integer writtenOn;
+
+		long age;
+
+		public SINDEX() {
+			// TODO Auto-generated constructor stub
+		}
+
+		public SINDEX(String op, String identifier, Integer number, String written_on, long written_time,
+				boolean consumed) {
+			this.op = op;
+			this.identifier = identifier;
+			pos = number;
+			this.written_on = written_on;
+			this.written_time = written_time;
+			amount = amount;
+			base = base;
+			locktime = locktime;
+		}
+
+		public SINDEX(String op, String identifier, Integer number, String written_on, long written_time, long amount,
+				long base, Long locktime, String condition, boolean consumed) {
+			this.op = op;
+			this.identifier = identifier;
+			pos = number;
+			this.written_on = written_on;
+			this.written_time = written_time;
+			this.amount = amount;
+			this.base = base;
+			this.locktime = locktime;
+		}
+
+		String getName() {
+			return condition;
+		}
+	}
+
+	static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+		final Set<Object> seen = ConcurrentHashMap.newKeySet();
+		return t -> seen.add(keyExtractor.apply(t));
 	}
 
 	/**
@@ -436,11 +494,7 @@ public interface GlobalValid {
 	 * </pre>
 	 */
 	default void BR_G01(BINDEX head) {
-		if (prevHead() != null) {
-			head.number = prevHead().number + 1;
-		} else {
-			head.number = 0;
-		}
+		head.number = prevHead() != null ? prevHead().number + 1 : 0;
 	}
 
 	/**
@@ -707,9 +761,21 @@ public interface GlobalValid {
 	 *
 	 * </pre>
 	 */
-	default boolean BR_G102() {
+	default void BR_G102(BINDEX head) {
+		for (final IINDEX entry : indexI()) {
+			if ("UPDATE".equals(entry.op)) {
 
-		return false;
+				if (head.number == 0 && entry.created_on
+						.toString() == "0-E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855") {
+					entry.age = 0;
+				} else {
+					entry.age = range(prevHead().number + 1 - entry.created_on.getNumber())//
+							.filter(b -> b.hash.equals(entry.created_on.getHash())).findAny()
+							.map(b -> prevHead().medianTime - b.medianTime).orElse(conf().txWindow + 1);
+				}
+
+			}
+		}
 	}
 
 	/**
@@ -720,22 +786,30 @@ public interface GlobalValid {
 	 *
 	 * ENTRY.age <= [txWindow]
 	 */
-	default boolean BR_G103() {
-		return false;
+	default boolean BR_G103(SINDEX s) {
+		return s.age == conf().txWindow;
 	}
 
 	/**
 	 * <pre>
-	 * BR_G104 - Membership expiry date correction
+	 * BR_G104 - Membership expiry date correction //FIXME what reason for two loop?
 	 *
 	 * For each LOCAL_MINDEX[type='JOIN'] as MS:
+	 *     MS.expires_on = MS.expires_on - MS.age
+	 *     MS.revokes_on = MS.revokes_on - MS.age
 	 *
-	 * MS.expires_on = MS.expires_on - MS.age MS.revokes_on = MS.revokes_on - MS.age
 	 * For each LOCAL_MINDEX[type='ACTIVE'] as MS:
-	 *
-	 * MS.expires_on = MS.expires_on - MS.age MS.revokes_on = MS.revokes_on - MS.age
+	 *     MS.expires_on = MS.expires_on - MS.age
+	 *     MS.revokes_on = MS.revokes_on - MS.age
+	 * </pre>
 	 */
 	default boolean BR_G104() {
+		for (final MINDEX ms : indexM()) {
+			if ("JOIN".equals(ms.type) || "ACTIVE".equals(ms.type)) {
+				ms.expires_on = ms.expires_on - ms.age;
+				ms.revokes_on = ms.revokes_on - ms.age;
+			}
+		}
 		return false;
 	}
 
@@ -759,22 +833,48 @@ public interface GlobalValid {
 	 *
 	 * Set:
 	 *
-	 * ACCOUNTS = UNIQ(GLOBAL_SINDEX, 'conditions') For each ACCOUNTS as ACCOUNT
-	 * then:
+	 * ACCOUNTS = UNIQ(GLOBAL_SINDEX, 'conditions')
+	 *
+	 * For each ACCOUNTS as ACCOUNT then:
 	 *
 	 * Set:
 	 *
-	 * ALL_SOURCES = CONCAT(GLOBAL_SINDEX[conditions=ACCOUNT.conditions],
-	 * LOCAL_SINDEX[conditions=ACCOUNT.conditions]) SOURCES = REDUCE_BY(ALL_SOURCES,
-	 * 'identifier', 'pos')[consumed=false] BALANCE = SUM(MAP(SOURCES => SRC:
-	 * SRC.amount * POW(10, SRC.base))) If BALANCE < 100 * POW(10, HEAD.unitBase),
-	 * then for each SOURCES AS SRC add a new LOCAL_SINDEX entry:
+	 * ALL_SOURCES = CONCAT(GLOBAL_SINDEX[conditions=ACCOUNT.conditions], LOCAL_SINDEX[conditions=ACCOUNT.conditions])
+	 * SOURCES = REDUCE_BY(ALL_SOURCES, 'identifier', 'pos')[consumed=false]
+	 * BALANCE = SUM(MAP(SOURCES => SRC: SRC.amount * POW(10, SRC.base)))
 	 *
-	 * SINDEX ( op = 'UPDATE' identifier = SRC.identifier pos = SRC.pos written_on =
-	 * BLOCKSTAMP written_time = MedianTime consumed = true )
+	 * If BALANCE < 100 * POW(10, HEAD.unitBase), then
+	 *     for each SOURCES AS SRC add a new LOCAL_SINDEX entry:
+	 *
+	 * SINDEX (
+	 *          op = 'UPDATE'
+	 *  identifier = SRC.identifier
+	 *         pos = SRC.pos
+	 *  written_on = BLOCKSTAMP
+	 *written_time = MedianTime
+	 *    consumed = true )
+	 * </pre>
 	 */
-	default boolean BR_G106() {
-		return false;
+	default void BR_G106(BINDEX head) {
+
+		indexSGlobal().filter(distinctByKey(SINDEX::getName)).forEach(account -> {
+			final var allSources = Stream.concat(//
+					indexSGlobal().filter(s -> s.condition == account.condition),
+					indexS().stream().filter(s -> s.condition == account.condition));
+			final var sources = allSources.filter(s -> !s.consumed); // TODO REDUCE BY?
+			final var balance = sources//
+					.map(src -> src.amount * Math.pow(src.base, 10))//
+					.reduce((bal1, bal2) -> bal1 + bal2)//
+					.orElse(Double.MAX_VALUE);
+
+			if (balance < 100 * Math.pow(head.unitBase, 10)) {
+
+				sources.forEach(src -> {
+					indexS().add(new SINDEX("UPDATE", src.identifier, src.pos, "", 0L, true)); // TODO BLOCKSTAMP &
+				});
+
+			}
+		});
 	}
 
 	/**
@@ -802,8 +902,8 @@ public interface GlobalValid {
 	 *
 	 * ENTRY.unchainables == 0
 	 */
-	default boolean BR_G108(BINDEX m) {
-		return false;
+	default boolean BR_G108(CINDEX m) {
+		return m.unchainables == 0;
 	}
 
 	/**
@@ -853,7 +953,7 @@ public interface GlobalValid {
 	 */
 	default void BR_G12(BINDEX head) {
 		if (head.number == 0) {
-			head.unitBase = 0;
+			head.unitBase = 0L;
 		} else {
 			head.unitBase = prevHead().unitBase;
 		}
@@ -1018,22 +1118,24 @@ public interface GlobalValid {
 	 *     HEAD.powMin = HEAD~1.powMin
 	 * </pre>
 	 */
-	default void BR_G17(BINDEX head) {
+	default void BR_G17(BINDEX newHead) {
 		// FIXME head.maxSpeed , minspeed ?
 
-		if (head.number > 0 && head.diffNumber != prevHead().diffNumber && head.speed >= head.maxSpeed
+		if (newHead.number > 0 && newHead.diffNumber != prevHead().diffNumber && newHead.speed >= newHead.maxSpeed
 				&& (prevHead().powMin + 2) % 16 == 0) {
-			head.powMin = prevHead().powMin + 2;
-		} else if (head.number > 0 && head.diffNumber != prevHead().diffNumber && head.speed >= head.maxSpeed) {
-			head.powMin = prevHead().powMin + 1;
-		} else if (head.number > 0 && head.diffNumber != prevHead().diffNumber && head.speed <= head.maxSpeed
-				&& prevHead().powMin % 16 == 0) {
-			head.powMin = Math.max(0, prevHead().powMin - 2);
-		} else if (head.number > 0 && head.diffNumber != prevHead().diffNumber && head.speed <= head.minSpeed) {
-			head.powMin = Math.max(0, prevHead().powMin - 1);
+			newHead.powMin = prevHead().powMin + 2;
+		} else if (newHead.number > 0 && newHead.diffNumber != prevHead().diffNumber
+				&& newHead.speed >= newHead.maxSpeed) {
+			newHead.powMin = prevHead().powMin + 1;
+		} else if (newHead.number > 0 && newHead.diffNumber != prevHead().diffNumber
+				&& newHead.speed <= newHead.maxSpeed && prevHead().powMin % 16 == 0) {
+			newHead.powMin = Math.max(0, prevHead().powMin - 2);
+		} else if (newHead.number > 0 && newHead.diffNumber != prevHead().diffNumber
+				&& newHead.speed <= newHead.minSpeed) {
+			newHead.powMin = Math.max(0, prevHead().powMin - 1);
 
-		} else if (head.number > 0) {
-			head.powMin = prevHead().powMin;
+		} else if (newHead.number > 0) {
+			newHead.powMin = prevHead().powMin;
 
 		}
 	}
@@ -1708,16 +1810,27 @@ public interface GlobalValid {
 	 * <pre>
 	 * BR_G47 - ENTRY.isLocked
 	 *
-	 * INPUT_ENTRIES = LOCAL_SINDEX[op='CREATE',identifier=ENTRY.identifier,pos=ENTRY.pos,amount=ENTRY.amount,base=ENTRY.base]
-	 * If COUNT(INPUT_ENTRIES) == 0
-	 *     INPUT_ENTRIES = GLOBAL_SINDEX[identifier=ENTRY.identifier,pos=ENTRY.pos,amount=ENTRY.amount,base=ENTRY.base]
+	 *     INPUT_ENTRIES = LOCAL_SINDEX[op='CREATE',identifier=ENTRY.identifier,pos=ENTRY.pos,amount=ENTRY.amount,base=ENTRY.base]
+	 *     If COUNT(INPUT_ENTRIES) == 0
+	 *         INPUT_ENTRIES = GLOBAL_SINDEX[identifier=ENTRY.identifier,pos=ENTRY.pos,amount=ENTRY.amount,base=ENTRY.base]
 	 *
-	 * INPUT = REDUCE(INPUT_ENTRIES)
-	 * ENTRY.isLocked = TX_SOURCE_UNLOCK(INPUT.conditions, ENTRY)
+	 *     INPUT = REDUCE(INPUT_ENTRIES)
+	 *     ENTRY.isLocked = TX_SOURCE_UNLOCK(INPUT.conditions, ENTRY)
 	 * </pre>
 	 */
-	default boolean BR_G47() {
-		return false;
+	default void BR_G47(SINDEX entry) {
+
+		var inputEntries = indexS().stream()//
+				.filter(s -> s.op.equals("CREATE") && s.identifier.equals(entry.identifier) && s.pos.equals(entry.pos)
+						&& s.amount == entry.amount && s.base == entry.base);
+
+		if (inputEntries.count() == 0) {
+			inputEntries = indexSGlobal().filter(s -> s.identifier.equals(entry.identifier) && s.pos.equals(entry.pos)
+					&& s.amount == entry.amount && s.base == entry.base);
+		}
+
+//		TODO REDUCE & TX_SOURCE_UNLOCK
+		inputEntries.close();
 	}
 
 	/**
@@ -1894,49 +2007,75 @@ public interface GlobalValid {
 	 *
 	 * Rule: the proof is considered valid if:
 	 *
-	 *
-	 *
 	 * HEAD.hash starts with at least HEAD.powZeros zeros
 	 *
 	 * HEAD.hash's HEAD.powZeros + 1th character is:
 	 *
 	 *
 	 * between [0-F] if HEAD.powRemainder = 0
-	 *
 	 * between [0-E] if HEAD.powRemainder = 1
-	 *
 	 * between [0-D] if HEAD.powRemainder = 2
-	 *
 	 * between [0-C] if HEAD.powRemainder = 3
-	 *
 	 * between [0-B] if HEAD.powRemainder = 4
-	 *
 	 * between [0-A] if HEAD.powRemainder = 5
-	 *
 	 * between [0-9] if HEAD.powRemainder = 6
-	 *
 	 * between [0-8] if HEAD.powRemainder = 7
-	 *
 	 * between [0-7] if HEAD.powRemainder = 8
-	 *
 	 * between [0-6] if HEAD.powRemainder = 9
-	 *
 	 * between [0-5] if HEAD.powRemainder = 10
-	 *
 	 * between [0-4] if HEAD.powRemainder = 11
-	 *
 	 * between [0-3] if HEAD.powRemainder = 12
-	 *
 	 * between [0-2] if HEAD.powRemainder = 13
-	 *
 	 * between [0-1] if HEAD.powRemainder = 14
 	 *
-	 *
-	 *
 	 * N.B.: it is not possible to have HEAD.powRemainder = 15
+	 *
+	 * </pre>
 	 */
 	default boolean BR_G62(BINDEX head) {
-		return false;
+		String expectedStart = head.hash.substring(head.powZeros + 1);
+
+		for (int i = 0; i <= head.powZeros; i++) {
+			if (expectedStart.charAt(0) == '0') {
+				expectedStart = expectedStart.substring(1);
+			} else
+				return false;
+		}
+		switch (head.powRemainder) {
+		case 0:
+			return expectedStart.matches("[0-9A-F]");
+		case 1:
+			return expectedStart.matches("[0-9A-E]");
+		case 2:
+			return expectedStart.matches("[0-9A-D]");
+		case 3:
+			return expectedStart.matches("[0-9A-C]");
+		case 4:
+			return expectedStart.matches("[0-9A-B]");
+		case 5:
+			return expectedStart.matches("[0-9A]");
+		case 6:
+			return expectedStart.matches("[0-9]");
+		case 7:
+			return expectedStart.matches("[0-8]");
+		case 8:
+			return expectedStart.matches("[0-7]");
+		case 9:
+			return expectedStart.matches("[0-6]");
+		case 10:
+			return expectedStart.matches("[0-5]");
+		case 11:
+			return expectedStart.matches("[0-4]");
+		case 12:
+			return expectedStart.matches("[0-3]");
+		case 13:
+			return expectedStart.matches("[0-2]");
+		case 14:
+			return expectedStart.matches("[01]");
+		default:
+			return false;
+		}
+
 	}
 
 	/**
@@ -2317,7 +2456,8 @@ public interface GlobalValid {
 	 *        base = HEAD.unitBase
 	 *    locktime = null
 	 *  conditions = REQUIRE_SIG(MEMBER.pub)
-	 *    consumed = false  )
+	 *    consumed = false
+	 *    )
 	 *
 	 *
 	 * For each LOCAL_IINDEX[member=true] as IDTY add a new LOCAL_SINDEX entry:
@@ -2332,12 +2472,26 @@ public interface GlobalValid {
 	 *        base = HEAD.unitBase
 	 *    locktime = null
 	    conditions = REQUIRE_SIG(MEMBER.pub)
-	 *    consumed =false )
+	 *    consumed = false
+	 *    )
 	 *
 	 * </pre>
 	 */
-	default boolean BR_G91() {
-		return false;
+	default void BR_G91(BINDEX head) { // TODO sig
+		if (head.new_dividend == null)
+			return;
+
+		indexIGlobal().filter(i -> i.member).map(
+				i -> new SINDEX("CREATE", i.pub, head.number, "", 0L, head.dividend, head.unitBase, null, "", false))
+				.forEach(tx -> {
+					indexS().add(tx);
+				});
+
+		indexI().stream().filter(i -> i.member).map(
+				i -> new SINDEX("CREATE", i.pub, head.number, "", 0L, head.dividend, head.unitBase, null, "", false))
+				.forEach(tx -> {
+					indexS().add(tx);
+				});
 	}
 
 	/**
@@ -2353,10 +2507,16 @@ public interface GlobalValid {
 	 *     issuer = CERT.issuer
 	 *   receiver = CERT.receiver
 	 * created_on = CERT.created_on
-	 * expired_on = HEAD.medianTime )
+	 * expired_on = HEAD.medianTime
+	 * )
 	 * </pre>
 	 */
-	default boolean BR_G92() {
+	default boolean BR_G92(BINDEX head) {
+
+		indexCGlobal().filter(c -> c.expires_on <= head.medianTime)
+				.map(c -> new CINDEX("UPDATE", c.issuer, c.receiver, c.created_on, head.medianTime))
+				.forEach(cindex -> indexC().add(cindex));
+
 		return false;
 	}
 
@@ -2391,12 +2551,13 @@ public interface GlobalValid {
 	 *        kick = true )
 	 * </pre>
 	 */
-	default boolean BR_G94() {
+	default void BR_G94() {
 
 		for (final MINDEX m : indexM()) {
-
+			if (m.expired_on != 0) {
+				indexI().add(new IINDEX("UPDATE", m.pub, "", true));
+			}
 		}
-		return false;
 	}
 
 	/**
@@ -2511,13 +2672,18 @@ public interface GlobalValid {
 		head.currency = head.number > 0 ? prevHead().currency : null;
 	}
 
+	default Conf conf() {
+		return new Conf();
+	};
+
 	/**
 	 * <pre>
 	 * Transactions chaining max depth
 	 *
 	 * FUNCTION `getTransactionDepth(txHash, LOCAL_DEPTH)`:
 	 *
-	 * INPUTS = LOCAL_SINDEX[op='UPDATE',tx=txHash] DEPTH = LOCAL_DEPTH
+	 * INPUTS = LOCAL_SINDEX[op='UPDATE',tx=txHash]
+	 * DEPTH = LOCAL_DEPTH
 	 *
 	 * FOR EACH `INPUT` OF `INPUTS`
 	 *     CONSUMED = LOCAL_SINDEX[op='CREATE',identifier=INPUT.identifier,pos=INPUT.pos]
@@ -2540,7 +2706,29 @@ public interface GlobalValid {
 	 * maxTxChainingDepth <= 5
 	 * </pre>
 	 */
-	void getTransactionDepth();
+	default int getTransactionDepth(String txHash, int localDepth) {
+		final var inputs = indexS().stream() //
+				.filter(s -> s.op.equals("UPDATE") && s.tx.equals(txHash))//
+				.collect(Collectors.toList());
+		var depth = localDepth;
+		for (final SINDEX input : inputs) {
+			final var consumed = indexS().stream()//
+					.filter(s -> s.op.equals("CREATE") && s.identifier.equals(input.identifier)
+							&& s.pos.equals(input.pos)) //
+					.findAny() //
+					.get();
+
+			if (consumed != null) {
+				if (localDepth < 5) {
+					depth = Math.max(depth, getTransactionDepth(consumed.tx, localDepth));
+				} else {
+					depth++;
+				}
+			}
+		}
+
+		return depth;
+	};
 
 	default BINDEX head() {
 		return indexB().get(0);
@@ -2560,28 +2748,30 @@ public interface GlobalValid {
 
 	Stream<MINDEX> indexMGlobal();
 
-	SINDEX[] indexS();
+	List<SINDEX> indexS();
+
+	Stream<SINDEX> indexSGlobal();
 
 	default void localAugmentationBINDEX() {
-		final var entry = new BINDEX();
-		BR_G01(entry);
-		BR_G02(entry);
-		BR_G03(entry);
-		BR_G04(entry);
-		BR_G05(entry);
-		BR_G06(entry);
-		BR_G07(entry);
-		BR_G08(entry);
-		BR_G09(entry);
-		BR_G10(entry);
-		BR_G11(entry);
-		BR_G12(entry);
-		BR_G13(entry);
-		BR_G14(entry);
-		BR_G15(entry);
-		BR_G16(entry);
-		BR_G17(entry);
-		BR_G18(entry);
+		final var newHead = new BINDEX();
+		BR_G01(newHead); // setNumber
+		BR_G02(newHead); // setPreviousHash
+		BR_G03(newHead);// setPreviousIssuer
+		BR_G04(newHead);// setIssuersCount
+		BR_G05(newHead);// setIssuersFrame
+		BR_G06(newHead);// setIssuersFrameVar
+		BR_G07(newHead);// setAvgBlockSize
+		BR_G08(newHead);// setMedianTime
+		BR_G09(newHead);// setDiffNUmber
+		BR_G10(newHead);// setMembersCount
+		BR_G11(newHead);// setUdTime
+		BR_G12(newHead);// setUnitBase
+		BR_G13(newHead);// setDividend
+		BR_G14(newHead);// seDividend NewDividend UnitBase
+		BR_G15(newHead);// setMass&MassReval
+		BR_G16(newHead);// setSpeed
+		BR_G17(newHead);// setPowMin
+		BR_G18(newHead);// setPowZero
 	}
 
 	default void localAugmentationCINDEX(BINDEX head) {
@@ -2626,9 +2816,9 @@ public interface GlobalValid {
 	}
 
 	default void localAugmentationSINDEX() {
-		BR_G102();
+		BR_G102(new BINDEX());
 		BR_G46();
-		BR_G47();
+		BR_G47(new SINDEX());
 		BR_G48();
 	}
 
@@ -2651,7 +2841,9 @@ public interface GlobalValid {
 		BR_G61(head);
 	}
 
-	ChainParameters params();
+	default ChainParameters params() {
+		return new ChainParameters();
+	};
 
 	default BINDEX prevHead() {
 		return indexB().get(1);
