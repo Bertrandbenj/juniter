@@ -60,6 +60,18 @@ public class Identity implements Serializable {
 		setIdentity(identity);
 	}
 
+	public BStamp createdOn() {
+		return buid;
+	}
+
+	public String pseudo() {
+		return pseudo;
+	}
+
+	public String pub() {
+		return newidentity.getPubkey();
+	}
+
 //	public String getIdentity() {
 //		return newidentity.getPubkey()+":"+signature.getSignature()+":"+buid.getBuid()+":"+pseudo;
 //	}

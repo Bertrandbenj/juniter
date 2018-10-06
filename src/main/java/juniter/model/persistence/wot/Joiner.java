@@ -10,6 +10,7 @@ import javax.validation.Valid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import juniter.model.persistence.BStamp;
 import juniter.model.persistence.Pubkey;
 
 @Embeddable
@@ -52,8 +53,20 @@ public class Joiner implements Serializable {
 		setJoiner(joiner);
 	}
 
+	public BStamp createdOn() {
+		return new BStamp(buid1);
+	}
+
 	public String getJoiner() {
 		return joinerKey + ":" + signature + ":" + buid1 + ":" + buid2 + ":" + pseudo;
+	}
+
+	public String pseudo() {
+		return pseudo;
+	}
+
+	public String pub() {
+		return joinerKey.getPubkey();
 	}
 
 	public void setJoiner(String joiner) {
@@ -73,5 +86,9 @@ public class Joiner implements Serializable {
 	@Override
 	public String toString() {
 		return getJoiner();
+	}
+
+	public BStamp writtenOn() {
+		return new BStamp(buid2);
 	}
 }

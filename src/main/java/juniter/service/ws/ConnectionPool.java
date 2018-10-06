@@ -4,6 +4,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import org.apache.logging.log4j.LogManager;
@@ -13,6 +14,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Controller;
+
+import com.google.common.collect.Lists;
 
 import juniter.repository.BlockRepository;
 import juniter.utils.GlobalValid;
@@ -41,64 +44,37 @@ public class ConnectionPool implements CommandLineRunner, GlobalValid {
 	@Autowired
 	private BlockRepository blockRepo;
 
-	@Override
-	public Integer computeIssuersCount() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	List<CINDEX> indexCG = Lists.newArrayList();
+	List<MINDEX> indexMG = Lists.newArrayList();
+	List<IINDEX> indexIG = Lists.newArrayList();
+	List<SINDEX> indexSG = Lists.newArrayList();
 
 	@Override
-	public void getTransactionDepth() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public BINDEX[] indexB() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public CINDEX[] indexC() {
-		// TODO Auto-generated method stub
-		return null;
+	public void commit(Set<IINDEX> indexi, Set<MINDEX> indexm, Set<CINDEX> indexc, Set<SINDEX> indexs) {
+		indexCG.addAll(indexc);
+		indexMG.addAll(indexm);
+		indexIG.addAll(indexi);
+		indexSG.addAll(indexs);
 	}
 
 	@Override
 	public Stream<CINDEX> indexCGlobal() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public IINDEX[] indexI() {
-		// TODO Auto-generated method stub
-		return null;
+		return indexCG.stream();
 	}
 
 	@Override
 	public Stream<IINDEX> indexIGlobal() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public MINDEX[] indexM() {
-		// TODO Auto-generated method stub
-		return null;
+		return indexIG.stream();
 	}
 
 	@Override
 	public Stream<MINDEX> indexMGlobal() {
-		// TODO Auto-generated method stub
-		return null;
+		return indexMG.stream();
 	}
 
 	@Override
-	public SINDEX[] indexS() {
-		// TODO Auto-generated method stub
-		return null;
+	public Stream<SINDEX> indexSGlobal() {
+		return indexSG.stream();
 	}
 
 	private URI makeURI(String source) throws URISyntaxException {
@@ -108,10 +84,20 @@ public class ConnectionPool implements CommandLineRunner, GlobalValid {
 
 	@Override
 	public void run(String... args) throws Exception {
+
 		final var client1 = new WS2PClient(new URI("wss://g1-monit.librelois.fr:443/ws2p"));
-		final var client2 = new WS2PClient(new URI("wss://80.118.154.251:20900/"));
+//		final var client2 = new WS2PClient(new URI("wss://80.118.154.251:20900/"));
 
 		client1.connect();
+
+		for (int i = 0; true; i++) {
+			final var block = blockRepo.block(i).get();
+			if (validate(block)) {
+				LOG.info("Validated " + block);
+			} else {
+				LOG.warn("NOT Valid " + block);
+			}
+		}
 
 	}
 

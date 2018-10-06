@@ -56,6 +56,7 @@ graphiql:
 ##
 ## =========================== Juniter Configs ===========================
 ## 
+
 juniter:
   network:
     trusted: https://g1.bertrandbenjamin.com/,https://g1.duniter.org/,https://duniter.g1.1000i100.fr/,https://duniter.nayya.org/
@@ -66,7 +67,7 @@ juniter:
   graphviz:
     enabled: true
   graphql:
-    enabled: false # FIXME dependencies ? 
+    enabled: false # FIXME:  dependencies ? 
   bma:
     enabled: true
   ws2p:
@@ -85,7 +86,7 @@ logging:
     root: info
     org.springframework.web: info
     org.hibernate.SQL: warn
-    juniter: debug
+    juniter: info
 #hibernate.show_sql: false
     
     
