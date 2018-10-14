@@ -9,7 +9,7 @@ import javax.validation.constraints.Size;
 import juniter.utils.Constants;
 
 @Embeddable
-public class Signature implements Serializable {
+public class Signature implements Serializable, Comparable<Signature> {
 
 	private static final long serialVersionUID = -2140293433532805888L;
 
@@ -22,6 +22,12 @@ public class Signature implements Serializable {
 
 	public Signature(String signature) {
 		setSignature(signature);
+	}
+
+	@Override
+	public int compareTo(Signature o) {
+		// TODO Auto-generated method stub
+		return signature.compareTo(o.signature);
 	}
 
 	@Override

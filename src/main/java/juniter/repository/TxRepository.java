@@ -26,8 +26,8 @@ public interface TxRepository extends JpaRepository<Transaction, Long> {
 				.filter(t -> t.getIssuers().size() == 1) //
 				.filter(t -> t.getOutputs().size() == 1) //
 				.filter(t -> {
-					final var iss = t.getIssuers().get(0);
-					final var dest = t.getOutputs().get(0);
+					final var iss = t.getIssuers().iterator().next();
+					final var dest = t.getOutputs().iterator().next();
 					logger.info(iss.getPubkey() + " " + dest.getOutputCondition());
 					return iss.getPubkey().equals(dest.getOutputCondition());
 				});

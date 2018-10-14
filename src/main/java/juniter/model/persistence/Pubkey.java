@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import juniter.utils.Constants;
 
 @Embeddable
-public class Pubkey implements Serializable {
+public class Pubkey implements Serializable, Comparable<Pubkey> {
 
 	private static final Logger logger = LoggerFactory.getLogger(Pubkey.class);
 
@@ -29,6 +29,12 @@ public class Pubkey implements Serializable {
 
 	public Pubkey(String pubKey) {
 		setPubkey(pubKey);
+	}
+
+	@Override
+	public int compareTo(Pubkey o) {
+		// TODO Auto-generated method stub
+		return pubkey.compareTo(o.pubkey);
 	}
 
 	/**

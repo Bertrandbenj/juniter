@@ -8,7 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 @Embeddable
-public class TxUnlock implements Serializable {
+public class TxUnlock implements Serializable, Comparable<TxUnlock> {
 
 	public enum UnlockFct {
 		SIG("SIG"), XHX("XHX");
@@ -41,6 +41,12 @@ public class TxUnlock implements Serializable {
 
 	public TxUnlock(String unlock) {
 		setUnlock(unlock);
+	}
+
+	@Override
+	public int compareTo(TxUnlock o) {
+		// TODO Auto-generated method stub
+		return (getInputRef() + getFunction()).compareTo(o.getInputRef() + o.getFunction());
 	}
 
 	public UnlockFct getFct() {

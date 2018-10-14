@@ -13,7 +13,7 @@ import org.apache.logging.log4j.Logger;
 import juniter.model.persistence.Pubkey;
 
 @Embeddable
-public class Active implements Serializable {
+public class Active implements Serializable, Comparable<Active> {
 
 	private static final long serialVersionUID = -5880074424437322665L;
 
@@ -40,6 +40,11 @@ public class Active implements Serializable {
 
 	public Active(String Active) {
 		setActive(Active);
+	}
+
+	@Override
+	public int compareTo(Active o) {
+		return active.getPubkey().compareTo(o.active.getPubkey());
 	}
 
 	public String getActive() {

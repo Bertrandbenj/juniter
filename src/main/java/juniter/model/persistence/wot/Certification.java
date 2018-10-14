@@ -23,7 +23,7 @@ import juniter.utils.Constants;
 @Entity
 @Table(name = "Certification", schema = "public")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Certification implements Serializable {
+public class Certification implements Serializable, Comparable<Certification> {
 
 	private static final long serialVersionUID = -2973877562500906569L;
 	private static final Logger logger = LoggerFactory.getLogger(Certification.class);
@@ -50,6 +50,11 @@ public class Certification implements Serializable {
 
 	public Certification(String certif) {
 		setCertif(certif);
+	}
+
+	@Override
+	public int compareTo(Certification o) {
+		return (certifier + " " + certified).compareTo(o.certifier + " " + o.certified);
 	}
 
 	public Integer getBlockNumber() {

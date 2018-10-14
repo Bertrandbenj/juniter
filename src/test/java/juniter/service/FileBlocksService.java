@@ -143,7 +143,7 @@ public class FileBlocksService {
 		assertTrue(cryptoService.verify( //
 				tx.toRaw(), //
 				tx.getSignatures().get(0).toString(), //
-				tx.getIssuers().get(0).toString()));
+				tx.getIssuers().iterator().next().toString()));
 	}
 
 }

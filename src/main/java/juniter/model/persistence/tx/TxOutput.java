@@ -23,7 +23,7 @@ import org.apache.logging.log4j.Logger;
  *
  */
 @Embeddable
-public class TxOutput implements Serializable {
+public class TxOutput implements Serializable, Comparable<TxOutput> {
 
 	public enum OutFunction {
 		SIG("SIG"), XHX("XHX"), CLTV("CLTV"), CSV("CSV");
@@ -53,6 +53,11 @@ public class TxOutput implements Serializable {
 
 	public TxOutput(String output) {
 		setOutput(output);
+	}
+
+	@Override
+	public int compareTo(TxOutput o) {
+		return getOutput().compareTo(o.getOutput());
 	}
 
 	public Integer getAmount() {

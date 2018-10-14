@@ -5,6 +5,8 @@ import static java.util.stream.Collectors.toList;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import javax.persistence.AttributeOverride;
@@ -13,6 +15,7 @@ import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
@@ -129,40 +132,41 @@ public class Block implements Serializable {
 	private Integer dividend;
 
 	@Valid
-	@OneToMany(cascade = CascadeType.ALL)
-	private List<Identity> identities = new ArrayList<>();
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	private Set<Identity> identities = new TreeSet<Identity>();
 
 	@Valid
-	@ElementCollection
+	@ElementCollection(fetch = FetchType.EAGER)
 	@CollectionTable(name = "wot_joiners", joinColumns = { @JoinColumn(name = "number"), @JoinColumn(name = "hash") })
-	private List<Joiner> joiners = new ArrayList<>();
+	private Set<Joiner> joiners = new TreeSet<Joiner>();
 
 	@Valid
-	@ElementCollection
+	@ElementCollection(fetch = FetchType.EAGER)
 	@CollectionTable(name = "wot_actives", joinColumns = { @JoinColumn(name = "number"), @JoinColumn(name = "hash") })
-	private List<Active> actives = new ArrayList<>();
+	private Set<Active> actives = new TreeSet<Active>();
 
 	@Valid
-	@ElementCollection
+	@ElementCollection(fetch = FetchType.EAGER)
 	@CollectionTable(name = "wot_leavers", joinColumns = { @JoinColumn(name = "number"), @JoinColumn(name = "hash") })
-	private List<Leaver> leavers = new ArrayList<>();
+	private Set<Leaver> leavers = new TreeSet<>();
 
 	@Valid
-	@ElementCollection
+	@ElementCollection(fetch = FetchType.EAGER)
 	@CollectionTable(name = "wot_revoked", joinColumns = { @JoinColumn(name = "number"), @JoinColumn(name = "hash") })
-	private List<Revoked> revoked = new ArrayList<>();
+	private Set<Revoked> revoked = new TreeSet<>();
 
 	@Valid
-	@ElementCollection
+	@ElementCollection(fetch = FetchType.EAGER)
+//	@OneToMany(cascade = CascadeType.ALL)
 	@CollectionTable(name = "wot_excluded", joinColumns = { @JoinColumn(name = "number"), @JoinColumn(name = "hash") })
-	private List<Excluded> excluded = new ArrayList<>();
+	private Set<Excluded> excluded = new TreeSet<>();
 
 	@Valid
-	@OneToMany(cascade = CascadeType.ALL)
-	private List<Certification> certifications = new ArrayList<>();
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	private Set<Certification> certifications = new TreeSet<>();
 
 	@Valid
-	@OneToMany(cascade = CascadeType.ALL)
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumns(value = { @JoinColumn(name = "Bnumber", referencedColumnName = "number"),
 			@JoinColumn(name = "Bhash", referencedColumnName = "hash") })
 	private List<Transaction> transactions = new ArrayList<>();
@@ -176,7 +180,7 @@ public class Block implements Serializable {
 	/**
 	 * @return the active
 	 */
-	public List<Active> getActives() {
+	public Set<Active> getActives() {
 		return actives;
 	}
 
@@ -187,7 +191,7 @@ public class Block implements Serializable {
 	/**
 	 * @return the certifications
 	 */
-	public List<Certification> getCertifications() {
+	public Set<Certification> getCertifications() {
 		return certifications; // .stream().map(c -> c.getCertif()).collect(Collectors.toList());
 	}
 
@@ -208,7 +212,7 @@ public class Block implements Serializable {
 	/**
 	 * @return the excluded
 	 */
-	public List<Excluded> getExcluded() {
+	public Set<Excluded> getExcluded() {
 		return excluded; // .stream().map(Excluded::toString).collect(Collectors.toList());
 	}
 
@@ -222,7 +226,7 @@ public class Block implements Serializable {
 	/**
 	 * @return the identities
 	 */
-	public List<Identity> getIdentities() {
+	public Set<Identity> getIdentities() {
 		return identities;// .stream().map(id -> id.getIdentity()).collect(Collectors.toList());
 	}
 
@@ -273,14 +277,14 @@ public class Block implements Serializable {
 	/**
 	 * @return the joiners
 	 */
-	public List<Joiner> getJoiners() {
+	public Set<Joiner> getJoiners() {
 		return joiners;// .stream().map(Joiner::toString).collect(Collectors.toList());
 	}
 
 	/**
 	 * @return the leavers
 	 */
-	public List<Leaver> getLeavers() {
+	public Set<Leaver> getLeavers() {
 		return leavers; // .stream().map(Leaver::toString).collect(Collectors.toList());
 	}
 
@@ -364,7 +368,7 @@ public class Block implements Serializable {
 	/**
 	 * @return the revoked
 	 */
-	public List<Revoked> getRevoked() {
+	public Set<Revoked> getRevoked() {
 		return revoked; // .stream().map(Revoked::toString).collect(Collectors.toList());
 	}
 
@@ -405,11 +409,11 @@ public class Block implements Serializable {
 		return version;
 	}
 
-	public void setActives(List<Active> actives) {
+	public void setActives(Set<Active> actives) {
 		this.actives = actives;
 	}
 
-	public void setCertifications(List<Certification> certifications) {
+	public void setCertifications(Set<Certification> certifications) {
 		this.certifications = certifications;
 	}
 
@@ -425,7 +429,7 @@ public class Block implements Serializable {
 		this.dividend = dividend;
 	}
 
-	public void setExcluded(List<Excluded> excluded) {
+	public void setExcluded(Set<Excluded> excluded) {
 		this.excluded = excluded;
 	}
 
@@ -433,7 +437,7 @@ public class Block implements Serializable {
 		this.hash = hash;
 	}
 
-	public void setIdentities(List<Identity> identities) {
+	public void setIdentities(Set<Identity> identities) {
 		this.identities = identities;
 	}
 
@@ -457,11 +461,11 @@ public class Block implements Serializable {
 		this.issuersFrameVar = issuersFrameVar;
 	}
 
-	public void setJoiners(List<Joiner> joiners) {
+	public void setJoiners(Set<Joiner> joiners) {
 		this.joiners = joiners;
 	}
 
-	public void setLeavers(List<Leaver> leavers) {
+	public void setLeavers(Set<Leaver> leavers) {
 		this.leavers = leavers;
 	}
 
@@ -501,7 +505,7 @@ public class Block implements Serializable {
 		this.previousIssuer = previousIssuer;
 	}
 
-	public void setRevoked(List<Revoked> revoked) {
+	public void setRevoked(Set<Revoked> revoked) {
 		this.revoked = revoked;
 	}
 
@@ -540,14 +544,17 @@ public class Block implements Serializable {
 	public String toRaw(boolean withInnerHash) {
 		final var inner = withInnerHash ? "InnerHash: " + inner_hash + "\n" : "";
 
+		final String div = dividend != null && dividend >= 1000 ? "\nUniversalDividend: " + dividend : "";
+
 		return "Version: " + version + "\nType: Block" + "\nCurrency: " + currency + "\nNumber: " + number
-				+ "\nPoWMin: " + powMin + "\nTime: " + getTime() + "\nMedianTime: " + getMedianTime() + "\nUnitBase: "
-				+ unitbase + "\nIssuer: " + issuer + "\nIssuersFrame: " + issuersFrame + "\nIssuersFrameVar: "
-				+ issuersFrameVar + "\nDifferentIssuersCount: " + issuersCount + "\nPreviousHash: " + previousHash
-				+ "\nPreviousIssuer: " + previousIssuer + "\nMembersCount: " + membersCount + "\nIdentities:\n"
+				+ "\nPoWMin: " + powMin + "\nTime: " + getTime() + "\nMedianTime: " + getMedianTime() + div
+				+ "\nUnitBase: " + unitbase + "\nIssuer: " + issuer + "\nIssuersFrame: " + issuersFrame
+				+ "\nIssuersFrameVar: " + issuersFrameVar + "\nDifferentIssuersCount: " + issuersCount
+				+ "\nPreviousHash: " + previousHash + "\nPreviousIssuer: " + previousIssuer + "\nMembersCount: "
+				+ membersCount + "\nIdentities:\n"
 				+ identities.stream().map(Identity::toString).collect(Collectors.joining("\n"))
 				+ (identities.size() > 0 ? "\n" : "") + "Joiners:\n"
-				+ joiners.stream().map(Joiner::toRaw).collect(Collectors.joining("\n"))
+				+ joiners.stream().map(Joiner::toDUP).collect(Collectors.joining("\n"))
 				+ (joiners.size() > 0 ? "\n" : "") + "Actives:\n"
 				+ actives.stream().map(Active::toRaw).collect(Collectors.joining("\n"))
 				+ (actives.size() > 0 ? "\n" : "") + "Leavers:\n"

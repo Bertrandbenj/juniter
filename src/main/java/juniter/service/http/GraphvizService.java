@@ -37,8 +37,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import juniter.model.persistence.Pubkey;
 import juniter.model.persistence.tx.Transaction;
+import juniter.model.persistence.tx.TxInput;
 import juniter.model.persistence.tx.TxOutput;
 import juniter.model.persistence.tx.TxType;
+import juniter.model.persistence.tx.TxUnlock;
 import juniter.repository.BlockRepository;
 import juniter.repository.CertsRepository;
 import juniter.repository.TxRepository;
@@ -219,7 +221,7 @@ public class GraphvizService {
 			}
 			if (b.getCertifications().size() > 0) {
 				sub += "\t\t" + prefix + "Ce [label=\"Certs: " + b.getCertifications().size()
-						+ "\", shape=octagon, URL=\"/graphviz/svg/certs/" + b.getCertifications().get(0).getCertified()
+//						+ "\", shape=octagon, URL=\"/graphviz/svg/certs/" + b.getCertifications().get(0).getCertified() TODO fix LIST TO SET
 						+ "\"];\n";
 			}
 
@@ -478,9 +480,9 @@ public class GraphvizService {
 				+ "\t\tlabel=\"Inputs\";\n" //
 				+ "\t\tcolor=blue;\n"//
 				+ "\t\tlabelloc=t;\n";
-		for (int i = 0; i < tx.getInputs().size(); i++) {
 
-			final var txi = tx.getInputs().get(i);
+		int i = 0;
+		for (final TxInput txi : tx.getInputs()) {
 			final var input = "input_" + i;
 
 			if (txi.getType().equals(TxType.D)) {
@@ -508,17 +510,15 @@ public class GraphvizService {
 				+ "\t\tcolor=blue;\n"//
 				+ "\t\tlabelloc=t;\n" //
 				+ "\t\tdbu [label=\"useful\\nfor\\nstate\\nmachine\", shape=cylinder];\n";
-
-		for (int i = 0; i < tx.getSignatures().size(); i++) {
-			final var sign = tx.getSignatures().get(i);
+		i = 0;
+		for (final String sign : tx.getSignatures()) {
 			res += "\t\tsignature_" + i + " [label=\"Signature:\\n" + mini(sign) + "\"];\n";
 			links += "\t\tsignature_" + i + " -> sum; \n";
 		}
 
 		res += "\t\tunlocks [shape=record, label=\"";
-
-		for (int i = 0; i < tx.getUnlocks().size(); i++) {
-			final var unlock = tx.getUnlocks().get(i);
+		i = 0;
+		for (final TxUnlock unlock : tx.getUnlocks()) {
 			res += "{ <k" + i + "> " + unlock.getInputRef() + " | <v" + i + "> " + unlock.getFunction() + " }";
 			if (i != tx.getUnlocks().size() - 1) {
 				res += " | ";
@@ -546,8 +546,8 @@ public class GraphvizService {
 
 		res += "\t\tlockouts [shape=record, label=\"";
 
-		for (int i = 0; i < tx.getOutputs().size(); i++) {
-			final TxOutput out = tx.getOutputs().get(i);
+		i = 0;
+		for (final TxOutput out : tx.getOutputs()) {
 			res += "{<a" + i + "> "
 //			+ out.Amount() + " | <x" + i + "> " + out.Base() + " | <y" + i + "> "
 					+ mini(out.getOutputCondition()) + " }";

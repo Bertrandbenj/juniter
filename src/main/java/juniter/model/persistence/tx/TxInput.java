@@ -19,7 +19,7 @@ import juniter.model.persistence.Pubkey;
 
 //@JsonIgnoreProperties(ignoreUnknown = true)
 @Embeddable
-public class TxInput implements Serializable {
+public class TxInput implements Serializable, Comparable<TxInput> {
 
 	private static final long serialVersionUID = 860920319125591515L;
 
@@ -55,12 +55,10 @@ public class TxInput implements Serializable {
 		setInput(input);
 	}
 
-	public Integer getDBlockID() {
-		return dBlockID;
-	}
+	@Override
+	public int compareTo(TxInput o) {
 
-	public Pubkey getDsource() {
-		return dsource;
+		return getInput().compareTo(o.getInput());
 	}
 
 	public Integer getAmount() {
@@ -71,9 +69,29 @@ public class TxInput implements Serializable {
 		return base;
 	}
 
+	public Integer getDBlockID() {
+		return dBlockID;
+	}
+
+	public Pubkey getDsource() {
+		return dsource;
+	}
+
 	public String getInput() {
 		return amount + ":" + base + ":" + type + ":"
 				+ (TxType.D.equals(type) ? dsource + ":" + dBlockID : tHash + ":" + tIndex);
+	}
+
+	public Hash getTHash() {
+		return tHash;
+	}
+
+	public Integer getTIndex() {
+		return tIndex;
+	}
+
+	public TxType getType() {
+		return type;
 	}
 
 	public void setAmount(Integer amount) {
@@ -123,20 +141,8 @@ public class TxInput implements Serializable {
 		type = txType;
 	}
 
-	public Hash getTHash() {
-		return tHash;
-	}
-
-	public Integer getTIndex() {
-		return tIndex;
-	}
-
 	@Override
 	public String toString() {
 		return getInput();
-	}
-
-	public TxType getType() {
-		return type;
 	}
 }

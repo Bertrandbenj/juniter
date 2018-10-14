@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Controller;
 
 import com.google.common.collect.Lists;
@@ -29,6 +30,7 @@ import juniter.utils.GlobalValid;
  */
 @ConditionalOnExpression("${juniter.ws2p.enabled:false}")
 @Controller
+@Order(1)
 public class ConnectionPool implements CommandLineRunner, GlobalValid {
 
 	private static final Logger LOG = LogManager.getLogger();
@@ -43,18 +45,21 @@ public class ConnectionPool implements CommandLineRunner, GlobalValid {
 
 	@Autowired
 	private BlockRepository blockRepo;
-
 	List<CINDEX> indexCG = Lists.newArrayList();
 	List<MINDEX> indexMG = Lists.newArrayList();
 	List<IINDEX> indexIG = Lists.newArrayList();
 	List<SINDEX> indexSG = Lists.newArrayList();
 
 	@Override
-	public void commit(Set<IINDEX> indexi, Set<MINDEX> indexm, Set<CINDEX> indexc, Set<SINDEX> indexs) {
+	public boolean commit(Set<IINDEX> indexi, Set<MINDEX> indexm, Set<CINDEX> indexc, Set<SINDEX> indexs) {
 		indexCG.addAll(indexc);
 		indexMG.addAll(indexm);
 		indexIG.addAll(indexi);
 		indexSG.addAll(indexs);
+		LOG.info("Commited Certs: " + indexc.size() + ", Membship: " + indexm.size() + ", Idty: " + indexi.size()
+				+ ", TXInOut: " + indexs.size());
+
+		return true;
 	}
 
 	@Override
@@ -88,10 +93,12 @@ public class ConnectionPool implements CommandLineRunner, GlobalValid {
 		final var client1 = new WS2PClient(new URI("wss://g1-monit.librelois.fr:443/ws2p"));
 //		final var client2 = new WS2PClient(new URI("wss://80.118.154.251:20900/"));
 
-		client1.connect();
+//		client1.connect();
 
-		for (int i = 0; true; i++) {
+		for (int i = 0; i < 10; i++) {
 			final var block = blockRepo.block(i).get();
+
+			LOG.info("Indexing Block \n" + block);
 			if (validate(block)) {
 				LOG.info("Validated " + block);
 			} else {

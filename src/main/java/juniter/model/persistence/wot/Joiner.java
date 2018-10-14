@@ -14,7 +14,7 @@ import juniter.model.persistence.BStamp;
 import juniter.model.persistence.Pubkey;
 
 @Embeddable
-public class Joiner implements Serializable {
+public class Joiner implements Serializable, Comparable<Joiner> {
 
 	private static final Logger logger = LogManager.getLogger();
 
@@ -53,6 +53,11 @@ public class Joiner implements Serializable {
 		setJoiner(joiner);
 	}
 
+	@Override
+	public int compareTo(Joiner o) {
+		return joinerKey.getPubkey().compareTo(o.joinerKey.getPubkey());
+	}
+
 	public BStamp createdOn() {
 		return new BStamp(buid1);
 	}
@@ -79,7 +84,7 @@ public class Joiner implements Serializable {
 		pseudo = vals[4];
 	}
 
-	public String toRaw() {
+	public String toDUP() {
 		return getJoiner();
 	}
 

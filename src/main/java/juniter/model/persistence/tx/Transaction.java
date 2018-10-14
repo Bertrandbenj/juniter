@@ -1,8 +1,9 @@
 package juniter.model.persistence.tx;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import javax.persistence.AttributeOverride;
@@ -10,6 +11,7 @@ import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -63,29 +65,29 @@ public class Transaction implements Serializable {
 	protected Integer blockstampTime;
 
 	@Valid
-	@ElementCollection
+	@ElementCollection(fetch = FetchType.EAGER)
 	@CollectionTable(name = "tx_issuers", joinColumns = @JoinColumn(name = "tx_id"))
-	protected List<Pubkey> issuers = new ArrayList<>(); //
+	protected Set<Pubkey> issuers = new TreeSet<>(); //
 
 	@Valid
-	@ElementCollection
+	@ElementCollection(fetch = FetchType.EAGER)
 	@CollectionTable(name = "tx_inputs", joinColumns = @JoinColumn(name = "tx_id"))
-	protected List<TxInput> inputs = new ArrayList<>();
+	protected Set<TxInput> inputs = new TreeSet<>();
 
 	@Valid
-	@ElementCollection
+	@ElementCollection(fetch = FetchType.EAGER)
 	@CollectionTable(name = "tx_outputs", joinColumns = @JoinColumn(name = "tx_id"))
-	protected List<TxOutput> outputs = new ArrayList<>();
+	protected Set<TxOutput> outputs = new TreeSet<>();
 
 	@Valid
-	@ElementCollection
+	@ElementCollection(fetch = FetchType.EAGER)
 	@CollectionTable(name = "tx_unlocks", joinColumns = @JoinColumn(name = "tx_id"))
-	protected List<TxUnlock> unlocks = new ArrayList<>();
+	protected Set<TxUnlock> unlocks = new TreeSet<>();
 
 	@Valid
-	@ElementCollection
+	@ElementCollection(fetch = FetchType.EAGER)
 	@CollectionTable(name = "tx_signatures", joinColumns = @JoinColumn(name = "tx_id"))
-	protected List<Signature> signatures = new ArrayList<>();
+	protected Set<Signature> signatures = new TreeSet<>();
 
 	@Size(max = 255)
 	protected String comment;
@@ -121,14 +123,14 @@ public class Transaction implements Serializable {
 	/**
 	 * @return the inputs
 	 */
-	public List<TxInput> getInputs() {
+	public Set<TxInput> getInputs() {
 		return inputs;// .stream().map(TxInput::getInput).collect(Collectors.toList());
 	}
 
 	/**
 	 * @return the issuers
 	 */
-	public List<Pubkey> getIssuers() {
+	public Set<Pubkey> getIssuers() {
 		return issuers;// .stream().map(Pubkey::getPubkey).collect(Collectors.toList());
 	}
 
@@ -139,7 +141,7 @@ public class Transaction implements Serializable {
 		return locktime;
 	}
 
-	public List<TxOutput> getOutputs() {
+	public Set<TxOutput> getOutputs() {
 		return outputs;
 	}
 
@@ -171,7 +173,7 @@ public class Transaction implements Serializable {
 		return thash;// .toString();
 	}
 
-	public List<TxUnlock> getUnlocks() {
+	public Set<TxUnlock> getUnlocks() {
 		return unlocks;
 	}
 

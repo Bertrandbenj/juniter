@@ -29,7 +29,7 @@ import juniter.model.persistence.Signature;
 @Entity
 @Table(name = "identity", schema = "public")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Identity implements Serializable {
+public class Identity implements Serializable, Comparable<Identity> {
 	private static final Logger logger = LogManager.getLogger();
 
 	private static final long serialVersionUID = -9160916061297193207L;
@@ -60,6 +60,11 @@ public class Identity implements Serializable {
 		setIdentity(identity);
 	}
 
+	@Override
+	public int compareTo(Identity o) {
+		return (newidentity + "").compareTo(o.newidentity + "");
+	}
+
 	public BStamp createdOn() {
 		return buid;
 	}
@@ -68,12 +73,16 @@ public class Identity implements Serializable {
 		return pseudo;
 	}
 
+//	public String getIdentity() {
+//		return newidentity.getPubkey()+":"+signature.getSignature()+":"+buid.getBuid()+":"+pseudo;
+//	}
+
 	public String pub() {
 		return newidentity.getPubkey();
 	}
 
-//	public String getIdentity() {
-//		return newidentity.getPubkey()+":"+signature.getSignature()+":"+buid.getBuid()+":"+pseudo;
+//	public String toRaw() {
+//		return getIdentity();
 //	}
 
 	public void setIdentity(String identity) {
@@ -84,10 +93,6 @@ public class Identity implements Serializable {
 		buid.parse(vals[2]);
 		pseudo = vals[3];
 	}
-
-//	public String toRaw() {
-//		return getIdentity();
-//	}
 
 	@Override
 	public String toString() {

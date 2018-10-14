@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -32,6 +33,7 @@ import juniter.repository.BlockRepository;
  */
 @ConditionalOnExpression("${juniter.simpleloader.enabled:false}")
 @Component
+@Order(3)
 public class UsefulBlocksLoader implements CommandLineRunner {
 
 	private static final Logger logger = LogManager.getLogger();

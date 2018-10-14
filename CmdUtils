@@ -1,39 +1,8 @@
 
-DROP TABLE public.wot_actives;
-DROP TABLE public.wot_certs;
-DROP TABLE public.wot_excluded ;
-DROP TABLE public.wot_joiners;
-DROP TABLE public.wot_leavers;
-DROP TABLE public.wot_revoked;
-DROP TABLE public.block_transaction;
-DROP TABLE public.wot_identities;
 
-DROP TABLE public.block_certification;
-DROP TABLE public.block_identity;
-
-DROP TABLE public.block;
-DROP TABLE public.identity;
-DROP TABLE public.certification ;
-DROP TABLE public.endpoint_values;
-DROP TABLE public.peer_endpoints;
-DROP TABLE public.endpoints;
-DROP TABLE public.joiner;
-DROP TABLE public.peer;
-
-DROP TABLE public.signature;
-
-DROP TABLE public.tx_inputs;
-DROP TABLE public.tx_outputs;
-DROP TABLE public.tx_signatures;
-DROP TABLE public.tx_unlocks;
-DROP TABLE public.tx_issuers;
-DROP TABLE public.transaction;
-
-
-
-keytool -genkey -alias juniter -storetype PKCS12 -keyalg RSA -keysize 2048 -keystore keystore.p12 -validity 3650
-
-
+sudo service nginx stop 
+sudo certbot certonly --force-renew --cert-name juniter.bnimajneb.online
+sudo service nginx start 
 
 ## Grammar stuff 
 cd /src/main/antlr4

@@ -69,7 +69,7 @@ mvn package spring-boot:repackage
 
 Certifications 
 ```
-certbot certonly --force-renew --cert-name juniter.bnimajneb.online
+keytool -genkey -alias juniter -storetype PKCS12 -keyalg RSA -keysize 2048 -keystore keystore.p12 -validity 3650
 ```
 
 ## Java model and HTTP rest api for duniter

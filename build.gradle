@@ -46,10 +46,9 @@ springBoot {
 	mainClassName = 'juniter.Application' 
 }
 
-bootRun{
- // jvmArgs=["-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=32323"]
+bootRun {
+  jvmArgs = ["-agentlib:jdwp=transport=dt_socket,server=y,address=8000,suspend=n"]
 }
-
 repositories {
        mavenCentral()
        mavenLocal()
