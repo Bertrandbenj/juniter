@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import org.apache.logging.log4j.LogManager;
@@ -51,15 +52,27 @@ public class ConnectionPool implements CommandLineRunner, GlobalValid {
 	List<SINDEX> indexSG = Lists.newArrayList();
 
 	@Override
-	public boolean commit(Set<IINDEX> indexi, Set<MINDEX> indexm, Set<CINDEX> indexc, Set<SINDEX> indexs) {
+	public boolean commit(List<BINDEX> indexb, Set<IINDEX> indexi, Set<MINDEX> indexm, Set<CINDEX> indexc,
+			Set<SINDEX> indexs) {
+
 		indexCG.addAll(indexc);
 		indexMG.addAll(indexm);
 		indexIG.addAll(indexi);
 		indexSG.addAll(indexs);
-		LOG.info("Commited Certs: " + indexc.size() + ", Membship: " + indexm.size() + ", Idty: " + indexi.size()
-				+ ", TXInOut: " + indexs.size());
+		LOG.info("Commited Certs: +" + indexc.size() + "," + indexCG.size() + //
+				"  Membship: +" + indexm.size() + "," + indexMG.size() + //
+				"  Idty: +" + indexi.size() + "," + indexIG.size() + //
+				"  IndexS: +" + indexs.size() + "," + indexSG.size() + //
+				"  IndexB: +" + indexb.size());
 
 		return true;
+	}
+
+	private String format(long millis) {
+		return String.format("%d min, %d sec", //
+				TimeUnit.MILLISECONDS.toMinutes(millis), //
+				TimeUnit.MILLISECONDS.toSeconds(millis)
+						- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
 	}
 
 	@Override
@@ -95,14 +108,22 @@ public class ConnectionPool implements CommandLineRunner, GlobalValid {
 
 //		client1.connect();
 
-		for (int i = 0; i < 10; i++) {
+		final long time = System.currentTimeMillis();
+
+		for (int i = 0; i < 100000; i++) {
 			final var block = blockRepo.block(i).get();
 
-			LOG.info("Indexing Block \n" + block);
+			LOG.info("Indexing Block " + block);
 			if (validate(block)) {
 				LOG.info("Validated " + block);
 			} else {
 				LOG.warn("NOT Valid " + block);
+				return;
+			}
+
+			if (i % 100 == 0) {
+				final long delta = System.currentTimeMillis() - time;
+				LOG.info("elapsed time " + format(delta));
 			}
 		}
 

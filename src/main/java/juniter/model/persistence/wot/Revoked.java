@@ -13,7 +13,7 @@ import org.apache.logging.log4j.Logger;
 import juniter.model.persistence.Pubkey;
 
 @Embeddable
-public class Revoked implements Serializable {
+public class Revoked implements Serializable, Comparable<Revoked> {
 
 	private static final long serialVersionUID = 2875594811917743111L;
 
@@ -25,29 +25,39 @@ public class Revoked implements Serializable {
 
 	private String signature;
 
-	
-	public Revoked() {}
+	public Revoked() {
+	}
 
 	public Revoked(String joiner) {
 		setRevoked(joiner);
 	}
 
+	@Override
+	public int compareTo(Revoked o) {
+		// TODO Auto-generated method stub
+		return getRevoked().compareTo(o.getRevoked());
+	}
+
 	public String getRevoked() {
-		return revoked + ":" + signature ;
+		return revoked + ":" + signature;
+	}
+
+	public String revoked() {
+		return revoked.getPubkey();
 	}
 
 	public void setRevoked(String rev) {
-		
-		logger.info("Parsing Revoked... "+rev);
-		var vals = rev.split(":");
+
+		logger.info("Parsing Revoked... " + rev);
+		final var vals = rev.split(":");
 		revoked.setPubkey(vals[0]);
 		signature = vals[1];
 	}
 
-	public String toRaw() {
+	public String toDUP() {
 		return getRevoked();
 	}
-	
+
 	@Override
 	public String toString() {
 		return getRevoked();

@@ -192,7 +192,7 @@ public class Transaction implements Serializable {
 	 * ex :
 	 * Transactions:\nTX:10:1:1:1:2:0:0\n127129-00000232C91EF53648DA67D5DA32DA54C766238B48C512F66C7CC769585DFCBE\n8ysx7yQe47ffx379Evv3R6Qys86ekmVxwYTiVTqWq73e\n9506:0:T:97A239CA02FA2F97B859C2EA093FE68FEADF90A1FDE8EE69711C2048BD328128:1\n0:SIG(0)\n1000:0:SIG(CCdjH7Pd8GPe74ZbiD1DdZ1CXQ2ggYVehk2c7iVV6NwJ)\n8506:0:SIG(8ysx7yQe47ffx379Evv3R6Qys86ekmVxwYTiVTqWq73e)\nEP9BhAMIbDSy9nfplSmmvp7yI6t79kO0/7/bdecGjayH+hrZxT2R4xkpEVyV3qo6Ztc1TwK+F2Hf2big5pVrCA==
 	 */
-	public String toRaw() {
+	public String toDUP() {
 		return "TX:" + version + ":" + issuers.size() + ":" + inputs.size() + ":" + unlocks.size() + ":"
 				+ outputs.size() + ":" + locktime + ":" + blockstampTime + "\n" + blockstamp + "\n"
 				+ issuers.stream().map(i -> i.getPubkey()).collect(Collectors.joining("\n")) + "\n"

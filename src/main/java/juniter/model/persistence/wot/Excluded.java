@@ -46,7 +46,7 @@ public class Excluded implements Serializable, Comparable<Excluded> {
 		excluded.setPubkey(vals[0]);
 	}
 
-	public String toRaw() {
+	public String toDUP() {
 		return getExcluded();
 	}
 

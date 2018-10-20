@@ -96,12 +96,12 @@ public class Certification implements Serializable, Comparable<Certification> {
 		signature = it[3];
 	}
 
-	public String toRaw() {
+	public String toDUP() {
 		return getCertif();
 	}
 
 	@Override
 	public String toString() {
-		return toRaw();
+		return toDUP();
 	}
 }

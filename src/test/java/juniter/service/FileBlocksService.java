@@ -109,7 +109,7 @@ public class FileBlocksService {
 
 	@Test
 	public void testBlockHash() {
-		final var unHashedBlock = _1437.toRaw(false);
+		final var unHashedBlock = _1437.toDUP(false);
 		LOG.info("testBlockHash " + _1437.getIssuer() + " " + _1437.getSignature() + "\n" + unHashedBlock);
 		final var hash = cryptoService.hash(unHashedBlock);
 		assertThat(hash, equalTo(_1437.getInner_hash()));
@@ -121,7 +121,7 @@ public class FileBlocksService {
 
 		LOG.info("testTxHash " + _0.getIssuer() + " " + _0.getSignature());
 
-		assertTrue(cryptoService.verify(_0.toRaw(), _0.getSignature().toString(), _0.getIssuer()));
+		assertTrue(cryptoService.verify(_0.toDUP(), _0.getSignature().toString(), _0.getIssuer()));
 	}
 
 	@Test
@@ -129,7 +129,7 @@ public class FileBlocksService {
 
 		LOG.info("testValidBlockSignature " + _0.getIssuer() + " " + _0.getSignature());
 
-		assertTrue(cryptoService.verify(_0.toRaw(), _0.getSignature().toString(), _0.getIssuer()));
+		assertTrue(cryptoService.verify(_0.toDUP(), _0.getSignature().toString(), _0.getIssuer()));
 	}
 
 	@Test
@@ -138,10 +138,10 @@ public class FileBlocksService {
 		assertTrue(_127128.getTransactions().size() > 0);
 		final var tx = _127128.getTransactions().get(0);
 
-		LOG.info("testValidTxSignature " + tx.toRaw());
+		LOG.info("testValidTxSignature " + tx.toDUP());
 
 		assertTrue(cryptoService.verify( //
-				tx.toRaw(), //
+				tx.toDUP(), //
 				tx.getSignatures().get(0).toString(), //
 				tx.getIssuers().iterator().next().toString()));
 	}

@@ -45,7 +45,7 @@ public class Validator {
 	 */
 	public static String hash(Block b) {
 		final var res = "";
-		final String sha256hex = DigestUtils.sha1Hex(b.toRaw());
+		final String sha256hex = DigestUtils.sha1Hex(b.toDUP());
 		return res;
 	}
 

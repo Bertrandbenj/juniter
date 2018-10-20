@@ -42,6 +42,10 @@ public class Active implements Serializable, Comparable<Active> {
 		setActive(Active);
 	}
 
+	public String activepk() {
+		return active.getPubkey();
+	}
+
 	@Override
 	public int compareTo(Active o) {
 		return active.getPubkey().compareTo(o.active.getPubkey());
@@ -63,7 +67,7 @@ public class Active implements Serializable, Comparable<Active> {
 		// this.leaver = joiner;
 	}
 
-	public String toRaw() {
+	public String toDUP() {
 		return getActive();
 	}
 

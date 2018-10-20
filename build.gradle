@@ -47,7 +47,9 @@ springBoot {
 }
 
 bootRun {
-  jvmArgs = ["-agentlib:jdwp=transport=dt_socket,server=y,address=8000,suspend=n"]
+	 
+	enableAssertions = true // BR_G[0-108] assertion
+	jvmArgs = ["-agentlib:jdwp=transport=dt_socket,server=y,address=8000,suspend=n"]
 }
 repositories {
        mavenCentral()

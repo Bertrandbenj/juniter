@@ -13,7 +13,7 @@ import org.apache.logging.log4j.Logger;
 import juniter.model.persistence.Pubkey;
 
 @Embeddable
-public class Leaver implements Serializable {
+public class Leaver implements Serializable, Comparable<Leaver> {
 
 	private static final long serialVersionUID = -4288798570176707871L;
 
@@ -42,8 +42,17 @@ public class Leaver implements Serializable {
 		setLeaver(Leaver);
 	}
 
+	@Override
+	public int compareTo(Leaver o) {
+		return getLeaver().compareTo(o.getLeaver());
+	}
+
 	public String getLeaver() {
 		return leaver + ":" + signature + ":" + buid1 + ":" + buid2 + ":" + pseudo;
+	}
+
+	public String leaver() {
+		return leaver.getPubkey();
 	}
 
 	public void setLeaver(String leaver) {
@@ -58,7 +67,7 @@ public class Leaver implements Serializable {
 		// this.leaver = joiner;
 	}
 
-	public String toRaw() {
+	public String toDUP() {
 		return getLeaver();
 	}
 

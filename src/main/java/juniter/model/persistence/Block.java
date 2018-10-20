@@ -532,8 +532,29 @@ public class Block implements Serializable {
 		this.version = version;
 	}
 
-	public String toRaw() {
-		return toRaw(true);
+	/**
+	 * <pre>
+	BlockSize
+	
+	The block size is defined as the number of lines in multiline fields (Identities, Joiners, Actives, Leavers, Revoked, Certifications, Transactions) except Excluded field.
+	
+	For example:
+	
+	
+	1 new identity + 1 joiner + 2 certifications = 4 lines sized block
+	1 new identity + 1 joiner + 2 certifications + 5 lines transaction = 9 lines sized block
+	 * </pre>
+	 *
+	 * @return
+	 */
+	public Integer size() {
+
+		return identities.size() + joiners.size() + actives.size() + leavers.size() + revoked.size()
+				+ certifications.size() + transactions.size();
+	}
+
+	public String toDUP() {
+		return toDUP(true);
 	}
 
 	/**
@@ -541,7 +562,7 @@ public class Block implements Serializable {
 	 *
 	 * @return
 	 */
-	public String toRaw(boolean withInnerHash) {
+	public String toDUP(boolean withInnerHash) {
 		final var inner = withInnerHash ? "InnerHash: " + inner_hash + "\n" : "";
 
 		final String div = dividend != null && dividend >= 1000 ? "\nUniversalDividend: " + dividend : "";
@@ -556,17 +577,17 @@ public class Block implements Serializable {
 				+ (identities.size() > 0 ? "\n" : "") + "Joiners:\n"
 				+ joiners.stream().map(Joiner::toDUP).collect(Collectors.joining("\n"))
 				+ (joiners.size() > 0 ? "\n" : "") + "Actives:\n"
-				+ actives.stream().map(Active::toRaw).collect(Collectors.joining("\n"))
+				+ actives.stream().map(Active::toDUP).collect(Collectors.joining("\n"))
 				+ (actives.size() > 0 ? "\n" : "") + "Leavers:\n"
-				+ leavers.stream().map(Leaver::toRaw).collect(Collectors.joining("\n"))
+				+ leavers.stream().map(Leaver::toDUP).collect(Collectors.joining("\n"))
 				+ (leavers.size() > 0 ? "\n" : "") + "Revoked:\n"
-				+ revoked.stream().map(Revoked::toRaw).collect(Collectors.joining("\n"))
+				+ revoked.stream().map(Revoked::toDUP).collect(Collectors.joining("\n"))
 				+ (revoked.size() > 0 ? "\n" : "") + "Excluded:\n"
-				+ excluded.stream().map(Excluded::toRaw).collect(Collectors.joining("\n"))
+				+ excluded.stream().map(Excluded::toDUP).collect(Collectors.joining("\n"))
 				+ (excluded.size() > 0 ? "\n" : "") + "Certifications:\n"
-				+ certifications.stream().map(Certification::toRaw).collect(Collectors.joining("\n"))
+				+ certifications.stream().map(Certification::toDUP).collect(Collectors.joining("\n"))
 				+ (certifications.size() > 0 ? "\n" : "") + "Transactions:\n"
-				+ transactions.stream().map(Transaction::toRaw).collect(Collectors.joining("\n"))
+				+ transactions.stream().map(Transaction::toDUP).collect(Collectors.joining("\n"))
 				+ (transactions.size() > 0 ? "\n" : "") //
 				+ inner + "Nonce: " + nonce + "\n";
 	}
