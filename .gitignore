@@ -12,3 +12,5 @@ docs/javadoc
 *.tokens
 /.settings/
 /.classpath
+/.cache-main
+/.cache-tests
