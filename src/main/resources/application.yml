@@ -63,7 +63,7 @@ juniter:
     bulkSize: 500
     webSocketPoolSize: 5
   simpleloader:
-    enabled: true  
+    enabled: false  
   graphviz:
     enabled: true
   graphql:
@@ -74,19 +74,23 @@ juniter:
     enabled: true
   utils:
     enabled: false
-    
+
+spark:
+  master: local[*]
+  app.name: juniter
+  home: 
 
 ##
 ## =========================== Logging Configs ===========================
 ##    
-logging:
-  path: /var/log/juniter
-#  file: juniter.log
-  level:
-    root: info
-    org.springframework.web: info
-    org.hibernate.SQL: warn
-    juniter: info
+#logging:
+#  path: /var/log/juniter
+##  file: juniter.log
+#  level:
+#    root: info
+#    org.springframework.web: info
+#    org.hibernate.SQL: warn
+#    juniter: info
 #hibernate.show_sql: false
     
     

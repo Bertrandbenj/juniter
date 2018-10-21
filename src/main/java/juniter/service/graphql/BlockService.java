@@ -13,8 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import io.leangen.graphql.annotations.GraphQLArgument;
 import io.leangen.graphql.annotations.GraphQLQuery;
-import juniter.model.bma.BlockDTO;
-import juniter.repository.BlockRepository;
+import juniter.repository.jpa.BlockRepository;
+import juniter.service.bma.model.BlockDTO;
 
 @Service
 public class BlockService {

@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.leangen.graphql.annotations.GraphQLQuery;
-import juniter.model.persistence.tx.Transaction;
-import juniter.repository.TxRepository;
+import juniter.core.model.tx.Transaction;
+import juniter.repository.jpa.TxRepository;
 
 @Service
 public class GQLTxService {

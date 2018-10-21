@@ -8,11 +8,11 @@ import antlr.main.JuniterParser.IdentityContext;
 import antlr.main.JuniterParser.PeerContext;
 import antlr.main.JuniterParser.WotContext;
 import antlr.main.JuniterParserBaseVisitor;
-import juniter.model.net.Document;
-import juniter.model.net.IdentityDocument;
-import juniter.model.net.PeerDocument;
-import juniter.model.persistence.BStamp;
-import juniter.utils.LocalValid;
+import juniter.core.model.BStamp;
+import juniter.core.model.net.Document;
+import juniter.core.model.net.IdentityDocument;
+import juniter.core.model.net.PeerDocument;
+import juniter.core.validation.LocalValid;
 
 public class JuniterListener extends JuniterParserBaseVisitor<Document> implements LocalValid {
 

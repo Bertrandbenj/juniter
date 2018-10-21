@@ -5,24 +5,21 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import juniter.model.persistence.Block;
-import juniter.repository.BlockRepository;
-import juniter.service.duniter.CryptoService;
+import juniter.core.crypto.CryptoUtils;
+import juniter.core.model.Block;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+//@RunWith(SpringRunner.class)
+//@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class FileBlocksService {
 
 	private static final Logger LOG = LogManager.getLogger();
@@ -57,11 +54,8 @@ public class FileBlocksService {
 	 */
 	public Block _33396;
 
-	@Autowired
-	BlockRepository blockRepo;
+	public List<Block> blockchain;
 
-	@Autowired
-	CryptoService cryptoService;
 
 	@Before
 	public void init() throws IOException {
@@ -73,7 +67,7 @@ public class FileBlocksService {
 		try {
 			_0 = jsonMapper.readValue(cl.getResourceAsStream("blocks/0.json"), Block.class);
 			LOG.info("Sucessfully parsed " + _0 + "\tfrom" + cl.getResource("blocks/0.json"));
-			assertThat(_0.getNumber(), equalTo(0));
+			assertThat("Parsing _0", _0.getNumber(), equalTo(0));
 
 			_1437 = jsonMapper.readValue(cl.getResourceAsStream("blocks/1437.json"), Block.class);
 			LOG.info("Sucessfully parsed " + _1437 + "\tfrom " + cl.getResource("blocks/1437.json"));
@@ -89,16 +83,13 @@ public class FileBlocksService {
 
 			_33396 = jsonMapper.readValue(cl.getResourceAsStream("blocks/33396.json"), Block.class);
 			LOG.info("Sucessfully parsed " + _33396 + "\tfrom " + cl.getResource("blocks/33396.json"));
-//			log.info("Sucessfully parsed " + _33396.getHash());
-			try {
-				blockRepo.findTop1ByNumber(17500).orElseGet(() -> blockRepo.save(_17500));
-				blockRepo.findTop1ByNumber(33396).orElseGet(() -> blockRepo.save(_33396));
-				blockRepo.findTop1ByNumber(127128).orElseGet(() -> blockRepo.save(_127128));
-				blockRepo.findTop1ByNumber(102093).orElseGet(() -> blockRepo.save(_102093));
-				blockRepo.findTop1ByNumber(0).orElseGet(() -> blockRepo.save(_0));
-			} catch (final Exception e) {
-				LOG.error("saving ", e);
-			}
+
+			blockchain = jsonMapper.readValue(cl.getResourceAsStream("blocks/blockchain.json"),
+					new TypeReference<List<Block>>() {
+			});
+			LOG.info("Sucessfully parsed " + blockchain + "\tfrom " + cl.getResource("blocks/blockchain.json"));
+			//			log.info("Sucessfully parsed " + _33396.getHash());
+
 
 		} catch (final Exception e) {
 			LOG.error("Starting FileBlocksService ... " + e);
@@ -108,11 +99,18 @@ public class FileBlocksService {
 	}
 
 	@Test
+	public void testBlockChain () {
+		assertThat("parsed blocks/blockchain.json size is 12 - " + blockchain.size(), //
+				blockchain.size(), equalTo(12 + 0));
+
+	}
+
+	@Test
 	public void testBlockHash() {
 		final var unHashedBlock = _1437.toDUP(false);
 		LOG.info("testBlockHash " + _1437.getIssuer() + " " + _1437.getSignature() + "\n" + unHashedBlock);
-		final var hash = cryptoService.hash(unHashedBlock);
-		assertThat(hash, equalTo(_1437.getInner_hash()));
+		final var hash = CryptoUtils.hash(unHashedBlock);
+		assertThat("testBlockHash " + hash + " " + _1437.getInner_hash(), hash, equalTo(_1437.getInner_hash()));
 
 	}
 
@@ -121,7 +119,7 @@ public class FileBlocksService {
 
 		LOG.info("testTxHash " + _0.getIssuer() + " " + _0.getSignature());
 
-		assertTrue(cryptoService.verify(_0.toDUP(), _0.getSignature().toString(), _0.getIssuer()));
+		assertTrue(CryptoUtils.verify(_0.toDUP(), _0.getSignature().toString(), _0.getIssuer()));
 	}
 
 	@Test
@@ -129,21 +127,31 @@ public class FileBlocksService {
 
 		LOG.info("testValidBlockSignature " + _0.getIssuer() + " " + _0.getSignature());
 
-		assertTrue(cryptoService.verify(_0.toDUP(), _0.getSignature().toString(), _0.getIssuer()));
+		assertTrue(CryptoUtils.verify(_0.toDUP(), _0.getSignature().toString(), _0.getIssuer()));
 	}
 
 	@Test
 	public void testValidTxSignature() {
 
-		assertTrue(_127128.getTransactions().size() > 0);
-		final var tx = _127128.getTransactions().get(0);
+		assertTrue("Block _127128 has 9 transactions ", _127128.getTransactions().size() == 9);
 
-		LOG.info("testValidTxSignature " + tx.toDUP());
+		for (int i = 0; i < _127128.getTransactions().size(); i++) {
+			final var tx = _127128.getTransactions().get(i);
 
-		assertTrue(cryptoService.verify( //
-				tx.toDUP(), //
-				tx.getSignatures().get(0).toString(), //
-				tx.getIssuers().iterator().next().toString()));
+			assertTrue("Signature isnt verified  " + tx.getSignatures().get(i).toString()
+					+ "\n  for issuer : " + tx.getIssuers().get(i).toString()
+					+ "\n  in transaction : " + tx.toDUP(),
+					CryptoUtils.verify(
+							tx.toDUP(),
+							tx.getSignatures().get(i).toString(),
+							tx.getIssuers().get(i).toString()
+							));
+
+		}
+
+
+
+
 	}
 
 }

@@ -18,7 +18,7 @@ import org.junit.Test;
 import antlr.main.JuniterLexer;
 import antlr.main.JuniterParser;
 import antlr.main.JuniterParser.WotContext;
-import juniter.crypto.CryptoUtils;
+import juniter.core.crypto.CryptoUtils;
 import juniter.grammar.JuniterListener;
 
 public class AntlrTests {

@@ -7,11 +7,11 @@ import org.apache.logging.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
-import juniter.model.persistence.tx.OutCondition;
-import juniter.model.persistence.tx.OutCondition.And;
-import juniter.model.persistence.tx.OutCondition.Or;
-import juniter.model.persistence.tx.OutCondition.SIG;
-import juniter.model.persistence.tx.OutCondition.XHX;
+import juniter.core.model.tx.OutCondition;
+import juniter.core.model.tx.OutCondition.And;
+import juniter.core.model.tx.OutCondition.Or;
+import juniter.core.model.tx.OutCondition.SIG;
+import juniter.core.model.tx.OutCondition.XHX;
 
 public class OutConditionTest {
 	private static final Logger log = LogManager.getLogger();
