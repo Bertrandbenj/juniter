@@ -16,12 +16,12 @@ import juniter.core.model.Pubkey;
 @Embeddable
 public class Joiner implements Serializable, Comparable<Joiner> {
 
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger LOG = LogManager.getLogger();
 
 	private static final long serialVersionUID = 4413010134970991059L;
 
-//	@Column(name = "joiner", nullable = true, length = 350)
-//	private String joiner;
+	//	@Column(name = "joiner", nullable = true, length = 350)
+	//	private String joiner;
 
 	@Valid
 	@AttributeOverride(name = "pubkey", column = @Column(name = "joinerKey"))
@@ -30,18 +30,18 @@ public class Joiner implements Serializable, Comparable<Joiner> {
 	private String signature;
 
 	@Valid
-//	@Embedded
-//	@AttributeOverride(name = "stamp", column = @Column(name = "hash"))
-//	    @AttributeOverrides( {
-//	        @AttributeOverride(name="buid1.number", column = @Column(name="") ),
-//	        @AttributeOverride(name="foundedFromOwnResources.amount", column = @Column(name="previousReport_foundedFromOwnResources")),
-//	        @AttributeOverride(name="personalContribution.amount", column = @Column(name="previousReport_personalContribution"))
-//	    } )
-	private String buid1;// = new BStamp();
+	//	@Embedded
+	//	@AttributeOverride(name = "stamp", column = @Column(name = "hash"))
+	//	    @AttributeOverrides( {
+	//	        @AttributeOverride(name="buid1.number", column = @Column(name="") ),
+	//	        @AttributeOverride(name="foundedFromOwnResources.amount", column = @Column(name="previousReport_foundedFromOwnResources")),
+	//	        @AttributeOverride(name="personalContribution.amount", column = @Column(name="previousReport_personalContribution"))
+	//	    } )
+	private String m_block_uid;// = new BStamp();
 
-//	@Valid
-//	@AttributeOverride(name = "buid2", column = @Column(name = "buid2"))
-	private String buid2;
+	//	@Valid
+	//	@AttributeOverride(name = "buid2", column = @Column(name = "buid2"))
+	private String i_block_uid;
 
 	private String pseudo;
 
@@ -54,7 +54,7 @@ public class Joiner implements Serializable, Comparable<Joiner> {
 	}
 
 	public String bstamp() {
-		return buid1;
+		return m_block_uid;
 	}
 
 	@Override
@@ -63,11 +63,11 @@ public class Joiner implements Serializable, Comparable<Joiner> {
 	}
 
 	public BStamp createdOn() {
-		return new BStamp(buid1);
+		return new BStamp(m_block_uid);
 	}
 
 	public String getJoiner() {
-		return joinerKey + ":" + signature + ":" + buid1 + ":" + buid2 + ":" + pseudo;
+		return joinerKey + ":" + signature + ":" + m_block_uid + ":" + i_block_uid + ":" + pseudo;
 	}
 
 	public String pseudo() {
@@ -79,12 +79,12 @@ public class Joiner implements Serializable, Comparable<Joiner> {
 	}
 
 	public void setJoiner(String joiner) {
-		logger.debug("Parsing Joiner... " + joiner);
+		LOG.debug("Parsing Joiner... " + joiner);
 		final var vals = joiner.split(":");
 		joinerKey.setPubkey(vals[0]);
 		signature = vals[1];
-		buid1 = vals[2];
-		buid2 = vals[3];
+		m_block_uid = vals[2];
+		i_block_uid = vals[3];
 		pseudo = vals[4];
 	}
 
@@ -98,6 +98,6 @@ public class Joiner implements Serializable, Comparable<Joiner> {
 	}
 
 	public BStamp writtenOn() {
-		return new BStamp(buid2);
+		return new BStamp(i_block_uid);
 	}
 }

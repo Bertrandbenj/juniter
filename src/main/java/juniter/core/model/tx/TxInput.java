@@ -11,19 +11,15 @@ import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
+import juniter.core.model.DUPComponent;
 import juniter.core.model.Hash;
 import juniter.core.model.Pubkey;
 
 //@JsonIgnoreProperties(ignoreUnknown = true)
 @Embeddable
-public class TxInput implements Serializable, Comparable<TxInput> {
+public class TxInput implements Serializable, Comparable<TxInput>, DUPComponent {
 
 	private static final long serialVersionUID = 860920319125591515L;
-
-	private static final Logger logger = LogManager.getLogger();
 
 	@Min(1)
 	private Integer amount;
@@ -78,8 +74,7 @@ public class TxInput implements Serializable, Comparable<TxInput> {
 	}
 
 	public String getInput() {
-		return amount + ":" + base + ":" + type + ":"
-				+ (TxType.D.equals(type) ? dsource + ":" + dBlockID : tHash + ":" + tIndex);
+		return toDUP();
 	}
 
 	public Hash getTHash() {
@@ -111,7 +106,6 @@ public class TxInput implements Serializable, Comparable<TxInput> {
 	}
 
 	public void setInput(String input) {
-		logger.debug("parse TxInput ... " + input);
 		// this.input = input;
 		final var it = input.split(":");
 		amount = Integer.valueOf(it[0]);
@@ -139,6 +133,12 @@ public class TxInput implements Serializable, Comparable<TxInput> {
 
 	public void setType(TxType txType) {
 		type = txType;
+	}
+
+	@Override
+	public String toDUP() {
+		return amount + ":" + base + ":" + type + ":"
+				+ (TxType.D.equals(type) ? dsource + ":" + dBlockID : tHash + ":" + tIndex);
 	}
 
 	@Override

@@ -149,41 +149,41 @@ public interface OutCondition {
 		// Simple cases SIG first because its the most frequent
 		if ("SIG".equals(cond.substring(0, 3))) {
 			res = new SIG(cond.substring(4, cond.length() - 1));
-			TxOutput.logger.debug("Parsed SIG " + cond);
+			TxOutput.LOG.debug("Parsed SIG " + cond);
 		}
 		if ("XHX".equals(cond.substring(0, 3))) {
 			res = new XHX(cond.substring(4, cond.length() - 1));
-			TxOutput.logger.debug("Parsed XHX " + cond);
+			TxOutput.LOG.debug("Parsed XHX " + cond);
 		}
 		if ("CSV".equals(cond.substring(0, 3))) {
 			res = new CSV(cond.substring(4, cond.length() - 1));
-			TxOutput.logger.debug("Parsed CSV " + cond);
+			TxOutput.LOG.debug("Parsed CSV " + cond);
 		}
 		if ("CLTV".equals(cond.substring(0, 4))) {
 			res = new CSV(cond.substring(5, cond.length() - 1));
-			TxOutput.logger.debug("Parsed CLTV " + cond);
+			TxOutput.LOG.debug("Parsed CLTV " + cond);
 		}
 
 		// recursive cases
 		if (cond.startsWith("(")) {
 			final String subcond = cond.substring(1, cond.length() - 1);
-			TxOutput.logger.debug(" - subcond " + subcond + "\nwhen parsing " + cond);
+			TxOutput.LOG.debug(" - subcond " + subcond + "\nwhen parsing " + cond);
 			var i = 0;
 
 			while ((i = subcond.indexOf("&&", i)) != -1) { // for each occurence of operator
 
 				final var right = subcond.substring(i + 2).trim(); // take right
 				final var left = subcond.substring(0, i).trim(); // take left
-				TxOutput.logger.info(" - tryAnd " + i + " " + left + " ___________ " + right);
+				TxOutput.LOG.info(" - tryAnd " + i + " " + left + " ___________ " + right);
 				And parsed = null;
 				try {
 					parsed = new And(parse(left), parse(right));
-					TxOutput.logger.info("Parsed And " + parsed);
+					TxOutput.LOG.info("Parsed And " + parsed);
 
 					return parsed;
 				} catch (final Exception e) {
 					i++;
-					TxOutput.logger.error(e.getMessage());
+					TxOutput.LOG.error(e.getMessage());
 				}
 			}
 
@@ -191,17 +191,17 @@ public interface OutCondition {
 
 				final var right = subcond.substring(i + 2).trim(); // take right
 				final var left = subcond.substring(0, i).trim(); // take left
-				TxOutput.logger.info(" - tryOr " + i + " " + left + " - " + right);
+				TxOutput.LOG.info(" - tryOr " + i + " " + left + " - " + right);
 
 				Or parsed = null;
 				try {
 					parsed = new Or(parse(left), parse(right));
-					TxOutput.logger.info("Parsed Or " + parsed);
+					TxOutput.LOG.info("Parsed Or " + parsed);
 
 					return parsed;
 				} catch (final Exception e) {
 					i++;
-					TxOutput.logger.error(e.getMessage());
+					TxOutput.LOG.error(e.getMessage());
 				}
 
 			}

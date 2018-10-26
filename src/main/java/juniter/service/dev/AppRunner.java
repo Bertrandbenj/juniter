@@ -17,7 +17,7 @@ import juniter.service.bma.PeeringService;
 @Component
 public class AppRunner implements CommandLineRunner {
 
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger LOG = LogManager.getLogger();
 
 	private final PeeringService peeringService;
 
@@ -28,18 +28,18 @@ public class AppRunner implements CommandLineRunner {
 	@Async
 	@Transactional
 	public void contactPeers() {
-		logger.info("Contacting other peers ");
+		LOG.info("Contacting other peers ");
 		CompletableFuture.completedStage(peeringService.findFirstPeers()) //
 				.thenCompose(doc -> peeringService.findOtherPeers()) //
 				.handle((stPeerDocs, ex) -> {
 					if (stPeerDocs != null) {
-						logger.info("handle: " + stPeerDocs + ""
+						LOG.info("handle: " + stPeerDocs + ""
 								+ stPeerDocs.stream().map(pd -> pd.getPeers().size() + " ")
 										// .map(p -> p.endpoints().size() + " endpoints for " + p.getPubkey())
 										.collect(Collectors.joining(" ")));
 						return stPeerDocs;
 					} else {
-						logger.warn("Error handle: " + ex.getMessage());
+						LOG.warn("Error handle: " + ex.getMessage());
 						return "Error handle: " + ex.getMessage();
 					}
 
@@ -58,8 +58,8 @@ public class AppRunner implements CommandLineRunner {
 		// CompletableFuture.allOf(peerDoc).join();
 
 		// Print results, including elapsed time
-		logger.info("Elapsed time: " + (System.currentTimeMillis() - start));
-		// logger.info("--> " + peerDoc.get());
+		LOG.info("Elapsed time: " + (System.currentTimeMillis() - start));
+		// LOG.info("--> " + peerDoc.get());
 
 	}
 

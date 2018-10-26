@@ -34,7 +34,7 @@ public interface EndPointsRepository extends JpaRepository<EndPoint, Long> {
 	<S extends EndPoint> List<S> saveAll(Iterable<S> entities);
 //	@Override
 //	default <S extends EndPoint> List<S> saveAll(Iterable<S> entities){
-//		PeeringService.logger.info("Saving stuff ");
+//		PeeringService.LOG.info("Saving stuff ");
 //		return super.saveAll(entities);
 //	};
 

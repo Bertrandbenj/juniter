@@ -8,9 +8,6 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import juniter.core.utils.Constants;
 
 /**
@@ -24,8 +21,6 @@ import juniter.core.utils.Constants;
 public class BStamp implements Serializable {
 
 	private static final long serialVersionUID = -165962007943111454L;
-
-	private static final Logger logger = LogManager.getLogger();
 
 	@Min(0)
 	@Column(name = "number")
@@ -71,8 +66,6 @@ public class BStamp implements Serializable {
 	}
 
 	public void parse(String string) {
-		logger.debug("Parsing buid ... " + string);
-
 		final String[] pat = string.split("-");
 		number = Integer.valueOf(pat[0]);
 		hash = pat[1];

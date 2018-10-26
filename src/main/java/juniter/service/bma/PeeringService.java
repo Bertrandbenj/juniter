@@ -41,7 +41,7 @@ import juniter.service.bma.model.PeerDoc;
 @RequestMapping("/network")
 public class PeeringService {
 
-	public static final Logger logger = LogManager.getLogger();
+	public static final Logger LOG = LogManager.getLogger();
 	// private static final String ERROR_MESSAGE = "";
 
 	Random random = new Random();
@@ -69,7 +69,7 @@ public class PeeringService {
 		final var statusCode = responseEntity.getStatusCode();
 		save(peers);
 
-		logger.info("Found peers: " + peers.getPeers().size() + ", status : " + statusCode.getReasonPhrase()
+		LOG.info("Found peers: " + peers.getPeers().size() + ", status : " + statusCode.getReasonPhrase()
 				+ ", ContentType: " + contentType.toString());
 		return peers;
 	}
@@ -82,14 +82,14 @@ public class PeeringService {
 	@Async
 	@Transactional
 	public CompletableFuture<List<PeerDoc>> findOtherPeers() {
-		logger.info("Find other peers ");
+		LOG.info("Find other peers ");
 
 		final var compute = reloadURL() //
 				.parallelStream() //
 				.map(url -> CompletableFuture.supplyAsync(() -> findPeers(url)).join()).map(CompletableFuture::join)
 				.collect(Collectors.toList());
 
-		logger.info("Found other peers ");
+		LOG.info("Found other peers ");
 
 		return CompletableFuture.completedFuture(compute);
 	}
@@ -98,27 +98,27 @@ public class PeeringService {
 	public CompletableFuture<PeerDoc> findPeers(String nodeURL) {
 		final var url = nodeURL + (nodeURL.endsWith("/") ? "" : "/") + "network/peers";
 
-		logger.info("Looking up for peers at  " + url);
+		LOG.info("Looking up for peers at  " + url);
 		final var time = System.nanoTime();
 		PeerDoc results;
 		try {
 			results = restTpl.getForObject(url, PeerDoc.class);
 			final var elapsedTime = Long.divideUnsigned(System.nanoTime() - time, 1000000);
-			logger.info(
+			LOG.info(
 					"... took " + elapsedTime + " ms for " + url + " " + results.getPeers().size() + " found peers");
 			results.timeMillis = elapsedTime;
 			save(results);
 			return CompletableFuture.completedFuture(results)//
 					.handle((peerDoc, ex) -> {
 						if (ex == null) {
-							logger.debug("Completed Future : " + peerDoc + " " + peerDoc.getPeers().size());
+							LOG.debug("Completed Future : " + peerDoc + " " + peerDoc.getPeers().size());
 						} else {
-							logger.error("UNcompleted Future for peerDoc: " + peerDoc, ex);
+							LOG.error("UNcompleted Future for peerDoc: " + peerDoc, ex);
 						}
 						return peerDoc;
 					});
 		} catch (final Exception e) {
-			logger.error("TODO : stop  findPeers : " + e.getMessage());
+			LOG.error("TODO : stop  findPeers : " + e.getMessage());
 		}
 		return null;
 	}
@@ -126,13 +126,13 @@ public class PeeringService {
 	@Transactional
 	@RequestMapping("/")
 	public List<String> index() {
-		logger.info("Entering /network/ ... ");
+		LOG.info("Entering /network/ ... ");
 		return endPointRepo.enpointsURL();
 	}
 
 	@RequestMapping(value = "/html", method = RequestMethod.GET)
 	public String init(@ModelAttribute("model") ModelMap model) {
-		logger.info("Entering /network/html ... ");
+		LOG.info("Entering /network/html ... ");
 		model.addAttribute("carList", "huhu");
 		return "index";
 	}
@@ -141,13 +141,13 @@ public class PeeringService {
 	@RequestMapping(value = "/peers", method = RequestMethod.GET)
 	public PeerDoc peers() {
 
-		logger.info("Entering /network/peers ...");
+		LOG.info("Entering /network/peers ...");
 
 		try (var peers = peerRepo.streamAllPeers()) {
 			final var peerL = peers.collect(Collectors.toList());
 			return new PeerDoc(peerL);
 		} catch (final Exception e) {
-			logger.error("PeeringService.peers() peerRepo.streamAllPeers ->  ", e);
+			LOG.error("PeeringService.peers() peerRepo.streamAllPeers ->  ", e);
 		}
 		return null;
 	}

@@ -10,15 +10,15 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 
 public class EndpointsListener implements ApplicationListener {
 
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger LOG = LogManager.getLogger();
 
 	@Override
 	public void onApplicationEvent(ApplicationEvent event) {
-		logger.info("onApplicationEvent");
+		LOG.info("onApplicationEvent");
 		if (event instanceof ContextRefreshedEvent) {
 			ApplicationContext applicationContext = ((ContextRefreshedEvent) event).getApplicationContext();
 			applicationContext.getBean(RequestMappingHandlerMapping.class).getHandlerMethods().forEach((r, h) -> {
-				logger.info(" - " + r + ", " + h);
+				LOG.info(" - " + r + ", " + h);
 			});
 		}
 	}

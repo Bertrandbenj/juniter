@@ -18,6 +18,13 @@ import com.google.common.collect.Lists;
 import juniter.core.validation.GlobalValid;
 import juniter.repository.jpa.BlockRepository;
 
+/**
+ * The simplest possible implementation of the GlobalValid interface in pure
+ * java
+ *
+ * @author BnimajneB
+ *
+ */
 public class Index implements GlobalValid {
 
 	private static final Logger LOG = LogManager.getLogger();

@@ -13,7 +13,7 @@ import juniter.core.model.tx.OutCondition.Or;
 import juniter.core.model.tx.OutCondition.SIG;
 import juniter.core.model.tx.OutCondition.XHX;
 
-public class OutConditionTest {
+public class TestOutCondition {
 	private static final Logger log = LogManager.getLogger();
 
 	public final String _singleSIG = "SIG(HsLShAtzXTVxeUtQd7yi5Z5Zh4zNvbu8sTEZ53nfKcqY)";

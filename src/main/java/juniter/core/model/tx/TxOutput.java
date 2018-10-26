@@ -7,6 +7,8 @@ import javax.persistence.Embeddable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import juniter.core.model.DUPComponent;
+
 /**
  * It follows a machine-readable BNF grammar composed of <br>
  *
@@ -23,7 +25,7 @@ import org.apache.logging.log4j.Logger;
  *
  */
 @Embeddable
-public class TxOutput implements Serializable, Comparable<TxOutput> {
+public class TxOutput implements Serializable, Comparable<TxOutput>, DUPComponent {
 
 	public enum OutFunction {
 		SIG("SIG"), XHX("XHX"), CLTV("CLTV"), CSV("CSV");
@@ -42,7 +44,7 @@ public class TxOutput implements Serializable, Comparable<TxOutput> {
 	}
 
 	private static final long serialVersionUID = 2208036347838232516L;
-	static final Logger logger = LogManager.getLogger();
+	static final Logger LOG = LogManager.getLogger();
 	private Integer base;
 	private Integer amount;
 
@@ -69,7 +71,7 @@ public class TxOutput implements Serializable, Comparable<TxOutput> {
 	}
 
 	public String getOutput() {
-		return amount + ":" + base + ":" + getOutputCondition();
+		return toDUP();
 	}
 
 	public String getOutputCondition() {
@@ -85,7 +87,7 @@ public class TxOutput implements Serializable, Comparable<TxOutput> {
 	}
 
 	public void setOutput(String output) {
-		logger.debug("Parsing TxOutput... " + output);
+		//		LOG.debug("Parsing TxOutput... " + output);
 
 		final var vals = output.split(":");
 		amount = Integer.valueOf(vals[0]);
@@ -93,13 +95,18 @@ public class TxOutput implements Serializable, Comparable<TxOutput> {
 		try {
 			condition = OutCondition.parse(vals[2]).toString();
 		} catch (final Exception e) {
-			logger.error("Error parsing " + output, e);
+			LOG.error("Error parsing " + output, e);
 		}
 	}
 
 	@Override
+	public String toDUP() {
+		return amount + ":" + base + ":" + getOutputCondition();
+	}
+
+	@Override
 	public String toString() {
-		return getOutput();
+		return toDUP();
 	}
 
 }

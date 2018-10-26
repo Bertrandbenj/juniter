@@ -92,7 +92,7 @@ springBoot {
 
 bootRun {
 	enableAssertions = true // !!  BR_G[0-108] assertion
-	jvmArgs = ["-agentlib:jdwp=transport=dt_socket,server=y,address=8000,suspend=n"]
+	jvmArgs = ["-agentlib:jdwp=transport=dt_socket,server=y,address=5005,suspend=y"]
 }
 
 repositories {
@@ -213,12 +213,14 @@ test {
 // more infos : https://moelholm.com/2016/10/22/spring-boot-separating-tests/
 	useJUnit {
         exclude '**/*IntegrationTests.class'
+        exclude '**/*ITest.class'
     }
 }
 
 task integrationTest(type: Test) {
     useJUnit {
         include '**/*IntegrationTests.class'
+        include '**/*ITest.class'
     }
 }
 

@@ -17,7 +17,7 @@ public class Active implements Serializable, Comparable<Active> {
 
 	private static final long serialVersionUID = -5880074424437322665L;
 
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger LOG = LogManager.getLogger();
 
 	@Valid
 	@AttributeOverride(name = "pubkey", column = @Column(name = "active"))
@@ -57,7 +57,7 @@ public class Active implements Serializable, Comparable<Active> {
 
 	public void setActive(String leaver) {
 
-		logger.info("Parsing Active... " + leaver);
+		LOG.info("Parsing Active... " + leaver);
 		final var vals = leaver.split(":");
 		active.setPubkey(vals[0]);
 		signature = vals[1];

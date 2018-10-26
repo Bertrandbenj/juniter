@@ -5,8 +5,6 @@ import static java.util.stream.Collectors.toList;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import javax.persistence.AttributeOverride;
@@ -62,7 +60,7 @@ import juniter.core.utils.Constants;
 @Table(name = "block", schema = "public") // , indexes = @Index(columnList = "number,hash"))
 @JsonIgnoreProperties(ignoreUnknown = true)
 @IdClass(BStamp.class)
-public class Block implements Serializable {
+public class Block implements Serializable, DUPComponent {
 
 	private static final long serialVersionUID = -4464417074968456696L;
 
@@ -105,7 +103,7 @@ public class Block implements Serializable {
 	private Signature signature = new Signature();
 
 	@Valid
-//	@AttributeOverride(name = "hash", column = @Column(name = "hash"))
+	//	@AttributeOverride(name = "hash", column = @Column(name = "hash"))
 	@Id
 	protected String hash;// = new Hash();
 
@@ -133,37 +131,37 @@ public class Block implements Serializable {
 
 	@Valid
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	private Set<Identity> identities = new TreeSet<Identity>();
+	private List<Identity> identities = new ArrayList<Identity>();
 
 	@Valid
 	@ElementCollection(fetch = FetchType.EAGER)
 	@CollectionTable(name = "wot_joiners", joinColumns = { @JoinColumn(name = "number"), @JoinColumn(name = "hash") })
-	private Set<Joiner> joiners = new TreeSet<Joiner>();
+	private List<Joiner> joiners = new ArrayList<Joiner>();
 
 	@Valid
 	@ElementCollection(fetch = FetchType.EAGER)
 	@CollectionTable(name = "wot_actives", joinColumns = { @JoinColumn(name = "number"), @JoinColumn(name = "hash") })
-	private Set<Active> actives = new TreeSet<Active>();
+	private List<Active> actives = new ArrayList<Active>();
 
 	@Valid
 	@ElementCollection(fetch = FetchType.EAGER)
 	@CollectionTable(name = "wot_leavers", joinColumns = { @JoinColumn(name = "number"), @JoinColumn(name = "hash") })
-	private Set<Leaver> leavers = new TreeSet<>();
+	private List<Leaver> leavers = new ArrayList<>();
 
 	@Valid
 	@ElementCollection(fetch = FetchType.EAGER)
 	@CollectionTable(name = "wot_revoked", joinColumns = { @JoinColumn(name = "number"), @JoinColumn(name = "hash") })
-	private Set<Revoked> revoked = new TreeSet<>();
+	private List<Revoked> revoked = new ArrayList<>();
 
 	@Valid
 	@ElementCollection(fetch = FetchType.EAGER)
-//	@OneToMany(cascade = CascadeType.ALL)
+	//	@OneToMany(cascade = CascadeType.ALL)
 	@CollectionTable(name = "wot_excluded", joinColumns = { @JoinColumn(name = "number"), @JoinColumn(name = "hash") })
-	private Set<Excluded> excluded = new TreeSet<>();
+	private List<Excluded> excluded = new ArrayList<>();
 
 	@Valid
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	private Set<Certification> certifications = new TreeSet<>();
+	private List<Certification> certifications = new ArrayList<>();
 
 	@Valid
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
@@ -180,7 +178,7 @@ public class Block implements Serializable {
 	/**
 	 * @return the active
 	 */
-	public Set<Active> getActives() {
+	public List<Active> getActives() {
 		return actives;
 	}
 
@@ -191,7 +189,7 @@ public class Block implements Serializable {
 	/**
 	 * @return the certifications
 	 */
-	public Set<Certification> getCertifications() {
+	public List<Certification> getCertifications() {
 		return certifications; // .stream().map(c -> c.getCertif()).collect(Collectors.toList());
 	}
 
@@ -212,7 +210,7 @@ public class Block implements Serializable {
 	/**
 	 * @return the excluded
 	 */
-	public Set<Excluded> getExcluded() {
+	public List<Excluded> getExcluded() {
 		return excluded; // .stream().map(Excluded::toString).collect(Collectors.toList());
 	}
 
@@ -226,16 +224,16 @@ public class Block implements Serializable {
 	/**
 	 * @return the identities
 	 */
-	public Set<Identity> getIdentities() {
+	public List<Identity> getIdentities() {
 		return identities;// .stream().map(id -> id.getIdentity()).collect(Collectors.toList());
 	}
 
 	/**
 	 * @return the id
 	 */
-//	protected Long getId() {
-//		return id;
-//	}
+	//	protected Long getId() {
+	//		return id;
+	//	}
 
 	/**
 	 * @return the inner_hash
@@ -277,14 +275,14 @@ public class Block implements Serializable {
 	/**
 	 * @return the joiners
 	 */
-	public Set<Joiner> getJoiners() {
+	public List<Joiner> getJoiners() {
 		return joiners;// .stream().map(Joiner::toString).collect(Collectors.toList());
 	}
 
 	/**
 	 * @return the leavers
 	 */
-	public Set<Leaver> getLeavers() {
+	public List<Leaver> getLeavers() {
 		return leavers; // .stream().map(Leaver::toString).collect(Collectors.toList());
 	}
 
@@ -368,7 +366,7 @@ public class Block implements Serializable {
 	/**
 	 * @return the revoked
 	 */
-	public Set<Revoked> getRevoked() {
+	public List<Revoked> getRevoked() {
 		return revoked; // .stream().map(Revoked::toString).collect(Collectors.toList());
 	}
 
@@ -409,27 +407,27 @@ public class Block implements Serializable {
 		return version;
 	}
 
-	public void setActives(Set<Active> actives) {
+	public void setActives(List<Active> actives) {
 		this.actives = actives;
 	}
 
-	public void setCertifications(Set<Certification> certifications) {
+	public void setCertifications(List<Certification> certifications) {
 		this.certifications = certifications;
 	}
-
-//	public Long id() {
-//		return id;
-//	}
 
 	public void setCurrency(String currency) {
 		this.currency = currency;
 	}
 
+	//	public Long id() {
+	//		return id;
+	//	}
+
 	public void setDividend(Integer dividend) {
 		this.dividend = dividend;
 	}
 
-	public void setExcluded(Set<Excluded> excluded) {
+	public void setExcluded(List<Excluded> excluded) {
 		this.excluded = excluded;
 	}
 
@@ -437,17 +435,17 @@ public class Block implements Serializable {
 		this.hash = hash;
 	}
 
-	public void setIdentities(Set<Identity> identities) {
+	public void setIdentities(List<Identity> identities) {
 		this.identities = identities;
 	}
-
-//	public void setId(Long id) {
-//		this.id = id;
-//	}
 
 	public void setInner_hash(Hash inner_hash) {
 		this.inner_hash = inner_hash;
 	}
+
+	//	public void setId(Long id) {
+	//		this.id = id;
+	//	}
 
 	public void setIssuersCount(Integer issuersCount) {
 		this.issuersCount = issuersCount;
@@ -461,11 +459,11 @@ public class Block implements Serializable {
 		this.issuersFrameVar = issuersFrameVar;
 	}
 
-	public void setJoiners(Set<Joiner> joiners) {
+	public void setJoiners(List<Joiner> joiners) {
 		this.joiners = joiners;
 	}
 
-	public void setLeavers(Set<Leaver> leavers) {
+	public void setLeavers(List<Leaver> leavers) {
 		this.leavers = leavers;
 	}
 
@@ -505,7 +503,7 @@ public class Block implements Serializable {
 		this.previousIssuer = previousIssuer;
 	}
 
-	public void setRevoked(Set<Revoked> revoked) {
+	public void setRevoked(List<Revoked> revoked) {
 		this.revoked = revoked;
 	}
 
@@ -532,15 +530,24 @@ public class Block implements Serializable {
 		this.version = version;
 	}
 
+	public String signedPart() {
+		return "InnerHash: " + inner_hash + "\n" +
+				"Nonce: " + nonce + "\n";
+	}
+
+	public String signedPartSigned() {
+		return signedPart() + signature + "\n";
+	}
+
 	/**
 	 * <pre>
 	BlockSize
-	
+
 	The block size is defined as the number of lines in multiline fields (Identities, Joiners, Actives, Leavers, Revoked, Certifications, Transactions) except Excluded field.
-	
+
 	For example:
-	
-	
+
+
 	1 new identity + 1 joiner + 2 certifications = 4 lines sized block
 	1 new identity + 1 joiner + 2 certifications + 5 lines transaction = 9 lines sized block
 	 * </pre>
@@ -550,29 +557,49 @@ public class Block implements Serializable {
 	public Integer size() {
 
 		return identities.size() + joiners.size() + actives.size() + leavers.size() + revoked.size()
-				+ certifications.size() + transactions.size();
+		+ certifications.size() + transactions.size();
 	}
 
+	@Override
 	public String toDUP() {
-		return toDUP(true);
+		return toDUP(true, true);
 	}
+
 
 	/**
 	 * Method returning block as a Raw format
 	 *
 	 * @return
 	 */
-	public String toDUP(boolean withInnerHash) {
-		final var inner = withInnerHash ? "InnerHash: " + inner_hash + "\n" : "";
+	public String toDUP(boolean signed, boolean innerHash) {
+
 
 		final String div = dividend != null && dividend >= 1000 ? "\nUniversalDividend: " + dividend : "";
 
-		return "Version: " + version + "\nType: Block" + "\nCurrency: " + currency + "\nNumber: " + number
-				+ "\nPoWMin: " + powMin + "\nTime: " + getTime() + "\nMedianTime: " + getMedianTime() + div
-				+ "\nUnitBase: " + unitbase + "\nIssuer: " + issuer + "\nIssuersFrame: " + issuersFrame
-				+ "\nIssuersFrameVar: " + issuersFrameVar + "\nDifferentIssuersCount: " + issuersCount
-				+ "\nPreviousHash: " + previousHash + "\nPreviousIssuer: " + previousIssuer + "\nMembersCount: "
-				+ membersCount + "\nIdentities:\n"
+		String paramOrPrevious = "";
+		if (number.equals(0)) {
+			paramOrPrevious += "\nParameters: " + parameters;// 0.0488:86400:1000:432000:100:5259600:63115200:5:5259600:5259600:0.8:31557600:5:24:300:12:0.67:1488970800:1490094000:15778800";
+		} else {
+			paramOrPrevious += "\nPreviousHash: " + previousHash;
+			paramOrPrevious += "\nPreviousIssuer: " + previousIssuer;
+		}
+
+		return "Version: " + version +
+				"\nType: Block" +
+				"\nCurrency: " + currency +
+				"\nNumber: " + number +
+				"\nPoWMin: " + powMin +
+				"\nTime: " + getTime() +
+				"\nMedianTime: " + getMedianTime() +
+				div +
+				"\nUnitBase: " + unitbase +
+				"\nIssuer: " + issuer +
+				"\nIssuersFrame: " + issuersFrame +
+				"\nIssuersFrameVar: " + issuersFrameVar +
+				"\nDifferentIssuersCount: " + issuersCount +
+				paramOrPrevious +
+				"\nMembersCount: " + membersCount +
+				"\nIdentities:\n"
 				+ identities.stream().map(Identity::toString).collect(Collectors.joining("\n"))
 				+ (identities.size() > 0 ? "\n" : "") + "Joiners:\n"
 				+ joiners.stream().map(Joiner::toDUP).collect(Collectors.joining("\n"))
@@ -587,9 +614,11 @@ public class Block implements Serializable {
 				+ (excluded.size() > 0 ? "\n" : "") + "Certifications:\n"
 				+ certifications.stream().map(Certification::toDUP).collect(Collectors.joining("\n"))
 				+ (certifications.size() > 0 ? "\n" : "") + "Transactions:\n"
-				+ transactions.stream().map(Transaction::toDUP).collect(Collectors.joining("\n"))
+				+ transactions.stream().map(tx -> tx.toDUPshort(true)).collect(Collectors.joining("\n"))
 				+ (transactions.size() > 0 ? "\n" : "") //
-				+ inner + "Nonce: " + nonce + "\n";
+				+ (innerHash ? "InnerHash: " + inner_hash : "")
+				+ (signed || innerHash ? "\nNonce: " + nonce + "\n" : "")
+				+ (signed ? signature : "");
 	}
 
 	/**

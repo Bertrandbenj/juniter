@@ -35,7 +35,7 @@ import juniter.repository.jpa.BlockRepository;
 @Order(2)
 public class TrustedLoader {
 
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger LOG = LogManager.getLogger();
 
 	@Value("#{'${juniter.network.trusted}'.split(',')}")
 	private List<String> trustedSources;
@@ -61,11 +61,11 @@ public class TrustedLoader {
 		final var start = System.nanoTime();
 		final var lastBLock = fetchAndSaveBlock("current").getNumber();
 		if (blockRepo.count() > 8000) {
-			logger.warn(" = Ignore bulk loading " + blockRepo.count() + " blocks");
+			LOG.warn(" = Ignore bulk loading " + blockRepo.count() + " blocks");
 			return;
 		}
 
-		logger.info(" ======== Start BulkLoading ======== " + blockRepo.count() + " blocks");
+		LOG.info(" ======== Start BulkLoading ======== " + blockRepo.count() + " blocks");
 
 		final var nbPackage = Integer.divideUnsigned(lastBLock, bulkSize);
 
@@ -83,7 +83,7 @@ public class TrustedLoader {
 
 		final var elapsed = Long.divideUnsigned(System.nanoTime() - start, 1000000);
 
-		logger.info("Bulkloaded " + result.size() + " in " + elapsed + " ms");
+		LOG.info("Bulkloaded " + result.size() + " in " + elapsed + " ms");
 	}
 
 	/**
@@ -105,7 +105,7 @@ public class TrustedLoader {
 	public Block fetchAndSaveBlock(String id) {
 		final var node = any();
 		final var url = node + "blockchain/" + id;
-		logger.info("Fetching block : " + url);
+		LOG.info("Fetching block : " + url);
 		Block block = null;
 		try {
 			TimeUnit.MILLISECONDS.sleep(200);
@@ -113,13 +113,13 @@ public class TrustedLoader {
 			block = blockRepo.block(block.getNumber()).orElse(block);
 			block = blockRepo.save(block);
 
-			logger.info("... saved block : " + block);
+			LOG.info("... saved block : " + block);
 
 		} catch (final Exception e) {
 //			synchronized (trustedSources) {
 //				trustedSources.remove(node);
 //			}
-			logger.error("Problem on node " + node + " " + trustedSources, e);
+			LOG.error("Problem on node " + node + " " + trustedSources, e);
 		}
 
 		return block;
@@ -143,11 +143,11 @@ public class TrustedLoader {
 			final var contentType = responseEntity.getHeaders().getContentType().toString();
 			final var statusCode = responseEntity.getStatusCode().getReasonPhrase();
 
-			logger.info("Fetched: " + url + "... Status: " + statusCode + " ContentType: " + contentType);
+			LOG.info("Fetched: " + url + "... Status: " + statusCode + " ContentType: " + contentType);
 			return body;
 
 		} catch (final InterruptedException e) {
-			logger.error(Constants.Logs.INTERRUPTED);
+			LOG.error(Constants.Logs.INTERRUPTED);
 		} catch (final Exception e) {
 			e.printStackTrace();
 		}

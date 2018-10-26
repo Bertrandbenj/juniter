@@ -17,7 +17,7 @@ import juniter.repository.jpa.BlockRepository;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
-public class BlockRepositoryTest {
+public class BlockRepositoryITest {
 
 	@Autowired
 	private TestEntityManager entityManager;

@@ -6,7 +6,7 @@ import java.util.stream.Stream;
 
 import juniter.core.model.Block;
 
-public class LocalValidation implements LocalValid {
+public class LocalValidationFunctional implements LocalValid {
 
 	Function<Object, Boolean> isV10 = (x) -> {
 		if (x == null)

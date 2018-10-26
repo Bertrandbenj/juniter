@@ -13,7 +13,7 @@ import juniter.core.model.tx.TxType;
 
 public interface TxRepository extends JpaRepository<Transaction, Long> {
 
-	Logger logger = LogManager.getLogger();
+	Logger LOG = LogManager.getLogger();
 
 //	@Override
 //	Optional<Transaction> findById(Long id);
@@ -28,7 +28,7 @@ public interface TxRepository extends JpaRepository<Transaction, Long> {
 				.filter(t -> {
 					final var iss = t.getIssuers().iterator().next();
 					final var dest = t.getOutputs().iterator().next();
-					logger.info(iss.getPubkey() + " " + dest.getOutputCondition());
+					LOG.info(iss.getPubkey() + " " + dest.getOutputCondition());
 					return iss.getPubkey().equals(dest.getOutputCondition());
 				});
 	}

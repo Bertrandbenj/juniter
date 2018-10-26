@@ -30,7 +30,7 @@ import juniter.core.model.Signature;
 @Table(name = "identity", schema = "public")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Identity implements Serializable, Comparable<Identity> {
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger LOG = LogManager.getLogger();
 
 	private static final long serialVersionUID = -9160916061297193207L;
 
@@ -86,7 +86,7 @@ public class Identity implements Serializable, Comparable<Identity> {
 //	}
 
 	public void setIdentity(String identity) {
-		logger.debug("Parsing Identity... " + identity);
+		LOG.debug("Parsing Identity... " + identity);
 		final var vals = identity.split(":");
 		newidentity.setPubkey(vals[0]);
 		signature.setSignature(vals[1]);

@@ -1,6 +1,6 @@
 package juniter.service;
 
-public class SparkServiceTest {
+public class TestSparkService {
 
 	//	SparkSession sparkSession = SparkSession
 	//			.builder()

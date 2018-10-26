@@ -23,7 +23,7 @@ import juniter.repository.jpa.CertsRepository;
 @ConditionalOnExpression("${juniter.bma.enabled:false}")
 @RequestMapping("/wot")
 public class WotService {
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger LOG = LogManager.getLogger();
 
 	@Autowired
 	private CertsRepository wotRepo;
@@ -38,14 +38,14 @@ public class WotService {
 	
 	@RequestMapping(value = "/requirements/{pubkey}", method = RequestMethod.GET)
 	public String requirements(@PathVariable("pubkey") String pubkeyOrUid) {
-		logger.info("Entering /wot/requirements/{pubkey= " + pubkeyOrUid+ "}");
+		LOG.info("Entering /wot/requirements/{pubkey= " + pubkeyOrUid+ "}");
 		return "not implemented yet";
 	}
 
 	@Transactional(readOnly=true)
 	@RequestMapping(value = "/certifiers-of/{pubkeyOrUid}", method = RequestMethod.GET)
 	public List<Certification> certifiersOf(@PathVariable("pubkeyOrUid") String pubkeyOrUid) {
-		logger.info("Entering /wot/certifiers-of/{pubkeyOrUid= " + pubkeyOrUid+ "}");
+		LOG.info("Entering /wot/certifiers-of/{pubkeyOrUid= " + pubkeyOrUid+ "}");
 		
 		return wotRepo.streamCertifiersOf(pubkeyOrUid).collect(Collectors.toList());
 	}
@@ -53,26 +53,26 @@ public class WotService {
 	@Transactional(readOnly=true)
 	@RequestMapping(value = "/certified-by/{pubkeyOrUid}", method = RequestMethod.GET)
 	public List<Certification> certifiedBy(@PathVariable("pubkeyOrUid") String pubkeyOrUid) {
-		logger.info("Entering /wot/certified-by/{pubkeyOrUid= " + pubkeyOrUid+ "}");
+		LOG.info("Entering /wot/certified-by/{pubkeyOrUid= " + pubkeyOrUid+ "}");
 		return  wotRepo.streamCertifiedBy(pubkeyOrUid).collect(Collectors.toList());
 	}
 	
 	@RequestMapping(value = "/identity-of/{pubkeyOrUid}", method = RequestMethod.GET)
 	public String identityOf(@PathVariable("pubkeyOrUid") String pubkeyOrUid) {
-		logger.info("Entering /wot/identity-of/{pubkeyOrUid= " + pubkeyOrUid+ "}");
+		LOG.info("Entering /wot/identity-of/{pubkeyOrUid= " + pubkeyOrUid+ "}");
 		return "not implemented yet";
 	}
 
 
 	@RequestMapping(value = "/lookup/{pubkeyOrUid}", method = RequestMethod.GET)
 	public String lookup(@PathVariable("pubkeyOrUid") String pubkeyOrUid) {
-		logger.info("Entering /wot/lookup/{pubkeyOrUid= " + pubkeyOrUid+ "}");
+		LOG.info("Entering /wot/lookup/{pubkeyOrUid= " + pubkeyOrUid+ "}");
 		return "not implemented yet";
 	}
 	
 	@RequestMapping(value = "/members", method = RequestMethod.GET)
 	public String members() {
-		logger.info("Entering /wot/members");
+		LOG.info("Entering /wot/members");
 		return "not implemented yet";
 	}
 }

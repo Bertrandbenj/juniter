@@ -26,7 +26,6 @@ public class Signature implements Serializable, Comparable<Signature> {
 
 	@Override
 	public int compareTo(Signature o) {
-		// TODO Auto-generated method stub
 		return signature.compareTo(o.signature);
 	}
 

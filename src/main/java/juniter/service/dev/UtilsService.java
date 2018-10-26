@@ -30,7 +30,7 @@ import juniter.repository.jpa.BlockRepository;
 @RequestMapping("/utils")
 public class UtilsService {
 
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger LOG = LogManager.getLogger();
 
 
 	@Autowired
@@ -43,7 +43,7 @@ public class UtilsService {
 
 //	@RequestMapping(value = "/error")
 //	public String toError() {
-//		logger.info("Entering /blockchain/error");
+//		LOG.info("Entering /blockchain/error");
 //		return "redirect: /error.html";
 //	}
 
@@ -56,7 +56,7 @@ public class UtilsService {
 	 */
 	@RequestMapping(value = "/key/{secret}/{pass}", method = RequestMethod.GET)
 	public String key(@PathVariable("secret") String secret, @PathVariable("pass") String pass ) {
-		logger.info("Entering /key/{secret="+secret+"}/{pass="+pass+"}");
+		LOG.info("Entering /key/{secret="+secret+"}/{pass="+pass+"}");
 		SecretBox sb = new SecretBox(secret, pass);
 		return "/key/huhu/huhu  =>> 5vmjbDbjWZMYSNTi8sV3QrChAFdXj9Y7WZFAqzjJxmk6<br>Result :"+ sb.getPublicKey();
 	}

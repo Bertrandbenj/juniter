@@ -16,7 +16,7 @@ import juniter.repository.jpa.TxRepository;
 @Service
 public class GQLTxService {
 
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger LOG = LogManager.getLogger();
 
 	@Autowired
 	private TxRepository txRepository;
@@ -27,7 +27,7 @@ public class GQLTxService {
 		try (var txs = txRepository.findTxsHavingComment()) {
 			return txs.collect(Collectors.toList());
 		} catch (final Exception e) {
-			logger.error("findByCommentIsNotNull " + e);
+			LOG.error("findByCommentIsNotNull " + e);
 		}
 		return null;
 	}
@@ -38,7 +38,7 @@ public class GQLTxService {
 		try (var txs = txRepository.findTxsHavingTxInput()) {
 			return txs.collect(Collectors.toList());
 		} catch (final Exception e) {
-			logger.error("findTxsHavingTxInput " + e);
+			LOG.error("findTxsHavingTxInput " + e);
 		}
 		return null;
 	}
@@ -49,7 +49,7 @@ public class GQLTxService {
 		try (var txs = txRepository.findTxsWithMultipleOutputs()) {
 			return txs.collect(Collectors.toList());
 		} catch (final Exception e) {
-			logger.error("findTxWithMultipleOutputs " + e);
+			LOG.error("findTxWithMultipleOutputs " + e);
 		}
 		return null;
 	}
@@ -60,7 +60,7 @@ public class GQLTxService {
 		try (var txs = txRepository.findTxOneAndSameIssuerAndDest()) {
 			return txs.collect(Collectors.toList());
 		} catch (final Exception e) {
-			logger.error("findTxToOneself " + e);
+			LOG.error("findTxToOneself " + e);
 		}
 		return null;
 	}
@@ -71,7 +71,7 @@ public class GQLTxService {
 		try (var txs = txRepository.findTxWithMultipleIssuers()) {
 			return txs.collect(Collectors.toList());
 		} catch (final Exception e) {
-			logger.error("findTxWithMultipleIssuers " + e);
+			LOG.error("findTxWithMultipleIssuers " + e);
 		}
 		return null;
 	}
@@ -82,7 +82,7 @@ public class GQLTxService {
 		try (var txs = txRepository.findTxWithOtherThanSig()) {
 			return txs.collect(Collectors.toList());
 		} catch (final Exception e) {
-			logger.error("findTxWithOtherThanSig " + e);
+			LOG.error("findTxWithOtherThanSig " + e);
 		}
 		return null;
 	}

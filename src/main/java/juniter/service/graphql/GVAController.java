@@ -29,7 +29,7 @@ import io.leangen.graphql.metadata.strategy.value.jackson.JacksonValueMapperFact
 @ConditionalOnExpression("${juniter.graphql.enabled:false}")
 @RestController
 public class GVAController {
-	private static final Logger logger = LoggerFactory.getLogger(GVAController.class);
+	private static final Logger LOG = LoggerFactory.getLogger(GVAController.class);
 
 	private final GraphQL graphQL;
 
@@ -49,8 +49,8 @@ public class GVAController {
 			produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public Map<String, Object> graphql(@RequestBody Map<String, String> request, HttpServletRequest raw) {
-		logger.info("[POST] /graphql ");
-		logger.debug(" - " + request.get("query"));
+		LOG.info("[POST] /graphql ");
+		LOG.debug(" - " + request.get("query"));
 
 		final var executionResult = graphQL.execute(//
 				ExecutionInput.newExecutionInput() //

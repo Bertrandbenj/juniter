@@ -9,11 +9,10 @@ import org.junit.Test;
 import juniter.core.crypto.CryptoUtils;
 import juniter.core.crypto.SecretBox;
 
-public class CryptoTest {
+public class TestCrypto {
 
 	private static final Logger LOG = LogManager.getLogger();
 
-	final SecretBox secretBox = new SecretBox("salt", "password");
 
 
 	@Test
@@ -26,11 +25,11 @@ public class CryptoTest {
 				+ "Issuer: 4tsFXtKofD6jK8zwLymgXWAoMBzhFx7KNANhtK86mKzA\n" //
 				+ "UniqueID: AlainLebrun\n" //
 				+ "Timestamp: 1184-00000C17FA48A4681377DFA9BF1CE747CE82B869E694EC9E41F9F530C45E8F19\n"
-		// + signature
-		;
+				// + signature
+				;
 
-//		final String unsignedInlined = "4tsFXtKofD6jK8zwLymgXWAoMBzhFx7KNANhtK86mKzA:L4AiZBYrmriQT3+r/WIpxobEnX2pdPgDg7Cf50vJ74c0GsL1CaEfJ3JmbqwARvzNkiewB3GR77gxFjZDIM0XAg==:1184-00000C17FA48A4681377DFA9BF1CE747CE82B869E694EC9E41F9F530C45E8F19:AlainLebrun";
-//		final var sign = secretBox.sign(unsignedDoc);
+		//		final String unsignedInlined = "4tsFXtKofD6jK8zwLymgXWAoMBzhFx7KNANhtK86mKzA:L4AiZBYrmriQT3+r/WIpxobEnX2pdPgDg7Cf50vJ74c0GsL1CaEfJ3JmbqwARvzNkiewB3GR77gxFjZDIM0XAg==:1184-00000C17FA48A4681377DFA9BF1CE747CE82B869E694EC9E41F9F530C45E8F19:AlainLebrun";
+		//		final var sign = secretBox.sign(unsignedDoc);
 
 		LOG.info("en theorie : " + signature + "\ngot ");
 
@@ -39,31 +38,11 @@ public class CryptoTest {
 	}
 
 	@Test
-	public void testDoc2() {
-
-		final String signature = "J3G9oM5AKYZNLAB5Wx499w61NuUoS57JVccTShUbGpCMjCqj9yXXqNq7dyZpDWA6BxipsiaMZhujMeBfCznzyci";
-		final String unsignedDoc = "Version: 10\n" //
-				+ "Type: Identity\n" //
-				+ "Currency: beta_brousouf\n" //
-				+ "Issuer: HgTTJLAQ5sqfknMq7yLPZbehtuLSsKj9CxWN7k8QvYJd\n" //
-				+ "UniqueID: lolcat\n" //
-				+ "Timestamp: 32-DB30D958EE5CB75186972286ED3F4686B8A1C2CD"
-		// + signature
-		;
-
-//		final String unsignedInlined = "4tsFXtKofD6jK8zwLymgXWAoMBzhFx7KNANhtK86mKzA:L4AiZBYrmriQT3+r/WIpxobEnX2pdPgDg7Cf50vJ74c0GsL1CaEfJ3JmbqwARvzNkiewB3GR77gxFjZDIM0XAg==:1184-00000C17FA48A4681377DFA9BF1CE747CE82B869E694EC9E41F9F530C45E8F19:AlainLebrun";
-//		final var sign = secretBox.sign(unsignedDoc);
-
-		LOG.info("en theorie : " + signature + "\ngot ");
-
-		assertTrue(CryptoUtils.verify(unsignedDoc, signature, "HgTTJLAQ5sqfknMq7yLPZbehtuLSsKj9CxWN7k8QvYJd"));
-
-	}
-
-	@Test
 	public void testSignature() {
 
+		final SecretBox secretBox = new SecretBox("salt", "password");
 		final var test = "testSignature";
+
 
 		final var pubkey = secretBox.getPublicKey();
 		assertTrue("3LJRrLQCio4GL7Xd48ydnYuuaeWAgqX4qXYFbXDTJpAa".equals(pubkey));

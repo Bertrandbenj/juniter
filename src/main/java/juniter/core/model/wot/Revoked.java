@@ -17,7 +17,7 @@ public class Revoked implements Serializable, Comparable<Revoked> {
 
 	private static final long serialVersionUID = 2875594811917743111L;
 
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger LOG = LogManager.getLogger();
 
 	@Valid
 	@AttributeOverride(name = "pubkey", column = @Column(name = "revoked"))
@@ -48,7 +48,7 @@ public class Revoked implements Serializable, Comparable<Revoked> {
 
 	public void setRevoked(String rev) {
 
-		logger.info("Parsing Revoked... " + rev);
+		LOG.info("Parsing Revoked... " + rev);
 		final var vals = rev.split(":");
 		revoked.setPubkey(vals[0]);
 		signature = vals[1];

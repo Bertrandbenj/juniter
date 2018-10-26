@@ -36,7 +36,7 @@ import juniter.service.bma.model.WithWrapper;
 @Order(3)
 public class UsefulBlocksLoader implements CommandLineRunner {
 
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger LOG = LogManager.getLogger();
 
 	@Autowired
 	BlockRepository blockRepo;
@@ -50,47 +50,47 @@ public class UsefulBlocksLoader implements CommandLineRunner {
 	@Transactional
 	private List<Integer> fetchUsefullBlocks() {
 		final String url = trustedLoader.any() + "blockchain/with/";
-		logger.info("Loading from : " + url);
+		LOG.info("Loading from : " + url);
 		final List<Integer> res = new ArrayList<>();
 		try {
 
 			var ww = restTemplate.getForObject(url + "tx", WithWrapper.class);
-			logger.info(" - Fetching Tx List : " + ww.getResult().getBlocks().size());
+			LOG.info(" - Fetching Tx List : " + ww.getResult().getBlocks().size());
 			res.addAll(ww.getResult().getBlocks());
 
 			ww = restTemplate.getForObject(url + "certs", WithWrapper.class);
-			logger.info(" - Fetching Certs List : " + ww.getResult().getBlocks().size());
+			LOG.info(" - Fetching Certs List : " + ww.getResult().getBlocks().size());
 			res.addAll(ww.getResult().getBlocks());
 
 			ww = restTemplate.getForObject(url + "newcomers", WithWrapper.class);
-			logger.info(" - Fetching NewComers List : " + ww.getResult().getBlocks().size());
+			LOG.info(" - Fetching NewComers List : " + ww.getResult().getBlocks().size());
 			res.addAll(ww.getResult().getBlocks());
 
 			ww = restTemplate.getForObject(url + "leavers", WithWrapper.class);
-			logger.info(" - Fetching Leavers List : " + ww.getResult().getBlocks().size());
+			LOG.info(" - Fetching Leavers List : " + ww.getResult().getBlocks().size());
 			res.addAll(ww.getResult().getBlocks());
 
 			ww = restTemplate.getForObject(url + "revoked", WithWrapper.class);
-			logger.info(" - Fetching Revoked List : " + ww.getResult().getBlocks().size());
+			LOG.info(" - Fetching Revoked List : " + ww.getResult().getBlocks().size());
 			res.addAll(ww.getResult().getBlocks());
 
 			ww = restTemplate.getForObject(url + "excluded", WithWrapper.class);
-			logger.info(" - Fetching Excluded List : " + ww.getResult().getBlocks().size());
+			LOG.info(" - Fetching Excluded List : " + ww.getResult().getBlocks().size());
 			res.addAll(ww.getResult().getBlocks());
 
 			ww = restTemplate.getForObject(url + "actives", WithWrapper.class);
-			logger.info(" - Fetching Actives List : " + ww.getResult().getBlocks().size());
+			LOG.info(" - Fetching Actives List : " + ww.getResult().getBlocks().size());
 			res.addAll(ww.getResult().getBlocks());
 
 			ww = restTemplate.getForObject(url + "ud", WithWrapper.class);
-			logger.info(" - Fetching UD List : " + ww.getResult().getBlocks().size());
+			LOG.info(" - Fetching UD List : " + ww.getResult().getBlocks().size());
 			res.addAll(ww.getResult().getBlocks());
 
 			final var list = res.stream().distinct().sorted().collect(toList());
-			logger.info(" - Fetching Total " + list.size());
+			LOG.info(" - Fetching Total " + list.size());
 			return list;
 		} catch (final Exception e) {
-			logger.error(e);
+			LOG.error(e);
 		}
 		return new ArrayList<>();
 	}
@@ -107,7 +107,7 @@ public class UsefulBlocksLoader implements CommandLineRunner {
 				.collect(toList());
 
 		final var elapsed = Long.divideUnsigned(System.nanoTime() - start, 1000000);
-		logger.info("Elapsed time: " + elapsed + "ms");
+		LOG.info("Elapsed time: " + elapsed + "ms");
 	}
 
 }

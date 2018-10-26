@@ -17,7 +17,7 @@ public class Excluded implements Serializable, Comparable<Excluded> {
 
 	private static final long serialVersionUID = -8542771529353910205L;
 
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger LOG = LogManager.getLogger();
 
 	@Valid
 	@AttributeOverride(name = "pubkey", column = @Column(name = "joinerKey"))
@@ -41,7 +41,7 @@ public class Excluded implements Serializable, Comparable<Excluded> {
 	}
 
 	public void setJoiner(String joiner) {
-		logger.info("Parsing Excluded... " + joiner);
+		LOG.info("Parsing Excluded... " + joiner);
 		final var vals = joiner.split(":");
 		excluded.setPubkey(vals[0]);
 	}

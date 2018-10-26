@@ -17,7 +17,7 @@ public class Leaver implements Serializable, Comparable<Leaver> {
 
 	private static final long serialVersionUID = -4288798570176707871L;
 
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger LOG = LogManager.getLogger();
 
 	@Valid
 	@AttributeOverride(name = "pubkey", column = @Column(name = "leaver"))
@@ -57,7 +57,7 @@ public class Leaver implements Serializable, Comparable<Leaver> {
 
 	public void setLeaver(String leaver) {
 
-		logger.info("Parsing Leaver... " + leaver);
+		LOG.info("Parsing Leaver... " + leaver);
 		final var vals = leaver.split(":");
 		this.leaver.setPubkey(vals[0]);
 		signature = vals[1];

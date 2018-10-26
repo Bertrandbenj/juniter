@@ -19,7 +19,7 @@ import juniter.service.bma.model.BlockDTO;
 @Service
 public class BlockService {
 
-	private static final Logger logger = LoggerFactory.getLogger(BlockService.class);
+	private static final Logger LOG = LoggerFactory.getLogger(BlockService.class);
 
 	@Autowired
 	private BlockRepository blockRepository;
@@ -30,7 +30,7 @@ public class BlockService {
 //	@Transactional
 //	@GraphQLQuery(name = "bblock", description = "return the valid block for the given number")
 //	public Optional<Block> getbBlock(@GraphQLArgument(name = "number") Integer number) {
-//		logger.info(" - /graphql/block/{number} ");
+//		LOG.info(" - /graphql/block/{number} ");
 //		return blockRepository.findTop1ByNumber(number);
 //	}
 
@@ -43,7 +43,7 @@ public class BlockService {
 	@Transactional
 	@GraphQLQuery(name = "block", description = "return the valid block for the given number")
 	public Optional<BlockDTO> getBlock(@GraphQLArgument(name = "number") Integer number) {
-		logger.info(" - /graphql/block/{number} ");
+		LOG.info(" - /graphql/block/{number} ");
 		return blockRepository.findTop1ByNumber(number).map(b -> modelMapper.map(b, BlockDTO.class));
 	}
 
@@ -55,7 +55,7 @@ public class BlockService {
 			return bl.map(b -> modelMapper.map(b, BlockDTO.class))//
 					.collect(Collectors.toList());
 		} catch (final Exception e) {
-			logger.error("blocks ", e);
+			LOG.error("blocks ", e);
 			return null;
 		}
 	}

@@ -26,7 +26,7 @@ import org.apache.logging.log4j.Logger;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import juniter.core.utils.Constants;
-import juniter.core.validation.Validator;
+import juniter.core.validation.NetValid;
 
 /**
  * ex : [ "BASIC_MERKLED_API metab.ucoin.io 88.174.120.187 9201" ]
@@ -40,7 +40,7 @@ import juniter.core.validation.Validator;
 public class EndPoint implements Serializable {
 
 	private static final long serialVersionUID = -165962007943111454L;
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger LOG = LogManager.getLogger();
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -119,7 +119,7 @@ public class EndPoint implements Serializable {
 		
 		if(!res.endsWith("/"))
 			res+="/";
-		logger.debug("url: " +res);
+		LOG.debug("url: " +res);
 		return res;
 	}
 	
@@ -142,7 +142,7 @@ public class EndPoint implements Serializable {
 
 	public EndPoint(String endPT) {
 		this.setEndpoint(endPT);
-		//logger.info("Endpoint parsed " + reconstitute());
+		//LOG.info("Endpoint parsed " + reconstitute());
 	}
 
 	public String reconstitute() {
@@ -161,19 +161,19 @@ public class EndPoint implements Serializable {
 			
 			String item = it[i];
 			values.add(item);
-			if (Validator.validatePortNumber(item)) {
+			if (NetValid.validatePortNumber(item)) {
 				port = item; continue;
 			}
-			if (Validator.validateIP4Address(item)) {
+			if (NetValid.validateIP4Address(item)) {
 				ip4 = item; continue;
 			}
-			if (Validator.validateIP6Address(item)) {
+			if (NetValid.validateIP6Address(item)) {
 				ip6 = item; continue;
 			}
-			if (Validator.validateDomain(item) || Validator.validateDomain2(item)) {
+			if (NetValid.validateDomain(item) || NetValid.validateDomain2(item)) {
 				domain = item; continue;
 			}
-			if (Validator.validateWS2PSTH(item)) {
+			if (NetValid.validateWS2PSTH(item)) {
 				tree = item; continue;
 			}
 			other = item;

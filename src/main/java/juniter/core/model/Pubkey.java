@@ -15,7 +15,7 @@ import juniter.core.utils.Constants;
 @Embeddable
 public class Pubkey implements Serializable, Comparable<Pubkey> {
 
-	private static final Logger logger = LoggerFactory.getLogger(Pubkey.class);
+	private static final Logger LOG = LoggerFactory.getLogger(Pubkey.class);
 
 	private static final long serialVersionUID = -1179432682292981009L;
 

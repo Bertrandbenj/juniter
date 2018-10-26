@@ -83,7 +83,7 @@ public class GraphvizService {
 		}
 	}
 
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger LOG = LogManager.getLogger();
 
 	private static final String svgFile = "src/main/resources/static/dot/%s.svg";
 
@@ -97,7 +97,7 @@ public class GraphvizService {
 	 */
 	public static Object run(String cmd) {
 		try {
-			logger.info("Executing : " + cmd);
+			LOG.info("Executing : " + cmd);
 			final Process process = new ProcessBuilder(new String[] { "bash", "-c", cmd }).start();
 
 			final ArrayList<String> output = new ArrayList<>();
@@ -105,7 +105,7 @@ public class GraphvizService {
 			String line = null;
 			while ((line = br.readLine()) != null) {
 				output.add(line);
-				logger.info(line);
+				LOG.info(line);
 			}
 			// There should really be a timeout here.
 			if (0 != process.waitFor())
@@ -378,10 +378,10 @@ public class GraphvizService {
 		var outContent = "";
 		var gv = "";
 
-		logger.info("[GET] /graphviz/{}/{}/{}", fileType, output, identifier);
+		LOG.info("[GET] /graphviz/{}/{}/{}", fileType, output, identifier);
 
 		extraParams.forEach((k, v) -> {
-			logger.info("  -  {} -> {} ", k, v);
+			LOG.info("  -  {} -> {} ", k, v);
 			// headers.setAtt(k, Arrays.asList(v));
 			// TODO: forward parameters
 		});
@@ -422,9 +422,9 @@ public class GraphvizService {
 		try (PrintWriter out = new PrintWriter(dotOut)) {
 			out.println(graph);
 			out.close();
-			logger.info("Created output graphviz file:" + dotOut);
+			LOG.info("Created output graphviz file:" + dotOut);
 			run("/usr/bin/dot -Tsvg " + dotOut + " -o " + svgOut);
-			logger.info("Created output graphviz SVG:" + svgOut);
+			LOG.info("Created output graphviz SVG:" + svgOut);
 			return Files.readAllLines(Paths.get(svgOut)).stream().collect(joining());
 		} catch (final Exception e) {
 			e.printStackTrace();

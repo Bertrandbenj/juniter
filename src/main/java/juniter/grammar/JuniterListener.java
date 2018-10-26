@@ -16,7 +16,7 @@ import juniter.core.validation.LocalValid;
 
 public class JuniterListener extends JuniterParserBaseVisitor<Document> implements LocalValid {
 
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger LOG = LogManager.getLogger();
 
 	@Override
 	public Document visitDoc(DocContext ctx) {
@@ -40,7 +40,7 @@ public class JuniterListener extends JuniterParserBaseVisitor<Document> implemen
 				bstamp.bhash().getText()));
 		res.setVersion(ctx.version().getText());
 		res.setSignature(((WotContext) ctx.getParent()).signature().getText());
-		logger.info("parsed: \n" + res);
+		LOG.info("parsed: \n" + res);
 		return res;
 	}
 
@@ -53,7 +53,7 @@ public class JuniterListener extends JuniterParserBaseVisitor<Document> implemen
 		final var bnum = Integer.parseInt(ctx.block().buid().bnum().getText());
 		final var bhash = ctx.block().buid().bhash().getText();
 		res.setBlock(new BStamp(bnum, bhash));
-		logger.info("parsed: \n" + res);
+		LOG.info("parsed: \n" + res);
 		return res;
 	}
 

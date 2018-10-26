@@ -34,7 +34,7 @@ import juniter.service.bma.model.TxHistory;
 @RequestMapping("/tx")
 public class TxService {
 
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger LOG = LogManager.getLogger();
 
 	@Autowired
 	private TxRepository repository;
@@ -64,13 +64,13 @@ public class TxService {
 		try (var s = repository.streamTransactionSentBy(pubkey)) {
 			sent.addAll(s.collect(Collectors.toList()));
 		} catch (Exception e) {
-			logger.error("tx/history TransactionSentBy ", e);
+			LOG.error("tx/history TransactionSentBy ", e);
 		}
 
 		try (var s = repository.streamTransactionReceivedBy(pubkey)) {
 			received.addAll(s.collect(Collectors.toList()));
 		} catch (Exception e) {
-			logger.error("tx/history TransactionReceivedBy ", e);
+			LOG.error("tx/history TransactionReceivedBy ", e);
 		}
 
 		return new TxHistory(pubkey, sent, received, receiving, sending, pending);
@@ -84,21 +84,21 @@ public class TxService {
 
 	@RequestMapping(value = "/sources/{pubkey}", method = RequestMethod.GET)
 	public String sources(@PathVariable("pubkey") String pubkey) {
-		logger.info("Entering /sources/{pubkey= " + pubkey+ "}");
+		LOG.info("Entering /sources/{pubkey= " + pubkey+ "}");
 		return "not implemented yet";
 	}
 
 	@RequestMapping(value = "/history/{pubkey}/blocks/{from}/{to}", method = RequestMethod.GET)
 	public String historyFilterByBlockRange(@PathVariable("pubkey") String pubkey, @PathVariable("pubkey") String from,
 			@PathVariable("pubkey") String to) {
-		logger.info("Entering /history/{pubkey}/blocks/{from}/{to}.. " + pubkey + " " + from + "->" + to);
+		LOG.info("Entering /history/{pubkey}/blocks/{from}/{to}.. " + pubkey + " " + from + "->" + to);
 		return "not implemented yet";
 	}
 
 	@RequestMapping(value = "/history/{pubkey}/times/{from}/{to}", method = RequestMethod.GET)
 	public String historyFilterByTimeRange(@PathVariable("pubkey") String pubkey, @PathVariable("pubkey") String from,
 			@PathVariable("pubkey") String to) {
-		logger.info("Entering /history/{pubkey}/times/{from}/{to}.. " + pubkey + " " + from + "->" + to);
+		LOG.info("Entering /history/{pubkey}/times/{from}/{to}.. " + pubkey + " " + from + "->" + to);
 		return "not implemented yet";
 	}
 }

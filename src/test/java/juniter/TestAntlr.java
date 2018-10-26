@@ -21,9 +21,9 @@ import antlr.main.JuniterParser.WotContext;
 import juniter.core.crypto.CryptoUtils;
 import juniter.grammar.JuniterListener;
 
-public class AntlrTests {
+public class TestAntlr {
 
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger LOG = LogManager.getLogger();
 
 	private static final String folder = "/home/ben/ws/juniter/grammar/tests/";
 
@@ -58,7 +58,7 @@ public class AntlrTests {
 		final var parser = juniterParser(CharStreams.fromString(TEST_BUID));
 		final var buidContext = parser.buid();
 		assertTrue(TEST_BUID.equals(buidContext.getText()));
-		logger.info("buid : " + buidContext.getText());
+		LOG.info("buid : " + buidContext.getText());
 	}
 
 	@Test
@@ -70,7 +70,7 @@ public class AntlrTests {
 	@Test
 	public void testIdentity() throws Exception {
 		final var path = Paths.get(folder + "identity2.dup");
-		logger.info(" testIdentity : " + path.toString());
+		LOG.info(" testIdentity : " + path.toString());
 		assertTrue("path is null ", path != null);
 		assertTrue("pathName is null ", path.getFileName() != null);
 
@@ -89,7 +89,7 @@ public class AntlrTests {
 		final var parser = juniterParser(CharStreams.fromString(doc));
 		final var wot = parser.doc().wot();
 		final var idty = wot.identity();
-		logger.info(idty + " " + getRaw(wot));
+		LOG.info(idty + " " + getRaw(wot));
 
 		assertTrue(idty.version().getText().equals("10"));
 		assertTrue(idty.issuer().getText().equals(pk));
@@ -127,7 +127,7 @@ public class AntlrTests {
 				final var parser = juniterParser(CharStreams.fromFileName(file));
 
 				final var doc = juniterListener.visit(parser.doc());
-				logger.info("testListener " + doc.toString());
+				LOG.info("testListener " + doc.toString());
 				assertTrue(doc.isValid());
 			}
 		}

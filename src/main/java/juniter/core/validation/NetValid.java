@@ -12,9 +12,9 @@ import juniter.core.crypto.DigestUtils;
 import juniter.core.model.Block;
 import juniter.core.utils.Constants;
 
-public class Validator {
+public class NetValid {
 
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger LOG = LogManager.getLogger();
 
 	public static Pattern BASE58_PATTERN = Pattern.compile(Constants.Regex.BASE58 + "{43,45}");
 
@@ -80,34 +80,34 @@ public class Validator {
 			if (isIPV6Address(ip)) {
 				ipAndPort = getSeperatedList(ip, CLOSE_BRACKET_AND_COLON);
 				if (ipAndPort.size() != 2) {
-					logger.info("Invalid format. Please specify the IP addresses and port numbers again.");
+					LOG.info("Invalid format. Please specify the IP addresses and port numbers again.");
 					return false;
 				}
 				ipAddress = ipAndPort.get(0).trim().substring(1); // to remove [
 				port = ipAndPort.get(1).trim(); // to remove :
 
 				if (!validateIP6Address(ipAddress)) {
-					logger.info("The specified IVP6 address is invalid. Please specify the IP addresses again.");
+					LOG.info("The specified IVP6 address is invalid. Please specify the IP addresses again.");
 					return false;
 				}
 
 			} else {
 				ipAndPort = getSeperatedList(ip, COLON);
 				if (ipAndPort.size() != 2) {
-					logger.info("Invalid format. Please specify the IP addresses and port numbers again.");
+					LOG.info("Invalid format. Please specify the IP addresses and port numbers again.");
 					return false;
 				}
 				ipAddress = ipAndPort.get(0).trim();
 				port = ipAndPort.get(1).trim();
 
 				if (!validateIP4Address(ipAddress)) {
-					logger.info("The specified IPV4 address is invalid. Please specify the IP addresses again.");
+					LOG.info("The specified IPV4 address is invalid. Please specify the IP addresses again.");
 					return false;
 				}
 			}
 
 			if (!validatePortNumber(port)) {
-				logger.info("The specified port is invalid. Please specify port numbers again.");
+				LOG.info("The specified port is invalid. Please specify port numbers again.");
 				return false;
 			}
 		}

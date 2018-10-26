@@ -24,14 +24,14 @@ import com.google.common.collect.Lists;
 @Controller
 @RequestMapping("/html")
 public class HtmlService {
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger LOG = LogManager.getLogger();
 	
 	@Autowired
 	private RequestMappingHandlerMapping handlerMapping;
 
 	@RequestMapping(value = {"","/"},  method = RequestMethod.GET)
 	public String home(Map<String, Object> model) {
-		logger.info("Entering /html ...");
+		LOG.info("Entering /html ...");
 		var mappings = handlerMapping.getHandlerMethods();
 		var paths = mappings.keySet()//
 				.stream()//
@@ -45,9 +45,9 @@ public class HtmlService {
 									(v1,v2) -> Stream.concat(v1.stream(), v2.stream()).collect(toList()) ));
 		var treeMap = new TreeMap<String, List<String>>();
 		treeMap.putAll(tpath);
-//		logger.info("mappings "+ mappings);
-//		logger.info("paths " +  paths);
-		logger.info("tpath " + tpath);
+//		LOG.info("mappings "+ mappings);
+//		LOG.info("paths " +  paths);
+		LOG.info("tpath " + tpath);
 		model.put("time", new Date());
 		model.put("mappings",treeMap);
 		model.put("message", "Welcome");
@@ -57,7 +57,7 @@ public class HtmlService {
 
 	@RequestMapping(value = "/tx",  method = RequestMethod.GET)
 	public String tx(Map<String, Object> model) {
-		logger.info("Entering /html/tx ...");
+		LOG.info("Entering /html/tx ...");
 		model.put("time", new Date());
 		model.put("message", "Welcome");
 		model.put("title", "Welcome");

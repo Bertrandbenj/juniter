@@ -26,7 +26,7 @@ import juniter.core.utils.Constants;
 public class Certification implements Serializable, Comparable<Certification> {
 
 	private static final long serialVersionUID = -2973877562500906569L;
-	private static final Logger logger = LoggerFactory.getLogger(Certification.class);
+	private static final Logger LOG = LoggerFactory.getLogger(Certification.class);
 
 	@Valid
 	@AttributeOverride(name = "pubkey", column = @Column(name = "certifier"))
@@ -87,7 +87,7 @@ public class Certification implements Serializable, Comparable<Certification> {
 
 	public void setCertif(String certif) {
 
-		logger.debug("Parsing certif ... " + certif);
+		LOG.debug("Parsing certif ... " + certif);
 
 		final var it = certif.split(":");
 		certifier.setPubkey(it[0]);

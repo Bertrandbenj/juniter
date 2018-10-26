@@ -7,8 +7,10 @@ import javax.persistence.Embeddable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import juniter.core.model.DUPComponent;
+
 @Embeddable
-public class TxUnlock implements Serializable, Comparable<TxUnlock> {
+public class TxUnlock implements Serializable, Comparable<TxUnlock>, DUPComponent {
 
 	public enum UnlockFct {
 		SIG("SIG"), XHX("XHX");
@@ -28,7 +30,7 @@ public class TxUnlock implements Serializable, Comparable<TxUnlock> {
 
 	private static final long serialVersionUID = -2759081749575814229L;
 
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger LOG = LogManager.getLogger();
 
 	private Integer inputRef;
 
@@ -79,7 +81,7 @@ public class TxUnlock implements Serializable, Comparable<TxUnlock> {
 
 	public void setUnlock(String unlock) {
 
-		logger.debug("Parsing TxUnlock... " + unlock);
+		//		LOG.debug("Parsing TxUnlock... " + unlock);
 
 		final var vals = unlock.split(":");
 		inputRef = Integer.valueOf(vals[0]);
@@ -89,8 +91,14 @@ public class TxUnlock implements Serializable, Comparable<TxUnlock> {
 	}
 
 	@Override
-	public String toString() {
+	public String toDUP() {
 		return inputRef + ":" + getFunction();
+
+	}
+
+	@Override
+	public String toString() {
+		return toDUP();
 	}
 
 }
