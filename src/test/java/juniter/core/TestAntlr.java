@@ -1,4 +1,4 @@
-package juniter;
+package juniter.core;
 
 import static org.junit.Assert.assertTrue;
 

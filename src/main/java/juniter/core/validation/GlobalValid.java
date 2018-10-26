@@ -617,10 +617,6 @@ public interface GlobalValid {
 	 * </pre>
 	 */
 	public class SINDEX implements Comparable<SINDEX> {
-		//
-		//		static SINDEX create() {
-		//			return new SINDEX("CREATE",identifier, );
-		//		}
 
 		String op;
 		String tx;
@@ -634,15 +630,15 @@ public interface GlobalValid {
 		Long locktime;
 		boolean consumed;
 		String condition;
-
 		Integer writtenOn;
+
 		// FIXME model? transient? function?
 		long age;
+
 		boolean available;
+
 		public boolean isLocked;
-
 		public boolean isTimeLocked;
-
 		public SINDEX() {
 		}
 
@@ -675,6 +671,14 @@ public interface GlobalValid {
 		String getCondition() {
 			return condition;
 		}
+
+		@Override
+		public String toString() {
+			return "SINDEX[" + op + ", " + tx + "," + created_on + "," + written_on + "," + identifier + ","
+					+ pos + ", " + written_time + ", " + amount + "," + base + "," + locktime + ","
+					+ consumed + ", " +condition+ ", "+writtenOn + "]";
+		}
+
 	}
 
 	/**
