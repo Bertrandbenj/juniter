@@ -14,3 +14,4 @@ docs/javadoc
 /.classpath
 /.cache-main
 /.cache-tests
+/.attach_pid*

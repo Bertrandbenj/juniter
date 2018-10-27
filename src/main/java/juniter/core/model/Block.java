@@ -13,7 +13,6 @@ import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
@@ -24,6 +23,9 @@ import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
+
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -130,41 +132,49 @@ public class Block implements Serializable, DUPComponent {
 	private Integer dividend;
 
 	@Valid
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@LazyCollection(LazyCollectionOption.FALSE)
+	@ElementCollection
+	@OneToMany(cascade = CascadeType.ALL)
 	private List<Identity> identities = new ArrayList<Identity>();
 
 	@Valid
-	@ElementCollection(fetch = FetchType.EAGER)
+	@LazyCollection(LazyCollectionOption.FALSE)
+	@ElementCollection
 	@CollectionTable(name = "wot_joiners", joinColumns = { @JoinColumn(name = "number"), @JoinColumn(name = "hash") })
 	private List<Joiner> joiners = new ArrayList<Joiner>();
 
 	@Valid
-	@ElementCollection(fetch = FetchType.EAGER)
+	@LazyCollection(LazyCollectionOption.FALSE)
+	@ElementCollection
 	@CollectionTable(name = "wot_actives", joinColumns = { @JoinColumn(name = "number"), @JoinColumn(name = "hash") })
 	private List<Active> actives = new ArrayList<Active>();
 
 	@Valid
-	@ElementCollection(fetch = FetchType.EAGER)
+	@LazyCollection(LazyCollectionOption.FALSE)
+	@ElementCollection
 	@CollectionTable(name = "wot_leavers", joinColumns = { @JoinColumn(name = "number"), @JoinColumn(name = "hash") })
 	private List<Leaver> leavers = new ArrayList<>();
 
 	@Valid
-	@ElementCollection(fetch = FetchType.EAGER)
+	@LazyCollection(LazyCollectionOption.FALSE)
+	@ElementCollection
 	@CollectionTable(name = "wot_revoked", joinColumns = { @JoinColumn(name = "number"), @JoinColumn(name = "hash") })
 	private List<Revoked> revoked = new ArrayList<>();
 
 	@Valid
-	@ElementCollection(fetch = FetchType.EAGER)
-	//	@OneToMany(cascade = CascadeType.ALL)
+	@ElementCollection
+	@LazyCollection(LazyCollectionOption.FALSE)
 	@CollectionTable(name = "wot_excluded", joinColumns = { @JoinColumn(name = "number"), @JoinColumn(name = "hash") })
 	private List<Excluded> excluded = new ArrayList<>();
 
 	@Valid
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@LazyCollection(LazyCollectionOption.FALSE)
+	@OneToMany(cascade = CascadeType.ALL)
 	private List<Certification> certifications = new ArrayList<>();
 
 	@Valid
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@LazyCollection(LazyCollectionOption.FALSE)
+	@OneToMany(cascade = CascadeType.ALL)
 	@JoinColumns(value = { @JoinColumn(name = "Bnumber", referencedColumnName = "number"),
 			@JoinColumn(name = "Bhash", referencedColumnName = "hash") })
 	private List<Transaction> transactions = new ArrayList<>();

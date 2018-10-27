@@ -10,7 +10,6 @@ import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -22,6 +21,8 @@ import javax.validation.constraints.Size;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -65,27 +66,32 @@ public class Transaction implements Serializable, DUPComponent {
 	protected Integer blockstampTime;
 
 	@Valid
-	@ElementCollection(fetch = FetchType.EAGER)
+	@LazyCollection(LazyCollectionOption.FALSE)
+	@ElementCollection
 	@CollectionTable(name = "tx_issuers", joinColumns = @JoinColumn(name = "tx_id"))
 	protected List<Pubkey> issuers = new ArrayList<>(); //
 
 	@Valid
-	@ElementCollection(fetch = FetchType.EAGER)
+	@LazyCollection(LazyCollectionOption.FALSE)
+	@ElementCollection
 	@CollectionTable(name = "tx_inputs", joinColumns = @JoinColumn(name = "tx_id"))
 	protected List<TxInput> inputs = new ArrayList<>();
 
 	@Valid
-	@ElementCollection(fetch = FetchType.EAGER)
+	@LazyCollection(LazyCollectionOption.FALSE)
+	@ElementCollection
 	@CollectionTable(name = "tx_outputs", joinColumns = @JoinColumn(name = "tx_id"))
 	protected List<TxOutput> outputs = new ArrayList<>();
 
 	@Valid
-	@ElementCollection(fetch = FetchType.EAGER)
+	@LazyCollection(LazyCollectionOption.FALSE)
+	@ElementCollection
 	@CollectionTable(name = "tx_unlocks", joinColumns = @JoinColumn(name = "tx_id"))
 	protected List<TxUnlock> unlocks = new ArrayList<>();
 
 	@Valid
-	@ElementCollection(fetch = FetchType.EAGER)
+	@LazyCollection(LazyCollectionOption.FALSE)
+	@ElementCollection
 	@CollectionTable(name = "tx_signatures", joinColumns = @JoinColumn(name = "tx_id"))
 	protected List<Signature> signatures = new ArrayList<>();
 

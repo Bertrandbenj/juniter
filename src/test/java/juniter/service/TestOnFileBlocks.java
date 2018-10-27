@@ -3,7 +3,6 @@ package juniter.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -17,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import juniter.core.crypto.CryptoUtils;
 import juniter.core.model.Block;
 import juniter.core.model.tx.Transaction;
+import juniter.repository.memory.Index;
 
 public class TestOnFileBlocks {
 
@@ -56,6 +56,9 @@ public class TestOnFileBlocks {
 
 	public List<Block> blockchain;
 
+	public List<Block> blockchaing1;
+
+	final Index idx = new Index();
 
 	private void assertBlock(Block block ) {
 		assertBlockInnerHash(block);
@@ -65,7 +68,6 @@ public class TestOnFileBlocks {
 		block.getTransactions().forEach(tx -> {
 			assertValidTxSignatures(tx);
 		});
-
 	}
 
 	private void assertBlockHash(Block block){
@@ -113,7 +115,7 @@ public class TestOnFileBlocks {
 	}
 
 	@Before
-	public void init() throws IOException {
+	public void init() {
 		LOG.info("Entering FileBlocksService.init  ");
 
 		final ClassLoader cl = this.getClass().getClassLoader();
@@ -131,6 +133,11 @@ public class TestOnFileBlocks {
 			blockchain = jsonMapper.readValue(cl.getResourceAsStream("blocks/blockchain.json"),
 					new TypeReference<List<Block>>() {
 			});
+
+			blockchaing1 = jsonMapper.readValue(cl.getResourceAsStream("blocks/g1_0_99.json"),
+					new TypeReference<List<Block>>() {
+			});
+
 			LOG.info("Sucessfully parsed " + blockchain + "\tfrom " + cl.getResource("blocks/blockchain.json"));
 			//			log.info("Sucessfully parsed " + _33396.getHash());
 
@@ -141,6 +148,48 @@ public class TestOnFileBlocks {
 
 		LOG.info("Finished Initializing " + this.getClass().getName());
 	}
+
+	@Test
+	public void testBlock0() {
+		assertBlock(_0);
+
+	}
+
+	@Test
+	public void testBlock1() {
+		assertBlock(_1);
+	}
+
+	@Test
+	public void testBlock102093() {
+		assertBlock(_102093);
+	}
+
+	@Test
+	public void testBlock127128() {
+		assertBlock(_127128);
+	}
+
+	@Test
+	public void testBlock1437() {
+		assertBlock(_1437);
+	}
+
+	@Test
+	public void testBlock17500() {
+		assertBlock(_1437);
+	}
+
+	@Test
+	public void testBlock33396() {
+		assertBlock(_33396);
+	}
+
+	@Test
+	public void testBlockSign1() {
+		assertValidBlockSignature(_1);
+	}
+
 
 	@Test
 	public void testDuniterTestBlockChain () {
@@ -154,33 +203,21 @@ public class TestOnFileBlocks {
 	}
 
 	@Test
-	public void testBlockHash0() {
-		assertBlock(_0);
+	public void testG1BlockChain() {
+		assertTrue("parsed blocks/blockchain.json size is 100 - " + blockchaing1.size(), //
+				blockchaing1.size() - 100 == 0);
+
+		blockchaing1.forEach(b -> {
+			LOG.info("asserting " + b);
+			assertBlock(b);
+		});
+
 	}
 
 	@Test
-	public void testBlockHash1() {
-		assertBlock(_1);
-	}
-
-	@Test
-	public void testBlockHash127128() {
-		assertBlock(_127128);
-	}
-
-	@Test
-	public void testBlockHash33396() {
-		assertBlock(_33396);
-	}
-
-	@Test
-	public void testBlockSign0() {
-		assertValidBlockSignature(_0);
-	}
-
-	@Test
-	public void testBlockSign1() {
-		assertValidBlockSignature(_1);
+	public void testIndexing() {
+		idx.validate(_0);
+		idx.validate(_1);
 	}
 
 	@Test

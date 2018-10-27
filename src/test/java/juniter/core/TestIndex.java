@@ -16,29 +16,57 @@ import juniter.core.model.Block;
 import juniter.repository.memory.Index;
 
 public class TestIndex {
-
 	private static final Logger LOG = LogManager.getLogger();
-	Index idx = new Index();
+
+
+	Index idx_duniter = new Index();
+	Index idx_g1 = new Index();
 
 	List<Block> blockchain;
+	List<Block> blockchaing1;
 
 	@Before
-	public void before() throws Exception {
-		final ClassLoader cl = this.getClass().getClassLoader();
-		final ObjectMapper jsonMapper = new ObjectMapper();
+	public void init() {
 
-		blockchain = jsonMapper.readValue(cl.getResourceAsStream("blockchain.json"),
-				new TypeReference<List<Block>>() {
-		});
+		final ClassLoader cl = this.getClass().getClassLoader();
+
+		final ObjectMapper jsonReader = new ObjectMapper();
+
+		//		jsonReader.configure(Feature.AUTO_CLOSE_SOURCE, true);
+
+		try {
+			blockchain = jsonReader.readValue(cl.getResourceAsStream("blocks/blockchain.json"),
+					new TypeReference<List<Block>>() {
+			});
+
+			blockchaing1 = jsonReader.copy().readValue(cl.getResourceAsStream("blocks/g1_0_99.json"),
+					new TypeReference<List<Block>>() {
+			});
+
+
+		} catch (final Exception e) {
+			LOG.error("Error parsing " + this.getClass().getName(), e);
+		}
 	}
 
 	@Test
-	public void test() {
+	public void testIndexingDuniterTest() {
 
 		assertTrue("blockchain not parsed " + blockchain.size(), blockchain.size() == 12);
 
 		for (final Block b : blockchain) {
-			assertTrue("NOT Valid \n" + b.toDUP(), idx.validate(b));
+			assertTrue("NOT Valid \n" + b.toDUP(), idx_duniter.validate(b));
+		}
+
+	}
+
+	@Test
+	public void testIndexingG1() {
+
+		assertTrue("blockchain not parsed " + blockchaing1.size(), blockchaing1.size() == 100);
+
+		for (final Block b : blockchaing1) {
+			assertTrue("NOT Valid \n" + b.toDUP(), idx_g1.validate(b));
 		}
 
 
