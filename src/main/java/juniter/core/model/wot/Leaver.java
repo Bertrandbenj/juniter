@@ -29,7 +29,7 @@ public class Leaver implements Serializable, Comparable<Leaver> {
 	@Valid
 	private String buid1; // = new BStamp();
 
-//	@AttributeOverride(name = "buid2", column = @Column(name = "buid2"))
+	//	@AttributeOverride(name = "buid2", column = @Column(name = "buid2"))
 	@Valid
 	private String buid2;
 
@@ -57,7 +57,7 @@ public class Leaver implements Serializable, Comparable<Leaver> {
 
 	public void setLeaver(String leaver) {
 
-		LOG.info("Parsing Leaver... " + leaver);
+		LOG.debug("Parsing Leaver... " + leaver);
 		final var vals = leaver.split(":");
 		this.leaver.setPubkey(vals[0]);
 		signature = vals[1];

@@ -55,7 +55,7 @@ public class SecretBox {
 
 	public static byte[] computeSeedFromSaltAndPassword(String salt, String password) {
 		try {
-			final byte[] seed = SCrypt.scrypt(CryptoUtils.decodeAscii(password), CryptoUtils.decodeAscii(salt),
+			final byte[] seed = SCrypt.scrypt(Crypto.decodeAscii(password), Crypto.decodeAscii(salt),
 					SCRYPT_PARAMS_N, SCRYPT_PARAMS_r, SCRYPT_PARAMS_p, SEED_LENGTH);
 			return seed;
 		} catch (final GeneralSecurityException e) {
@@ -71,8 +71,8 @@ public class SecretBox {
 	public SecretBox(byte[] seed) {
 		checkLength(seed, SEED_LENGTH);
 		this.seed = seed;
-		secretKey = CryptoUtils.zeros(SECRETKEY_BYTES * 2);
-		final byte[] publicKey = CryptoUtils.zeros(PUBLICKEY_BYTES);
+		secretKey = Crypto.zeros(SECRETKEY_BYTES * 2);
+		final byte[] publicKey = Crypto.zeros(PUBLICKEY_BYTES);
 		isValid(sodium().crypto_sign_ed25519_seed_keypair(publicKey, secretKey, seed), "Failed to generate a key pair");
 		pubKey = Base58.encode(publicKey);
 	}
@@ -129,8 +129,8 @@ public class SecretBox {
 	/* -- Internal methods -- */
 
 	public String sign(String message) {
-		final byte[] messageBinary = CryptoUtils.decodeUTF8(message);
-		return CryptoUtils.encodeBase64(sign(messageBinary));
+		final byte[] messageBinary = Crypto.decodeUTF8(message);
+		return Crypto.encodeBase64(sign(messageBinary));
 	}
 
 }

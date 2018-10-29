@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import juniter.core.utils.TimeUtils;
 import juniter.repository.jpa.BlockRepository;
 import juniter.service.bma.model.WithWrapper;
 
@@ -101,13 +102,13 @@ public class UsefulBlocksLoader implements CommandLineRunner {
 		trustedLoader.bulkLoad();
 
 		fetchUsefullBlocks() //
-				.stream() //
-				.parallel() //
-				.map(i -> blockRepo.block(i).orElseGet(() -> trustedLoader.fetchAndSaveBlock(i))) //
-				.collect(toList());
+		.stream() //
+		.parallel() //
+		.map(i -> blockRepo.block(i).orElseGet(() -> trustedLoader.fetchAndSaveBlock(i))) //
+		.collect(toList());
 
 		final var elapsed = Long.divideUnsigned(System.nanoTime() - start, 1000000);
-		LOG.info("Elapsed time: " + elapsed + "ms");
+		LOG.info("Elapsed time: " + TimeUtils.format(elapsed));
 	}
 
 }

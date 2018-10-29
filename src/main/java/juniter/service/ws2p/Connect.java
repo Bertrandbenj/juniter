@@ -8,7 +8,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import juniter.core.crypto.CryptoUtils;
+import juniter.core.crypto.Crypto;
 import juniter.core.crypto.SecretBox;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -145,8 +145,8 @@ public class Connect implements Serializable {
 	}
 
 	public boolean verify() {
-		LOG.info("connect? " + "CONNECT".equals(auth) + "  crypto? " + CryptoUtils.verify(challenge, sig, pub));
-		return "CONNECT".equals(auth) && CryptoUtils.verify(challenge, sig, pub);
+		LOG.info("connect? " + "CONNECT".equals(auth) + "  crypto? " + Crypto.verify(challenge, sig, pub));
+		return "CONNECT".equals(auth) && Crypto.verify(challenge, sig, pub);
 	}
 
 }

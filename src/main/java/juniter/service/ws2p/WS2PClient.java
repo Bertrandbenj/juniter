@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import antlr.main.JuniterLexer;
 import antlr.main.JuniterParser;
-import juniter.grammar.JuniterListener;
+import juniter.grammar.JuniterGrammar;
 
 /**
  * This example demonstrates how to create a websocket connection to a server.
@@ -100,7 +100,7 @@ public class WS2PClient extends WebSocketClient {
 	void handleDUP(String message) {
 		LOG.info("handle Document");
 		final var parser = juniterParser(CharStreams.fromString(message));
-		final var doc = new JuniterListener().visitDoc(parser.doc());
+		final var doc = new JuniterGrammar().visitDoc(parser.doc());
 
 	}
 

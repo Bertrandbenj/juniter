@@ -29,7 +29,7 @@ public class Active implements Serializable, Comparable<Active> {
 	@Valid
 	private String buid1;// = new BStamp();
 
-//	@AttributeOverride(name = "buid2", column = @Column(name = "buid2"))
+	//	@AttributeOverride(name = "buid2", column = @Column(name = "buid2"))
 	@Valid
 	private String buid2;
 
@@ -57,7 +57,7 @@ public class Active implements Serializable, Comparable<Active> {
 
 	public void setActive(String leaver) {
 
-		LOG.info("Parsing Active... " + leaver);
+		LOG.debug("Parsing Active... " + leaver);
 		final var vals = leaver.split(":");
 		active.setPubkey(vals[0]);
 		signature = vals[1];

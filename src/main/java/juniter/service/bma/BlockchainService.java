@@ -102,17 +102,17 @@ public class BlockchainService {
 		LOG.info("Entering /blockchain/blocks/{count=" + count + "}/{from=" + from + "}");
 
 		final List<Integer> blocksToFind = IntStream.range(from, from + count).boxed().collect(toList());
-		LOG.info("---blocksToFind: " + blocksToFind);
+		LOG.debug("---blocksToFind: " + blocksToFind);
 
 		final List<Block> knownBlocks = repository.findByNumberIn(blocksToFind).collect(toList());
-		LOG.info("---known blocks: " + knownBlocks.stream().map(b -> b.getNumber()).collect(toList()));
+		LOG.debug("---known blocks: " + knownBlocks.stream().map(b -> b.getNumber()).collect(toList()));
 
 		final List<Block> blocksToSave = blocksToFind.stream()
 				.filter(b -> !knownBlocks.stream().anyMatch(kb -> kb.getNumber().equals(b)))
 				.map(lg -> trustedLoader.fetchAndSaveBlock(lg)).collect(toList());
 
-		LOG.info("---fetch blocks: " + Stream.concat(blocksToSave.stream(), knownBlocks.stream())
-				.map(b -> b.getNumber().toString()).collect(joining(",")));
+		LOG.debug("---fetch blocks: " + Stream.concat(blocksToSave.stream(), knownBlocks.stream())
+		.map(b -> b.getNumber().toString()).collect(joining(",")));
 
 		repository.saveAll(blocksToSave);
 
@@ -122,7 +122,7 @@ public class BlockchainService {
 	}
 
 	private BlockDTO convertToDto(Block block) {
-		LOG.info(" - Converting block " + block);
+		//		LOG.debug(" - Converting block " + block);
 
 		final BlockDTO postDto = modelMapper.map(block, BlockDTO.class);
 

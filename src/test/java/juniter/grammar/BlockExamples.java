@@ -1,4 +1,4 @@
-package juniter.core;
+package juniter.grammar;
 
 //@formatter:off
 public interface BlockExamples {

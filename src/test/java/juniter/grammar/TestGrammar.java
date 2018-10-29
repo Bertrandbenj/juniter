@@ -1,4 +1,4 @@
-package juniter.core;
+package juniter.grammar;
 
 import static org.junit.Assert.assertTrue;
 
@@ -18,16 +18,16 @@ import org.junit.Test;
 import antlr.main.JuniterLexer;
 import antlr.main.JuniterParser;
 import antlr.main.JuniterParser.WotContext;
-import juniter.core.crypto.CryptoUtils;
-import juniter.grammar.JuniterListener;
+import juniter.core.crypto.Crypto;
+import juniter.grammar.JuniterGrammar;
 
-public class TestAntlr {
+public class TestGrammar {
 
 	private static final Logger LOG = LogManager.getLogger();
 
 	private static final String folder = "/home/ben/ws/juniter/grammar/tests/";
 
-	JuniterListener visitor = new JuniterListener();
+	JuniterGrammar visitor = new JuniterGrammar();
 
 	String getRaw(WotContext idtc) {
 		final CharStream cs = idtc.start.getTokenSource().getInputStream();
@@ -84,7 +84,7 @@ public class TestAntlr {
 				+ "Timestamp: 1184-00000C17FA48A4681377DFA9BF1CE747CE82B869E694EC9E41F9F530C45E8F19\n";
 		final var doc = unSignedDoc + signature;// + "\n";
 
-		assertTrue("Assert before parsing", CryptoUtils.verify(unSignedDoc, signature, pk));
+		assertTrue("Assert before parsing", Crypto.verify(unSignedDoc, signature, pk));
 
 		final var parser = juniterParser(CharStreams.fromString(doc));
 		final var wot = parser.doc().wot();
@@ -94,7 +94,7 @@ public class TestAntlr {
 		assertTrue(idty.version().getText().equals("10"));
 		assertTrue(idty.issuer().getText().equals(pk));
 		assertTrue(signature.equals(wot.signature().getText()));
-		assertTrue(CryptoUtils.verify( //
+		assertTrue(Crypto.verify( //
 				getRaw(wot), //
 				wot.signature().getText(), //
 				idty.issuer().getText()));
@@ -117,7 +117,7 @@ public class TestAntlr {
 
 	@Test
 	public void testListener() throws Exception {
-		final var juniterListener = new JuniterListener();
+		final var juniterListener = new JuniterGrammar();
 
 //		final var testFiles = Paths.get(folder).toFile().list();
 		final var testFiles = new String[] { folder + "peer.dup", folder + "identity2.dup" };

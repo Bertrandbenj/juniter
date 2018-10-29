@@ -14,7 +14,7 @@ import juniter.core.model.net.IdentityDocument;
 import juniter.core.model.net.PeerDocument;
 import juniter.core.validation.LocalValid;
 
-public class JuniterListener extends JuniterParserBaseVisitor<Document> implements LocalValid {
+public class JuniterGrammar extends JuniterParserBaseVisitor<Document> implements LocalValid {
 
 	private static final Logger LOG = LogManager.getLogger();
 

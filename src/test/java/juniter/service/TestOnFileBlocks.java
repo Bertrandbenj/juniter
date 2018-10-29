@@ -13,12 +13,12 @@ import org.junit.Test;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import juniter.core.crypto.CryptoUtils;
+import juniter.core.crypto.Crypto;
 import juniter.core.model.Block;
-import juniter.core.model.tx.Transaction;
+import juniter.core.validation.LocalValid;
 import juniter.repository.memory.Index;
 
-public class TestOnFileBlocks {
+public class TestOnFileBlocks implements LocalValid {
 
 	private static final Logger LOG = LogManager.getLogger();
 
@@ -33,6 +33,8 @@ public class TestOnFileBlocks {
 	 *
 	 */
 	public Block _1437;
+
+	public Block _15144;
 
 	/**
 	 * transactions
@@ -60,59 +62,7 @@ public class TestOnFileBlocks {
 
 	final Index idx = new Index();
 
-	private void assertBlock(Block block ) {
-		assertBlockInnerHash(block);
-		assertBlockHash(block);
-		assertValidBlockSignature(block);
 
-		block.getTransactions().forEach(tx -> {
-			assertValidTxSignatures(tx);
-		});
-	}
-
-	private void assertBlockHash(Block block){
-		final var hash = CryptoUtils.hash(block.signedPartSigned());
-
-		assertTrue("test BlockHash " + block.signedPartSigned(), hash.equals(block.getHash()));
-
-	}
-
-	private void assertBlockInnerHash(Block block) {
-		final var hash = CryptoUtils.hash(block.toDUP(false, false));
-
-		assertTrue("assert BlockHash #" + block.getNumber() + " - " +
-				"\niss      : " + block.getIssuer() +
-				"\nsign     : " + block.getSignature() +
-				"\nexpected : " + block.getInner_hash() +
-				"\n but got : " + hash +
-				"\n on " + block.toDUP(false, false), //
-				hash.equals(block.getInner_hash()));
-	}
-
-
-	private void assertValidBlockSignature(Block block) {
-		assertTrue("test Valid Block Signature for" + block.getIssuer() +
-				"\nexpected : " + block.getSignature() +
-				"\n on doc  : " + block.toDUP(true, true), //
-				CryptoUtils.verify(block.signedPart(), block.getSignature().toString(), block.getIssuer()));
-	}
-
-
-	private void assertValidTxSignatures(Transaction tx) {
-
-
-		for (int i = 0; i < tx.getSignatures().size(); i++) {
-			final var sign = tx.getSignatures().get(i).toString();
-			final var iss = tx.getIssuers().get(i).toString();
-
-			assertTrue("Signature isnt verified  " + sign
-					+ "\n  for issuer : " + iss
-					+ "\n  in transaction : " + tx.toDUPdoc(false),
-					CryptoUtils.verify(tx.toDUPdoc(false), sign, iss));
-
-		}
-
-	}
 
 	@Before
 	public void init() {
@@ -125,6 +75,7 @@ public class TestOnFileBlocks {
 			_0 = jsonMapper.readValue(cl.getResourceAsStream("blocks/0.json"), Block.class);
 			_1 = jsonMapper.readValue(cl.getResourceAsStream("blocks/1.json"), Block.class);
 			_1437 = jsonMapper.readValue(cl.getResourceAsStream("blocks/1437.json"), Block.class);
+			_15144 = jsonMapper.readValue(cl.getResourceAsStream("blocks/15144.json"), Block.class);
 			_17500 = jsonMapper.readValue(cl.getResourceAsStream("blocks/17500.json"), Block.class);
 			_33396 = jsonMapper.readValue(cl.getResourceAsStream("blocks/33396.json"), Block.class);
 			_102093 = jsonMapper.readValue(cl.getResourceAsStream("blocks/102093.json"), Block.class);
@@ -147,6 +98,43 @@ public class TestOnFileBlocks {
 		}
 
 		LOG.info("Finished Initializing " + this.getClass().getName());
+	}
+
+	@Test
+	public void test105622() {
+		//hash
+	}
+
+	@Test
+	public void test15143() {
+		final String signedPart = "InnerHash: 13A0C5A47340BB4D16288A94C77DAD6C7CAB7945625675D91F454AB50A7EDC1C\nNonce: 10100000003349\n";
+		final String sign = "HWKzk9jPTTr2WhVyZQ51ugrpuAnFKczDhuqvTpi1PJMAyNldYOom06Vsp1F9j9Y+LHAL5ID1WjeR1mG5oNvGBg==";
+		final String iss = "5WD4WSHE96ySreSwQFXPqaKaKcwboRNApiPHjPWB6V9C";
+		assert Crypto.verify(signedPart, sign, iss);
+	}
+
+	@Test
+	public void test15144() {
+		final String signedPart = "InnerHash: 8B194B5C38CF0A38D16256405AC3E5FA5C2ABD26BE4DCC0C7ED5CC9824E6155B\nNonce: 30400000119992\n";
+		final String sign = "fJusVDRJA8akPse/sv4uK8ekUuvTGj1OoKYVdMQQAACs7OawDfpsV6cEMPcXxrQTCTRMrTN/rRrl20hN5zC9DQ==";
+		final String iss = "D9D2zaJoWYWveii1JRYLVK3J4Z7ZH3QczoKrnQeiM6mx";
+		assert Crypto.verify(signedPart, sign, iss);
+	}
+
+	@Test
+	public void test31202() {
+		final String signedPart = "InnerHash: 931C4F2A922612AC9B541B3F054DDE4E54C9F4F2CA9A2A5D2EDB7396C54B3DC1\nNonce: 10100000254929\n";
+		final String sign = "sOfgXH3875Vw137qs3wJ2TfjsfK5PH/ZweWq7sItAIB0D7RKkbfHcfi7OxlqCviy+8r384Ng06p/uVlxFnpLBQ==";
+		final String iss = "t5RR5eVeE7jRhKcREvC3kfGtDTdkxmvW6WeJ9q9keHG";
+		assertTrue("", Crypto.verify(signedPart, sign, iss));
+	}
+
+	@Test
+	public void test85448() {
+		final String signedPart = "InnerHash: FF0B7558ACC91F77BB6AF3F1DADCD3154E4A683346496C2B564E1BFBD1766EF7\nNonce: 10200000001484\n";
+		final String sign = "/pq2tcuTYeHfPGQfkq58Q6M4CLSyVqSEUFv4Q3dPGzAKiJn8cB34jpcVR9Ar03qYfUxzqaJ6ZnDXK2B4LWalDg==";
+		final String iss = "4GX5gUFwKg8Y8oL5ZFwFD64U3vEJo6CtY61Y3J8LMCHk";
+		assert Crypto.verify(signedPart, sign, iss);
 	}
 
 	@Test
@@ -173,6 +161,11 @@ public class TestOnFileBlocks {
 	@Test
 	public void testBlock1437() {
 		assertBlock(_1437);
+	}
+
+	@Test
+	public void testBlock15144() {
+		assertBlock(_15144);
 	}
 
 	@Test

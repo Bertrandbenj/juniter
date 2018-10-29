@@ -52,8 +52,7 @@ public class BlockRepositoryITest {
 		final Block found = blockRepo.findTop1ByNumber(3).get();
 
 		// then
-		assertThat(found.getIssuer())
-		.isEqualTo(alex.getIssuer());
+		assertThat(found.getIssuer()).isEqualTo(alex.getIssuer());
 	}
 
 

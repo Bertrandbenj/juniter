@@ -41,7 +41,7 @@ public class Excluded implements Serializable, Comparable<Excluded> {
 	}
 
 	public void setJoiner(String joiner) {
-		LOG.info("Parsing Excluded... " + joiner);
+		LOG.debug("Parsing Excluded... " + joiner);
 		final var vals = joiner.split(":");
 		excluded.setPubkey(vals[0]);
 	}

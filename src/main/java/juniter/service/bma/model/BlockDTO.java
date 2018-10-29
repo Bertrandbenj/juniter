@@ -66,6 +66,8 @@ public class BlockDTO implements Serializable {
 
 	private List<TransactionDTO> transactions = new ArrayList<>();
 
+	private String raw;
+
 	public List<String> getActives() {
 		return actives;
 	}
@@ -158,6 +160,10 @@ public class BlockDTO implements Serializable {
 		return previousIssuer;
 	}
 
+	public String getRaw() {
+		return raw;
+	}
+
 	public List<String> getRevoked() {
 		return revoked;
 	}
@@ -180,6 +186,10 @@ public class BlockDTO implements Serializable {
 
 	public Short getVersion() {
 		return version;
+	}
+
+	public String getXXXDebug() {
+		return "";
 	}
 
 	public void setActives(List<String> actives) {
@@ -272,6 +282,10 @@ public class BlockDTO implements Serializable {
 
 	public void setPreviousIssuer(String previousIssuer) {
 		this.previousIssuer = previousIssuer;
+	}
+
+	public void setRaw(String raw) {
+		this.raw = raw;
 	}
 
 	public void setRevoked(List<String> revoked) {

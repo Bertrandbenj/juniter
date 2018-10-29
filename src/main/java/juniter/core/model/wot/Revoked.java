@@ -48,7 +48,7 @@ public class Revoked implements Serializable, Comparable<Revoked> {
 
 	public void setRevoked(String rev) {
 
-		LOG.info("Parsing Revoked... " + rev);
+		LOG.debug("Parsing Revoked... " + rev);
 		final var vals = rev.split(":");
 		revoked.setPubkey(vals[0]);
 		signature = vals[1];

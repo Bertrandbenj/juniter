@@ -19,6 +19,7 @@ import org.springframework.web.client.RestTemplate;
 
 import juniter.core.model.Block;
 import juniter.core.utils.Constants;
+import juniter.core.utils.TimeUtils;
 import juniter.repository.jpa.BlockRepository;
 
 /**
@@ -78,12 +79,12 @@ public class TrustedLoader {
 				.map(url -> fetchBlocks(url)) // fetch the list of blocks
 				.flatMap(list -> list.stream()) // blocks individually
 				.map(b -> blockRepo.save(b)) // persist
-//				.map(bl -> bl.getNumber()) // collect as list of block number
+				//				.map(bl -> bl.getNumber()) // collect as list of block number
 				.collect(Collectors.toList()); //
 
 		final var elapsed = Long.divideUnsigned(System.nanoTime() - start, 1000000);
 
-		LOG.info("Bulkloaded " + result.size() + " in " + elapsed + " ms");
+		LOG.info("Bulkloaded " + result.size() + " in " + TimeUtils.format(elapsed));
 	}
 
 	/**
@@ -116,9 +117,9 @@ public class TrustedLoader {
 			LOG.info("... saved block : " + block);
 
 		} catch (final Exception e) {
-//			synchronized (trustedSources) {
-//				trustedSources.remove(node);
-//			}
+			//			synchronized (trustedSources) {
+			//				trustedSources.remove(node);
+			//			}
 			LOG.error("Problem on node " + node + " " + trustedSources, e);
 		}
 
@@ -138,7 +139,7 @@ public class TrustedLoader {
 
 			final var responseEntity = restTemplate.exchange(url, HttpMethod.GET, null,
 					new ParameterizedTypeReference<List<Block>>() {
-					});
+			});
 			final var body = responseEntity.getBody();
 			final var contentType = responseEntity.getHeaders().getContentType().toString();
 			final var statusCode = responseEntity.getStatusCode().getReasonPhrase();

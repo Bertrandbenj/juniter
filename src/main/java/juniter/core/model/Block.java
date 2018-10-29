@@ -18,6 +18,7 @@ import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
@@ -173,6 +174,7 @@ public class Block implements Serializable, DUPComponent {
 	private List<Certification> certifications = new ArrayList<>();
 
 	@Valid
+	@OrderColumn
 	@LazyCollection(LazyCollectionOption.FALSE)
 	@OneToMany(cascade = CascadeType.ALL)
 	@JoinColumns(value = { @JoinColumn(name = "Bnumber", referencedColumnName = "number"),
@@ -373,6 +375,10 @@ public class Block implements Serializable, DUPComponent {
 		return previousIssuer.getPubkey();
 	}
 
+	public String getRaw() {
+		return toDUP(false, true);
+	}
+
 	/**
 	 * @return the revoked
 	 */
@@ -425,13 +431,13 @@ public class Block implements Serializable, DUPComponent {
 		this.certifications = certifications;
 	}
 
-	public void setCurrency(String currency) {
-		this.currency = currency;
-	}
-
 	//	public Long id() {
 	//		return id;
 	//	}
+
+	public void setCurrency(String currency) {
+		this.currency = currency;
+	}
 
 	public void setDividend(Integer dividend) {
 		this.dividend = dividend;
@@ -449,13 +455,13 @@ public class Block implements Serializable, DUPComponent {
 		this.identities = identities;
 	}
 
-	public void setInner_hash(Hash inner_hash) {
-		this.inner_hash = inner_hash;
-	}
-
 	//	public void setId(Long id) {
 	//		this.id = id;
 	//	}
+
+	public void setInner_hash(Hash inner_hash) {
+		this.inner_hash = inner_hash;
+	}
 
 	public void setIssuersCount(Integer issuersCount) {
 		this.issuersCount = issuersCount;
@@ -570,11 +576,11 @@ public class Block implements Serializable, DUPComponent {
 		+ certifications.size() + transactions.size();
 	}
 
+
 	@Override
 	public String toDUP() {
 		return toDUP(true, true);
 	}
-
 
 	/**
 	 * Method returning block as a Raw format
@@ -631,6 +637,7 @@ public class Block implements Serializable, DUPComponent {
 				+ (signed ? signature : "");
 	}
 
+
 	/**
 	 * Format as follow Block [id=... , buid=... , hash=... , ... ]
 	 *
@@ -640,5 +647,4 @@ public class Block implements Serializable, DUPComponent {
 	public String toString() {
 		return "Block [" + version + ", " + number + ", " + currency + "]";
 	}
-
 }
