@@ -1,24 +1,22 @@
 package juniter.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
-
-import java.util.List;
-
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import juniter.core.crypto.Crypto;
+import juniter.core.model.Block;
+import juniter.core.validation.BlockLocalValid;
+import juniter.repository.memory.Index;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
 
-import juniter.core.crypto.Crypto;
-import juniter.core.model.Block;
-import juniter.core.validation.LocalValid;
-import juniter.repository.memory.Index;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 
-public class TestOnFileBlocks implements LocalValid {
+public class TestOnFileBlocks implements BlockLocalValid {
 
 	private static final Logger LOG = LogManager.getLogger();
 
@@ -62,6 +60,7 @@ public class TestOnFileBlocks implements LocalValid {
 
 	final Index idx = new Index();
 
+	private Block _92636;
 
 
 	@Before
@@ -78,6 +77,7 @@ public class TestOnFileBlocks implements LocalValid {
 			_15144 = jsonMapper.readValue(cl.getResourceAsStream("blocks/15144.json"), Block.class);
 			_17500 = jsonMapper.readValue(cl.getResourceAsStream("blocks/17500.json"), Block.class);
 			_33396 = jsonMapper.readValue(cl.getResourceAsStream("blocks/33396.json"), Block.class);
+			_92636 = jsonMapper.readValue(cl.getResourceAsStream("blocks/92636.json"), Block.class);
 			_102093 = jsonMapper.readValue(cl.getResourceAsStream("blocks/102093.json"), Block.class);
 			_127128 = jsonMapper.readValue(cl.getResourceAsStream("blocks/127128.json"), Block.class);
 
@@ -134,53 +134,81 @@ public class TestOnFileBlocks implements LocalValid {
 		final String signedPart = "InnerHash: FF0B7558ACC91F77BB6AF3F1DADCD3154E4A683346496C2B564E1BFBD1766EF7\nNonce: 10200000001484\n";
 		final String sign = "/pq2tcuTYeHfPGQfkq58Q6M4CLSyVqSEUFv4Q3dPGzAKiJn8cB34jpcVR9Ar03qYfUxzqaJ6ZnDXK2B4LWalDg==";
 		final String iss = "4GX5gUFwKg8Y8oL5ZFwFD64U3vEJo6CtY61Y3J8LMCHk";
-		assert Crypto.verify(signedPart, sign, iss);
+		assert Crypto.verify(signedPart, sign, iss): "Signature Block# 85448";
+	}
+
+	@Test
+	public void test109327() {
+		final String signedPart = "InnerHash: 845302B10649E0C9916AB6957CED582917AD9D46573033DF5C482E2F4950FF6E\nNonce: 770400000049856";
+		final String sign = "77oCaC+v8fY45PjK8pMHf0u3/hsP/7I4RKvPFg8Ku1HEwwUl95531SDQmh2Q5KLaZjU7uBmS7qdiGVqYINSoAw==";
+		final String iss = "GfKERHnJTYzKhKUma5h1uWhetbA8yHKymhVH2raf2aCP";
+		assert Crypto.verify(signedPart, sign, iss) : "Signature Block# 109327";
+	}
+
+	@Test
+	public void test87566() {
+		final String signedPart = "InnerHash: 2C9AAC6290DC5CE5FCFA11B0A626179747E52F54512FFB75986BAC7423C1C4C8\nNonce: 10300000125264\n";
+		final String sign = "1bn9PaiuWEhYRwEtdCthPtvxipNXuvUsh2c3iuv2PkZXIFyohx3U5+Fx+wUl60TjihPSGvAH3X/jw2NzHyUFDw==";
+		final String iss = "2sZF6j2PkxBDNAqUde7Dgo5x3crkerZpQ4rBqqJGn8QT";
+		assert Crypto.verify(signedPart, sign, iss): "Signature Block# 87566";
+	}
+	@Test
+	public void test0() {
+		final String signedPart = "InnerHash: 55FBB918864D56922100211DAEF9CB71AC412BE10CC16B3A7AE56E10FB3A7569\nNonce: 400000020525\n";
+		final String sign = "49OD/8pj0bU0Lg6HB4p+5TOcRbgtj8Ubxmhen4IbOXM+g33V/I56GfF+QbD9U138Ek04E9o0lSjaDIVI/BrkCw==";
+		final String iss = "2ny7YAdmzReQxAayyJZsyVYwYhVyax2thKcGknmQy5nQ";
+		assert Crypto.verify(signedPart, sign, iss): "Signature Block# 0";
+	}
+
+
+
+	@Test
+	public void test92636() {
+		final var hash = Crypto.hash(_92636.toDUP(false, false));
+
+		assertTrue("test 92636 " + hash + " \nexpected: " + _92636.getInner_hash(),
+				hash.equals(_92636.getInner_hash()));
 	}
 
 	@Test
 	public void testBlock0() {
-		assertBlock(_0);
+		assertBlockLocalValid(_0);
 
 	}
 
 	@Test
 	public void testBlock1() {
-		assertBlock(_1);
+		assertBlockLocalValid(_1);
 	}
 
 	@Test
 	public void testBlock102093() {
-		assertBlock(_102093);
+		assertBlockLocalValid(_102093);
 	}
 
 	@Test
 	public void testBlock127128() {
-		assertBlock(_127128);
+		assertBlockLocalValid(_127128);
 	}
 
 	@Test
 	public void testBlock1437() {
-		assertBlock(_1437);
+		assertBlockLocalValid(_1437);
 	}
 
 	@Test
 	public void testBlock15144() {
-		assertBlock(_15144);
+		assertBlockLocalValid(_15144);
 	}
 
 	@Test
 	public void testBlock17500() {
-		assertBlock(_1437);
+		assertBlockLocalValid(_1437);
 	}
 
 	@Test
 	public void testBlock33396() {
-		assertBlock(_33396);
-	}
-
-	@Test
-	public void testBlockSign1() {
-		assertValidBlockSignature(_1);
+		assertBlockLocalValid(_33396);
 	}
 
 
@@ -190,7 +218,7 @@ public class TestOnFileBlocks implements LocalValid {
 				blockchain.size() == 11);
 
 		blockchain.forEach(b -> {
-			assertBlock(b);
+			assertBlockLocalValid(b);
 		});
 
 	}
@@ -202,7 +230,7 @@ public class TestOnFileBlocks implements LocalValid {
 
 		blockchaing1.forEach(b -> {
 			LOG.info("asserting " + b);
-			assertBlock(b);
+			assertBlockLocalValid(b);
 		});
 
 	}

@@ -45,7 +45,7 @@ import juniter.repository.jpa.BlockRepository;
 import juniter.repository.jpa.CertsRepository;
 import juniter.repository.jpa.TxRepository;
 import juniter.service.bma.BlockchainService;
-import juniter.service.dev.TrustedLoader;
+import juniter.service.bma.DefaultLoader;
 
 @Controller
 @ConditionalOnExpression("${juniter.graphviz.enabled:false} && ${juniter.bma.enabled:false}")
@@ -123,7 +123,7 @@ public class GraphvizService {
 	private CertsRepository certsRepo;
 
 	@Autowired
-	private TrustedLoader trustedLoader;
+	private DefaultLoader defaultLoader;
 
 	@Autowired
 	private BlockRepository blockRepo;
@@ -141,7 +141,7 @@ public class GraphvizService {
 		final var blocks = IntStream.range(blockNumber - RANGE, blockNumber + RANGE + 1)//
 				.filter(i -> i >= 0) //
 				.filter(i -> i <= blockRepo.currentBlockNumber()) //
-				.mapToObj(b -> blockRepo.block(b).orElseGet(() -> trustedLoader.fetchAndSaveBlock(b)))//
+				.mapToObj(b -> blockRepo.block(b).orElseGet(() -> defaultLoader.fetchAndSaveBlock(b)))//
 				.sorted((b1, b2) -> b1.getNumber().compareTo(b2.getNumber()))//
 				.collect(toList());
 
@@ -184,7 +184,7 @@ public class GraphvizService {
 			var deltaTime = "N/A";
 			if (b.getNumber() != 0) {
 				final var delta = b.getMedianTime() - blockRepo.block(b.getNumber() - 1)//
-						.orElse(trustedLoader.fetchAndSaveBlock(b.getNumber())) //
+						.orElse(defaultLoader.fetchAndSaveBlock(b.getNumber())) //
 						.getMedianTime();
 				deltaTime = Long.divideUnsigned(delta, 60) + "m " + delta % 60 + "s";
 			}

@@ -1,17 +1,10 @@
 package juniter.service;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import juniter.core.model.Block;
+import juniter.core.utils.TimeUtils;
+import juniter.core.validation.BlockLocalValid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Before;
@@ -26,12 +19,15 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-import juniter.core.model.Block;
-import juniter.core.utils.TimeUtils;
-import juniter.core.validation.LocalValid;
+import static org.hamcrest.CoreMatchers.is;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringRunner.class)
 //@SpringBootTest(
@@ -40,7 +36,7 @@ import juniter.core.validation.LocalValid;
 //	)
 @SpringBootTest
 @AutoConfigureMockMvc
-public class WebMVCITest implements LocalValid {
+public class WebMVCITest implements BlockLocalValid {
 
 	private static final Logger LOG = LogManager.getLogger();
 
@@ -55,6 +51,27 @@ public class WebMVCITest implements LocalValid {
 	AtomicInteger intt = new AtomicInteger();
 
 	List<String> erroringBlock = new ArrayList<>();
+
+	private void dirtyReload(Integer bnumber) {
+		try {
+			LOG.error("Deleting to reload block #" + bnumber);
+
+			mvc.perform(MockMvcRequestBuilders
+					.get("/blockchain/deleteBlock/" + bnumber))
+			.andExpect(status().isOk())
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8));
+		} catch (final Exception e1) {
+			LOG.error("Retried but failed ", e1);
+			erroringBlock.add(bnumber + " - " + e1.getMessage().split("\n")[0]);
+
+		}
+
+	}
+
+	@Test
+	public void test90830(){
+
+    }
 
 	@Test
 	public void fetchingFirstBlock() throws Exception {
@@ -96,21 +113,19 @@ public class WebMVCITest implements LocalValid {
 		+ "estimating: " + TimeUtils.format(estimate));
 
 		LOG.info("blocks erroring :"
-				+ erroringBlock.stream().sorted().map(i -> i.toString().split("\n")[0])
-						.collect(Collectors.joining("\n")));
+				+ erroringBlock.stream().collect(Collectors.joining("\n")));
 
 	}
 
-	@Test
-	public void testOne() throws Exception {
+	public void testOne(Integer i) throws AssertionError, Exception {
 
-		mvc.perform(MockMvcRequestBuilders.get("/blockchain/block/52"))
+		mvc.perform(MockMvcRequestBuilders.get("/blockchain/block/" + i))
 		.andExpect(status().isOk())
 		.andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
 		.andDo(result -> {
 			final var body = result.getResponse().getContentAsString();
 			final Block block = jsonMapper.readValue(body, Block.class);
-			assertBlock(block);
+			assertBlockLocalValid(block);
 		});
 	}
 
@@ -127,10 +142,9 @@ public class WebMVCITest implements LocalValid {
 				});
 				blocks.forEach(block -> {
 					try {
-						assertBlock(block);
+						assertBlockLocalValid(block);
 					} catch (final AssertionError e) {
-						erroringBlock.add(block.getNumber() + " - " + e.getMessage());
-
+						dirtyReload(block.getNumber());
 					}
 
 				});
@@ -140,6 +154,24 @@ public class WebMVCITest implements LocalValid {
 			LOG.info("erroring " + erroringBlock.stream().collect(Collectors.joining("\n")));
 			e.printStackTrace();
 		}
+	}
+
+	@Test
+	public void testSome(){
+
+		final List<Integer> numbers = List.of(15144, 109327, 87566, 90830, 85448);
+
+		numbers.forEach(n -> dirtyReload(n));
+
+		numbers.forEach(i -> {
+			try {
+				testOne(i);
+			} catch (final AssertionError e) {
+				e.printStackTrace();
+			} catch (final Exception e) {
+				LOG.error("testSome ", e);
+			}
+		});
 	}
 
 }

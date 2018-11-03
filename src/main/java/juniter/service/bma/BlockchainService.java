@@ -25,7 +25,6 @@ import juniter.core.model.Block;
 import juniter.repository.jpa.BlockRepository;
 import juniter.service.bma.model.BlockDTO;
 import juniter.service.bma.model.WithWrapper;
-import juniter.service.dev.TrustedLoader;
 
 /**
  *
@@ -66,7 +65,7 @@ public class BlockchainService {
 	private BlockRepository repository;
 
 	@Autowired
-	private TrustedLoader trustedLoader;
+	private DefaultLoader defaultLoader;
 
 	@Autowired
 	private ModelMapper modelMapper;
@@ -90,7 +89,7 @@ public class BlockchainService {
 	public BlockDTO block(@PathVariable("id") Integer id) {
 
 		LOG.info("Entering /blockchain/block/{number=" + id + "}");
-		final var block = repository.findTop1ByNumber(id).orElseGet(() -> trustedLoader.fetchAndSaveBlock(id));
+		final var block = repository.findTop1ByNumber(id).orElseGet(() -> defaultLoader.fetchAndSaveBlock(id));
 
 		return convertToDto(block);
 	}
@@ -109,7 +108,7 @@ public class BlockchainService {
 
 		final List<Block> blocksToSave = blocksToFind.stream()
 				.filter(b -> !knownBlocks.stream().anyMatch(kb -> kb.getNumber().equals(b)))
-				.map(lg -> trustedLoader.fetchAndSaveBlock(lg)).collect(toList());
+				.map(lg -> defaultLoader.fetchAndSaveBlock(lg)).collect(toList());
 
 		LOG.debug("---fetch blocks: " + Stream.concat(blocksToSave.stream(), knownBlocks.stream())
 		.map(b -> b.getNumber().toString()).collect(joining(",")));
@@ -134,9 +133,20 @@ public class BlockchainService {
 	public BlockDTO current() {
 		LOG.info("Entering /blockchain/current");
 		final var b = repository.findTop1ByOrderByNumberDesc()//
-				.orElse(trustedLoader.fetchAndSaveBlock("current"));
+				.orElse(defaultLoader.fetchAndSaveBlock("current"));
 
 		return convertToDto(b);
+	}
+
+	@RequestMapping(value = "/deleteBlock/{id}", method = RequestMethod.GET)
+	public BlockDTO deleteBlock(@PathVariable("id") Integer id) {
+		LOG.warn("Entering /blockchain/deleteBlock/{id=" + id + "}");
+
+		repository.block(id).ifPresent(block -> {
+			repository.delete(block);
+		});
+
+		return convertToDto(defaultLoader.fetchAndSaveBlock(id));
 	}
 
 	@RequestMapping(value = "/", method = RequestMethod.GET)

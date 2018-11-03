@@ -1,5 +1,32 @@
+
 ##
-## =========================== Spring Specific Confs ===========================
+## =========================== Juniter Configs ===========================
+##
+
+juniter:
+  network:
+    trusted: https://g1.bertrandbenjamin.com/,https://g1.duniter.org/,https://duniter.g1.1000i100.fr/,https://duniter.nayya.org/,http://g1-monit.librelois.fr:10901/,http://jardin.foyerruralct.fr:10902/
+    bulkSize: 500
+    webSocketPoolSize: 5
+  simpleloader.enabled: false
+  usefulloader.enabled: false
+  missingloader.enabled: true
+  graphviz.enabled: true
+  graphql.enabled: false # FIXME:  dependencies ?
+  bma.enabled: true
+  ws2p.enabled: true
+  utils.enabled: false
+  useJavaFX: true
+  useDefaultLoader: true
+
+spark:
+  master: local[*]
+  app.name: juniter
+  home:
+
+
+##
+## =========================== Spring Confs ===========================
 ##
 spring:
   output.ansi.enabled: DETECT # Colored logs : DETECT|ALWAYS|NEVER 
@@ -23,7 +50,15 @@ spring:
 #      prefix: /WEB-INF/view/
 #      suffix: .jsp
 #  autoconfigure.exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration 
-      
+
+# https://kafka.apache.org/quickstart
+  kafka:
+#    bootstrap-servers: kafka:9092  
+    consumer:
+      group-id: juniter
+#      auto-offset-reset: earliest   
+
+     
 
 
 ##
@@ -53,32 +88,7 @@ graphiql:
   enabled: true
 
 
-##
-## =========================== Juniter Configs ===========================
-## 
 
-juniter:
-  network:
-    trusted: https://g1.bertrandbenjamin.com/,https://g1.duniter.org/,https://duniter.g1.1000i100.fr/,https://duniter.nayya.org/
-    bulkSize: 500
-    webSocketPoolSize: 5
-  simpleloader:
-    enabled: false  
-  graphviz:
-    enabled: true
-  graphql:
-    enabled: false # FIXME:  dependencies ? 
-  bma:
-    enabled: true
-  ws2p:
-    enabled: true
-  utils:
-    enabled: false
-
-spark:
-  master: local[*]
-  app.name: juniter
-  home: 
 
 ##
 ## =========================== Logging Configs ===========================

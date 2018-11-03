@@ -25,7 +25,7 @@ version '1.0.0-SNAPSHOT'
 //antlr4.output = '$buildDir/generated-src/juniter/grammar/antlr4'
 apply plugin: 'org.hidetake.ssh'
 apply plugin: 'java'
-apply plugin: 'scala'
+//apply plugin: 'scala'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
 apply plugin: 'antlr'
@@ -190,6 +190,8 @@ compile ('org.springframework.boot:spring-boot-starter-web'){
 	//compile group: 'org.apache.spark', name: 'spark-core_2.11', version: '2.3.2'
     //provided group: 'org.apache.spark', name: 'spark-streaming_2.11', version: '2.3.2'
     //compile group: 'org.apache.spark', name: 'spark-sql_2.11', version: '2.3.2'
+    
+    compile 'org.springframework.kafka:spring-kafka'
     
     
     // SYSTEM path

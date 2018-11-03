@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toList;
 import java.util.ArrayList;
 import java.util.List;
 
+import juniter.service.bma.DefaultLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,9 +33,9 @@ import juniter.service.bma.model.WithWrapper;
  * @author ben
  *
  */
-@ConditionalOnExpression("${juniter.simpleloader.enabled:false}")
+@ConditionalOnExpression("${juniter.usefulloader.enabled:false}")
 @Component
-@Order(3)
+@Order(4)
 public class UsefulBlocksLoader implements CommandLineRunner {
 
 	private static final Logger LOG = LogManager.getLogger();
@@ -43,14 +44,14 @@ public class UsefulBlocksLoader implements CommandLineRunner {
 	BlockRepository blockRepo;
 
 	@Autowired
-	private TrustedLoader trustedLoader;
+	private DefaultLoader defaultLoader;
 
 	@Autowired
 	private RestTemplate restTemplate;
 
 	@Transactional
 	private List<Integer> fetchUsefullBlocks() {
-		final String url = trustedLoader.any() + "blockchain/with/";
+		final String url = defaultLoader.anyNotIn(null).get() + "blockchain/with/";
 		LOG.info("Loading from : " + url);
 		final List<Integer> res = new ArrayList<>();
 		try {
@@ -99,12 +100,11 @@ public class UsefulBlocksLoader implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		final var start = System.nanoTime();
-		trustedLoader.bulkLoad();
 
 		fetchUsefullBlocks() //
 		.stream() //
 		.parallel() //
-		.map(i -> blockRepo.block(i).orElseGet(() -> trustedLoader.fetchAndSaveBlock(i))) //
+		.map(i -> blockRepo.block(i).orElseGet(() -> defaultLoader.fetchAndSaveBlock(i))) //
 		.collect(toList());
 
 		final var elapsed = Long.divideUnsigned(System.nanoTime() - start, 1000000);

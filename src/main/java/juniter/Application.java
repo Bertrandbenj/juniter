@@ -21,6 +21,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @Configuration
 @EnableAutoConfiguration//(exclude = { DataSourceAutoConfiguration.class })
@@ -28,14 +29,27 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 @EnableJpaRepositories("juniter.repository")
 @SpringBootApplication
 @EnableAsync
+@EnableScheduling
 public class Application {
 
 	private static final Logger log = LogManager.getLogger();
+
 
 	public static void main(String[] args) {
 		log.debug("!!! Entering Application main !!!");
 		// new Thread(()->TimeUnit.MINUTES.sleep(1)).run();
 		SpringApplication.run(Application.class, args);
+	}
+
+	@Bean
+	public Executor asyncExecutor() {
+		final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+		executor.setCorePoolSize(4);
+		executor.setMaxPoolSize(4);
+		executor.setQueueCapacity(500);
+		executor.setThreadNamePrefix("AsyncJuniter-");
+		executor.initialize();
+		return executor;
 	}
 
 	@Primary
@@ -49,21 +63,10 @@ public class Application {
 	@Bean(name = "entityManagerFactory")
 	public LocalContainerEntityManagerFactoryBean entityManagerFactory(EntityManagerFactoryBuilder builder,
 			@Qualifier("dataSource") DataSource dataSource) {
-		return builder.dataSource(dataSource) // 
-				.packages("juniter") // 
-				.persistenceUnit("juniter") // 
+		return builder.dataSource(dataSource) //
+				.packages("juniter") //
+				.persistenceUnit("juniter") //
 				.build();
-	}
-
-	@Bean
-	public Executor asyncExecutor() {
-		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-		executor.setCorePoolSize(4);
-		executor.setMaxPoolSize(4);
-		executor.setQueueCapacity(500);
-		executor.setThreadNamePrefix("AsyncJuniter-");
-		executor.initialize();
-		return executor;
 	}
 
 }

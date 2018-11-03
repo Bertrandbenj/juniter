@@ -41,6 +41,11 @@ chmod a+w /var/log/juniter
 ```
 ## Database 
 ```
+sudo -u postgres psql
+drop database testdb;
+\q to exit
+
+
 psql -U postgres -c "drop database testdb"
 
 su - postgres

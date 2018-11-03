@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,16 +14,23 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
 
 import juniter.core.model.Block;
+import juniter.core.validation.BlockLocalValid;
 
 /**
  * Repository to manage {@link Block} instances.
  */
 @Repository
-public interface BlockRepository extends JpaRepository<Block, Long> {
+public interface BlockRepository extends JpaRepository<Block, Long>, BlockLocalValid {
 
 	default Optional<Block> block(Integer number) {
 		return findTop1ByNumber(number);
 	}
+
+	@Query("select number from Block")
+	List<Integer> blockNumbers();
+
+    @Query("select number from Block WHERE number NOT IN :notIn")
+    List<Integer> blockNumbers(List<Integer> notIn);
 
 	/**
 	 * highest block by block number in base
@@ -38,8 +47,8 @@ public interface BlockRepository extends JpaRepository<Block, Long> {
 
 	List<Block> findByHash(String hash);
 
-//	@Override
-//	Optional<Block> findById(Long id);
+	//	@Override
+	//	Optional<Block> findById(Long id);
 
 	Stream<Block> findByNumberIn(List<Integer> number);
 
@@ -55,11 +64,21 @@ public interface BlockRepository extends JpaRepository<Block, Long> {
 	 */
 	Optional<Block> findTop1ByOrderByNumberDesc();
 
+	default Optional<Block> localSave(Block block) throws AssertionError {
+
+		if (checkBlockisLocalValid(block))
+			return Optional.of(save(block));
+
+		return Optional.empty();
+	};
+
+
+
 	default <S extends Block> Block override(S block) {
 		final var existingBlock = findTop1ByNumber(block.getNumber());
 		final var bl = existingBlock.orElse(block);
 		return save(bl);
-	};
+	}
 
 	@Async
 	CompletableFuture<List<Block>> readAllBy();

@@ -182,7 +182,7 @@ public class Block implements Serializable, DUPComponent {
 	private List<Transaction> transactions = new ArrayList<>();
 
 	/**
-	 * Empty constructor
+	 * Empty constructors
 	 */
 	public Block() {
 	}
