@@ -11,6 +11,7 @@ docs/javadoc
 *.interp
 *.tokens
 /.settings/
+/.idea/
 /.classpath
 /.cache-main
 /.cache-tests
