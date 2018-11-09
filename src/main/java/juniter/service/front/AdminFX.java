@@ -1,23 +1,21 @@
 package juniter.service.front;
 
-import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import juniter.core.crypto.SecretBox;
+import juniter.core.validation.StaticValid;
 import juniter.repository.jpa.BlockRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.util.stream.Stream;
@@ -27,7 +25,7 @@ import java.util.stream.Stream;
  */
 @ConditionalOnExpression("${juniter.useJavaFX:false}")
 @Component
-public class AdminFX extends Application implements CommandLineRunner {
+public class AdminFX extends AbstractJavaFxApplicationSupport {
 
     private static final Logger LOG = LogManager.getLogger();
 
@@ -41,52 +39,62 @@ public class AdminFX extends Application implements CommandLineRunner {
     private TextField delSome;
 
     @FXML
+    private MenuItem menuGraph;
+
+
+    @FXML
+    private TextField tstOne;
+
+    @FXML
+    private TextField tstSome;
+
+    @FXML
     private PasswordField salt;
 
     @FXML
     private PasswordField password;
 
+
+    @FXML
+    private ImageView logo;
+
     @FXML
     private Button login;
 
+    @FXML
+    private Button deleteBlock;
 
+    @FXML
+    private Button deleteBlocks;
+
+    @FXML
+    private Button testBlock;
+
+    @FXML
+    private Button testBlocks;
 
     @Autowired
-    BlockRepository repository;
-
-    @Async
-    @Override
-    public void run(String... args) throws Exception {
-
-        LOG.info("Launching FX application");
-        launch(args);
-
-        LOG.info("Closed FX application");
-    }
+    private BlockRepository blockRepo;
 
 
     public AdminFX() {
 
     }
 
-    @FXML
-    private void initialize() {
-
-    }
 
     @FXML
     public void deleteOne() {
         LOG.info("Couldn't delete Block, error parsing blockNumber " + delOne);
 
         Integer id = Integer.parseInt(delOne.getText());
-        if(id !=null){
+        if (id != null) {
 
-            LOG.info("deleting Block # " + id);
+            LOG.info("deleting Block # " + id + " " + blockRepo);
 
-            repository.block(id).ifPresent(block -> {
-                repository.delete(block);
+            blockRepo.block(id).ifPresent(block -> {
+                blockRepo.delete(block);
             });
-        }else{
+        } else {
             LOG.info("Couldn't delete Block, error parsing blockNumber " + delOne.getText());
         }
 
@@ -99,10 +107,10 @@ public class AdminFX extends Application implements CommandLineRunner {
         Stream.of(ids) //
                 .map(id -> Integer.parseInt(id))//
                 .forEach(id -> {
-                    LOG.info("deleting Block # " + id);
+                    LOG.info("deleting Blocks # " + id);
 
-                    repository.block(id).ifPresent(block -> {
-                        repository.delete(block);
+                    blockRepo.block(id).ifPresent(block -> {
+                        blockRepo.delete(block);
                     });
                 });
 
@@ -110,38 +118,83 @@ public class AdminFX extends Application implements CommandLineRunner {
     }
 
     @FXML
-    public void login() {
-        LOG.info("login "+ salt + " "+ login);
+    private Label pubkey;
 
-        boolean result = ConfirmBox.display("Login", "pk : "  );
-        LOG.info(result);
+    @FXML
+    public void login() {
         var secretBox = new SecretBox(salt.getText(), password.getText());
-        LOG.info(secretBox.getPublicKey());
+        pubkey.setText(secretBox.getPublicKey());
+    }
+
+    @FXML
+    public void testOne() {
+        Integer id = Integer.parseInt(tstOne.getText());
+
+        blockRepo.block(id).ifPresent(block -> {
+            LOG.info("testing Block # " + id);
+            boolean result;
+            try {
+                StaticValid.assertBlock(block);
+                result = ConfirmBox.display("All good", "repository node is local validation ");
+
+            } catch (AssertionError ea) {
+                result = ConfirmBox.display("AssertionError", ea.getMessage());
+            }
+            LOG.info("testing Block # " + result);
+
+        });
+    }
+
+
+    @FXML
+    public void testSome() {
+        String[] ids = tstSome.getText().split(",");
+
+        Stream.of(ids) //
+                .map(id -> Integer.parseInt(id))//
+                .forEach(id -> {
+                    LOG.info("testing Blocks # " + id);
+
+                    blockRepo.block(id).ifPresent(block -> {
+                        boolean result = false;
+                        try {
+                            StaticValid.assertBlock(block);
+
+                        } catch (AssertionError ea) {
+                            result = ConfirmBox.display("AssertionError", ea.getMessage());
+                        }
+                        LOG.info("testing Block # " + result);
+                    });
+                });
+        ConfirmBox.display("All good", "repository node is local valid  ");
 
     }
 
 
+    @FXML
+    public void viewSVGGraph(ActionEvent event) {
+        LOG.info("view SVG Graph " + event.getEventType());
+
+        BorderPane page = (BorderPane) load("/adminfx/GraphPanel.fxml");
+
+        Scene scene = new Scene(page);
+
+
+        Stage stage = (Stage) login.getScene().getWindow();
+        stage.setScene(scene);
+        stage.show();
+
+    }
+
     @Override
     public void start(Stage primaryStage) throws Exception {
 
-        FXMLLoader loader = new FXMLLoader(AdminFX.class.getResource("/adminfx/AdminFX.fxml"));
-        loader.setRoot(content);
-        BorderPane page = (BorderPane) loader.load();
+        if (null == blockRepo) {
+            throw new IllegalStateException("BlockRepository was not injected properly");
+        }
 
-        login  = new Button("Login2");
-//        salt = new PasswordField();
-//        password = new PasswordField();
 
-        login.setOnAction(e -> {
-
-            LOG.info("login "+ salt + " "+ login);
-
-            boolean result = ConfirmBox.display("Title of Window", "Are you sure you want to send that pic?");
-            LOG.info(result);
-            var secretBox = new SecretBox(salt.getText(), password.getText());
-            LOG.info(secretBox.getPublicKey());
-        });
-
+        BorderPane page = (BorderPane) load("/adminfx/AdminFX.fxml");
 
         Scene scene = new Scene(page);
         scene.getStylesheets().add("/adminfx/search.css");
@@ -151,14 +204,10 @@ public class AdminFX extends Application implements CommandLineRunner {
         primaryStage.setScene(scene);
         primaryStage.getIcons().add(new Image(AdminFX.class.getResourceAsStream("/adminfx/logo.png")));
         primaryStage.show();
+        primaryStage.setOnHidden(e -> Platform.exit());
+
 
     }
 
-    @FXML
-    public void openSVGGraph() {
-        LOG.info("openSVGGraph ");
-        GraphPanel.launch();
-
-    }
 
 }

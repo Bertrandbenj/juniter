@@ -99,6 +99,7 @@ repositories {
 	mavenCentral()
 	mavenLocal()
 	jcenter()
+
 }
     
 configurations {
@@ -191,9 +192,9 @@ compile ('org.springframework.boot:spring-boot-starter-web'){
     //provided group: 'org.apache.spark', name: 'spark-streaming_2.11', version: '2.3.2'
     //compile group: 'org.apache.spark', name: 'spark-sql_2.11', version: '2.3.2'
     
-    compile 'org.springframework.kafka:spring-kafka'
-    
-    
+    //compile 'org.springframework.kafka:spring-kafka'
+    //compile group: 'batik', name: 'batik-svg-dom', version: '1.6-1' // for the
+
     // SYSTEM path
     //compile("org.abstractj.kalium:kalium:kalium-0.5.0_blavenie") 
   	compile files('lib/kalium-0.5.0_blavenie.jar') //, 'libs/gson-2.2.4.jar')

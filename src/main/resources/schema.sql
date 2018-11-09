@@ -38,7 +38,7 @@ CREATE TABLE public.block
   version smallint,
   CONSTRAINT block_pkey PRIMARY KEY (hash, number),
   CONSTRAINT block_unitbase_check CHECK (unitbase >= 0 AND unitbase <= 0)
-)
+);
 WITH (
   OIDS=FALSE
 );

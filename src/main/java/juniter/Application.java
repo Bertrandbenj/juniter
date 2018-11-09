@@ -1,9 +1,6 @@
 package juniter;
 
-import java.util.concurrent.Executor;
-
-import javax.sql.DataSource;
-
+import juniter.service.front.AdminFX;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -20,8 +17,11 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+
+import javax.sql.DataSource;
+import java.util.concurrent.Executor;
 
 @Configuration
 @EnableAutoConfiguration//(exclude = { DataSourceAutoConfiguration.class })
@@ -36,9 +36,19 @@ public class Application {
 
 
 	public static void main(String[] args) {
-		log.debug("!!! Entering Application main !!!");
-		// new Thread(()->TimeUnit.MINUTES.sleep(1)).run();
-		SpringApplication.run(Application.class, args);
+		log.info("!!! Entering Application main !!!");
+
+		var context = SpringApplication.run(Application.class, args);
+		log.info("!!! SpringApplication.run !!!");
+
+
+
+		new Thread(() -> { AdminFX.launchApp(AdminFX.class, context); }).start();
+		log.info("!!! launchApp AdminFX !!!");
+
+		//new Thread(() -> { GraphPanel.launchApp(GraphPanel.class, context); }).start();
+		log.info("!!! launchApp GraphPanel !!!");
+
 	}
 
 	@Bean
@@ -68,5 +78,6 @@ public class Application {
 				.persistenceUnit("juniter") //
 				.build();
 	}
+
 
 }

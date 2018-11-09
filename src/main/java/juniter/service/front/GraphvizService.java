@@ -1,25 +1,13 @@
 package juniter.service.front;
 
-import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import juniter.core.model.Block;
+import juniter.core.model.Pubkey;
+import juniter.core.model.tx.*;
+import juniter.repository.jpa.BlockRepository;
+import juniter.repository.jpa.CertsRepository;
+import juniter.repository.jpa.TxRepository;
+import juniter.service.bma.BlockchainService;
+import juniter.service.bma.DefaultLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,17 +23,25 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import juniter.core.model.Pubkey;
-import juniter.core.model.tx.Transaction;
-import juniter.core.model.tx.TxInput;
-import juniter.core.model.tx.TxOutput;
-import juniter.core.model.tx.TxType;
-import juniter.core.model.tx.TxUnlock;
-import juniter.repository.jpa.BlockRepository;
-import juniter.repository.jpa.CertsRepository;
-import juniter.repository.jpa.TxRepository;
-import juniter.service.bma.BlockchainService;
-import juniter.service.bma.DefaultLoader;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 
 @Controller
 @ConditionalOnExpression("${juniter.graphviz.enabled:false} && ${juniter.bma.enabled:false}")
@@ -138,11 +134,8 @@ public class GraphvizService {
 
 		final Integer RANGE = extraParams.containsKey("range") ? Integer.valueOf(extraParams.get("range")[0]) : 2;
 
-		final var blocks = IntStream.range(blockNumber - RANGE, blockNumber + RANGE + 1)//
-				.filter(i -> i >= 0) //
-				.filter(i -> i <= blockRepo.currentBlockNumber()) //
-				.mapToObj(b -> blockRepo.block(b).orElseGet(() -> defaultLoader.fetchAndSaveBlock(b)))//
-				.sorted((b1, b2) -> b1.getNumber().compareTo(b2.getNumber()))//
+		final var blocks = blockRepo.streamBlocksFromTo(blockNumber-RANGE, blockNumber+RANGE)
+				.sorted(Comparator.comparing(Block::getNumber))//
 				.collect(toList());
 
 		String res = "digraph{\n\t" //
@@ -182,10 +175,8 @@ public class GraphvizService {
 			}
 
 			var deltaTime = "N/A";
-			if (b.getNumber() != 0) {
-				final var delta = b.getMedianTime() - blockRepo.block(b.getNumber() - 1)//
-						.orElse(defaultLoader.fetchAndSaveBlock(b.getNumber())) //
-						.getMedianTime();
+			if (b.getNumber() > 0) {
+				final var delta = b.getMedianTime() - blockRepo.block(b.getNumber() - 1).get().getMedianTime();
 				deltaTime = Long.divideUnsigned(delta, 60) + "m " + delta % 60 + "s";
 			}
 
@@ -366,53 +357,88 @@ public class GraphvizService {
 	 * @return
 	 * @throws IOException
 	 */
-	@Transactional
+	@Transactional(readOnly = true)
+
 	@RequestMapping(value = "/{fileType}/{output}/{identifier}", method = RequestMethod.GET)
-	public @ResponseBody ResponseEntity<String> generic(HttpServletRequest request, HttpServletResponse response, //
-			@PathVariable("fileType") FileOutputType fileType, @PathVariable("output") GraphOutput output,
+	public @ResponseBody ResponseEntity<String> generic(
+			HttpServletRequest request,
+			HttpServletResponse response, //
+			@PathVariable("fileType") FileOutputType fileType,
+			@PathVariable("output") GraphOutput output,
 			@PathVariable("identifier") String identifier) throws IOException {
-
-		final var extraParams = request.getParameterMap();
-
-		final var headers = new HttpHeaders();
-		var outContent = "";
-		var gv = "";
 
 		LOG.info("[GET] /graphviz/{}/{}/{}", fileType, output, identifier);
 
-		extraParams.forEach((k, v) -> {
-			LOG.info("  -  {} -> {} ", k, v);
-			// headers.setAtt(k, Arrays.asList(v));
-			// TODO: forward parameters
-		});
+		// handle GET parameters map
+		Map<String, String[]> extraParams =  null ;
+		if(request!=null) {
+			extraParams = request.getParameterMap();
+			extraParams.forEach((k, v) -> {
+				LOG.info("extraParams  -  {} -> {} ", k, v);
+				// TODO: forward parameters
+			});
+		}
+
+		// build the graph
+		String outContent = build(fileType, output, identifier, extraParams);
+
+		// add http headers
+		final var headers = new HttpHeaders();
+		switch (fileType) {
+			case dot:
+				headers.setContentType(MediaType.valueOf("text/plain"));
+				break;
+			case svg:
+				headers.setContentType(MediaType.valueOf("image/svg+xml"));
+				break;
+		}
+
+
+
+		return new ResponseEntity<>(outContent, headers, HttpStatus.OK);
+	}
+
+	/**
+	 * Build the graphviz .dot and / or the corresponding .svg
+	 * @param fileType
+	 * @param output
+	 * @param identifier
+	 * @param extraParams
+	 * @return
+	 */
+	@Transactional(readOnly = true)
+	public String build( FileOutputType fileType,
+						 GraphOutput output,
+						  String identifier, Map<String, String[]> extraParams){
+
+		var outContent = "";
+		var gv = "";
+
 
 		// Build the dot file
-
 		switch (output) {
-		case block:
-			gv = blockGraph(Integer.valueOf(identifier), extraParams);
-			break;
-		case certs:
-			gv = certsGraph(identifier);
-			break;
-		case tx:
-			gv = txGraph(identifier, extraParams);
-			break;
+			case block:
+				gv = blockGraph(Integer.valueOf(identifier), extraParams);
+				break;
+			case certs:
+				gv = certsGraph(identifier);
+				break;
+			case tx:
+				gv = txGraph(identifier, extraParams);
+				break;
 		}
 
 		// decide whether or not to compute the graph
 		switch (fileType) {
-		case dot:
-			headers.setContentType(MediaType.valueOf("text/plain"));
-			outContent = gv;
-			break;
-		case svg:
-			headers.setContentType(MediaType.valueOf("image/svg+xml"));
-			outContent = localConvertToSVG(gv, identifier);
-			break;
+			case dot:
+				outContent = gv;
+				break;
+			case svg:
+				outContent = localConvertToSVG(gv, identifier);
+				break;
 		}
 
-		return new ResponseEntity<>(outContent, headers, HttpStatus.OK);
+		return outContent;
 	}
 
 	private String localConvertToSVG(String graph, String fileName) {

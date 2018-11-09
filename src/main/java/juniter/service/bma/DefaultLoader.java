@@ -1,12 +1,9 @@
 package juniter.service.bma;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.IntStream;
-
+import juniter.core.model.Block;
+import juniter.core.utils.TimeUtils;
+import juniter.core.validation.BlockLocalValid;
+import juniter.repository.jpa.BlockRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +18,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import juniter.core.model.Block;
-import juniter.core.utils.TimeUtils;
-import juniter.core.validation.BlockLocalValid;
-import juniter.repository.jpa.BlockRepository;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
 
 /**
  * Controller connecting to the comma separated properties
@@ -132,7 +131,7 @@ public class DefaultLoader implements CommandLineRunner, BlockLocalValid {
         Block block = null;
         final var attempts = 0;
 
-        while (blacklistHosts.size() < sources.size() && block == null) {
+        while (block == null) {
 
 
             final var host = anyNotIn(blacklistHosts).get();
@@ -149,6 +148,8 @@ public class DefaultLoader implements CommandLineRunner, BlockLocalValid {
                 LOG.error("Retrying : Net error accessing node " + url + " " + e.getMessage());
 
             }
+
+            assert blacklistHosts.size() <= sources.size(): "Please, connect to the internet and provide BMA sources ";
         }
 
         return block;
