@@ -1,22 +1,20 @@
-package juniter.service.dev;
+package juniter.service.bma.loader;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import juniter.service.bma.DefaultLoader;
+import juniter.core.utils.TimeUtils;
+import juniter.repository.jpa.BlockRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.core.annotation.Order;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import juniter.core.utils.TimeUtils;
-import juniter.repository.jpa.BlockRepository;
-import org.springframework.scheduling.annotation.Scheduled;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 /**
  * <pre>
  * </pre>
@@ -38,8 +36,9 @@ public class MissingBlocksLoader  {
 	List<Integer> blackList = List.of(15144, 31202, 85448, 87566, 90830, 109327);
 
 	@Autowired
-	DefaultLoader defaultLoader;
+	BlockLoader defaultLoader;
 
+	@Transactional(readOnly = true)
 	public List<Integer> missingBlockNumbers() {
 		final var currentNumber = defaultLoader.fetchBlock("current").getNumber();
 
@@ -60,14 +59,18 @@ public class MissingBlocksLoader  {
 
 	}
 
-	@Transactional(readOnly = true)
-	private void doFetch(){
-		final var res = missingBlockNumbers();
+
+	@Scheduled(fixedRate = 5 * 60 * 1000 )
+	public void run() {
+
+		LOG.info("Entering MissingBlocksLoader.runPeerCheck  ");
+		final var start = System.nanoTime();
 
 
+		final var missing = missingBlockNumbers();
+		LOG.info("found MissingBlocks : " + missing.size() + " - blocks " );
 
-		LOG.info("doFetch MissingBlocks : " + res.size() + " - blocks " + res);
-		res.forEach(n -> {
+		missing.forEach(n -> {
 
 			if(!blackList.contains(n)){
 				LOG.info("  - doFetch for : " + n);
@@ -75,20 +78,6 @@ public class MissingBlocksLoader  {
 			}
 
 		});
-
-	}
-
-	@Scheduled(fixedRate = 5 * 60 * 1000 )
-	public void run() {
-
-		final var start = System.nanoTime();
-
-
-		LOG.info("Entering MissingBlocksLoader  ");
-
-
-		doFetch();
-
 
 		var elapsed = Long.divideUnsigned(System.nanoTime() - start, 1000000);
 		LOG.info("Elapsed time: " + TimeUtils.format(elapsed));

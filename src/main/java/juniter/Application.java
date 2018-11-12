@@ -32,52 +32,53 @@ import java.util.concurrent.Executor;
 @EnableScheduling
 public class Application {
 
-	private static final Logger log = LogManager.getLogger();
+    private static final Logger log = LogManager.getLogger();
 
 
-	public static void main(String[] args) {
-		log.info("!!! Entering Application main !!!");
+    public static void main(String[] args) {
+        log.info("!!! Entering Application main !!!");
 
-		var context = SpringApplication.run(Application.class, args);
-		log.info("!!! SpringApplication.run !!!");
+        var context = SpringApplication.run(Application.class, args);
+        log.info("!!! SpringApplication.runPeerCheck !!!");
 
 
+        var useJavaFX = context.getEnvironment().getProperty("juniter.useJavaFX", Boolean.class);
+        if (useJavaFX) {
 
-		new Thread(() -> { AdminFX.launchApp(AdminFX.class, context); }).start();
-		log.info("!!! launchApp AdminFX !!!");
+            AdminFX.launchGUI(AdminFX.class, context);
+            log.info("!!! AdminFX.launchGUI !!!");
+        }
 
-		//new Thread(() -> { GraphPanel.launchApp(GraphPanel.class, context); }).start();
-		log.info("!!! launchApp GraphPanel !!!");
 
-	}
+    }
 
-	@Bean
-	public Executor asyncExecutor() {
-		final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-		executor.setCorePoolSize(4);
-		executor.setMaxPoolSize(4);
-		executor.setQueueCapacity(500);
-		executor.setThreadNamePrefix("AsyncJuniter-");
-		executor.initialize();
-		return executor;
-	}
+    @Bean
+    public Executor asyncExecutor() {
+        final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(4);
+        executor.setMaxPoolSize(4);
+        executor.setQueueCapacity(500);
+        executor.setThreadNamePrefix("AsyncJuniter-");
+        executor.initialize();
+        return executor;
+    }
 
-	@Primary
-	@Bean(name = "dataSource")
-	@ConfigurationProperties(prefix = "spring.datasource")
-	public DataSource dataSource() {
-		return DataSourceBuilder.create().build();
-	}
+    @Primary
+    @Bean(name = "dataSource")
+    @ConfigurationProperties(prefix = "spring.datasource")
+    public DataSource dataSource() {
+        return DataSourceBuilder.create().build();
+    }
 
-	@Primary
-	@Bean(name = "entityManagerFactory")
-	public LocalContainerEntityManagerFactoryBean entityManagerFactory(EntityManagerFactoryBuilder builder,
-			@Qualifier("dataSource") DataSource dataSource) {
-		return builder.dataSource(dataSource) //
-				.packages("juniter") //
-				.persistenceUnit("juniter") //
-				.build();
-	}
+    @Primary
+    @Bean(name = "entityManagerFactory")
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory(EntityManagerFactoryBuilder builder,
+                                                                       @Qualifier("dataSource") DataSource dataSource) {
+        return builder.dataSource(dataSource) //
+                .packages("juniter") //
+                .persistenceUnit("juniter") //
+                .build();
+    }
 
 
 }

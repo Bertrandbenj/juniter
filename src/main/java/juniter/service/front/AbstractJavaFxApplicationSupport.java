@@ -26,7 +26,7 @@ public abstract class AbstractJavaFxApplicationSupport extends Application {
         applicationContext.close();
     }
 
-    public static void launchApp(Class<? extends AbstractJavaFxApplicationSupport> appClass, ConfigurableApplicationContext context) {
+    public static void launchGUI(Class<? extends AbstractJavaFxApplicationSupport> appClass, ConfigurableApplicationContext context) {
         applicationContext = context;
         Application.launch(appClass);
     }

@@ -1,4 +1,4 @@
-package juniter.core.model.net;
+package juniter.grammar;
 
 import juniter.core.model.BStamp;
 
@@ -41,15 +41,18 @@ public class PeerDocument implements Document {
 		this.pubkey = pubkey;
 	}
 
-	@Override
-	public String toString() {
+	public String toDUP() {
 		return "Version: 10\n" + //
 				"Type: Peer\n" + //
 				"Currency: " + currency + "\n" + //
 				"PublicKey: " + pubkey + "\n" + //
 				"Block: " + block + "\n" + //
 				"Endpoints:\n";
+	}
 
+	@Override
+	public String toString() {
+		return toDUP();
 	}
 
 }

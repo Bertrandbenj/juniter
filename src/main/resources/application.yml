@@ -5,14 +5,14 @@
 
 juniter:
   network:
-    trusted: https://g1.bertrandbenjamin.com/,https://g1.duniter.org/,https://duniter.g1.1000i100.fr/,https://duniter.nayya.org/,http://g1-monit.librelois.fr:10901/,http://jardin.foyerruralct.fr:10902/
+    trusted: https://g1.bertrandbenjamin.com/,https://g1.duniter.org/,https://duniter.g1.1000i100.fr/,https://duniter.nayya.org/,http://g1-monit.librelois.fr:10901/,http://jardin.foyerruralct.fr:10902/,http://g1.ambau.ovh:10901/,http://81.57.152.178:57586/,https://duniter.normandie-libre.fr/
     bulkSize: 500
     webSocketPoolSize: 5
   simpleloader.enabled: false
   usefulloader.enabled: false
   missingloader.enabled: true
   graphviz.enabled: true
-  graphql.enabled: false # FIXME:  dependencies ?
+  graphql.enabled: false      # FIXME:  dependencies ?
   bma.enabled: true
   ws2p.enabled: true
   utils.enabled: false

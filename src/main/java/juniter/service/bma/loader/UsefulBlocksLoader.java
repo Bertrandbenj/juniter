@@ -1,11 +1,8 @@
-package juniter.service.dev;
+package juniter.service.bma.loader;
 
-import static java.util.stream.Collectors.toList;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import juniter.service.bma.DefaultLoader;
+import juniter.core.utils.TimeUtils;
+import juniter.repository.jpa.BlockRepository;
+import juniter.service.bma.model.WithDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +13,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
-import juniter.core.utils.TimeUtils;
-import juniter.repository.jpa.BlockRepository;
-import juniter.service.bma.model.WithWrapper;
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * <pre>
@@ -44,7 +42,7 @@ public class UsefulBlocksLoader implements CommandLineRunner {
 	BlockRepository blockRepo;
 
 	@Autowired
-	private DefaultLoader defaultLoader;
+	private BlockLoader defaultLoader;
 
 	@Autowired
 	private RestTemplate restTemplate;
@@ -56,35 +54,35 @@ public class UsefulBlocksLoader implements CommandLineRunner {
 		final List<Integer> res = new ArrayList<>();
 		try {
 
-			var ww = restTemplate.getForObject(url + "tx", WithWrapper.class);
+			var ww = restTemplate.getForObject(url + "tx", WithDTO.class);
 			LOG.info(" - Fetching Tx List : " + ww.getResult().getBlocks().size());
 			res.addAll(ww.getResult().getBlocks());
 
-			ww = restTemplate.getForObject(url + "certs", WithWrapper.class);
+			ww = restTemplate.getForObject(url + "certs", WithDTO.class);
 			LOG.info(" - Fetching Certs List : " + ww.getResult().getBlocks().size());
 			res.addAll(ww.getResult().getBlocks());
 
-			ww = restTemplate.getForObject(url + "newcomers", WithWrapper.class);
+			ww = restTemplate.getForObject(url + "newcomers", WithDTO.class);
 			LOG.info(" - Fetching NewComers List : " + ww.getResult().getBlocks().size());
 			res.addAll(ww.getResult().getBlocks());
 
-			ww = restTemplate.getForObject(url + "leavers", WithWrapper.class);
+			ww = restTemplate.getForObject(url + "leavers", WithDTO.class);
 			LOG.info(" - Fetching Leavers List : " + ww.getResult().getBlocks().size());
 			res.addAll(ww.getResult().getBlocks());
 
-			ww = restTemplate.getForObject(url + "revoked", WithWrapper.class);
+			ww = restTemplate.getForObject(url + "revoked", WithDTO.class);
 			LOG.info(" - Fetching Revoked List : " + ww.getResult().getBlocks().size());
 			res.addAll(ww.getResult().getBlocks());
 
-			ww = restTemplate.getForObject(url + "excluded", WithWrapper.class);
+			ww = restTemplate.getForObject(url + "excluded", WithDTO.class);
 			LOG.info(" - Fetching Excluded List : " + ww.getResult().getBlocks().size());
 			res.addAll(ww.getResult().getBlocks());
 
-			ww = restTemplate.getForObject(url + "actives", WithWrapper.class);
+			ww = restTemplate.getForObject(url + "actives", WithDTO.class);
 			LOG.info(" - Fetching Actives List : " + ww.getResult().getBlocks().size());
 			res.addAll(ww.getResult().getBlocks());
 
-			ww = restTemplate.getForObject(url + "ud", WithWrapper.class);
+			ww = restTemplate.getForObject(url + "ud", WithDTO.class);
 			LOG.info(" - Fetching UD List : " + ww.getResult().getBlocks().size());
 			res.addAll(ww.getResult().getBlocks());
 

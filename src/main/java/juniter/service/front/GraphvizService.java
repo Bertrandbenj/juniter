@@ -7,7 +7,7 @@ import juniter.repository.jpa.BlockRepository;
 import juniter.repository.jpa.CertsRepository;
 import juniter.repository.jpa.TxRepository;
 import juniter.service.bma.BlockchainService;
-import juniter.service.bma.DefaultLoader;
+import juniter.service.bma.loader.BlockLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -119,7 +119,7 @@ public class GraphvizService {
 	private CertsRepository certsRepo;
 
 	@Autowired
-	private DefaultLoader defaultLoader;
+	private BlockLoader defaultLoader;
 
 	@Autowired
 	private BlockRepository blockRepo;
@@ -358,7 +358,6 @@ public class GraphvizService {
 	 * @throws IOException
 	 */
 	@Transactional(readOnly = true)
-
 	@RequestMapping(value = "/{fileType}/{output}/{identifier}", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<String> generic(
 			HttpServletRequest request,

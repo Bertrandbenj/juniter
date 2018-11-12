@@ -1,4 +1,4 @@
-package juniter.core.model.net;
+package juniter.grammar;
 
 public interface Document {
 

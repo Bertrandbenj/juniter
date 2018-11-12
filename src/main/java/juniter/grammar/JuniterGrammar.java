@@ -9,9 +9,6 @@ import antlr.main.JuniterParser.PeerContext;
 import antlr.main.JuniterParser.WotContext;
 import antlr.main.JuniterParserBaseVisitor;
 import juniter.core.model.BStamp;
-import juniter.core.model.net.Document;
-import juniter.core.model.net.IdentityDocument;
-import juniter.core.model.net.PeerDocument;
 import juniter.core.validation.LocalValid;
 
 public class JuniterGrammar extends JuniterParserBaseVisitor<Document> implements LocalValid {

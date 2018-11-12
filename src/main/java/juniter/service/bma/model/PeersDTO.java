@@ -1,15 +1,14 @@
 package juniter.service.bma.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import juniter.core.model.net.Peer;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import juniter.core.model.net.Peer;
-
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PeerDoc  implements Serializable{
+public class PeersDTO implements Serializable{
 	
 	private static final long serialVersionUID = 1618741167475514278L;
 	private List<Peer> peers ;
@@ -17,12 +16,12 @@ public class PeerDoc  implements Serializable{
 	public transient String url;
 	public transient long timeMillis;
 	
-	public PeerDoc() {
+	public PeersDTO() {
 		super();
 		peers = new ArrayList<Peer>();
 	}
 	
-	public PeerDoc( List<Peer> peers) {
+	public PeersDTO(List<Peer> peers) {
 		super();
 		this.peers = peers;
 	}

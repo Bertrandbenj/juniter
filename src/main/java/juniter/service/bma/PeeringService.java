@@ -1,191 +1,140 @@
 package juniter.service.bma;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
-
+import juniter.core.crypto.SecretBox;
+import juniter.core.model.net.Peer;
+import juniter.repository.jpa.BlockRepository;
+import juniter.repository.jpa.EndPointsRepository;
+import juniter.repository.jpa.PeersRepository;
+import juniter.service.bma.model.LeafDTO;
+import juniter.service.bma.model.PeeringDTO;
+import juniter.service.bma.model.PeersDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
 
-import juniter.core.model.net.Peer;
-import juniter.repository.jpa.EndPointsRepository;
-import juniter.repository.jpa.PeersRepository;
-import juniter.service.bma.model.PeerDoc;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
- * Handles network discovery, publication of up-to-date documents and getting
- * the state of the blockchain on other nodes
- *
+ * BMA peering api
  *
  * @author ben
- *
  */
 @RestController
 @ConditionalOnExpression("${juniter.bma.enabled:false}")
 @RequestMapping("/network")
 public class PeeringService {
 
-	public static final Logger LOG = LogManager.getLogger();
-	// private static final String ERROR_MESSAGE = "";
+    public static final Logger LOG = LogManager.getLogger();
 
-	Random random = new Random();
+    @Autowired
+    private PeersRepository peerRepo;
 
-	/**
-	 * Initialized from trusted sources
-	 */
-	@Value("#{'${juniter.network.trusted}'.split(',')}")
-	private List<String> nodesURL;
+    @Autowired
+    private EndPointsRepository endPointRepo;
 
-	@Autowired
-	private PeersRepository peerRepo;
+    @Autowired
+    private BlockRepository blockRepo;
 
-	@Autowired
-	private EndPointsRepository endPointRepo;
 
-	private RestTemplate restTpl = new RestTemplate();
+    @Transactional
+    @RequestMapping("/")
+    public List<String> index() {
+        LOG.info("Entering /network/ ... ");
+        return endPointRepo.enpointsURL();
+    }
 
-	public PeerDoc fetchPeers(String nodeURL) {
-		final ResponseEntity<PeerDoc> responseEntity = new RestTemplate().exchange(nodeURL + "/network/peers",
-				HttpMethod.GET, null, new ParameterizedTypeReference<PeerDoc>() {
-				});
-		final var peers = responseEntity.getBody();
-		final var contentType = responseEntity.getHeaders().getContentType();
-		final var statusCode = responseEntity.getStatusCode();
-		save(peers);
+    @Transactional(readOnly = true)
+    @RequestMapping(value = "/peers", method = RequestMethod.GET)
+    public PeersDTO peers() {
 
-		LOG.info("Found peers: " + peers.getPeers().size() + ", status : " + statusCode.getReasonPhrase()
-				+ ", ContentType: " + contentType.toString());
-		return peers;
-	}
+        LOG.info("Entering /network/peers ...");
 
-	@Async
-	public CompletableFuture<PeerDoc> findFirstPeers() {
-		return findPeers(nodesURL.get(0));
-	}
+        try (var peerss = peerRepo.streamAllPeers()) {
+            final var peerL = peerss.collect(Collectors.toList());
+            return new PeersDTO(peerL);
+        } catch (final Exception e) {
+            LOG.error("PeeringService.peers() peerRepo.streamAllPeers ->  ", e);
+        }
+        return null;
+    }
 
-	@Async
-	@Transactional
-	public CompletableFuture<List<PeerDoc>> findOtherPeers() {
-		LOG.info("Find other peers ");
 
-		final var compute = reloadURL() //
-				.parallelStream() //
-				.map(url -> CompletableFuture.supplyAsync(() -> findPeers(url)).join()).map(CompletableFuture::join)
-				.collect(Collectors.toList());
+    @Transactional(readOnly = true)
+    @RequestMapping(value = "/peering", method = RequestMethod.GET)
+    public Peer peering() {
 
-		LOG.info("Found other peers ");
+        LOG.info("Entering /network/peering ...");
+        var current = blockRepo.current().orElseThrow();
 
-		return CompletableFuture.completedFuture(compute);
-	}
+        var secretBox = new SecretBox("salt", "password");
 
-	@Async
-	public CompletableFuture<PeerDoc> findPeers(String nodeURL) {
-		final var url = nodeURL + (nodeURL.endsWith("/") ? "" : "/") + "network/peers";
+        var peer = new Peer();
 
-		LOG.info("Looking up for peers at  " + url);
-		final var time = System.nanoTime();
-		PeerDoc results;
-		try {
-			results = restTpl.getForObject(url, PeerDoc.class);
-			final var elapsedTime = Long.divideUnsigned(System.nanoTime() - time, 1000000);
-			LOG.info(
-					"... took " + elapsedTime + " ms for " + url + " " + results.getPeers().size() + " found peers");
-			results.timeMillis = elapsedTime;
-			save(results);
-			return CompletableFuture.completedFuture(results)//
-					.handle((peerDoc, ex) -> {
-						if (ex == null) {
-							LOG.debug("Completed Future : " + peerDoc + " " + peerDoc.getPeers().size());
-						} else {
-							LOG.error("UNcompleted Future for peerDoc: " + peerDoc, ex);
-						}
-						return peerDoc;
-					});
-		} catch (final Exception e) {
-			LOG.error("TODO : stop  findPeers : " + e.getMessage());
-		}
-		return null;
-	}
+        peer.setBlock(current.getNumber() + "-" + current.getInner_hash());
+        peer.setCurrency("g1");
+        peer.setPubkey(secretBox.getPublicKey());
 
-	@Transactional
-	@RequestMapping("/")
-	public List<String> index() {
-		LOG.info("Entering /network/ ... ");
-		return endPointRepo.enpointsURL();
-	}
 
-	@RequestMapping(value = "/html", method = RequestMethod.GET)
-	public String init(@ModelAttribute("model") ModelMap model) {
-		LOG.info("Entering /network/html ... ");
-		model.addAttribute("carList", "huhu");
-		return "index";
-	}
+        return peer;
+    }
 
-	@Transactional(readOnly = true)
-	@RequestMapping(value = "/peers", method = RequestMethod.GET)
-	public PeerDoc peers() {
+    @RequestMapping(value = "/peering/peers", method = RequestMethod.POST)
+    ResponseEntity<Peer> peeringPeersPost (HttpServletRequest request, HttpServletResponse response) {
 
-		LOG.info("Entering /network/peers ...");
+        LOG.info("POSTING /network/peering/peers ...");
+        String remote = request.getRemoteHost();
+        Peer peer = new Peer();
+        final var headers = new HttpHeaders();
 
-		try (var peers = peerRepo.streamAllPeers()) {
-			final var peerL = peers.collect(Collectors.toList());
-			return new PeerDoc(peerL);
-		} catch (final Exception e) {
-			LOG.error("PeeringService.peers() peerRepo.streamAllPeers ->  ", e);
-		}
-		return null;
-	}
 
-	public String randomPeer() {
-		reloadURL();
-		Collections.shuffle(nodesURL);
-		return nodesURL.get(random.nextInt(nodesURL.size()));
-	}
+        LOG.info("remote " + remote);
 
-	private List<String> reloadURL() {
-		endPointRepo.enpointsURL() //
-				.forEach(url -> {//
-					if (!nodesURL.contains(url)) {
-						nodesURL.add(url);
-					}
-				});
-		return nodesURL;
-	}
+        return  new ResponseEntity<>(peer, headers, HttpStatus.OK);
+    }
 
-//	var futures = reloadURL() //
-//			.stream() //
-//			.map(url -> CompletableFuture //
-//					.completedFuture(restTpl.getForObject(url, PeerDoc.class)) //
-//					.completeOnTimeout(null, 5, TimeUnit.SECONDS) //
-//					.exceptionally(ex -> null))
-//			.map(CompletableFuture::join)//
-//			.collect(Collectors.toList());
+    @Transactional(readOnly = true)
+    @RequestMapping(value = "/peering/peers", method = RequestMethod.GET)
+    public @ResponseBody
+    ResponseEntity<PeeringDTO> peeringPeers(HttpServletRequest request, HttpServletResponse response) {
 
-	public void save(PeerDoc peers) {
-		peers.getPeers().stream() // parsed peers
-				.filter(Peer.blockHigherThan(128000)) // with filtering
-				.forEach(p -> {
-					peerRepo.saveAndFlush(p); // save the peer object
-					p.endpoints().stream() // iterate endpoints
-							.map(ep -> endPointRepo.findByPeerAndEndpoint(p, ep.getEndpoint()).orElse(ep.linkPeer(p))) // fetch
-																														// existing
-							.forEach(ep -> endPointRepo.saveAndFlush(ep)); // save individual endpoints
-				});
-	}
+        LOG.info("Entering /network/peering/peers ...");
+        final var headers = new HttpHeaders();
+
+
+        var  extraParams = request.getParameterMap();
+
+        var peeringPeers = new PeeringDTO();
+        peeringPeers.setDepth(10);
+        peeringPeers.setNodeCounts(652);
+        peeringPeers.setLeavesCount(648);
+
+
+        var leaves = extraParams.getOrDefault("leaves", new String[] {"false"} )[0];
+
+        if(Boolean.valueOf(leaves)){
+            peeringPeers.setLeaves( new ArrayList<>());
+        }
+
+        var leaf = extraParams.get("leaf");
+        if(leaf.length>0){
+            peeringPeers.setLeaf( new LeafDTO("hash", new Peer() ) );
+        }
+
+        return new ResponseEntity<>(peeringPeers, headers, HttpStatus.OK);
+    }
+
+
 }

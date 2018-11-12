@@ -1,4 +1,4 @@
-package juniter.service.bma;
+package juniter.service.bma.loader;
 
 import juniter.core.model.Block;
 import juniter.core.utils.TimeUtils;
@@ -37,13 +37,12 @@ import java.util.stream.IntStream;
 @ConditionalOnExpression("${juniter.useDefaultLoader:true}") // Must be up for dependencies
 @Component
 @Order(1)
-
-public class DefaultLoader implements CommandLineRunner, BlockLocalValid {
+public class BlockLoader implements CommandLineRunner, BlockLocalValid {
 
     private static final Logger LOG = LogManager.getLogger();
 
     @Value("#{'${juniter.network.trusted}'.split(',')}")
-    private List<String> sources;
+    private List<String> configuredNodes;
 
     @Value("${juniter.network.bulkSize:50}")
     private Integer bulkSize;
@@ -57,8 +56,8 @@ public class DefaultLoader implements CommandLineRunner, BlockLocalValid {
     private BlockRepository blockRepo;
 
     public Optional<String> anyNotIn(final List<String> triedURL) {
-        Collections.shuffle(sources);
-        return sources.stream()
+        Collections.shuffle(configuredNodes);
+        return configuredNodes.stream()
                 .filter(node -> triedURL == null || !triedURL.contains(node))
                 .findAny();
     }
@@ -149,7 +148,7 @@ public class DefaultLoader implements CommandLineRunner, BlockLocalValid {
 
             }
 
-            assert blacklistHosts.size() <= sources.size(): "Please, connect to the internet and provide BMA sources ";
+            assert blacklistHosts.size() <= configuredNodes.size(): "Please, connect to the internet and provide BMA configuredNodes ";
         }
 
         return block;
@@ -169,7 +168,7 @@ public class DefaultLoader implements CommandLineRunner, BlockLocalValid {
         String url = null;
         final var attempts = 0;
 
-        while (blacklistHosts.size() < sources.size() && body == null) {
+        while (blacklistHosts.size() < configuredNodes.size() && body == null) {
             // Fetch & parse the blocks
 
             final var host = anyNotIn(blacklistHosts).get();
@@ -213,7 +212,7 @@ public class DefaultLoader implements CommandLineRunner, BlockLocalValid {
         final List<String> triedNodes = new ArrayList<>();
 
         Optional<String> attempt;
-        while (sources.size() > triedNodes.size()) {
+        while (configuredNodes.size() > triedNodes.size()) {
             attempt = anyNotIn(triedNodes);
             if (attempt.isPresent())
                 return Optional.ofNullable(fetchAndSaveBlock(id));
@@ -222,9 +221,9 @@ public class DefaultLoader implements CommandLineRunner, BlockLocalValid {
     }
 
     public String rotating() {
-        final var ai = rotator.incrementAndGet() % sources.size();
+        final var ai = rotator.incrementAndGet() % configuredNodes.size();
 
-        return sources.get(ai);
+        return configuredNodes.get(ai);
     }
 
     @Override
@@ -236,4 +235,6 @@ public class DefaultLoader implements CommandLineRunner, BlockLocalValid {
         final var elapsed = Long.divideUnsigned(System.nanoTime() - start, 1000000);
         LOG.info("Elapsed time: " + TimeUtils.format(elapsed));
     }
+
+
 }

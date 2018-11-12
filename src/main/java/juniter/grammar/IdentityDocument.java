@@ -1,4 +1,4 @@
-package juniter.core.model.net;
+package juniter.grammar;
 
 import juniter.core.model.BStamp;
 import juniter.core.validation.LocalValid;

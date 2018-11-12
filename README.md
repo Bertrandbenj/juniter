@@ -30,9 +30,16 @@ sudo apt-get install graphviz git maven postgresql libsodium-dev
 git clone https://github.com/Bertrandbenj/juniter
 cd juniter 
 
+# install gradle using sdkman 
+curl -s "https://get.sdkman.io" | bash
+sdk install gradle 4.10.2
+
+# build - boot 
 gradle generateGrammarSource 
 
+# screen - detach from the process and keep it running  
 gradle bootRun 
+gradle bootJar
 
 # you may need to do 
 mkdir /var/log/juniter

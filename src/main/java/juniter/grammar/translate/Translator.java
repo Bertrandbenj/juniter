@@ -2,7 +2,7 @@ package juniter.grammar.translate;
 
 import antlr.main.JuniterParser.CertificationContext;
 import antlr.main.JuniterParserBaseVisitor;
-import juniter.core.model.net.Document;
+import juniter.grammar.Document;
 
 public class Translator extends JuniterParserBaseVisitor<Document> {
 

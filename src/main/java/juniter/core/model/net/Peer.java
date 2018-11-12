@@ -1,10 +1,7 @@
 package juniter.core.model.net;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import juniter.core.utils.Constants;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -12,10 +9,11 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import juniter.core.utils.Constants;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "peer", schema = "public")
@@ -132,6 +130,10 @@ public class Peer  implements Serializable{
 		this.endpoints.removeIf(x->true);
 		this.endpoints.addAll(endpoints);
 		return this;
+	}
+
+	public String toDUP(){
+		return "";
 	}
 	
 

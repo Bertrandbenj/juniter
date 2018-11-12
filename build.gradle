@@ -48,8 +48,12 @@ remotes {
 task deploy(dependsOn: bootJar) << {
   ssh.run {
     session(remotes.juniter) {
-      put from: '', into: '/webapps'
-      execute 'sudo service tomcat restart'
+      //execute 'killall java'
+
+      put from: 'build/libs/juniter-0.1.0.jar', into: '/home/ben'
+
+      //execute 'sudo service tomcat restart'
+      execute 'java -jar juniter-0.1.0.jar -Djuniter.useJavaFX=false --headless '
     }
   }
 }
@@ -63,7 +67,7 @@ task checkServer {
 
         // Any Gradle methods or properties are available in a session closure "$buildDir/tmp"
         copy {
-          from "src/main/resources/schema.sql"
+          from "docs/"
           into "/tmp"
         }
 
@@ -112,22 +116,11 @@ configurations {
 }
 
 
-
-
-
-//	visitor = true
-//	extraArgs=['-Werror']
-//
-
-// make the Java compile task depend on the antlr4 task
-//
-
-
 sourceCompatibility = 10
 targetCompatibility = 10
 
 dependencies {
-compile ('org.springframework.boot:spring-boot-starter-web'){
+    compile ('org.springframework.boot:spring-boot-starter-web'){
         exclude module: 'org.springframework.boot:spring-boot-starter-logging'
     }
     //compile("org.springframework.boot:spring-boot-starter-web")	
@@ -211,9 +204,7 @@ compile ('org.springframework.boot:spring-boot-starter-web'){
 
 
 
-test {
-
-// more infos : https://moelholm.com/2016/10/22/spring-boot-separating-tests/
+test {      // more infos : https://moelholm.com/2016/10/22/spring-boot-separating-tests/
 	useJUnit {
         exclude '**/*IntegrationTests.class'
         exclude '**/*ITest.class'
@@ -221,7 +212,6 @@ test {
     
     jvmArgs '-Xdebug',
             '-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=10999'
-    
     
 }
 
@@ -233,7 +223,6 @@ task integrationTest(type: Test) {
 }
 
 
-
 sourceSets {
     main { 
     	// add provided configuration
@@ -242,10 +231,7 @@ sourceSets {
     	// add the generated source files to the list of java sources
     	//java.srcDirs += 'build/generated-src/'
     }
-    
-    
 }
-
 
 
 generateGrammarSource {

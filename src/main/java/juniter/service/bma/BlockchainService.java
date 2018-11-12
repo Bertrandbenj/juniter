@@ -1,30 +1,34 @@
 package juniter.service.bma;
 
-import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
-import javax.servlet.http.HttpServletResponse;
-
+import juniter.core.model.Block;
+import juniter.core.model.wot.Revoked;
+import juniter.repository.jpa.BlockRepository;
+import juniter.service.bma.loader.BlockLoader;
+import juniter.service.bma.model.BlockDTO;
+import juniter.service.bma.model.WithDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import juniter.core.model.Block;
-import juniter.repository.jpa.BlockRepository;
-import juniter.service.bma.model.BlockDTO;
-import juniter.service.bma.model.WithWrapper;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 
 /**
  *
@@ -65,7 +69,7 @@ public class BlockchainService {
 	private BlockRepository repository;
 
 	@Autowired
-	private DefaultLoader defaultLoader;
+	private BlockLoader defaultLoader;
 
 	@Autowired
 	private ModelMapper modelMapper;
@@ -169,7 +173,7 @@ public class BlockchainService {
 	 */
 	@RequestMapping(value = "/with/{what}", method = RequestMethod.GET)
 	@Transactional(readOnly = true)
-	public WithWrapper with(@PathVariable("what") String what) {
+	public WithDTO with(@PathVariable("what") String what) {
 
 		LOG.info("Entering /blockchain/with/{newcomers,certs,actives,leavers,excluded,ud,tx}");
 		Stream<Block> st;
@@ -198,11 +202,43 @@ public class BlockchainService {
 		}
 
 		try (Stream<Integer> items = st.map(b -> b.getNumber())) {
-			return new WithWrapper(items.collect(toList()));
+			return new WithDTO(items.collect(toList()));
 		} catch (final Exception e) {
 			LOG.error(e);
 			return null;
 		}
 
 	}
+
+    @RequestMapping(value = "/membership", method = RequestMethod.POST)
+    ResponseEntity<Revoked> membership (HttpServletRequest request, HttpServletResponse response) {
+
+        LOG.info("POSTING /blockchain/membership ...");
+        String remote = request.getRemoteHost();
+
+        Revoked idty = new Revoked();
+        final var headers = new HttpHeaders();
+
+
+        LOG.info("remote " + remote);
+
+        return  new ResponseEntity<>(idty, headers, HttpStatus.OK);
+    }
+
+
+    @RequestMapping(value = "/block", method = RequestMethod.POST)
+    ResponseEntity<Revoked> block (HttpServletRequest request, HttpServletResponse response) {
+
+        LOG.info("POSTING /blockchain/block ...");
+        String remote = request.getRemoteHost();
+
+        Revoked idty = new Revoked();
+        final var headers = new HttpHeaders();
+
+
+        LOG.info("remote " + remote);
+
+        return  new ResponseEntity<>(idty, headers, HttpStatus.OK);
+    }
+
 }

@@ -26,8 +26,6 @@ import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
 import org.w3c.dom.events.MouseEvent;
 
-import java.io.File;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.ResourceBundle;
@@ -65,7 +63,7 @@ public class GraphPanel extends AbstractJavaFxApplicationSupport implements Init
 
 	    if(isWeb()){
             getHostServices().showDocument(uri.getText());
-        }else if(isSVG()){
+        }else if(isGraphviz()){
             getHostServices().showDocument("https://localhost:8443" + uri.getText());
         }
     }
@@ -87,8 +85,8 @@ public class GraphPanel extends AbstractJavaFxApplicationSupport implements Init
 
 	}
 
-	private boolean isSVG(){
-	    return uri.getText().startsWith("/");
+	private boolean isGraphviz(){
+	    return uri.getText().startsWith("/graphviz");
     }
 
     private boolean isWeb(){
@@ -107,7 +105,7 @@ public class GraphPanel extends AbstractJavaFxApplicationSupport implements Init
             SVGAnchor.setZoom(1);
 			webEngine.load(uri.getText()); 	// Load page
 
-		}else if(isSVG()) {
+		}else if(isGraphviz()) {
 			// assume '/' starting urls relate to local juniter
 
             SVGAnchor.setZoom(0.60);
@@ -123,20 +121,14 @@ public class GraphPanel extends AbstractJavaFxApplicationSupport implements Init
 			}catch (Exception e){
 				LOG.error("Problem calling graphviz service " , e);
 			}
-
 		}
-
-
-
-
-
-
 	}
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		var webEngine = SVGAnchor.getEngine(); 	// Get WebEngine via WebView
+		uri.setText("/graphviz/svg/block/114907");
 
+		var webEngine = SVGAnchor.getEngine(); 	// Get WebEngine via WebView
 		SVGAnchor.setZoom(0.60);
 
 		webEngine.getLoadWorker().stateProperty().addListener(new ChangeListener<State>() {
@@ -187,14 +179,6 @@ public class GraphPanel extends AbstractJavaFxApplicationSupport implements Init
 			}
 		});
 
-		File file = new File("/home/ben/ws/juniter/src/main/resources/static/dot/3BE66EE5F40F8E93441D63E1274F8780FB330003B779C374B247DD45B737799E.svg");
-		URL url = null;
-		try {
-			url = file.toURI().toURL();
-			webEngine.load(url.toString()); 	// Load page
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
-
+		go();
 	}
 }

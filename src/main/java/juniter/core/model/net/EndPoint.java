@@ -1,32 +1,17 @@
 package juniter.core.model.net;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import juniter.core.utils.Constants;
+import juniter.core.validation.NetValid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import juniter.core.utils.Constants;
-import juniter.core.validation.NetValid;
+import javax.persistence.*;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * ex : [ "BASIC_MERKLED_API metab.ucoin.io 88.174.120.187 9201" ]
@@ -106,8 +91,12 @@ public class EndPoint implements Serializable {
 	public String url() {
 		
 		String res = "";
-		if("443".equals(port) && !port.startsWith("https://"))
-			res+="https://";
+		switch(api){
+			case BMAS:
+			case WS2PS:
+				res+="https://";
+
+		}
 		
 		if(domain != null) {
 			res += domain ;
@@ -116,6 +105,8 @@ public class EndPoint implements Serializable {
 		}else if(ip4 != null) {
 			res += ip4;
 		}
+
+		res+= ":"+port;
 		
 		if(!res.endsWith("/"))
 			res+="/";

@@ -1,44 +1,23 @@
 package juniter.core.model;
 
-import static java.util.stream.Collectors.toList;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import juniter.core.model.tx.Transaction;
+import juniter.core.model.wot.*;
+import juniter.core.utils.Constants;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
+import javax.persistence.*;
+import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.persistence.AttributeOverride;
-import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinColumns;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderColumn;
-import javax.persistence.Table;
-import javax.validation.Valid;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Pattern;
-
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import juniter.core.model.tx.Transaction;
-import juniter.core.model.wot.Active;
-import juniter.core.model.wot.Certification;
-import juniter.core.model.wot.Excluded;
-import juniter.core.model.wot.Identity;
-import juniter.core.model.wot.Joiner;
-import juniter.core.model.wot.Leaver;
-import juniter.core.model.wot.Revoked;
-import juniter.core.utils.Constants;
+import static java.util.stream.Collectors.toList;
 
 /**
  * The top / main class of the model is the Block class
@@ -47,7 +26,7 @@ import juniter.core.utils.Constants;
  *
  * <pre>
  *
- * 	&#64;Valid  -> is useful to enforce recursive validation
+ * 	&#64;Valid  -> is useful to enforce encapsulated object validation
  *
 	&#64;AttributeOverride(name = "pubkey", column = @Column(name = "issuer"))  ->
 

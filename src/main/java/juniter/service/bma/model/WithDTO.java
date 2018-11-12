@@ -7,16 +7,16 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class WithWrapper implements Serializable {
+public class WithDTO implements Serializable {
 
 	private static final long serialVersionUID = -6551775706995959038L;
 	Result result;
 
-	public WithWrapper() {
+	public WithDTO() {
 
 	}
 
-	public WithWrapper(List<Integer> blocks) {
+	public WithDTO(List<Integer> blocks) {
 		super();
 		this.result = new Result(blocks);
 	}
