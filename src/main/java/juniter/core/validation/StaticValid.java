@@ -10,9 +10,6 @@ public class StaticValid implements BlockLocalValid{
         return new StaticValid();
     }
 
-
-
-
     private StaticValid (){
 
     }

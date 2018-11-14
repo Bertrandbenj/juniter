@@ -1,20 +1,17 @@
 package juniter.repository.jpa;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
+import juniter.core.model.Block;
+import juniter.core.validation.BlockLocalValid;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
 
-import juniter.core.model.Block;
-import juniter.core.validation.BlockLocalValid;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 /**
  * Repository to manage {@link Block} instances.
@@ -58,7 +55,7 @@ public interface BlockRepository extends JpaRepository<Block, Long>, BlockLocalV
 	Optional<Block> findTop1ByNumber(Integer number);
 
 	/**
-	 * ALias for current()
+	 * Alias for current()
 	 *
 	 * @return
 	 */

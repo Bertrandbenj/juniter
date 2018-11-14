@@ -12,9 +12,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
@@ -44,25 +44,23 @@ public class PeerLoader  {
     private Optional<String> anyNotIn(final List<String> triedURL) {
         Collections.shuffle(configuredNodes);
         return configuredNodes.stream()
-                .filter(node -> triedURL == null || !triedURL.contains(node))
+                    .filter(node -> triedURL == null || !triedURL.contains(node))
                 .findAny();
     }
 
-    @Scheduled(fixedRate = 1 * 60 * 1000 )
+    @Transactional
+    @Scheduled(fixedRate = 10 * 60 * 1000 )
     public void runBMAnetworkPeeringCardsCheck() {
-        endPointRepo.endpointsBMA()
-                .map(bma -> bma.url()+"/network/peering")
-                .map(url -> fetchEndpoints(url ));
-    }
+//        endPointRepo.endpointsBMA()
+//                .map(bma -> fetchPeers(bma.url()) )
+//                .flatMap(peerDoc -> peerDoc.getPeers().stream())
+//                .flatMap(peer-> peer.endpoints().stream())
+//                .distinct();
 
-    private String fetchEndpoints(String url) {
-
-
-        return "";
     }
 
 
-    @Scheduled(fixedRate = 4 * 60 * 1000 )
+    @Scheduled(fixedRate = 1 * 60 * 1000 )
     public void runPeerCheck() {
         final var start = System.nanoTime();
 
@@ -76,8 +74,13 @@ public class PeerLoader  {
             if(host.isPresent()){
 
                 blacklistHosts.add(host.get());
-                peersDTO = fetchPeers(host.get());
-                LOG.info("fetched " + peersDTO.getPeers().size() + " peers from " +host );
+                try {
+                    peersDTO = fetchPeers(host.get());
+                    LOG.info("fetched " + peersDTO.getPeers().size() + " peers from " +host );
+
+                } catch (Exception e) {
+                    LOG.error("Retrying : Net error accessing node " + host + " " + e.getMessage());
+                }
 
             }else{
                 LOG.error( "Please, connect to the internet and provide BMA configuredNodes ");
@@ -91,17 +94,23 @@ public class PeerLoader  {
     }
 
 
-    public PeersDTO fetchPeers(String nodeURL) {
-        final ResponseEntity<PeersDTO> responseEntity = restTpl.exchange(nodeURL + "/network/peers",
-                HttpMethod.GET, null, new ParameterizedTypeReference<PeersDTO>() {
-                });
-        final var peers = responseEntity.getBody();
-        final var contentType = responseEntity.getHeaders().getContentType();
-        final var statusCode = responseEntity.getStatusCode();
-        save(peers);
+    public PeersDTO fetchPeers(String nodeURL) throws Exception {
 
-        LOG.info("Found peers: " + peers.getPeers().size() + ", status : " + statusCode.getReasonPhrase()
-                + ", ContentType: " + contentType.toString());
+
+            var responseEntity = restTpl.exchange(nodeURL + "/network/peers",
+                    HttpMethod.GET, null, new ParameterizedTypeReference<PeersDTO>() {
+                    });
+
+            final var peers = responseEntity.getBody();
+            final var contentType = responseEntity.getHeaders().getContentType();
+            final var statusCode = responseEntity.getStatusCode();
+            save(peers);
+
+            LOG.info("Found peers: " + peers.getPeers().size() + ", status : " + statusCode.getReasonPhrase()
+                    + ", ContentType: " + contentType.toString());
+
+
+
         return peers;
     }
 

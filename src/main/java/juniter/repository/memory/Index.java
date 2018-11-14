@@ -1,15 +1,13 @@
 package juniter.repository.memory;
 
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Stream;
-
+import com.google.common.collect.Lists;
+import juniter.core.validation.GlobalValid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.google.common.collect.Lists;
-
-import juniter.core.validation.GlobalValid;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * The simplest possible implementation of the GlobalValid interface in pure
@@ -29,18 +27,18 @@ public class Index implements GlobalValid {
 	private List<SINDEX> indexSG = Lists.newArrayList();
 
 	@Override
-	public boolean commit(List<BINDEX> indexb, Set<IINDEX> indexi, Set<MINDEX> indexm, Set<CINDEX> indexc,
-			Set<SINDEX> indexs) {
+	public boolean commit(List<BINDEX> indexB, Set<IINDEX> indexI, Set<MINDEX> indexM, Set<CINDEX> indexC,
+						  Set<SINDEX> indexS) {
 
-		indexCG.addAll(indexc);
-		indexMG.addAll(indexm);
-		indexIG.addAll(indexi);
-		indexSG.addAll(indexs);
-		LOG.info("Commited Certs: +" + indexc.size() + "," + indexCG.size() + //
-				"  Membship: +" + indexm.size() + "," + indexMG.size() + //
-				"  Idty: +" + indexi.size() + "," + indexIG.size() + //
-				"  IndexS: +" + indexs.size() + "," + indexSG.size() + //
-				"  IndexB: +" + indexb.size());
+		indexCG.addAll(indexC);
+		indexMG.addAll(indexM);
+		indexIG.addAll(indexI);
+		indexSG.addAll(indexS);
+		LOG.info("Commited Certs: +" + indexC.size() + "," + indexCG.size() + //
+				"  Membship: +" + indexM.size() + "," + indexMG.size() + //
+				"  Idty: +" + indexI.size() + "," + indexIG.size() + //
+				"  IndexS: +" + indexS.size() + "," + indexSG.size() + //
+				"  IndexB: +" + indexB.size());
 
 		return true;
 	}

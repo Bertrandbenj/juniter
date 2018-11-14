@@ -1,29 +1,27 @@
 package juniter.core;
 
-import static org.junit.Assert.assertTrue;
-
-import java.util.List;
-
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import juniter.core.model.Block;
+import juniter.repository.memory.Index;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
 
-import juniter.core.model.Block;
-import juniter.repository.memory.Index;
+import static org.junit.Assert.assertTrue;
 
 public class TestIndex {
 	private static final Logger LOG = LogManager.getLogger();
 
 
-	Index idx_duniter = new Index();
-	Index idx_g1 = new Index();
+	private Index idx_duniter = new Index();
+	private Index idx_g1 = new Index();
 
-	List<Block> blockchain;
-	List<Block> blockchaing1;
+	private List<Block> blockchain;
+	private List<Block> blockchaing1;
 
 	@Before
 	public void init() {

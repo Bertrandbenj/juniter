@@ -19,7 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,8 +34,6 @@ public class WotService {
 	@Autowired
 	private CertsRepository wotRepo;
 
-//	@Autowired
-//	private TxInRepository inRepo;
 
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	void handle(HttpServletResponse response) throws IOException {
@@ -84,14 +84,19 @@ public class WotService {
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	ResponseEntity<Identity> add (HttpServletRequest request, HttpServletResponse response) {
 
-		LOG.info("POSTING /wot/add ...");
-		String remote = request.getRemoteHost();
+		LOG.info("POSTING /wot/add ..." + request.getRemoteHost() );
+
+
+		try{
+			BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
+			LOG.info(in.lines().collect(Collectors.joining("\n")));
+		}catch (Exception e ){
+			LOG.error("error reading wot/add inputStream ", e);
+		}
+
 
 		Identity idty = new Identity();
 		final var headers = new HttpHeaders();
-
-
-		LOG.info("remote " + remote);
 
 		return  new ResponseEntity<>(idty, headers, HttpStatus.OK);
 	}
@@ -101,6 +106,15 @@ public class WotService {
 
 		LOG.info("POSTING /wot/certify ...");
 		String remote = request.getRemoteHost();
+
+
+		try{
+			BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
+			LOG.info(in.lines().collect(Collectors.joining("\n")));
+		}catch (Exception e ){
+			LOG.error("error reading wot/certify inputStream ", e);
+		}
+
 
 		Certification idty = new Certification();
 		final var headers = new HttpHeaders();
@@ -117,6 +131,15 @@ public class WotService {
 
 		LOG.info("POSTING /wot/revoke ...");
 		String remote = request.getRemoteHost();
+
+
+		try{
+			BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
+			LOG.info(in.lines().collect(Collectors.joining("\n")));
+		}catch (Exception e ){
+			LOG.error("error reading wot/revoke inputStream ", e);
+		}
+
 
 		Revoked idty = new Revoked();
 		final var headers = new HttpHeaders();

@@ -22,8 +22,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -216,7 +219,15 @@ public class BlockchainService {
         LOG.info("POSTING /blockchain/membership ...");
         String remote = request.getRemoteHost();
 
-        Revoked idty = new Revoked();
+		try{
+			BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
+			LOG.info(in.lines().collect(Collectors.joining("\n")));
+		}catch (Exception e ){
+			LOG.error("error reading blockchain/membership inputStream ", e);
+		}
+
+
+		Revoked idty = new Revoked();
         final var headers = new HttpHeaders();
 
 
@@ -229,14 +240,20 @@ public class BlockchainService {
     @RequestMapping(value = "/block", method = RequestMethod.POST)
     ResponseEntity<Revoked> block (HttpServletRequest request, HttpServletResponse response) {
 
-        LOG.info("POSTING /blockchain/block ...");
-        String remote = request.getRemoteHost();
+        LOG.info("POSTING /blockchain/block ..." + request.getRemoteHost());
 
-        Revoked idty = new Revoked();
+
+		try{
+			BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
+			LOG.info(in.lines().collect(Collectors.joining("\n")));
+		}catch (Exception e ){
+			LOG.error("error reading blockchain/block inputStream ", e);
+		}
+
+
+		Revoked idty = new Revoked();
         final var headers = new HttpHeaders();
 
-
-        LOG.info("remote " + remote);
 
         return  new ResponseEntity<>(idty, headers, HttpStatus.OK);
     }

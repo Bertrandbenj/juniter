@@ -26,7 +26,7 @@ public class Peer  implements Serializable{
 //	@GeneratedValue(strategy = GenerationType.AUTO)
 //	private Long id;
 
-	private Short version; 
+	private Integer version;
 	
 	private String currency; 
 	
@@ -65,7 +65,7 @@ public class Peer  implements Serializable{
 	private List<EndPoint> endpoints = new ArrayList<EndPoint>(); 
 	
 	
-	public Short getVersion() {
+	public Integer getVersion() {
 		return version;
 	}
 	public String getCurrency() {
@@ -89,7 +89,10 @@ public class Peer  implements Serializable{
 	public String getSignature() {
 		return signature;
 	}
-	
+	public String getRaw(){
+		return toDUP(true);
+	}
+
 	public List<EndPoint> endpoints() {
 		return endpoints;
 	}
@@ -102,7 +105,7 @@ public class Peer  implements Serializable{
 	public static Predicate<Peer> blockHigherThan (int x){
 		return p-> Integer.parseInt(p.block.split("-")[0]) > x;
 	}
-	public void setVersion(Short version) {
+	public void setVersion(Integer version) {
 		this.version = version;
 	}
 	public void setCurrency(String currency) {
@@ -126,14 +129,24 @@ public class Peer  implements Serializable{
 	public void setSignature(String signature) {
 		this.signature = signature;
 	}
+
 	public Peer putEndpoints(List<EndPoint> endpoints) {
 		this.endpoints.removeIf(x->true);
 		this.endpoints.addAll(endpoints);
 		return this;
 	}
 
-	public String toDUP(){
-		return "";
+	public String toDUP(boolean signed ){
+		return "Version: "+version+
+				"\nType: Peer" +
+				"\nCurrency: "+currency+"" +
+				"\nPublicKey: "+pubkey+"" +
+				"\nBlock: "+block+"" +
+				"\nEndpoints:\n"
+				+endpoints.stream().map(ep -> ep.getEndpoint()).collect(Collectors.joining("\n"))
+				+"\n" +
+
+				(signed? signature + "\n" : "");
 	}
 	
 

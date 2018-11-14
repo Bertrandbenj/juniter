@@ -1,7 +1,6 @@
 package juniter.service.bma.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import juniter.core.model.net.Peer;
 
 import java.io.Serializable;
 import java.util.List;
@@ -11,16 +10,15 @@ public class PeeringDTO implements Serializable {
 
     private static final long serialVersionUID = -4464417074954356696L;
 
-
     private  Integer depth ;
+
     private Integer nodeCounts;
+
     private Integer leavesCount;
 
     private String root ;
 
     private List<String> leaves;
-
-
 
     private LeafDTO leaf ;
 

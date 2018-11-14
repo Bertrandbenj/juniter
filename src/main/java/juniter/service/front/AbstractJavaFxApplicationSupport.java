@@ -23,7 +23,7 @@ public abstract class AbstractJavaFxApplicationSupport extends Application {
     @Override
     public void stop() throws Exception {
         super.stop();
-        applicationContext.close();
+        //applicationContext.close();
     }
 
     public static void launchGUI(Class<? extends AbstractJavaFxApplicationSupport> appClass, ConfigurableApplicationContext context) {
