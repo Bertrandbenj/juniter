@@ -4,13 +4,15 @@ It is not yet a calculating node of the network
 
 ## Try it 
 
- - [test-server](https://juniter.bnimajneb.online:8443/html) 
- - [report a bug, feedbacks](https://github.com/Bertrandbenj/juniter/issues/new)
+ - [test online](https://juniter.bnimajneb.online:8443/html)
+ - [report, feedbacks](https://github.com/Bertrandbenj/juniter/issues/new)
+ - [Presentation Juniter](http://bertrandbenjamin.com/juniter/presentation/)
 
 ## Features (in progress )
  - Database: Postgresql  
  - @Annotation typing of the data model (basic type validation + storage semantic)
  - Simple html page templated with jade 
+ - JavaFX admin interface. 
  - GET /blockchain/... 
  - GET /tx/history/[pubkey]
  - Challenging WS2P 
@@ -19,8 +21,8 @@ It is not yet a calculating node of the network
  - Grammar - [readme](grammar/README.md) [antlr](juniter/src/main/antlr/JuniterGrammar.p4) [perl6](scripts/grammar.pl6)
     - Grammar helps me define the parsing in the process of **Local Validation** 
  - **Global Validation** is the process of indexing the blockchain and keeping the global state it is reprensetend by 108 business rules BR_G01-108 
-    - [interface](src/main/java/juniter/core/validation/GlobalValid.java) 
-    - [implementation](src/main/java/juniter/repository/memory/Index.java)
+    - [GlobalValid](src/main/java/juniter/core/validation/GlobalValid.java) 
+    - [Index](src/main/java/juniter/repository/memory/Index.java)
     
 # Usage 
 ## Install 
@@ -67,7 +69,12 @@ psql -U postgres -c "GRANT ALL ON SCHEMA testdb TO testuser;"
 ## Configuration
 Check [application.yml](src/main/resources/application.yml) and overwrite it or set individual properties
 ``` 
-juniter.simpleloader.enabled=false
+juniter.useJavaFX=false
+```
+
+Command line override
+```bash
+-Djuniter.useJavaFX=false -D...
 ```
 
 
@@ -75,13 +82,14 @@ juniter.simpleloader.enabled=false
 
 https://stackoverflow.com/questions/49507160/how-to-install-jdk-10-under-ubuntu
 
+for javafx, jdk 10 needs to be oracle's 
 ```
 sudo add-apt-repository ppa:linuxuprising/java
 sudo apt-get update
 sudo apt-get install oracle-java10-installer
 sudo apt-get install oracle-java10-set-default
 
-## Or simply, set java 10
+## Or simply, set java 10 
 export JAVA_HOME=/usr/lib/jvm/java-10-oracle
 ```
 
