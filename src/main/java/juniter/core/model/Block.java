@@ -556,6 +556,10 @@ public class Block implements Serializable, DUPComponent {
 	}
 
 
+	public String bstamp(){
+		return getNumber() + "-" + getHash();
+	}
+
 	@Override
 	public String toDUP() {
 		return toDUP(true, true);

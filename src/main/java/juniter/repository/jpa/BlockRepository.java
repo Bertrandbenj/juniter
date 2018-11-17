@@ -39,7 +39,7 @@ public interface BlockRepository extends JpaRepository<Block, Long>, BlockLocalV
 	}
 
 	default Integer currentBlockNumber() {
-		return current().map(b -> b.getNumber()).orElse(140000);
+		return current().map(Block::getNumber).orElseThrow();
 	};
 
 	List<Block> findByHash(String hash);

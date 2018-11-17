@@ -24,7 +24,7 @@ import java.util.stream.IntStream;
  */
 @ConditionalOnExpression("${juniter.missingloader.enabled:false}")
 @Component
-@Order(3)
+@Order(10)
 public class MissingBlocksLoader  {
 
 	private static final Logger LOG = LogManager.getLogger();
@@ -60,7 +60,7 @@ public class MissingBlocksLoader  {
 	}
 
 
-	@Scheduled(fixedRate = 5 * 60 * 1000 )
+	@Scheduled(fixedRate = 3 * 60 * 1000, initialDelay = 5 * 60 * 1000)
 	public void run() {
 
 		LOG.info("Entering MissingBlocksLoader.runPeerCheck  ");

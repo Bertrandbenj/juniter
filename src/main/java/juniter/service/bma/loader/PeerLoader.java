@@ -1,5 +1,8 @@
 package juniter.service.bma.loader;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import juniter.core.model.BStamp;
+import juniter.core.model.net.EndPointType;
 import juniter.core.model.net.Peer;
 import juniter.core.utils.TimeUtils;
 import juniter.repository.jpa.EndPointsRepository;
@@ -14,27 +17,32 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @ConditionalOnExpression("${juniter.useDefaultLoader:true}") // Must be up for dependencies
 @Component
-@Order(1)
-public class PeerLoader  {
+@Order(10)
+public class PeerLoader {
 
     public static final Logger LOG = LogManager.getLogger();
 
-    private RestTemplate restTpl = new RestTemplate();
+    @Autowired
+    private RestTemplate restTpl;
 
     @Value("#{'${juniter.network.trusted}'.split(',')}")
     private List<String> configuredNodes;
@@ -42,6 +50,8 @@ public class PeerLoader  {
     @Autowired
     private PeersRepository peerRepo;
 
+    @Autowired
+    private BlockLoader blockLoader;
 
     @Autowired
     private NetworkService netService;
@@ -53,14 +63,14 @@ public class PeerLoader  {
     private Optional<String> anyNotIn(final List<String> triedURL) {
         Collections.shuffle(configuredNodes);
         return configuredNodes.stream()
-                    .filter(node -> triedURL == null || !triedURL.contains(node))
+                .filter(node -> triedURL == null || !triedURL.contains(node))
                 .findAny();
     }
 
     @Transactional
-    @Scheduled(fixedRate = 10 * 60 * 1000 )
+    //@Scheduled(initialDelay = 11 * 60 * 1000)
     public void runBMAnetworkPeeringCardsCheck() {
-//        endPointRepo.endpointsBMA()
+//        endPointRepo.endpointsBMAS()
 //                .map(bma -> fetchPeers(bma.url()) )
 //                .flatMap(peerDoc -> peerDoc.getPeers().stream())
 //                .flatMap(peer-> peer.endpoints().stream())
@@ -69,7 +79,7 @@ public class PeerLoader  {
     }
 
 
-    @Scheduled(fixedRate = 1 * 60 * 1000 )
+    @Scheduled(fixedDelay = 3 * 60 * 1000)
     public void runPeerCheck() {
         final var start = System.nanoTime();
 
@@ -80,19 +90,19 @@ public class PeerLoader  {
 
             final var host = anyNotIn(blacklistHosts);
 
-            if(host.isPresent()){
+            if (host.isPresent()) {
 
                 blacklistHosts.add(host.get());
                 try {
                     peersDTO = fetchPeers(host.get());
-                    LOG.info("fetched " + peersDTO.getPeers().size() + " peers from " +host );
+                    LOG.info("fetched " + peersDTO.getPeers().size() + " peers from " + host);
 
                 } catch (Exception e) {
                     LOG.error("Retrying : Net error accessing node " + host + " " + e.getMessage());
                 }
 
-            }else{
-                LOG.error( "Please, connect to the internet and provide BMA configuredNodes ");
+            } else {
+                LOG.error("Please, connect to the internet and provide BMA configuredNodes ");
             }
 
         }
@@ -102,41 +112,121 @@ public class PeerLoader  {
 
     }
 
-    @Scheduled(fixedRate = 2 * 60 * 1000 )
-    public void doPairing(){
-        var peer = netService.endPointPeer();
+    @Transactional(readOnly = true)
+    @Scheduled(fixedDelay = 5 * 60 * 1000)
+    public void doPairing() {
+
+        LOG.info("Entering doPairing " + endPointRepo.endpointsBMAS().count());
+
+
+        var max = endPointRepo.endpointsBMAS()
+                .parallel()
+                .map(bma -> fetchPeeringNumber(bma.url()))
+                .filter(Objects::nonNull)
+                .findAny()
+                //.sorted().max(Comparator.naturalOrder())
+                .orElseThrow();
+
+        LOG.info("=== Found max max block " + max);
+
+        var peer = netService.endPointPeer(max.getNumber() -1 );
         var asBMA = new PeerBMA(peer);
-        var url = "https://g1.duniter.org/network/peering/peers";
 
-        LOG.info("Sending to " + url + "\n" + asBMA.peer);
+        peerRepo.peerWithBlock(max.toString())
+                .flatMap(b -> b.endpoints().stream())
+                .filter(Objects::nonNull)
+                .forEach(ep -> {
+                    if (ep.api() == EndPointType.BMAS) {
+                        var url = ep.url() + "network/peering/peers";
+                        var res = technicalPost(url, asBMA);
 
-        restTpl.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
-        restTpl.getMessageConverters().add(new StringHttpMessageConverter());
+                        LOG.info("doPairing got response : "  + res);
 
-        var responseEntity = restTpl.postForObject(url, asBMA, Peer.class);
-        LOG.info(responseEntity) ;
-        // restTemplate.put(,entity);
+                        if(res != null ){
+                            LOG.info(res.toDUP(true));
+                        }
+                    }
+                });
+
+        LOG.info("Finished doPairing " );
 
     }
 
+    private Peer technicalPost(String url, PeerBMA peerBMA) {
+
+        try {
+            MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
+            headers.add("Content-Type", "application/json");
+            headers.add("Accept", MediaType.APPLICATION_JSON_VALUE);
+            RestTemplate restTemplate = new RestTemplate();
+            restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+            restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+
+            LOG.info("technicalPost : " + peerBMA.peer);
 
 
+            HttpEntity<PeerBMA> request = new HttpEntity<>(peerBMA, headers);
+            var responseObject = restTemplate.postForObject(url, request, Peer.class);
 
-    public PeersDTO fetchPeers(String nodeURL) throws Exception {
+
+            return responseObject;
+
+        } catch (HttpClientErrorException e) {
+            LOG.error("HttpClientErrorException:  " + e.getRawStatusCode() + " " + e.getResponseBodyAsString());
+            ObjectMapper mapper = new ObjectMapper();
+            //ErrorHolder eh = mapper.readValue(e.getResponseBodyAsString(), ErrorHolder.class);
+            //LOG.error("error:  " + eh.getErrorMessage());
+        } catch (HttpServerErrorException e) {
+
+            var status = e.getRawStatusCode();
+
+            LOG.error("HttpServerErrorException " + status +
+                    " : posting to " + url +
+                    "\n" + e.getResponseBodyAsString());
+        } catch (ResourceAccessException e) {
+            LOG.error("retrying : error accessing " + url);
+        } catch (Exception e) {
+            LOG.error("error:  ", e);
+        }
+        return null;
+    }
+
+    public BStamp fetchPeeringNumber(String nodeURL) {
+
+        var url = nodeURL + "network/peering";
+
+        LOG.info("fetchPeering try on " + url);
+        try {
+            var peers = restTpl.getForObject(url, Peer.class);
+
+            var bstamp = new BStamp(peers.getBlock());
+
+            blockLoader.fetchAndSaveBlock(bstamp.getNumber());
+
+            return bstamp;
+
+            //return peers;
+        } catch (Exception e) {
+            LOG.warn("error on " + nodeURL + "network/peering");
+        }
+        return null;
+    }
 
 
-            var responseEntity = restTpl.exchange(nodeURL + "/network/peers",
-                    HttpMethod.GET, null, new ParameterizedTypeReference<PeersDTO>() {
-                    });
+    public PeersDTO fetchPeers(String nodeURL) {
 
-            final var peers = responseEntity.getBody();
-            final var contentType = responseEntity.getHeaders().getContentType();
-            final var statusCode = responseEntity.getStatusCode();
-            save(peers);
 
-            LOG.info("Found peers: " + peers.getPeers().size() + ", status : " + statusCode.getReasonPhrase()
-                    + ", ContentType: " + contentType.toString());
+        var responseEntity = restTpl.exchange(nodeURL + "/network/peers",
+                HttpMethod.GET, null, new ParameterizedTypeReference<PeersDTO>() {
+                });
 
+        final var peers = responseEntity.getBody();
+        final var contentType = responseEntity.getHeaders().getContentType();
+        final var statusCode = responseEntity.getStatusCode();
+        save(peers);
+
+        LOG.info("Found peers: " + peers.getPeers().size() + ", status : " + statusCode.getReasonPhrase()
+                + ", ContentType: " + contentType.toString());
 
 
         return peers;
@@ -152,7 +242,6 @@ public class PeerLoader  {
                             .forEach(ep -> endPointRepo.saveAndFlush(ep)); // save individual endpoints
                 });
     }
-
 
 
 }

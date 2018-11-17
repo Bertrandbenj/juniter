@@ -57,7 +57,7 @@ public interface BlockLocalValid extends LocalValid {
 			assertBlockLocalValid(block);
 			return true;
 		}catch(final AssertionError ea){
-			ea.printStackTrace();
+			System.out.println("At block " + block.getNumber());
 		}
 
 		return false;

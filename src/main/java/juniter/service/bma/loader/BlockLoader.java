@@ -44,6 +44,10 @@ public class BlockLoader implements CommandLineRunner, BlockLocalValid {
     @Value("${juniter.network.bulkSize:50}")
     private Integer bulkSize;
 
+    @Value("${juniter.reset:false}")
+    private boolean reset;
+
+
     private AtomicInteger rotator = new AtomicInteger();
 
     @Autowired
@@ -62,6 +66,7 @@ public class BlockLoader implements CommandLineRunner, BlockLocalValid {
 
     @Transactional
     private void bulkLoad() {
+
 
         final var start = System.nanoTime();
         final var currentNumber = fetchAndSaveBlock("current").getNumber();
@@ -129,22 +134,23 @@ public class BlockLoader implements CommandLineRunner, BlockLocalValid {
         while (block == null) {
 
 
-            final var host = anyNotIn(blacklistHosts).get();
-            blacklistHosts.add(host);
-            try {
-                url = host + "blockchain/" + id;
-                block = restTemplate.getForObject(url, Block.class);
-                block = blockRepo.block(block.getNumber()).orElse(block);
+            final var host = anyNotIn(blacklistHosts);
+            if (host.isPresent()) {
+                blacklistHosts.add(host.get());
+                try {
+                    url = host.get() + "blockchain/" + id;
+                    block = restTemplate.getForObject(url, Block.class);
+                    block = blockRepo.block(block.getNumber()).orElse(block);
 
-                LOG.info("  Fetched ... : " + id);
+                    LOG.info("  Fetched ... : " + id);
 
-            } catch (Exception e) {
-
-                LOG.error("Retrying : Net error accessing node " + url + " " + e.getMessage());
-
+                } catch (Exception e) {
+                    LOG.error("Retrying : Net error accessing node " + url + " " + e.getMessage());
+                }
             }
 
-            assert blacklistHosts.size() <= configuredNodes.size(): "Please, connect to the internet and provide BMA configuredNodes ";
+
+            assert blacklistHosts.size() <= configuredNodes.size() : "Please, connect to the internet and provide BMA configuredNodes ";
         }
 
         return block;
@@ -226,11 +232,30 @@ public class BlockLoader implements CommandLineRunner, BlockLocalValid {
     public void run(String... args) throws Exception {
         final var start = System.nanoTime();
 
+        LOG.info("Entering: blockloader.run reset ? " + reset);
+
+
+        if (reset) reset();
+
         bulkLoad();
 
         final var elapsed = Long.divideUnsigned(System.nanoTime() - start, 1000000);
         LOG.info("Elapsed time: " + TimeUtils.format(elapsed));
     }
 
+
+    @Transactional
+    private void reset() {
+
+        LOG.info(" === Reseting DB "+ blockRepo.findAll().size());
+        blockRepo.findAll().forEach(b -> {
+            blockRepo.delete(b);
+            LOG.info("deleted " + b.getNumber());
+
+        });
+        blockRepo.deleteAll();
+        LOG.info(" === Reseting DB - DONE ");
+
+    }
 
 }

@@ -1,6 +1,7 @@
 package juniter.service.bma;
 
 import juniter.core.crypto.SecretBox;
+import juniter.core.model.Block;
 import juniter.core.model.net.EndPoint;
 import juniter.core.model.net.Peer;
 import juniter.repository.jpa.BlockRepository;
@@ -15,6 +16,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,6 +40,7 @@ import java.util.stream.Collectors;
 @RestController
 @ConditionalOnExpression("${juniter.bma.enabled:false}")
 @RequestMapping("/network")
+@Order(100)
 public class NetworkService {
 
     @Value("${server.port:8443}")
@@ -97,22 +100,28 @@ public class NetworkService {
 
         LOG.info("Entering /network/peering ... " + remote);
 
-        return endPointPeer();
+        return endPointPeer(171667);
 
     }
 
 
+    public Peer endPointPeer(Integer number){
+        LOG.info("endPointPeer " + number);
 
-    public Peer endPointPeer(){
-        var current = blockRepo.current().orElseThrow();
+        Block current = blockRepo.block(number ).orElseThrow();
         var peer = new Peer();
         peer.setVersion(10);
-        peer.setBlock(current.getNumber() + "-" + current.getInner_hash());
+        peer.setBlock(current.bstamp());
         peer.setCurrency("g1");
         peer.setPubkey(secretBox.getPublicKey());
         peer.setStatus("UP");
-        peer.endpoints().add(new EndPoint("BMAS " + serverName + " " + whatsMyIp() + " " + port));
-        peer.endpoints().add(new EndPoint("BASIC_MERKLED_API " + serverName + " " + whatsMyIp() + " " + port));
+        peer.endpoints().add(new EndPoint("BMAS "  + whatsMyIp() + " " + port));
+        peer.endpoints().add(new EndPoint("BASIC_MERKLED_API "  + whatsMyIp() + " " + port));
+        peer.endpoints().add(new EndPoint("BMAS " + serverName + " " + port));
+        peer.endpoints().add(new EndPoint("WS2P " + serverName + " " + port));
+        //peer.endpoints().add(new EndPoint("BASIC_MERKLED_API " + serverName + " " + " " + port));
+
+
         peer.setSignature(secretBox.sign(peer.toDUP(false)));
 
         return peer;
@@ -120,7 +129,7 @@ public class NetworkService {
 
     @RequestMapping(value = "/peering/peers", method = RequestMethod.POST)
     @ResponseBody
-    ResponseEntity<Peer> peeringPeersPost(@RequestBody PeerBMA input) {
+    public ResponseEntity<Peer> peeringPeersPost(@RequestBody PeerBMA input) {
 
         LOG.info("POSTING /network/peering/peers ..." + input.peer);
 

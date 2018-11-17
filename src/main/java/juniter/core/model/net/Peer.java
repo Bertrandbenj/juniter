@@ -145,7 +145,6 @@ public class Peer  implements Serializable{
 				"\nEndpoints:\n"
 				+endpoints.stream().map(ep -> ep.getEndpoint()).collect(Collectors.joining("\n"))
 				+"\n" +
-
 				(signed? signature + "\n" : "");
 	}
 	

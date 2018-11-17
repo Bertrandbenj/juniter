@@ -17,7 +17,8 @@ juniter:
   ws2p.enabled: true
   utils.enabled: false
   useJavaFX: true
-  useDefaultLoader: true
+##  useDefaultLoader: true
+##  reset: true     # default false
 
 spark:
   master: local[*]
