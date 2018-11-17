@@ -1,10 +1,10 @@
 package juniter.service.bma;
 
 import juniter.core.model.Block;
-import juniter.core.model.wot.Revoked;
 import juniter.repository.jpa.BlockRepository;
 import juniter.service.bma.loader.BlockLoader;
 import juniter.service.bma.model.BlockDTO;
+import juniter.service.bma.model.MembershipDTO;
 import juniter.service.bma.model.WithDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -214,10 +214,10 @@ public class BlockchainService {
 	}
 
     @RequestMapping(value = "/membership", method = RequestMethod.POST)
-    ResponseEntity<Revoked> membership (HttpServletRequest request, HttpServletResponse response) {
+    ResponseEntity<MembershipDTO> membership (HttpServletRequest request, HttpServletResponse response) {
 
-        LOG.info("POSTING /blockchain/membership ...");
-        String remote = request.getRemoteHost();
+        LOG.info("POSTING /blockchain/membership ..." + request.getRemoteHost());
+
 
 		try{
 			BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
@@ -227,18 +227,16 @@ public class BlockchainService {
 		}
 
 
-		Revoked idty = new Revoked();
+		MembershipDTO membership = new MembershipDTO();
         final var headers = new HttpHeaders();
 
 
-        LOG.info("remote " + remote);
-
-        return  new ResponseEntity<>(idty, headers, HttpStatus.OK);
+        return  new ResponseEntity<>(membership, headers, HttpStatus.OK);
     }
 
 
     @RequestMapping(value = "/block", method = RequestMethod.POST)
-    ResponseEntity<Revoked> block (HttpServletRequest request, HttpServletResponse response) {
+    ResponseEntity<Block> block (HttpServletRequest request, HttpServletResponse response) {
 
         LOG.info("POSTING /blockchain/block ..." + request.getRemoteHost());
 
@@ -251,11 +249,11 @@ public class BlockchainService {
 		}
 
 
-		Revoked idty = new Revoked();
+		Block block = new Block();
         final var headers = new HttpHeaders();
 
 
-        return  new ResponseEntity<>(idty, headers, HttpStatus.OK);
+        return  new ResponseEntity<>(block, headers, HttpStatus.OK);
     }
 
 }

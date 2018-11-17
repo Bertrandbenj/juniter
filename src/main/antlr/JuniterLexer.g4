@@ -147,7 +147,7 @@ mode TYPE_INLINED;
   DOCTYPE_PEER:     		'Peer' 					;//-> skip;
   DOCTYPE_TRAN:     		'Transaction' 			;//-> skip;
   DOCTYPE_BLCK:     		'Block' 			;//-> skip;
-//  DOCTYPE: 			DT_IDTY | DT_CERT | 'Membership' | 'Revocation' | 'Peer' | 'Transaction' ;
+//  DOCTYPE: 			DT_IDTY | DT_CERT | 'MembershipDTO' | 'Revocation' | 'Peer' | 'Transaction' ;
   
 EOTYPE:				NL 						 -> skip,popMode ;
 

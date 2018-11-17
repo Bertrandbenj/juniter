@@ -7,7 +7,8 @@ import juniter.repository.jpa.BlockRepository;
 import juniter.repository.jpa.EndPointsRepository;
 import juniter.repository.jpa.PeersRepository;
 import juniter.service.bma.model.LeafDTO;
-import juniter.service.bma.model.PeeringDTO;
+import juniter.service.bma.model.PeerBMA;
+import juniter.service.bma.model.PeeringPeersDTO;
 import juniter.service.bma.model.PeersDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,10 +19,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -40,10 +38,15 @@ import java.util.stream.Collectors;
 @RestController
 @ConditionalOnExpression("${juniter.bma.enabled:false}")
 @RequestMapping("/network")
-public class PeeringService {
+public class NetworkService {
 
     @Value("${server.port:8443}")
     Integer port;
+
+    @Value("${server.name:juniter.bnimajneb.online}")
+    String serverName;
+
+
 
     public static final Logger LOG = LogManager.getLogger();
 
@@ -57,6 +60,10 @@ public class PeeringService {
     private BlockRepository blockRepo;
 
     private String foundIP;
+
+
+
+    private SecretBox secretBox = new SecretBox("salt", "password");
 
 
 
@@ -77,7 +84,7 @@ public class PeeringService {
             final var peerL = peerss.collect(Collectors.toList());
             return new PeersDTO(peerL);
         } catch (final Exception e) {
-            LOG.error("PeeringService.peers() peerRepo.streamAllPeers ->  ", e);
+            LOG.error("NetworkService.peers() peerRepo.streamAllPeers ->  ", e);
         }
         return null;
     }
@@ -89,35 +96,34 @@ public class PeeringService {
         String remote = request.getRemoteHost();
 
         LOG.info("Entering /network/peering ... " + remote);
+
+        return endPointPeer();
+
+    }
+
+
+
+    public Peer endPointPeer(){
         var current = blockRepo.current().orElseThrow();
-
-        var secretBox = new SecretBox("salt", "password");
-
         var peer = new Peer();
         peer.setVersion(10);
         peer.setBlock(current.getNumber() + "-" + current.getInner_hash());
         peer.setCurrency("g1");
         peer.setPubkey(secretBox.getPublicKey());
         peer.setStatus("UP");
-        peer.endpoints().add(new EndPoint("BMAS " + whatsMyIp() + " " + port));
-        peer.endpoints().add(new EndPoint("BASIC_MERKLED_API " + whatsMyIp() + " " + port));
-
+        peer.endpoints().add(new EndPoint("BMAS " + serverName + " " + whatsMyIp() + " " + port));
+        peer.endpoints().add(new EndPoint("BASIC_MERKLED_API " + serverName + " " + whatsMyIp() + " " + port));
         peer.setSignature(secretBox.sign(peer.toDUP(false)));
 
         return peer;
     }
 
     @RequestMapping(value = "/peering/peers", method = RequestMethod.POST)
-    ResponseEntity<Peer> peeringPeersPost(HttpServletRequest request, HttpServletResponse response) {
+    @ResponseBody
+    ResponseEntity<Peer> peeringPeersPost(@RequestBody PeerBMA input) {
 
-        LOG.info("POSTING /network/peering/peers ...");
+        LOG.info("POSTING /network/peering/peers ..." + input.peer);
 
-        try{
-            BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
-            LOG.info(in.lines().collect(Collectors.joining("\n")));
-        }catch (Exception e ){
-            LOG.error("error reading network/peering/peers inputStream ", e);
-        }
 
         Peer peer = new Peer();
         final var headers = new HttpHeaders();
@@ -128,10 +134,11 @@ public class PeeringService {
 
 
 
+
     @Transactional(readOnly = true)
     @RequestMapping(value = "/peering/peers", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<PeeringDTO> peeringPeersGet(HttpServletRequest request, HttpServletResponse response) {
+    ResponseEntity<PeeringPeersDTO> peeringPeersGet(HttpServletRequest request, HttpServletResponse response) {
 
         LOG.info("Entering /network/peering/peers ...");
         final var headers = new HttpHeaders();
@@ -139,7 +146,7 @@ public class PeeringService {
 
         var extraParams = request.getParameterMap();
 
-        var peeringPeers = new PeeringDTO();
+        var peeringPeers = new PeeringPeersDTO();
         peeringPeers.setDepth(10);
         peeringPeers.setNodeCounts(652);
         peeringPeers.setLeavesCount(648);

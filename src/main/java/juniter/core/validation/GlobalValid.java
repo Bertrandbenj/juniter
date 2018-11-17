@@ -411,7 +411,7 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * * Membership unicity
+     * * MembershipDTO unicity
      *
      * The local MINDEX has a unicity constraint on PUBLIC_KEY
      *
@@ -717,7 +717,7 @@ public interface GlobalValid {
     default void augmentLocal(BINDEX head, Block block) {
         final var bstamp = new BStamp(block.getNumber(), block.getHash());
 
-        BR_G94(bstamp); // Exclusion by Membership
+        BR_G94(bstamp); // Exclusion by MembershipDTO
         BR_G95(bstamp); // Exclusion by certification
 
     }
@@ -1177,7 +1177,7 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G104 - Membership expiry date correction
+     * BR_G104 - MembershipDTO expiry date correction
      *
      * For each LOCAL_MINDEX[type='JOIN'] as MS:
      *     MS.expires_on = MS.expires_on - MS.age
@@ -1286,7 +1286,7 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G108 - Membership period
+     * BR_G108 - MembershipDTO period
      *
      * Rule:
      *
@@ -1977,7 +1977,7 @@ public interface GlobalValid {
     private void BR_G32(MINDEX entry) {
         if (entry.revoked_on != null) {
             entry.revocationSigOK = indexIGlobal().anyMatch(i -> i.pub.equals(entry.pub));
-            // TODO sigcheck requires Membership Document?
+            // TODO sigcheck requires MembershipDTO Document?
         } else {
             entry.revocationSigOK = true;
         }
@@ -2527,7 +2527,7 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G64 - Membership writability
+     * BR_G64 - MembershipDTO writability
      *
      * Rule:
      *
@@ -2535,7 +2535,7 @@ public interface GlobalValid {
      */
     private boolean BR_G64(MINDEX m) {
         assert m.age <= blockChainParams.msWindow //
-                : "BR_G64 - Membership writability window - age:" + m.age + " for " + m;
+                : "BR_G64 - MembershipDTO writability window - age:" + m.age + " for " + m;
 
         return m.age <= blockChainParams.msWindow;
     }
@@ -2674,92 +2674,92 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G75 - Membership succession
+     * BR_G75 - MembershipDTO succession
      *
      * Rule:
      *
      * ENTRY.numberFollowing == true
      */
     private boolean BR_G75(MINDEX m) {
-        assert m.numberFollowing : "BR_G75 - Membership succession ";
+        assert m.numberFollowing : "BR_G75 - MembershipDTO succession ";
         return m.numberFollowing;
     }
 
     /**
      * <pre>
-     * BR_G76 - Membership distance check
+     * BR_G76 - MembershipDTO distance check
      *
      * Rule:
      *
      * ENTRY.distanceOK == true
      */
     private boolean BR_G76(MINDEX m) {
-        assert m.distanceOK : "BR_G76 - Membership distance check ";
+        assert m.distanceOK : "BR_G76 - MembershipDTO distance check ";
         return m.distanceOK;
     }
 
     /**
      * <pre>
-     * BR_G77 - Membership on revoked
+     * BR_G77 - MembershipDTO on revoked
      *
      * Rule:
      *
      * ENTRY.onRevoked == false
      */
     private boolean BR_G77(MINDEX m) {
-        assert !m.onRevoked : "BR_G77 - Membership on revoked " + m.pub;
+        assert !m.onRevoked : "BR_G77 - MembershipDTO on revoked " + m.pub;
         return !m.onRevoked;
     }
 
     /**
      * <pre>
-     * BR_G78 - Membership joins twice
+     * BR_G78 - MembershipDTO joins twice
      *
      * Rule:
      *
      * ENTRY.joinsTwice == false
      */
     private boolean BR_G78(MINDEX m) {
-        assert !m.joinsTwice : "BR_G78 - Membership joins twice ";
+        assert !m.joinsTwice : "BR_G78 - MembershipDTO joins twice ";
         return !m.joinsTwice;
     }
 
     /**
      * <pre>
-     * BR_G79 - Membership enough certifications
+     * BR_G79 - MembershipDTO enough certifications
      *
      * Rule:
      *
      * ENTRY.enoughCerts == true
      */
     private boolean BR_G79(MINDEX m) {
-        assert m.enoughCerts : "BR_G79 - Membership enough certifications ";
+        assert m.enoughCerts : "BR_G79 - MembershipDTO enough certifications ";
         return m.enoughCerts;
     }
 
     /**
      * <pre>
-     * BR_G80 - Membership leaver
+     * BR_G80 - MembershipDTO leaver
      *
      * Rule:
      *
      * ENTRY.leaverIsMember == true
      */
     private boolean BR_G80(MINDEX m) {
-        assert m.leaverIsMember : "BR_G80 - Membership leaver";
+        assert m.leaverIsMember : "BR_G80 - MembershipDTO leaver";
         return m.leaverIsMember;
     }
 
     /**
      * <pre>
-     * BR_G81 - Membership active
+     * BR_G81 - MembershipDTO active
      *
      * Rule:
      *
      * ENTRY.activeIsMember == true
      */
     private boolean BR_G81(MINDEX m) {
-        assert m.activeIsMember : "BR_G81 - Membership active";
+        assert m.activeIsMember : "BR_G81 - MembershipDTO active";
         return m.activeIsMember;
     }
 
@@ -3058,7 +3058,7 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G93 - Membership expiry
+     * BR_G93 - MembershipDTO expiry
      *
      * For each REDUCE_BY(GLOBAL_MINDEX[expires_on<=HEAD.medianTime AND revokes_on>HEAD.medianTime], 'pub') as POTENTIAL then consider
      *     REDUCE(GLOBAL_MINDEX[pub=POTENTIAL.pub]) AS MS.

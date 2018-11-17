@@ -1,8 +1,11 @@
 package juniter.service.bma.loader;
 
+import juniter.core.model.net.Peer;
 import juniter.core.utils.TimeUtils;
 import juniter.repository.jpa.EndPointsRepository;
 import juniter.repository.jpa.PeersRepository;
+import juniter.service.bma.NetworkService;
+import juniter.service.bma.model.PeerBMA;
 import juniter.service.bma.model.PeersDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,6 +15,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +41,10 @@ public class PeerLoader  {
 
     @Autowired
     private PeersRepository peerRepo;
+
+
+    @Autowired
+    private NetworkService netService;
 
     @Autowired
     private EndPointsRepository endPointRepo;
@@ -92,6 +101,25 @@ public class PeerLoader  {
         LOG.info("Elapsed time: " + TimeUtils.format(elapsed));
 
     }
+
+    @Scheduled(fixedRate = 2 * 60 * 1000 )
+    public void doPairing(){
+        var peer = netService.endPointPeer();
+        var asBMA = new PeerBMA(peer);
+        var url = "https://g1.duniter.org/network/peering/peers";
+
+        LOG.info("Sending to " + url + "\n" + asBMA.peer);
+
+        restTpl.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+        restTpl.getMessageConverters().add(new StringHttpMessageConverter());
+
+        var responseEntity = restTpl.postForObject(url, asBMA, Peer.class);
+        LOG.info(responseEntity) ;
+        // restTemplate.put(,entity);
+
+    }
+
+
 
 
     public PeersDTO fetchPeers(String nodeURL) throws Exception {

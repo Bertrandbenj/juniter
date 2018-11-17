@@ -188,9 +188,9 @@ public class BlockDTO implements Serializable {
 		return version;
 	}
 
-	public String getXXXDebug() {
+/*	public String getXXXDebug() {
 		return "";
-	}
+	}*/
 
 	public void setActives(List<String> actives) {
 		this.actives.addAll(actives);

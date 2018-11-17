@@ -1,75 +1,32 @@
 package juniter.service.bma.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import juniter.core.model.net.Peer;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PeeringDTO implements Serializable {
+public class PeeringDTO implements Serializable{
 
-    private static final long serialVersionUID = -4464417074954356696L;
+	private static final long serialVersionUID = 1618741167475514278L;
+	private List<Peer> peers ;
 
-    private  Integer depth ;
+	public transient String url;
+	public transient long timeMillis;
 
-    private Integer nodeCounts;
+	public PeeringDTO() {
+		super();
+		peers = new ArrayList<Peer>();
+	}
 
-    private Integer leavesCount;
+	public PeeringDTO(List<Peer> peers) {
+		super();
+		this.peers = peers;
+	}
 
-    private String root ;
-
-    private List<String> leaves;
-
-    private LeafDTO leaf ;
-
-    public Integer getDepth() {
-        return depth;
-    }
-
-    public void setDepth(Integer depth) {
-        this.depth = depth;
-    }
-
-    public Integer getNodeCounts() {
-        return nodeCounts;
-    }
-
-    public void setNodeCounts(Integer nodeCounts) {
-        this.nodeCounts = nodeCounts;
-    }
-
-    public Integer getLeavesCount() {
-        return leavesCount;
-    }
-
-    public void setLeavesCount(Integer leavesCount) {
-        this.leavesCount = leavesCount;
-    }
-
-    public String getRoot() {
-        return root;
-    }
-
-    public void setRoot(String root) {
-        this.root = root;
-    }
-
-    public List<String> getLeaves() {
-        return leaves;
-    }
-
-    public void setLeaves(List<String> leaves) {
-        this.leaves = leaves;
-    }
-
-    public LeafDTO getLeaf() {
-        return leaf;
-    }
-
-    public void setLeaf(LeafDTO leaf) {
-        this.leaf = leaf;
-    }
-
-
-
+	public List<Peer> getPeers() {
+		return peers;
+	}
 }

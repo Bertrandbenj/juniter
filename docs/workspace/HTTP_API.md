@@ -276,7 +276,7 @@ Technical informations about identities, membership and transactions sandboxes.
 
 **Goal**
 
-POST [Identity](./Protocol.md#identity) data.
+POST [Identity](Protocol.md#identity) data.
 
 **Parameters**
 
@@ -316,7 +316,7 @@ The available validated data for this public key.
 
 **Goal**
 
-POST [Certification](./Protocol.md#certification) data.
+POST [Certification](Protocol.md#certification) data.
 
 **Parameters**
 
@@ -370,7 +370,7 @@ True if operation went well. An HTTP error otherwise with body as error message.
 
 **Goal**
 
-GET [Public key](./Protocol.md#publickey) data.
+GET [Public key](Protocol.md#publickey) data.
 
 **Parameters**
 
@@ -519,7 +519,7 @@ A list of identities matching this pubkey and the requirements of each identitie
 
 **Goal**
 
-GET [Certification](./Protocol.md#certification) data over a member.
+GET [Certification](Protocol.md#certification) data over a member.
 
 **Parameters**
 
@@ -568,7 +568,7 @@ Each certification also has:
 
 **Goal**
 
-GET [Certification](./Protocol.md#certification) data over a member.
+GET [Certification](Protocol.md#certification) data over a member.
 
 **Parameters**
 
@@ -674,14 +674,14 @@ The synchronization parameters.
 }
 ```
 
-Parameters meaning is described under [Protocol parameters](./Protocol.md#protocol-parameters).
+Parameters meaning is described under [Protocol parameters](Protocol.md#protocol-parameters).
 
 #### `blockchain/membership`
 
 
 **Goal**
 
-POST a [Membership](./Protocol.md#membership) document.
+POST a [Membership](Protocol.md#membership) document.
 
 **Parameters**
 
@@ -711,7 +711,7 @@ The posted membership request.
 
 **Goal**
 
-GET [Membership](./Protocol.md#membership) data written for a member.
+GET [Membership](Protocol.md#membership) data written for a member.
 
 **Parameters**
 

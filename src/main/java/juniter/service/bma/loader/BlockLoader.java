@@ -18,10 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
@@ -83,12 +80,11 @@ public class BlockLoader implements CommandLineRunner, BlockLocalValid {
                 .boxed() //
                 .sorted() //
                 .parallel() // parallel stream if needed
-                .map(i -> fetchBlocks(bulkSize, i)) // fetch the list of blocks
-                .flatMap(list -> list.stream()) // blocks individually
+                .map(i -> fetchBlocks(bulkSize, i)) // remote list of blocks
+                .flatMap(Collection::stream) // blocks individually
                 .forEach(b -> blockRepo//
                         .localSave(b) //
-                        .ifPresent(bl -> //
-                                ai.incrementAndGet()));
+                        .ifPresent(bl -> ai.incrementAndGet()));
 
         final var elapsed = Long.divideUnsigned(System.nanoTime() - start, 1000000);
 
