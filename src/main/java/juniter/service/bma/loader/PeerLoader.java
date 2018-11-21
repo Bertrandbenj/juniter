@@ -5,6 +5,7 @@ import juniter.core.model.BStamp;
 import juniter.core.model.net.EndPointType;
 import juniter.core.model.net.Peer;
 import juniter.core.utils.TimeUtils;
+import juniter.repository.jpa.BlockRepository;
 import juniter.repository.jpa.EndPointsRepository;
 import juniter.repository.jpa.PeersRepository;
 import juniter.service.bma.NetworkService;
@@ -52,6 +53,10 @@ public class PeerLoader {
 
     @Autowired
     private BlockLoader blockLoader;
+
+
+    @Autowired
+    private BlockRepository blockRepo;
 
     @Autowired
     private NetworkService netService;
@@ -201,7 +206,11 @@ public class PeerLoader {
 
             var bstamp = new BStamp(peers.getBlock());
 
-            blockLoader.fetchAndSaveBlock(bstamp.getNumber());
+            blockLoader.fetchBlocks(100, bstamp.getNumber()-100)
+                    //.flatMap(Collection::stream) // blocks individually
+                    .forEach(b -> blockRepo//
+                            .localSave(b) //
+                            .ifPresent(bl -> LOG.debug(" saved block : " + bl)));
 
             return bstamp;
 
