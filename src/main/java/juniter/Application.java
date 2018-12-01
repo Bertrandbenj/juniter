@@ -32,21 +32,20 @@ import java.util.concurrent.Executor;
 @EnableScheduling
 public class Application {
 
-    private static final Logger log = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger();
 
 
     public static void main(String[] args) {
-        log.info("!!! Entering Application main !!!");
+        LOG.info("!!! Entering Application main !!!");
 
         var context = SpringApplication.run(Application.class, args);
-        log.info("!!! SpringApplication.runPeerCheck !!!");
+        LOG.info("!!! SpringApplication.runPeerCheck !!!");
 
 
         var useJavaFX = context.getEnvironment().getProperty("juniter.useJavaFX", Boolean.class);
         if (useJavaFX) {
-
             AdminFX.launchGUI(AdminFX.class, context);
-            log.info("!!! AdminFX.launchGUI !!!");
+            LOG.info("!!! AdminFX.launchGUI !!!");
         }
 
 

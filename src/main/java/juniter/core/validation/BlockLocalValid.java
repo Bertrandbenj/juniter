@@ -18,7 +18,7 @@ public interface BlockLocalValid extends LocalValid {
 			"\n on      : " + block.toDUP(false, false);
 	}
 
-	default void assertBlockLocalValid(Block block) throws AssertionError {
+	default void assertBlockLocalValid(Block block)  {
 
 		assertBlockInnerHash(block);
 		assertBlockHash(block.signedPartSigned(), block.getHash());
@@ -37,7 +37,7 @@ public interface BlockLocalValid extends LocalValid {
 			final var iss = tx.getIssuers().get(i).toString();
 
 			assert Crypto.verify(tx.toDUPdoc(false), sign, iss) : //
-				"Signature isnt verified  " + sign
+				"Signature isn't verified  " + sign
 				+ "\n  for issuer : " + iss
 				+ "\n  in transaction : " + tx.toDUPdoc(false);
 		}
@@ -48,8 +48,8 @@ public interface BlockLocalValid extends LocalValid {
 	/**
 	 * Exception safe validation to use as boolean
 	 *
-	 * @param block
-	 * @return
+	 * @param block to validate
+	 * @return true if the block is valid
 	 */
 	default boolean checkBlockisLocalValid(Block block) {
 

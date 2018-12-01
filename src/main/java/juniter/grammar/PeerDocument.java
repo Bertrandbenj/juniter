@@ -4,9 +4,9 @@ import juniter.core.model.BStamp;
 
 public class PeerDocument implements Document {
 
-	String currency;
-	String pubkey;
-	BStamp block;
+	private String currency;
+	private String pubkey;
+	private BStamp block;
 
 	public PeerDocument() {
 

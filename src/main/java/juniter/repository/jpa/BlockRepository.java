@@ -2,6 +2,9 @@ package juniter.repository.jpa;
 
 import juniter.core.model.Block;
 import juniter.core.validation.BlockLocalValid;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.hibernate.exception.GenericJDBCException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.scheduling.annotation.Async;
@@ -18,6 +21,7 @@ import java.util.stream.Stream;
  */
 @Repository
 public interface BlockRepository extends JpaRepository<Block, Long>, BlockLocalValid {
+	Logger LOG = LogManager.getLogger();
 
 	default Optional<Block> block(Integer number) {
 		return findTop1ByNumber(number);
@@ -32,7 +36,7 @@ public interface BlockRepository extends JpaRepository<Block, Long>, BlockLocalV
 	/**
 	 * highest block by block number in base
 	 *
-	 * @return
+	 * @return Optional<Block>
 	 */
 	default Optional<Block> current() {
 		return findTop1ByOrderByNumberDesc();
@@ -57,14 +61,20 @@ public interface BlockRepository extends JpaRepository<Block, Long>, BlockLocalV
 	/**
 	 * Alias for current()
 	 *
-	 * @return
+	 * @return Optional<Block>
 	 */
 	Optional<Block> findTop1ByOrderByNumberDesc();
 
 	default Optional<Block> localSave(Block block) throws AssertionError {
 
-		if (checkBlockisLocalValid(block))
-			return Optional.of(save(block));
+		if (checkBlockisLocalValid(block)){
+			try{
+				return Optional.of(save(block));
+			}catch(GenericJDBCException e){
+				LOG.error("GenericJDBCException ", e);
+			}
+		}
+
 
 		return Optional.empty();
 	};
@@ -81,13 +91,13 @@ public interface BlockRepository extends JpaRepository<Block, Long>, BlockLocalV
 	CompletableFuture<List<Block>> readAllBy();
 
 	/**
-	 * Saves the given {@link Block}.
+	 * Saves the given {@link Block}. unsafe
 	 *
-	 * @param block
+	 * @param block the block to save
 	 * @return the block saved
 	 */
 	@Override
-	<S extends Block> S save(S block);
+	<S extends Block> S save(S block) throws GenericJDBCException;
 
 	@Query("select c from Block c")
 	Stream<Block> streamAllBlocks();

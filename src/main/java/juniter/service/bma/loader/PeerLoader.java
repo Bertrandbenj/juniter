@@ -108,6 +108,7 @@ public class PeerLoader {
 
             } else {
                 LOG.error("Please, connect to the internet and provide BMA configuredNodes ");
+                break;
             }
 
         }
@@ -132,7 +133,7 @@ public class PeerLoader {
                 //.sorted().max(Comparator.naturalOrder())
                 .orElseThrow();
 
-        LOG.info("=== Found max max block " + max);
+        LOG.info("=== Found max block " + max);
 
         var peer = netService.endPointPeer(max.getNumber() -1 );
         var asBMA = new PeerBMA(peer);
@@ -177,7 +178,7 @@ public class PeerLoader {
             return responseObject;
 
         } catch (HttpClientErrorException e) {
-            LOG.error("HttpClientErrorException:  " + e.getRawStatusCode() + " " + e.getResponseBodyAsString());
+            LOG.warn("HttpClientErrorException :  " + e.getRawStatusCode() + " " + e.getResponseBodyAsString());
             ObjectMapper mapper = new ObjectMapper();
             //ErrorHolder eh = mapper.readValue(e.getResponseBodyAsString(), ErrorHolder.class);
             //LOG.error("error:  " + eh.getErrorMessage());

@@ -16,6 +16,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -30,6 +31,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -62,7 +64,6 @@ public class NetworkService {
     @Autowired
     private BlockRepository blockRepo;
 
-    private String foundIP;
 
 
 
@@ -83,8 +84,8 @@ public class NetworkService {
 
         LOG.info("Entering /network/peers ...");
 
-        try (var peerss = peerRepo.streamAllPeers()) {
-            final var peerL = peerss.collect(Collectors.toList());
+        try (var peers = peerRepo.streamAllPeers()) {
+            final var peerL = peers.collect(Collectors.toList());
             return new PeersDTO(peerL);
         } catch (final Exception e) {
             LOG.error("NetworkService.peers() peerRepo.streamAllPeers ->  ", e);
@@ -115,14 +116,21 @@ public class NetworkService {
         peer.setCurrency("g1");
         peer.setPubkey(secretBox.getPublicKey());
         peer.setStatus("UP");
-        peer.endpoints().add(new EndPoint("BMAS "  + whatsMyIp() + " " + port));
-        peer.endpoints().add(new EndPoint("BASIC_MERKLED_API "  + whatsMyIp() + " " + port));
+
         peer.endpoints().add(new EndPoint("BMAS " + serverName + " " + port));
         peer.endpoints().add(new EndPoint("WS2P " + serverName + " " + port));
+
+        whatsMyIp().ifPresent(ip -> {
+            peer.endpoints().add(new EndPoint("BMAS "  + ip + " " + port));
+            peer.endpoints().add(new EndPoint("BASIC_MERKLED_API "  + ip + " " + port));
+        });
+
         //peer.endpoints().add(new EndPoint("BASIC_MERKLED_API " + serverName + " " + " " + port));
 
 
         peer.setSignature(secretBox.sign(peer.toDUP(false)));
+
+
 
         return peer;
     }
@@ -176,20 +184,20 @@ public class NetworkService {
     }
 
 
-    private String whatsMyIp() {
-
-        if(foundIP != null)
-            return foundIP;
+    /**
+     * Auto detect IP
+     *
+     * @return the IP address or null
+     */
+    @Bean
+    private Optional<String> whatsMyIp() {
 
         try {
             URL whatismyip = new URL("http://checkip.amazonaws.com");
             BufferedReader in = new BufferedReader(new InputStreamReader(whatismyip.openStream()));
-
-            foundIP = in.readLine(); //you get the IP as a String
-            System.out.println(foundIP);
-            return foundIP;
+            return Optional.of(in.readLine());
         } catch (Exception e) {
-            return null;
+            return Optional.empty();
         }
     }
 

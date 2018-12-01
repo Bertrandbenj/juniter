@@ -523,6 +523,7 @@ public interface GlobalValid {
      *
      *
      * a same source cannot be consumed twice by the block a same output cannot be
+     * a same source cannot be consumed twice by the block a same output cannot be
      * produced twice by block
      *
      *

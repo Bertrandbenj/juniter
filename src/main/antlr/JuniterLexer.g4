@@ -4,11 +4,11 @@ options {
 	language = Java;
 }
 @header { 
-package antlr.main; 
+//package antlr.main;
 
 } 
 
- SIGNATURE:			BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64
+fragment SIGNATURE:	BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64
 					BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64
 					BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64
 					BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64
@@ -43,11 +43,10 @@ Type_:         		'Type' VALUE_START 			-> skip, pushMode(TYPE_INLINED) ;
 Version_:      		'Version' VALUE_START 		-> skip, pushMode(VERS_INLINED) ;
 Block_:       		'Block' VALUE_START 		-> skip, pushMode(BUID_INLINED) ;
 Member_:   			'Membership' VALUE_START 	-> skip, pushMode(MEMB_INLINED) ;
-CertTS_:       		'CertTS' VALUE_START	 	-> skip, pushMode(SIGN_INLINED),pushMode(BUID_INLINED) ;
-CertTimestamp_:     'CertTimestamp' VALUE_START	-> skip, pushMode(BUID_INLINED) ;
+CertTS_:       		'CertTS' VALUE_START	 	-> skip, pushMode(SIGN_INLINED), pushMode(BUID_INLINED) ;
 
 UserID_:       		'UserID' VALUE_START		-> skip, pushMode(USER_INLINED) ;
-IdtySignature_:		'IdtySignature' VALUE_START -> skip, pushMode(SIGN_INLINED) ;
+IdtySignature_:		'IdtySignature' VALUE_START ->  pushMode(SIGN_INLINED), pushMode(SIGN_INLINED) ;
 IdtyTimestamp_:		'IdtyTimestamp' VALUE_START -> skip, pushMode(BUID_INLINED) ;
 IdtyUniqueID_: 		'IdtyUniqueID' VALUE_START 	-> skip, pushMode(USER_INLINED) ;
 IdtyIssuer_:		'IdtyIssuer'VALUE_START		-> skip, pushMode(PUBK_INLINED) ;
@@ -68,8 +67,8 @@ Number_: 			'Number' VALUE_START			-> skip, pushMode(NUMB_INLINED) ;
 PoWMin_: 			'PoWMin' VALUE_START			-> skip, pushMode(NUMB_INLINED) ;
 Time_: 				'Time' VALUE_START				-> skip, pushMode(NUMB_INLINED) ;
 MedianTime_: 		'MedianTime' VALUE_START		-> skip, pushMode(NUMB_INLINED) ;
-UniversalDividend_: 'UniversalDividend' VALUE_START	->  skip, pushMode(NUMB_INLINED) ;
-UnitBase_: 			'UnitBase' VALUE_START			->  skip, pushMode(NUMB_INLINED) ;
+UniversalDividend_: 'UniversalDividend' VALUE_START	-> skip, pushMode(NUMB_INLINED) ;
+UnitBase_: 			'UnitBase' VALUE_START			-> skip, pushMode(NUMB_INLINED) ;
 IssuersFrame_: 		'IssuersFrame' VALUE_START		-> skip, pushMode(NUMB_INLINED) ;
 IssuersFrameVar_: 	'IssuersFrameVar' VALUE_START	-> skip, pushMode(NUMB_INLINED) ;
 DiffIssuersCount_: 	'DifferentIssuersCount' VALUE_START		-> skip, pushMode(NUMB_INLINED) ;
@@ -79,35 +78,18 @@ Parameters_: 		'Parameters' VALUE_START		-> skip, pushMode(BLOCK_FIELD) ;
 MembersCount_: 		'MembersCount' VALUE_START		-> skip, pushMode(NUMB_INLINED) ;
 Nonce_: 			'Nonce' VALUE_START				-> skip, pushMode(NUMB_INLINED) ;
 InnerHash_: 		'InnerHash' VALUE_START			-> skip, pushMode(BUID_INLINED) ;
-Transactions_:		'Transactions' ARRAY_START		;//-> pushMode(BLOCK_FIELD);
-Certifications_:	'Certifications' ARRAY_START	-> pushMode(WOT_MULTILN) ; //-> skip, pushMode(WOT_MULTILN) ;
+Transactions_:		'Transactions' ARRAY_START		-> skip, pushMode(BLOCK_FIELD);
+Certifications_:	'Certifications' ARRAY_START	-> skip, pushMode(WOT_MULTILN) ;
 Excluded_:			'Excluded' ARRAY_START			; //-> pushMode(ISSU_MULTILN) ;
-Revoked_:			'Revoked' ARRAY_START			;
-Leavers_:			'Leavers' ARRAY_START			;
+Revoked_:			'Revoked' ARRAY_START			 ;
+Leavers_:			'Leavers' ARRAY_START			 ;
 Actives_:			'Actives' ARRAY_START			;
-Joiners_:			'Joiners' ARRAY_START			;
-Identities_:		'Identities' ARRAY_START		;//-> pushMode(WOT_MULTILN) ;
-TX: 				'TX:' 							-> pushMode(COMPACT_TX), pushMode(SIGN_INLINED),pushMode(COMM_INLINED),pushMode(OUTP_MULTILN),pushMode(ULCK_MULTILN),pushMode(INPT_MULTILN),pushMode(ISSU_MULTILN),pushMode(BUID_INLINED),pushMode(BLOCK_FIELD);
-
-mode COMPACT_TX;
-
-EOTXCPT: TX -> more, popMode;
+Joiners_:			'Joiners' ARRAY_START			;//-> pushMode(WOT_MULTILN);
+Identities_:		'Identities' ARRAY_START		        -> pushMode(WOT_MULTILN) ;
+TX: 				'TX:' 							->pushMode(BLOCK_GRP), pushMode(COMPACT_TX),pushMode(BUID_INLINED),pushMode(BLOCK_FIELD);
 
 
-mode WOT_MULTILN; 
-  WOTNUMB:			INT; 
-  WOTPUBK:			BASE58+; 
-  WOTSIGN:			SIGNTRE; 
-  WOTSEP:			COLON 							->skip;
-  WOTNL:			NL								->skip;
 
-EOWOT:				(Joiners_ 
-					| Actives_ 
-					| Leavers_ 
-					| Revoked_	
-					| Excluded_						
-					| Certifications_)		 		-> more, popMode, pushMode(WOT_MULTILN) ;
-EOWOT2: 			 Transactions_	 				-> more, popMode;
 
 
 //SIGN_INLINE_START:	INLINE_START 			{ System.out.println("PUSH SIGN_INLINED"); } -> pushMode(SIGN_INLINED) ;
@@ -131,13 +113,36 @@ fragment CURCY:		[0-9a-zA-Z_-];
 fragment INT: 		BASE10 | ( BASE9 BASE10+ );
 fragment INT256: 	BASE10 | ( BASE9 BASE10 ) | ( BASE2 BASE10 BASE10 );
 
-fragment SIGNTRE:	BASE64+ '='*;
+fragment SIGNTRE:	BASE64+  '='*;
+//
+mode BLOCK_GRP;
+BLG_NUM : BASE10+;
+
+POPONE:           NL            {System.out.println("POP ONE " );}  -> popMode ;
+
+mode WOT_MULTILN;
+    WOTBUID:         ( BASE10 | ( BASE9 BASE10+ ) )	'-'  	BASE16+ ;
+  WOTNUMB:			INT;
+  WOTPUBK:			BASE58+;
+  WOTSIGN:			SIGNTRE;
+  WOTSEP:			COLON 							;
+  WOTUID:			BASE64+ 				;
+  WOTNL:			NL								;
+EOWOT:				(Joiners_
+					| Actives_
+					| Leavers_
+					| Revoked_
+					| Excluded_
+					| Certifications_) 		 		-> more;
+EOWOT2: 			 Transactions_	 				-> popMode,  more;
+
+
 
 mode BUID_INLINED;
   NUMBER : 			BASE10 | ( BASE9 BASE10+ );
   DASH_INLINED: 	'-' ;
   HASH_INLINED: 	BASE16+ ;
-EOBUID:				NL 						 -> skip,popMode ;
+EOBUID:				NL 						        -> skip,popMode ;
 
 mode TYPE_INLINED;
   DOCTYPE_IDTY:     		'Identity' 				;//-> skip;
@@ -153,6 +158,8 @@ EOTYPE:				NL 						 -> skip,popMode ;
 
 mode SIGN_INLINED;
   SIGN:				SIGNTRE;
+  CertTimestamp_:     'CertTimestamp' VALUE_START	->  pushMode(BUID_INLINED) ; // FIXME certif & revocation idtySignature issue (end of document require sign mode-> CertTimestamp happen to be parsed with sign mode ) = PAIN POINT = need refactor = dont ask, it just works
+
 EOSIGN:				NL 						-> skip,popMode ;
 
 mode VERS_INLINED;
@@ -200,24 +207,24 @@ CSV:				'CSV';
 CLTV:				'CLTV';
 OR:					' || ';
 AND:				' && ';
-OUTLP:				'(';
+OUTLP:				'(' ;
 OUTRP:				')';
 OUTHASH: 			BASE16+; //TXHASH;
-OUTINT:				INT;
-OUTPUT_FIELD_SEP:	COLON ;
+//OUTINT:				INT;
+OUTPUT_FIELD_SEP:	COLON -> skip;
 OUTPUT_SEP:			NL;
 OUTPUBK:			BASE58+;
-OUT_AMOUT_BASE:		INT;
+//OUT_AMOUT_BASE:		OUTNUMB;
 EOOUTP:				Signatures_				-> skip, popMode, pushMode(SIGN_MULTILN) ;
 
 mode ULCK_MULTILN;
 UNLOCK_SEP:			NL;
 UNSIG:				'SIG';
 UNXHX:				'XHX';
-UNLP:				'(';
-UNRP:				')';
+UNLP:				'(' -> skip;
+UNRP:				')' -> skip;
 UNNUMB: 			BASE10+;
-UNLOCK_FIELD_SEP:	COLON;
+UNLOCK_FIELD_SEP:	COLON -> skip;
 EOULK:				Outputs_				-> skip, popMode, pushMode(OUTP_MULTILN) ;
 
 
@@ -232,27 +239,56 @@ EOBLK:				NL						-> skip, popMode ;
 mode INPT_MULTILN;
 INNUMB:				BASE10+;
 INHASH:				BASE16+;
-INFIELD_SEP:		COLON;
-DIVIDEND_TYPE:		'D';
-TRANSACTION_TYPE:	'T';
+INFIELD_SEP:		COLON ;
+DIVIDEND_TYPE:		':D:';
+TRANSACTION_TYPE:	':T:';
 INPUT_SEP:			NL;
 EOINPT:				Unlocks_				 -> skip, popMode, pushMode(ULCK_MULTILN) ;
 
+    //
+
 mode ISSU_MULTILN;
-  PUBKEY_MULTILN:	BASE58+; 
-ISSUER_SEP:			NL 						;
-//ISSUER_STOP:		ISSUER_SEP 				{System.out.println("POP ISSU_MULTILN");}-> more, popMode;
-EOISSU:				Inputs_					{System.out.println("POP ISSU_MULTILN");} -> skip, popMode, pushMode(INPT_MULTILN) ;
+  PUBKEY_MULTILN:	BASE58+;
+  ISSUER_SEP:		NL 					    ;
+  //
+  //  ISSUER_STOP:		ISSUER_SEP 				{System.out.println("POP ISSU_MULTILN");}-> more, popMode;
+EOISSU:				( Inputs_)		{System.out.println("POP ISSU_MULTILN");} -> skip, popMode, pushMode(INPT_MULTILN) ;
+
+
+mode COMPACT_TX;
+//CPT_OUT:    CPT_NUM CPT_COL CPT_NUM CPT_COL -> pushMode(OUTP_MULTILN);
+
+CPT_COL:	COLON  ;
+CPT_DIV:    ':D:';
+CPT_TXS:    ':T:';
+BREAK:      NL;
+CPT_SIG:    'SIG';
+CPT_NUM:    BASE10+;
+CPT_HASH:   BASE16+;
+
+CPT_OP:    '(' -> skip;
+CPT_CP:    ')' -> skip;
+CPT_ISS:    BASE58+;
+CPT_SIGN:   SIGNTRE -> popMode;
+//:  popMode ;
+//EOTXS:      InnerHash_ -> popMode, pushMode(NUMB_INLINED), pushMode(BUID_INLINED);
+EOTXCPT:    TX -> more;
+CPT_COMM:   (BASE64+ |  (BASE64 | '_' | ' ' )+) ;
+
 
 
 mode ENDPT_MULTILN;
   IP4:				INT256 '.' INT256 '.' INT256 '.' INT256 ; 
   IP6:				OCT ':' OCT ':' OCT ':' OCT ':' OCT ':' OCT ':' OCT; 
-  OCT:				BASE16LC+;
-  DNS: 				[a-z]+ ('.' [a-z]+)+;
-  FIELD_SEP:		' ' 					-> skip;
-  PORT:				PORT_NUMBER ENDPT_SEP;
-  PORT_NUMBER:		BASE10 BASE10 BASE10 BASE10;
-  ENDPOINT_TYPE:	[A-Z_]+	;
-  ENDPT_SEP:		NL 						 -> skip, popMode; 
+  OCT:				BASE16LC BASE16LC BASE16LC BASE16LC;
+  SESSID:           OCT OCT;
+  DNS: 				[a-z0-9]+ ('.' [a-z-]+)+;
+  FIELD_SEP:		' ';
+  PORT:				BASE10+  ENDPT_SEP;  // FIXME: seprator shouldnt be here
+  //PORT_NUMBER:		BASE10+;
+  // WS2P:             'WS2P';
+  //BMAS:             'BMAS';
+  //BMA:              'BASIC_MERKLED_API';
+  ENDPOINT_TYPE:	[2A-Z_]+ ;
+  ENDPT_SEP:		NL;
 //EOENDPT:			Inputs_					{System.out.println("POP ISSU_MULTILN");} -> skip, popMode, pushMode(INPT_MULTILN) ;
