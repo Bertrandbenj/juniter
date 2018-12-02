@@ -1,14 +1,13 @@
 package juniter.core.model;
 
-import java.io.Serializable;
+import juniter.core.utils.Constants;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-
-import juniter.core.utils.Constants;
+import java.io.Serializable;
 
 /**
  * ex : [ "BASIC_MERKLED_API metab.ucoin.io 88.174.120.187 9201" ]
@@ -81,6 +80,6 @@ public class BStamp implements Serializable {
 
 	@Override
 	public String toString() {
-		return number + "-" + hash.toString();
+		return number + "-" + hash;
 	}
 }

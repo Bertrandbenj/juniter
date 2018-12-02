@@ -229,7 +229,7 @@ public class BlockLoader implements CommandLineRunner, BlockLocalValid {
     }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         final var start = System.nanoTime();
 
         LOG.info("Entering: blockloader.run reset ? " + reset);

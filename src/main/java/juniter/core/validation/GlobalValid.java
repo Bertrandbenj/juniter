@@ -2,10 +2,7 @@ package juniter.core.validation;
 
 import juniter.core.model.Block;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -278,13 +275,13 @@ public interface GlobalValid {
         long unchainables;
 
         public long age;
-         long stock;
-         boolean toMember;
-         boolean toNewcomer;
-         boolean toLeaver;
-         boolean isReplay;
-         boolean sigOK;
-         boolean fromMember;
+        long stock;
+        boolean toMember;
+        boolean toNewcomer;
+        boolean toLeaver;
+        boolean isReplay;
+        boolean sigOK;
+        boolean fromMember;
 
         public CINDEX(String op, String issuer, String receiver, BStamp created_on, BStamp written_on, String sig,
                       long expires_on, long chainable_on, Long expired_on) {
@@ -449,32 +446,34 @@ public interface GlobalValid {
         // FIXME these shouldn't be attribute of the model, methods perhaps ?
         public long age;
 
-         boolean numberFollowing;
+        boolean numberFollowing;
         public String type;
 
-         boolean distanceOK;
-         boolean onRevoked;
-         boolean joinsTwice;
-         boolean enoughCerts;
-         boolean leaverIsMember;
-         boolean activeIsMember;
-         boolean revokedIsMember;
-         boolean alreadyRevoked;
-         boolean revocationSigOK;
+        boolean distanceOK;
+        boolean onRevoked;
+        boolean joinsTwice;
+        boolean enoughCerts;
+        boolean leaverIsMember;
+        boolean activeIsMember;
+        boolean revokedIsMember;
+        boolean alreadyRevoked;
+        boolean revocationSigOK;
         public boolean excludedIsMember;
-         boolean isBeingRevoked;
+        boolean isBeingRevoked;
+        public long unchainables;
+
 
         /**
-         * @param op: wwxc
-         * @param pub : _
-         * @param created_on : _
-         * @param written_on : _
-         * @param type : _
-         * @param expires_on : _
-         * @param revokes_on : _
-         * @param revoked_on : _
+         * @param op:            wwxc
+         * @param pub            : _
+         * @param created_on     : _
+         * @param written_on     : _
+         * @param type           : _
+         * @param expires_on     : _
+         * @param revokes_on     : _
+         * @param revoked_on     : _
          * @param revocation_sig : _
-         * @param leaving : _
+         * @param leaving        : _
          */
         public MINDEX(String op, String pub, BStamp created_on, BStamp written_on, String type, Long expires_on,
                       Long revokes_on, Long revoked_on, String revocation_sig, boolean leaving, Long chainable_on) {
@@ -636,8 +635,8 @@ public interface GlobalValid {
 
         boolean available;
 
-         boolean isLocked;
-         boolean isTimeLocked;
+        boolean isLocked;
+        boolean isTimeLocked;
 
         public SINDEX() {
         }
@@ -1006,7 +1005,7 @@ public interface GlobalValid {
             head.avgBlockSize = (int) range(head.issuersCount)//
                     .mapToInt(h -> h.size)//
                     .average()//
-                    .getAsDouble();
+                    .orElse(0.0);
         }
     }
 
@@ -1276,13 +1275,12 @@ public interface GlobalValid {
      *
      * ENTRY.unchainables = COUNT(GLOBAL_MINDEX[issuer=ENTRY.issuer, chainable_on >
      * HEAD~1.medianTime]))
-     *
-     * Local CINDEX augmentation
-     *
-     * For each ENTRY in local CINDEX:
      */
-    private boolean BR_G107(MINDEX entry) {
-        return false;
+    private void BR_G107(MINDEX entry) {
+
+        entry.unchainables = indexMGlobal()
+                .filter(m-> m.chainable_on > prevHead().medianTime)
+                .count();
     }
 
     /**
@@ -1390,7 +1388,7 @@ public interface GlobalValid {
                 head.dividend = prevHead().dividend;
             }
 
-            if (head.udTime != prevHead().udTime) {
+            if (!Objects.equals(head.udTime, prevHead().udTime)) {
                 head.new_dividend = head.dividend;
             }
         }
@@ -1862,12 +1860,12 @@ public interface GlobalValid {
      *     ENTRY.enoughCerts = true
      * </pre>
      *
-     * @param entry
+     * @param entry .
      */
     private void BR_G27(MINDEX entry) {
 
         if (entry.type.equals("JOIN") || entry.type.equals("ACTIVE")) {
-            final var cntG = indexCGlobal().filter(c -> c.receiver == entry.pub && c.expired_on.equals(0L)).count();
+            final var cntG = indexCGlobal().filter(c -> Objects.equals(c.receiver, entry.pub) && c.expired_on.equals(0L)).count();
             final var cntL = IndexC.stream().filter(c -> {
                 //				System.out.println(c.receiver + "  " + entry.pub + " " + c.expired_on);
 
@@ -2064,7 +2062,8 @@ public interface GlobalValid {
      *     ENTRY.age = conf.sigWindow + 1
      *
      * </pre>
-     * @param head : qsdq
+     *
+     * @param head  : qsdq
      * @param entry : qssd
      */
     private void BR_G37(BINDEX head, CINDEX entry) {
@@ -2379,7 +2378,7 @@ public interface GlobalValid {
      * </pre>
      *
      * @param testHead BINDEX
-     * @param block the block we're comparing
+     * @param block    the block we're comparing
      * @return ud equality accepting null
      */
     private boolean BR_G58(BINDEX testHead, Block block) {
@@ -2876,7 +2875,7 @@ public interface GlobalValid {
     private boolean BR_G87(SINDEX entry) {
         if ("UPDATE".equals(entry.op)) {
             assert true : "BR_G87 - rule Input is not available " + entry.available + " " + entry.consumed;
-            return true; // FIXME
+            return true; // FIXME complete
         } else
             return true;
     }
@@ -2899,8 +2898,6 @@ public interface GlobalValid {
             return true;
     }
 
-    ;
-
     /**
      * <pre>
      * BR_G89 - Input is time unlocked
@@ -2919,8 +2916,6 @@ public interface GlobalValid {
         } else
             return true;
     }
-
-    ;
 
     /**
      * <pre>
@@ -3023,7 +3018,7 @@ public interface GlobalValid {
                         null,
                         "",
                         false))
-                .forEach(tx -> IndexS.add(tx) );
+                .forEach(tx -> IndexS.add(tx));
 
         //		assert IndexI.size() > 0 : "BR_G91 - Dividend - IndexS shouldnt be empty";
     }
@@ -3562,46 +3557,46 @@ public interface GlobalValid {
         );
 
         block.getRevoked().forEach(revoked ->
-            IndexM.add(new MINDEX("UPDATE",
-                    revoked.revoked(),
-                    bstamp,
-                    bstamp,
-                    "REV", //
-                    null, 
-                    null, 
-                    block.getMedianTime(),
-                    "",
-                    false,
-                    null))
+                IndexM.add(new MINDEX("UPDATE",
+                        revoked.revoked(),
+                        bstamp,
+                        bstamp,
+                        "REV", //
+                        null,
+                        null,
+                        block.getMedianTime(),
+                        "",
+                        false,
+                        null))
         );
 
         block.getLeavers().forEach(leaver ->
-            IndexM.add(
-                    new MINDEX("UPDATE",
-                            leaver.leaver(),
-                            bstamp, bstamp,
-                            "LEAVE",
-                            null,
-                            null,
-                            null,
-                            null,
-                            true,
-                            null))
+                IndexM.add(
+                        new MINDEX("UPDATE",
+                                leaver.leaver(),
+                                bstamp, bstamp,
+                                "LEAVE",
+                                null,
+                                null,
+                                null,
+                                null,
+                                true,
+                                null))
         );
 
         block.getActives().forEach(active ->
-            IndexM.add(new MINDEX("UPDATE",
-                    active.activepk(),
-                    bstamp,
-                    bstamp, 
-                    "RENEW", //
-                    medianTime + blockChainParams.msValidity,
-                    medianTime + blockChainParams.msValidity * 2,
-                    null, // revoked_on
-                    null, // revocation
-                    false, // leaving
-                    medianTime + blockChainParams.msWindow // chainable on
-            ))
+                IndexM.add(new MINDEX("UPDATE",
+                        active.activepk(),
+                        bstamp,
+                        bstamp,
+                        "RENEW", //
+                        medianTime + blockChainParams.msValidity,
+                        medianTime + blockChainParams.msValidity * 2,
+                        null, // revoked_on
+                        null, // revocation
+                        false, // leaving
+                        medianTime + blockChainParams.msWindow // chainable on
+                ))
         );
 
         //		System.out.println(block.getJoiners().size() + " IINDEX and MINDEX going to be added  Joiners");

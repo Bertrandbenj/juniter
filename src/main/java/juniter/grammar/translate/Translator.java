@@ -7,8 +7,8 @@ import juniter.grammar.Document;
 public class Translator extends JuniterParserBaseVisitor<Document> {
 
 	public enum LANG {
-		JSON, YAML, DUP;
-	}
+		JSON, YAML, DUP
+    }
 
 	LANG in, out;
 

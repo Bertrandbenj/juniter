@@ -1,27 +1,18 @@
 package juniter.grammar;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import antlr.main.JuniterParser.DocContext;
 import antlr.main.JuniterParser.IdentityContext;
 import antlr.main.JuniterParser.PeerContext;
 import antlr.main.JuniterParser.WotContext;
 import antlr.main.JuniterParserBaseVisitor;
 import juniter.core.model.BStamp;
 import juniter.core.validation.LocalValid;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class JuniterGrammar extends JuniterParserBaseVisitor<Document> implements LocalValid {
 
 	private static final Logger LOG = LogManager.getLogger();
 
-	@Override
-	public Document visitDoc(DocContext ctx) {
-
-		final var res = super.visitDoc(ctx);
-
-		return res.isValid() ? res : null;
-	}
 
 	@Override
 	public Document visitIdentity(IdentityContext ctx) {

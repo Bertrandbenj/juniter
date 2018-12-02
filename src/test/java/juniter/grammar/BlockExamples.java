@@ -1053,6 +1053,7 @@ public interface BlockExamples {
 			"Nonce: 1\n" +
 			"kNsKdC8eH0d4zdHh1djyMzRXjFrwk3Bc3M8wo4DV/7clE9J66K/U0FljyS79SI78ZZUPaVmrImKJ9SNiubCiBg==\n";
 
+
 	String WRONGLY_SIGNED_IDENTITIES = "Version: 10\n" +
 			"Type: Block\n" +
 			"Currency: beta_brousouf\n" +
@@ -2080,6 +2081,7 @@ public interface BlockExamples {
 			"InnerHash: DE837CA3F49C423A6A6C124819ABA31A41C1C4A4E2728B5721DF891B98FA8D0D\n" +
 			"Nonce: 1\n" +
 			"kNsKdC8eH0d4zdHh1djyMzRXjFrwk3Bc3M8wo4DV/7clE9J66K/U0FljyS79SI78ZZUPaVmrImKJ9SNiubCiBg==\n";
+
 
 	String WRONG_ISSUER = "Version: 10\n" +
 			"Type: Block\n" +

@@ -8,7 +8,7 @@ public interface OutCondition {
 	 *
 	 * @author ben
 	 */
-	public class And implements OutCondition {
+	class And implements OutCondition {
 		OutCondition left, right;
 
 		public And(OutCondition cond1, OutCondition cond2) {
@@ -31,7 +31,7 @@ public interface OutCondition {
 
 	}
 
-	public class CLTV implements OutCondition {
+	class CLTV implements OutCondition {
 		protected Integer deadline;
 
 		public CLTV(String deadline) {
@@ -48,7 +48,7 @@ public interface OutCondition {
 		}
 	}
 
-	public class CSV implements OutCondition {
+	class CSV implements OutCondition {
 		protected Integer amountToWait;
 
 		public CSV(String amountToWait) {
@@ -65,7 +65,7 @@ public interface OutCondition {
 		}
 	}
 
-	public class Or implements OutCondition {
+	class Or implements OutCondition {
 		OutCondition left, right;
 
 		public Or(OutCondition cond1, OutCondition cond2) {
@@ -88,7 +88,7 @@ public interface OutCondition {
 
 	}
 
-	public class SIG implements OutCondition {
+	class SIG implements OutCondition {
 
 		protected String pubkey;
 
@@ -115,7 +115,7 @@ public interface OutCondition {
 		}
 	}
 
-	public class XHX implements OutCondition {
+	class XHX implements OutCondition {
 
 		protected String hash;
 

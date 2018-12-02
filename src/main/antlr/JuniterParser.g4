@@ -6,7 +6,7 @@ options {
 }
 
 @header { 
-//package antlr.main;
+package antlr.main;
 //import juniter.crypto.CryptoUtils;
 import java.lang.Integer;
 }
@@ -95,19 +95,19 @@ block_
 	membersCount
 	{System.out.println("    membersCount: "+$membersCount.text );}
 
-	identities
+	Identities_ identities
 
-	joiners
+	Joiners_ joiners
 
-	actives
+	Actives_ actives
 
-	leavers
+	Leavers_ leavers
 
-	revoked
+    Revoked_ revoked
 
-	excluded
+	Excluded_ excluded
 
-	certifications
+	Certifications_ certifications
 
 	cpt_transactions
 
@@ -258,7 +258,7 @@ locals [int i=0]
 :
 	{System.out.println("    certifications: ");}
 
-	Certifications_
+
 	(
 		{System.out.println("      "+ $i++ +": ");}
 
@@ -282,7 +282,7 @@ locals [int i=0]
 :
 	{System.out.println("    excluded: ");}
 
-	Excluded_
+
 	(
 		pubkey
 		{System.out.println("      "+ $i++ +".pubkey: "+$pubkey.text);}
@@ -295,7 +295,7 @@ locals [int i=0]
 :
 	{System.out.println("    revoked: ");}
 
-	Revoked_
+
 	(
 		pubkey signature
 	)*
@@ -306,7 +306,7 @@ locals [int i=0]
 :
 	{System.out.println("    leavers: ");}
 
-	Leavers_
+
 	(
 		pubkey signature mBlockUid iBlockUid userid
 	)*
@@ -317,7 +317,7 @@ locals [int i=0]
 :
 	{System.out.println("    actives: ");}
 
-	Actives_
+
 	(
 		pubkey signature mBlockUid iBlockUid userid
 	)*
@@ -328,10 +328,10 @@ locals [int i=0]
 :
 	{System.out.println("    joiners: ");}
 
-	Joiners_
+
 	(
 		 cpt_joiner WOTNL
-	)*
+	)+
 ;
 
 cpt_joiner:
@@ -343,15 +343,15 @@ locals [int i=0]
 :
 	{System.out.println("    identities: ");}
 
-	Identities_
+
 	(
 		 cpt_idty
 	)*
-	EOWOT
+	//EOWOT
 ;
 
 cpt_idty:
-    pubkey WOTSEP signature WOTSEP iBlockUid WOTSEP userid WOTNL
+    (pubkey WOTSEP signature WOTSEP iBlockUid WOTSEP userid WOTNL)
 ;
 
 membersCount
@@ -623,8 +623,11 @@ enpoint
 		| ip6 FIELD_SEP
 		{System.out.println("        ip6: "+$ip6.text);}
 
-	)+ port
-	{System.out.println("        port: "+$port.text);}
+		| port
+			{System.out.println("        port: "+$port.text);}
+
+	)+
+	ENDPT_SEP
 
 ;
 
@@ -968,21 +971,6 @@ version
 	| BLNUMB
 ;
 
-testpubk
-:
-	Issuer_ pubkey EOPUBK?
-; // (INLINE_SEP buids)* EOL ;
-
-testsign
-:
-	UniqueID_ signature EOSIGN?
-; // (INLINE_SEP buids)* EOL ;
-
-testbuid
-:
-	Timestamp_ buid EOBUID?
-; // (INLINE_SEP buids)* EOL ;
-
 buid
 :
 	bnum
@@ -1008,10 +996,6 @@ bhash
 	| OUTHASH
 ;
 
-txWindow
-:
-	BLNUMB
-;
 
 percentRot
 :
@@ -1060,10 +1044,6 @@ sigStock
 	BLNUMB
 ;
 
-msPeriod
-:
-	BLNUMB
-;
 
 sigPeriod
 :

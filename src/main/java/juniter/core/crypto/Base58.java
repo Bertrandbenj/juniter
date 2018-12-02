@@ -24,6 +24,7 @@ package juniter.core.crypto;
 
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * <p>Base58 is a way to encode Bitcoin addresses as numbers and letters. Note that this is not the same base58 as used by
@@ -179,10 +180,6 @@ public class Base58 {
 		}
 
 		final byte[] output = copyOfRange(temp, j, temp.length);
-		try {
-			return new String(output, "US-ASCII");
-		} catch (final UnsupportedEncodingException e) {
-			throw new RuntimeException(e);  // Cannot happen.
-		}
-	}
+        return new String(output, StandardCharsets.US_ASCII);
+    }
 }

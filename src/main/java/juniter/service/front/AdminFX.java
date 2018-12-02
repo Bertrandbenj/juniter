@@ -187,7 +187,7 @@ public class AdminFX extends AbstractJavaFxApplicationSupport {
     }
 
     @Override
-    public void start(Stage primaryStage) throws Exception {
+    public void start(Stage primaryStage) {
 
         if (null == blockRepo) {
             throw new IllegalStateException("BlockRepository was not injected properly");

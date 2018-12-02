@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.file.Files;
@@ -94,7 +93,7 @@ public class GraphvizService {
 	public static Object run(String cmd) {
 		try {
 			LOG.info("Executing : " + cmd);
-			final Process process = new ProcessBuilder(new String[] { "bash", "-c", cmd }).start();
+			final Process process = new ProcessBuilder("bash", "-c", cmd).start();
 
 			final ArrayList<String> output = new ArrayList<>();
 			final BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -162,9 +161,9 @@ public class GraphvizService {
 			sub += "\t\t" + prefix + " [label=\"  Block #\\n" + b.getNumber() + "  \", URL=\"/graphviz/svg/block/"
 					+ b.getNumber() + "\", shape=box3d];\n";
 
-			sub += "\t\t" + prefix + "hash [label=\"Hash: " + mini(b.getHash().toString()) + "\"];\n";
+			sub += "\t\t" + prefix + "hash [label=\"Hash: " + mini(b.getHash()) + "\"];\n";
 			if (b.getNumber() > 0) {
-				sub += "\t\t" + prefix + "phash [label=\"PHash: " + mini(b.getPreviousHash().toString()) + "\"];\n";
+				sub += "\t\t" + prefix + "phash [label=\"PHash: " + mini(b.getPreviousHash()) + "\"];\n";
 			}
 
 			sub += "\t\t" + prefix + "issuer [label=\"issuer:\\n" + mini(b.getIssuer())
@@ -355,7 +354,6 @@ public class GraphvizService {
 	 * @param output
 	 * @param identifier
 	 * @return
-	 * @throws IOException
 	 */
 	@Transactional(readOnly = true)
 	@RequestMapping(value = "/{fileType}/{output}/{identifier}", method = RequestMethod.GET)
@@ -364,7 +362,7 @@ public class GraphvizService {
 			HttpServletResponse response, //
 			@PathVariable("fileType") FileOutputType fileType,
 			@PathVariable("output") GraphOutput output,
-			@PathVariable("identifier") String identifier) throws IOException {
+			@PathVariable("identifier") String identifier) {
 
 		LOG.info("[GET] /graphviz/{}/{}/{}", fileType, output, identifier);
 
@@ -489,7 +487,7 @@ public class GraphvizService {
 		res += "\t\tinfo [labeljust=l, shape=box3d, label=\"" //
 				+ "Bstamp: " + mini(tx.getBlockstamp().toString()) //
 				+ "\\lCur: " + tx.getCurrency()//
-				+ "\\lhash: " + mini(tx.getThash().toString())//
+				+ "\\lhash: " + mini(tx.getThash())//
 				+ "\\llocktime: " + tx.getLocktime() //
 				+ "\\l\", URL=\"/graphviz/svg/block/" + tx.getBlockstamp().toString().split("-")[0] + "\"];\n";
 

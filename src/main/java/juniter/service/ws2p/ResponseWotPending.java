@@ -1,17 +1,15 @@
 package juniter.service.ws2p;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import juniter.core.model.BStamp;
 import juniter.core.model.Pubkey;
 import juniter.core.model.Signature;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 
@@ -241,13 +239,13 @@ public class ResponseWotPending implements Serializable {
 			Boolean outdistanced;
 			Boolean isSentry;
 			Boolean wasMember;
-			List<Certifs> certifications = new ArrayList<>();;
+			List<Certifs> certifications = new ArrayList<>();
 
-			List<PendingCerts> pendingCerts = new ArrayList<>();;
+            List<PendingCerts> pendingCerts = new ArrayList<>();
 
-			List<PendingMembs> pendingMemberships = new ArrayList<>();;
+            List<PendingMembs> pendingMemberships = new ArrayList<>();
 
-			Long membershipExpiresIn;
+            Long membershipExpiresIn;
 
 			public Idty() {
 

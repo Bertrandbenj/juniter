@@ -1,10 +1,10 @@
 package juniter.core.validation;
 
+import juniter.core.crypto.Crypto;
+
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-
-import juniter.core.crypto.Crypto;
 
 /**
  *
@@ -36,9 +36,9 @@ public interface LocalValid {
 
 	default boolean isG1(String currency) {
 		return "g1".equals(currency);
-	};
+	}
 
-	default boolean isV10(Object x) {
+    default boolean isV10(Object x) {
 		if (x == null)
 			return false;
 		if (x instanceof String)
@@ -81,7 +81,7 @@ public interface LocalValid {
 		for (int i = 0; i < str.length(); i++) {
 
 			final var before = str.substring(0, i);
-			final var after = str.substring(i + 1, str.length());
+			final var after = str.substring(i + 1);
 
 			for (int j = 0; j < charset.length; j++) {
 

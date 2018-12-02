@@ -44,9 +44,9 @@ public interface BlockRepository extends JpaRepository<Block, Long>, BlockLocalV
 
 	default Integer currentBlockNumber() {
 		return current().map(Block::getNumber).orElseThrow();
-	};
+	}
 
-	List<Block> findByHash(String hash);
+    List<Block> findByHash(String hash);
 
 	//	@Override
 	//	Optional<Block> findById(Long id);
@@ -77,11 +77,10 @@ public interface BlockRepository extends JpaRepository<Block, Long>, BlockLocalV
 
 
 		return Optional.empty();
-	};
+	}
 
 
-
-	default <S extends Block> Block override(S block) {
+    default <S extends Block> Block override(S block) {
 		final var existingBlock = findTop1ByNumber(block.getNumber());
 		final var bl = existingBlock.orElse(block);
 		return save(bl);

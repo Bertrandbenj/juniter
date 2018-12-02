@@ -51,7 +51,7 @@ public class GraphPanel extends AbstractJavaFxApplicationSupport implements Init
 
 
 	@Override
-	public void start(Stage primaryStage) throws Exception {
+	public void start(Stage primaryStage) {
 		LOG.info("Starting GraphPanel");
 
 		primaryStage.setTitle("Juniter - Dot visualisation  ");

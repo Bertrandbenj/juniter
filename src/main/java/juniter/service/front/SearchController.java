@@ -141,7 +141,7 @@ public class SearchController {
 
         Task<ObservableList<Person>> task = new Task<ObservableList<Person>>() {
             @Override
-            protected ObservableList<Person> call() throws Exception {
+            protected ObservableList<Person> call() {
                 updateMessage("Loading data");
                 return FXCollections.observableArrayList(masterData
                         .stream()

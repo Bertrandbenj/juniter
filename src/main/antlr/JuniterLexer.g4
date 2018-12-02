@@ -4,7 +4,7 @@ options {
 	language = Java;
 }
 @header { 
-//package antlr.main;
+package antlr.main;
 
 } 
 
@@ -84,8 +84,8 @@ Excluded_:			'Excluded' ARRAY_START			; //-> pushMode(ISSU_MULTILN) ;
 Revoked_:			'Revoked' ARRAY_START			 ;
 Leavers_:			'Leavers' ARRAY_START			 ;
 Actives_:			'Actives' ARRAY_START			;
-Joiners_:			'Joiners' ARRAY_START			;//-> pushMode(WOT_MULTILN);
-Identities_:		'Identities' ARRAY_START		        -> pushMode(WOT_MULTILN) ;
+Joiners_:			'Joiners' COLON NL			;//-> pushMode(WOT_MULTILN);
+Identities_:		'Identities' COLON NL		-> pushMode(WOT_MULTILN) ;
 TX: 				'TX:' 							->pushMode(BLOCK_GRP), pushMode(COMPACT_TX),pushMode(BUID_INLINED),pushMode(BLOCK_FIELD);
 
 
@@ -113,7 +113,7 @@ fragment CURCY:		[0-9a-zA-Z_-];
 fragment INT: 		BASE10 | ( BASE9 BASE10+ );
 fragment INT256: 	BASE10 | ( BASE9 BASE10 ) | ( BASE2 BASE10 BASE10 );
 
-fragment SIGNTRE:	BASE64+  '='*;
+fragment SIGNTRE:	BASE64+  '=='? ;
 //
 mode BLOCK_GRP;
 BLG_NUM : BASE10+;
@@ -121,19 +121,19 @@ BLG_NUM : BASE10+;
 POPONE:           NL            {System.out.println("POP ONE " );}  -> popMode ;
 
 mode WOT_MULTILN;
-    WOTBUID:         ( BASE10 | ( BASE9 BASE10+ ) )	'-'  	BASE16+ ;
+    WOTBUID:         ( BASE10 | ( BASE9 BASE10+ ) )	'-' BASE16+ ;
   WOTNUMB:			INT;
   WOTPUBK:			BASE58+;
   WOTSIGN:			SIGNTRE;
   WOTSEP:			COLON 							;
   WOTUID:			BASE64+ 				;
   WOTNL:			NL								;
-EOWOT:				(Joiners_
-					| Actives_
-					| Leavers_
-					| Revoked_
-					| Excluded_
-					| Certifications_) 		 		-> more;
+//EOWOT:				(Joiners_
+//					| Actives_
+//					| Leavers_
+//					| Revoked_
+//					| Excluded_
+//					| Certifications_) 		 		;
 EOWOT2: 			 Transactions_	 				-> popMode,  more;
 
 
@@ -284,11 +284,11 @@ mode ENDPT_MULTILN;
   SESSID:           OCT OCT;
   DNS: 				[a-z0-9]+ ('.' [a-z-]+)+;
   FIELD_SEP:		' ';
-  PORT:				BASE10+  ENDPT_SEP;  // FIXME: seprator shouldnt be here
+  PORT:				BASE10+  ;  // FIXME: seprator shouldnt be here
   //PORT_NUMBER:		BASE10+;
   // WS2P:             'WS2P';
   //BMAS:             'BMAS';
   //BMA:              'BASIC_MERKLED_API';
-  ENDPOINT_TYPE:	[2A-Z_]+ ;
+  ENDPOINT_TYPE:	'OTHER_PROTOCOL' | 'BASIC_MERKLED_API' | [2A-Z_]+ ;
   ENDPT_SEP:		NL;
 //EOENDPT:			Inputs_					{System.out.println("POP ISSU_MULTILN");} -> skip, popMode, pushMode(INPT_MULTILN) ;

@@ -1,13 +1,11 @@
 package juniter.core.model.tx;
 
-import java.io.Serializable;
-
-import javax.persistence.Embeddable;
-
+import juniter.core.model.DUPComponent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import juniter.core.model.DUPComponent;
+import javax.persistence.Embeddable;
+import java.io.Serializable;
 
 /**
  * It follows a machine-readable BNF grammar composed of <br>
@@ -75,7 +73,7 @@ public class TxOutput implements Serializable, Comparable<TxOutput>, DUPComponen
 	}
 
 	public String getOutputCondition() {
-		return condition.toString();
+		return condition;
 	}
 
 	public void setAmount(Integer amount) {

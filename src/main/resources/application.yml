@@ -12,7 +12,7 @@ juniter:
   usefulloader.enabled: false
   missingloader.enabled: true
   graphviz.enabled: true
-  graphql.enabled: false      # FIXME:  dependencies ?
+  graphql.enabled: true      # FIXME:  dependencies ?
   bma.enabled: true
   ws2p.enabled: true
   utils.enabled: false

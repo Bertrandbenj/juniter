@@ -33,7 +33,7 @@ public interface BlockLocalValid extends LocalValid {
 	default void assertValidTxSignatures(Transaction tx) {
 
 		for (int i = 0; i < tx.getSignatures().size(); i++) {
-			final var sign = tx.getSignatures().get(i).toString();
+			final var sign = tx.getSignatures().get(i);
 			final var iss = tx.getIssuers().get(i).toString();
 
 			assert Crypto.verify(tx.toDUPdoc(false), sign, iss) : //
@@ -67,21 +67,15 @@ public interface BlockLocalValid extends LocalValid {
 		permutation(block.signedPart()).forEach(sign -> {
 			System.out.println("testing " + sign);
 
-			if(Crypto.verify(sign, block.getSignature().toString(),
-					block.getIssuer())) {
-
-				assert false : "dfsdfdsf";
-			}
+			assert !Crypto.verify(sign, block.getSignature().toString(),
+					block.getIssuer()) : "dfsdfdsf";
 		});
 
 		permutation(block.getSignature().toRaw()).forEach(sign -> {
 			System.out.println("testing " + sign);
 
-			if (Crypto.verify(sign, block.getSignature().toString(),
-					block.getIssuer())) {
-
-				assert false : "dfsdfdsf";
-			}
+			assert !Crypto.verify(sign, block.getSignature().toString(),
+					block.getIssuer()) : "dfsdfdsf";
 		});
 	}
 
