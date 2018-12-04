@@ -1,9 +1,11 @@
 package juniter.service.graphql;
 
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
+import graphql.ExecutionInput;
+import graphql.GraphQL;
+import graphql.schema.GraphQLSchema;
+import io.leangen.graphql.GraphQLSchemaGenerator;
+import io.leangen.graphql.metadata.strategy.query.AnnotatedResolverBuilder;
+import io.leangen.graphql.metadata.strategy.value.jackson.JacksonValueMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -13,12 +15,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import graphql.ExecutionInput;
-import graphql.GraphQL;
-import graphql.schema.GraphQLSchema;
-import io.leangen.graphql.GraphQLSchemaGenerator;
-import io.leangen.graphql.metadata.strategy.query.AnnotatedResolverBuilder;
-import io.leangen.graphql.metadata.strategy.value.jackson.JacksonValueMapperFactory;
+import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 /**
  * Rest [POST] entry point for GraphQL
@@ -26,21 +24,28 @@ import io.leangen.graphql.metadata.strategy.value.jackson.JacksonValueMapperFact
  * @author ben
  *
  */
-@ConditionalOnExpression("${juniter.graphql.enabled:false}")
+@ConditionalOnExpression("${juniter.useGVA:false}")
 @RestController
 public class GVAController {
 	private static final Logger LOG = LoggerFactory.getLogger(GVAController.class);
 
 	private final GraphQL graphQL;
 
-	public GVAController(BlockService bService, GQLTxService tService) {
+	public GVAController(BlockService bService, GQLTxService tService, WoTService wService, WoTService wMutate) {
 
 		final GraphQLSchema schema = new GraphQLSchemaGenerator() //
-				.withBasePackages("juniter.graphql").withResolverBuilders(new AnnotatedResolverBuilder()) //
+				.withBasePackages("juniter.graphql")
+				.withResolverBuilders(new AnnotatedResolverBuilder()) //
 				.withOperationsFromSingleton(bService, BlockService.class) //
 				.withOperationsFromSingleton(tService, GQLTxService.class) //
+				.withOperationsFromSingleton(wService, WoTService.class) //
+				.withOperationsFromSingleton(wMutate, WoTMutation.class) //
 				.withValueMapperFactory(new JacksonValueMapperFactory()) //
+
 				.generate();
+
+		LOG.info("Initializing GVA controller supportMutation?" + schema.isSupportingMutations()
+		+" supportSUbscription?" + schema.isSupportingSubscriptions());
 		graphQL = GraphQL.newGraphQL(schema).build();
 	}
 

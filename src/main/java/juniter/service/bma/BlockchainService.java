@@ -1,11 +1,10 @@
 package juniter.service.bma;
 
-import juniter.core.model.Block;
 import juniter.repository.jpa.BlockRepository;
 import juniter.service.bma.loader.BlockLoader;
-import juniter.service.bma.model.BlockDTO;
-import juniter.service.bma.model.MembershipDTO;
-import juniter.service.bma.model.WithDTO;
+import juniter.service.bma.dto.Block;
+import juniter.service.bma.dto.MembershipDTO;
+import juniter.service.bma.dto.WithDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
@@ -79,11 +78,11 @@ public class BlockchainService {
 
 	@Transactional(readOnly = true)
 	@RequestMapping(value = "/all", method = RequestMethod.GET)
-	public List<Block> all() {
+	public List<juniter.core.model.Block> all() {
 
 		LOG.info("Entering /blockchain/all");
 
-		try (Stream<Block> items = repository.findTop10ByOrderByNumberDesc()) {
+		try (Stream<juniter.core.model.Block> items = repository.findTop10ByOrderByNumberDesc()) {
 			return items.collect(toList());
 		} catch (final Exception e) {
 			LOG.error(e);
@@ -93,7 +92,7 @@ public class BlockchainService {
 	}
 
 	@RequestMapping(value = "/block/{id}", method = RequestMethod.GET)
-	public BlockDTO block(@PathVariable("id") Integer id) {
+	public Block block(@PathVariable("id") Integer id) {
 
 		LOG.info("Entering /blockchain/block/{number=" + id + "}");
 		final var block = repository.findTop1ByNumber(id).orElseGet(() -> defaultLoader.fetchAndSaveBlock(id));
@@ -103,17 +102,17 @@ public class BlockchainService {
 
 	@Transactional
 	@RequestMapping(value = "/blocks/{count}/{from}", method = RequestMethod.GET)
-	public List<BlockDTO> block(@PathVariable("count") Integer count, @PathVariable("from") Integer from) {
+	public List<Block> block(@PathVariable("count") Integer count, @PathVariable("from") Integer from) {
 
 		LOG.info("Entering /blockchain/blocks/{count=" + count + "}/{from=" + from + "}");
 
 		final List<Integer> blocksToFind = IntStream.range(from, from + count).boxed().collect(toList());
 		LOG.debug("---blocksToFind: " + blocksToFind);
 
-		final List<Block> knownBlocks = repository.findByNumberIn(blocksToFind).collect(toList());
+		final List<juniter.core.model.Block> knownBlocks = repository.findByNumberIn(blocksToFind).collect(toList());
 		LOG.debug("---known blocks: " + knownBlocks.stream().map(b -> b.getNumber()).collect(toList()));
 
-		final List<Block> blocksToSave = blocksToFind.stream()
+		final List<juniter.core.model.Block> blocksToSave = blocksToFind.stream()
 				.filter(b -> !knownBlocks.stream().anyMatch(kb -> kb.getNumber().equals(b)))
 				.map(lg -> defaultLoader.fetchAndSaveBlock(lg)).collect(toList());
 
@@ -127,17 +126,17 @@ public class BlockchainService {
 				.collect(toList());
 	}
 
-	private BlockDTO convertToDto(Block block) {
+	private Block convertToDto(juniter.core.model.Block block) {
 		//		LOG.debug(" - Converting block " + block);
 
-		final BlockDTO postDto = modelMapper.map(block, BlockDTO.class);
+		final Block postDto = modelMapper.map(block, Block.class);
 
 		return postDto;
 	}
 
 	@Transactional
 	@RequestMapping(value = "/current", method = RequestMethod.GET)
-	public BlockDTO current() {
+	public Block current() {
 		LOG.info("Entering /blockchain/current");
 		final var b = repository.findTop1ByOrderByNumberDesc()//
 				.orElse(defaultLoader.fetchAndSaveBlock("current"));
@@ -146,7 +145,7 @@ public class BlockchainService {
 	}
 
 	@RequestMapping(value = "/deleteBlock/{id}", method = RequestMethod.GET)
-	public BlockDTO deleteBlock(@PathVariable("id") Integer id) {
+	public Block deleteBlock(@PathVariable("id") Integer id) {
 		LOG.warn("Entering /blockchain/deleteBlock/{id=" + id + "}");
 
 		repository.block(id).ifPresent(block -> {
@@ -179,7 +178,7 @@ public class BlockchainService {
 	public WithDTO with(@PathVariable("what") String what) {
 
 		LOG.info("Entering /blockchain/with/{newcomers,certs,actives,leavers,excluded,ud,tx}");
-		Stream<Block> st;
+		Stream<juniter.core.model.Block> st;
 		switch (what) {
 		case "newcomers":
 			st = repository.with(block -> !block.getJoiners().isEmpty());
@@ -236,7 +235,7 @@ public class BlockchainService {
 
 
     @RequestMapping(value = "/block", method = RequestMethod.POST)
-    ResponseEntity<Block> block (HttpServletRequest request, HttpServletResponse response) {
+    ResponseEntity<juniter.core.model.Block> block (HttpServletRequest request, HttpServletResponse response) {
 
         LOG.info("POSTING /blockchain/block ..." + request.getRemoteHost());
 
@@ -249,7 +248,7 @@ public class BlockchainService {
 		}
 
 
-		Block block = new Block();
+		juniter.core.model.Block block = new juniter.core.model.Block();
         final var headers = new HttpHeaders();
 
 

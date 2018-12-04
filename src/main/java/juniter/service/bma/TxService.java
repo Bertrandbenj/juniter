@@ -2,7 +2,7 @@ package juniter.service.bma;
 
 import juniter.core.model.tx.Transaction;
 import juniter.repository.jpa.TxRepository;
-import juniter.service.bma.model.TxHistory;
+import juniter.service.bma.dto.TxHistory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;

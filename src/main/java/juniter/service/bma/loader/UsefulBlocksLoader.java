@@ -2,7 +2,7 @@ package juniter.service.bma.loader;
 
 import juniter.core.utils.TimeUtils;
 import juniter.repository.jpa.BlockRepository;
-import juniter.service.bma.model.WithDTO;
+import juniter.service.bma.dto.WithDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

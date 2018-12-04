@@ -39,13 +39,13 @@ public interface TxRepository extends JpaRepository<Transaction, Long> {
 		return streamAll() //
 				.filter(t -> t.getInputs().stream().anyMatch(tx -> tx.getType().equals(TxType.T)))//
 				.filter(t -> t.getInputs().size() < 30) //
-				.limit(100);
+				.limit(10);
 	}
 
     default Stream<Transaction> findTxsWithMultipleOutputs() {
 		return streamAll() //
 				.filter(t -> t.getOutputs().size() > 2)//
-				.limit(100);
+				.limit(10);
 	}
 
 	default Stream<Transaction> findTxWithMultipleIssuers() {

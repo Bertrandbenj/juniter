@@ -1,10 +1,10 @@
-package juniter.service.bma.model;
+package juniter.service.bma.dto;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BlockDTO implements Serializable {
+public class Block implements Serializable {
 
 	private static final long serialVersionUID = -6400285529088830671L;
 

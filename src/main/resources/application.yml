@@ -12,7 +12,7 @@ juniter:
   usefulloader.enabled: false
   missingloader.enabled: true
   graphviz.enabled: true
-  graphql.enabled: true      # FIXME:  dependencies ?
+  useGVA: true      # FIXME:  dependencies ?
   bma.enabled: true
   ws2p.enabled: true
   utils.enabled: false
@@ -82,12 +82,29 @@ graphql:
     mapping: /graphql
     enabled: true
     corsEnabled: true
+    exception-handlers-enabled: true  # if you want to @ExceptionHandler annotation for custom GraphQLErrors
 
 graphiql:
   mapping: /graphiql
-  endpoint: /graphql
+  endpoint:
+    graphql: /graphql
+    subscriptions: /subscriptions
+  static:
+    basePath: /
   enabled: true
-
+  pageTitle: GraphiQL
+  cdn:
+    enabled: false
+    version: 0.11.11
+  props:
+    resources:
+      query: query.graphql
+      defaultQuery: defaultQuery.graphql
+      variables: variables.graphql
+    variables:
+      editorTheme: "solarized light"
+  headers:
+    Authorization: "Bearer <your-token>"
 
 
 

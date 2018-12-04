@@ -1,17 +1,16 @@
 package juniter.service.graphql;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
+import io.leangen.graphql.annotations.GraphQLQuery;
+import juniter.core.model.tx.Transaction;
+import juniter.repository.jpa.TxRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import io.leangen.graphql.annotations.GraphQLQuery;
-import juniter.core.model.tx.Transaction;
-import juniter.repository.jpa.TxRepository;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class GQLTxService {
@@ -24,7 +23,7 @@ public class GQLTxService {
 	@Transactional
 	@GraphQLQuery(name = "findByCommentIsNotNull", description = "find a Transaction having more than one issuer")
 	public List<Transaction> findByCommentIsNotNull() {
-		try (var txs = txRepository.findTxsHavingComment()) {
+		try (var txs = txRepository.findTxsHavingComment().limit(10)) {
 			return txs.collect(Collectors.toList());
 		} catch (final Exception e) {
 			LOG.error("findByCommentIsNotNull " + e);
@@ -35,7 +34,7 @@ public class GQLTxService {
 	@Transactional
 	@GraphQLQuery(name = "findTxsHavingTxInput", description = "find a Transaction having more than one issuer")
 	public List<Transaction> findTxsHavingTxInput() {
-		try (var txs = txRepository.findTxsHavingTxInput()) {
+		try (var txs = txRepository.findTxsHavingTxInput().limit(10)) {
 			return txs.collect(Collectors.toList());
 		} catch (final Exception e) {
 			LOG.error("findTxsHavingTxInput " + e);
@@ -46,7 +45,7 @@ public class GQLTxService {
 	@Transactional
 	@GraphQLQuery(name = "findTxsWithMultipleOutputs", description = "find a Transaction having more than one issuer")
 	public List<Transaction> findTxsWithMultipleOutputs() {
-		try (var txs = txRepository.findTxsWithMultipleOutputs()) {
+		try (var txs = txRepository.findTxsWithMultipleOutputs().limit(10)) {
 			return txs.collect(Collectors.toList());
 		} catch (final Exception e) {
 			LOG.error("findTxWithMultipleOutputs " + e);
@@ -57,7 +56,7 @@ public class GQLTxService {
 	@Transactional
 	@GraphQLQuery(name = "findTxToOneself", description = "find a Self Transaction having one input issuer equals to the output issuer ")
 	public List<Transaction> findTxToOneself() {
-		try (var txs = txRepository.findTxOneAndSameIssuerAndDest()) {
+		try (var txs = txRepository.findTxOneAndSameIssuerAndDest().limit(10)) {
 			return txs.collect(Collectors.toList());
 		} catch (final Exception e) {
 			LOG.error("findTxToOneself " + e);
@@ -68,7 +67,7 @@ public class GQLTxService {
 	@Transactional
 	@GraphQLQuery(name = "findTxWithMultipleIssuers", description = "find a Transaction having more than one issuer")
 	public List<Transaction> findTxWithMultipleIssuers() {
-		try (var txs = txRepository.findTxWithMultipleIssuers()) {
+		try (var txs = txRepository.findTxWithMultipleIssuers().limit(10)) {
 			return txs.collect(Collectors.toList());
 		} catch (final Exception e) {
 			LOG.error("findTxWithMultipleIssuers " + e);
@@ -79,7 +78,7 @@ public class GQLTxService {
 	@Transactional
 	@GraphQLQuery(name = "findTxWithOtherThanSig", description = "find a Transaction having more than one issuer")
 	public List<Transaction> findTxWithOtherThanSig() {
-		try (var txs = txRepository.findTxWithOtherThanSig()) {
+		try (var txs = txRepository.findTxWithOtherThanSig().limit(10)) {
 			return txs.collect(Collectors.toList());
 		} catch (final Exception e) {
 			LOG.error("findTxWithOtherThanSig " + e);

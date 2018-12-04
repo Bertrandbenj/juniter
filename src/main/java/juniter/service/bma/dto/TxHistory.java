@@ -1,9 +1,9 @@
-package juniter.service.bma.model;
+package juniter.service.bma.dto;
+
+import juniter.core.model.tx.Transaction;
 
 import java.io.Serializable;
 import java.util.List;
-
-import juniter.core.model.tx.Transaction;
 
 public class TxHistory  implements Serializable {
 	

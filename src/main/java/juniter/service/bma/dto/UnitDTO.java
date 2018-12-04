@@ -1,4 +1,4 @@
-package juniter.service.bma.model;
+package juniter.service.bma.dto;
 
 
 import java.io.Serializable;
