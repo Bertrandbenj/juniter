@@ -1,21 +1,22 @@
 package juniter.repository;
 
-import java.text.DecimalFormat;
-
+import juniter.core.utils.TimeUtils;
+import juniter.repository.jpa.BlockRepository;
+import juniter.repository.memory.Index;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import juniter.core.utils.TimeUtils;
-import juniter.repository.jpa.BlockRepository;
-import juniter.repository.memory.Index;
+import java.text.DecimalFormat;
 
-@RunWith(SpringRunner.class)
-@EnableAutoConfiguration
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringBootTest(classes = DaoTestConfiguration.class)
+@DataJpaTest
 public class TestRepoBlockchain {
 
 	private static final Logger LOG = LogManager.getLogger();
@@ -23,7 +24,7 @@ public class TestRepoBlockchain {
 	@Autowired
 	public BlockRepository blockRepo;
 
-	Index idx = new Index();
+	private Index idx = new Index();
 
 
 	@Test

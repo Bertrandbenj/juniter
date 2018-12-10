@@ -128,6 +128,7 @@ dependencies {
     compile("org.springframework.boot:spring-boot-configuration-processor")
     compile("org.springframework.boot:spring-boot-starter-freemarker")
     compile("org.springframework.boot:spring-boot-starter-websocket")
+    compile("org.springframework.boot:spring-boot-starter-actuator")
     
     compile group: 'com.graphql-java', name: 'graphql-spring-boot-starter', version: '5.0.2'
     compile group: 'com.graphql-java', name: 'graphql-java', version: '8.0'
@@ -212,7 +213,11 @@ dependencies {
     testCompile("com.h2database:h2")
     testCompile("org.apache.httpcomponents:httpclient")
     testCompile("org.springframework.boot:spring-boot-starter-test")
-    
+
+    compile 'org.projectlombok:lombok:1.18.4'
+
+    //apt 'org.projectlombok:lombok:1.18.4'
+
     antlr "org.antlr:antlr4:4.7.1"
 }
 

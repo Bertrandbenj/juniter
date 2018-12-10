@@ -1,6 +1,7 @@
 package juniter.core.model;
 
 import juniter.core.utils.Constants;
+import lombok.EqualsAndHashCode;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -16,6 +17,7 @@ import java.io.Serializable;
  *
  */
 //@Entity
+@EqualsAndHashCode
 @Embeddable
 public class BStamp implements Serializable {
 
@@ -42,15 +44,6 @@ public class BStamp implements Serializable {
 		parse(string);
 	}
 
-	@Override
-	public boolean equals(Object o) {
-		if (o instanceof BStamp)
-			return ((BStamp) o).number.equals(number) //
-					&& ((BStamp) o).hash.equals(hash);
-
-		return false;
-	}
-
 	public String getHash() {
 		return hash;
 	}
@@ -59,10 +52,6 @@ public class BStamp implements Serializable {
 		return number;
 	}
 
-	@Override
-	public int hashCode() {
-		return super.hashCode();
-	}
 
 	public void parse(String string) {
 		final String[] pat = string.split("-");

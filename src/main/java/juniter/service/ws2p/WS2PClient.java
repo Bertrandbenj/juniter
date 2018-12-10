@@ -1,17 +1,13 @@
 package juniter.service.ws2p;
 
-import java.io.IOException;
-import java.net.URI;
-import java.nio.channels.NotYetConnectedException;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.antlr.v4.runtime.BaseErrorListener;
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.RecognitionException;
-import org.antlr.v4.runtime.Recognizer;
+import antlr.main.JuniterLexer;
+import antlr.main.JuniterParser;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import juniter.grammar.JuniterGrammar;
+import org.antlr.v4.runtime.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.java_websocket.client.WebSocketClient;
@@ -19,14 +15,11 @@ import org.java_websocket.drafts.Draft;
 import org.java_websocket.handshake.ServerHandshake;
 import org.springframework.beans.factory.annotation.Value;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import antlr.main.JuniterLexer;
-import antlr.main.JuniterParser;
-import juniter.grammar.JuniterGrammar;
+import java.io.IOException;
+import java.net.URI;
+import java.nio.channels.NotYetConnectedException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This example demonstrates how to create a websocket connection to a server.
@@ -46,6 +39,7 @@ public class WS2PClient extends WebSocketClient {
 
 	public WS2PClient(URI serverURI) {
 		super(serverURI);
+
 //		this.connectionPool = connectionPool;
 	}
 
@@ -62,6 +56,7 @@ public class WS2PClient extends WebSocketClient {
 		send(new Request().getBlocks(2, 3));
 		send(new Request().getCurrent());
 		send(new Request().getRequirementsPending(5));
+
 	}
 
 	private void handleChallenge(String message) {

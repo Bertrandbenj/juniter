@@ -68,6 +68,20 @@ public class GraphPanel extends AbstractJavaFxApplicationSupport implements Init
         }
     }
 
+	@FXML
+	public void viewDocs(ActionEvent event) {
+		LOG.info("view Docs " + event.getEventType());
+
+		BorderPane page = (BorderPane) load("/adminfx/DUPForm.fxml");
+
+		Scene scene = new Scene(page);
+
+
+		Stage stage = (Stage) SVGAnchor.getScene().getWindow();
+		stage.setScene(scene);
+		stage.show();
+
+	}
 
 	@FXML
 	public void viewMain(ActionEvent event) {

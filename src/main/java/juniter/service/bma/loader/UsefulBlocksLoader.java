@@ -22,7 +22,7 @@ import static java.util.stream.Collectors.toList;
  * <pre>
  * This thread spawns with the application and does the following
  *
- * 1 - Access a remote trusted node for /blockchain/with/*
+ * 1 - Access a remote node for /blockchain/with/*
  * 2 - Sort & distinct the list of block numbers
  * 3 - Download those blocks and persist them
  * 4 - Measure elapsed time then die

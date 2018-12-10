@@ -14,10 +14,11 @@ juniter:
   graphviz.enabled: true
   useGVA: true      # FIXME:  dependencies ?
   bma.enabled: true
-  ws2p.enabled: true
+  useWS2P: false
   utils.enabled: false
   useJavaFX: true
-##  useDefaultLoader: true
+  indexer: true
+  useDefaultLoader: true
 ##  reset: true     # default false
 
 spark:

@@ -1,8 +1,11 @@
 package juniter.service.front;
 
 import javafx.application.Platform;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -12,12 +15,15 @@ import javafx.stage.Stage;
 import juniter.core.crypto.SecretBox;
 import juniter.core.validation.StaticValid;
 import juniter.repository.jpa.BlockRepository;
+import juniter.service.Indexer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 
+import java.net.URL;
+import java.util.ResourceBundle;
 import java.util.stream.Stream;
 
 /**
@@ -25,7 +31,7 @@ import java.util.stream.Stream;
  */
 @ConditionalOnExpression("${juniter.useJavaFX:false}")
 @Component
-public class AdminFX extends AbstractJavaFxApplicationSupport {
+public class AdminFX extends AbstractJavaFxApplicationSupport implements Initializable {
 
     private static final Logger LOG = LogManager.getLogger();
 
@@ -48,64 +54,54 @@ public class AdminFX extends AbstractJavaFxApplicationSupport {
     @FXML
     private TextField tstSome;
 
-    @FXML
-    private PasswordField salt;
-
-    @FXML
-    private PasswordField password;
+    @FXML private ImageView logo;
 
 
-    @FXML
-    private ImageView logo;
+    //                                  LOGIN SECTION
+    @FXML private PasswordField salt;
 
-    @FXML
-    private Button login;
+    @FXML private PasswordField password;
 
-    @FXML
-    private Button deleteBlock;
+    @FXML private Button login;
 
-    @FXML
-    private Button deleteBlocks;
 
-    @FXML
-    private Button testBlock;
+    //                                  LOADING  SECTION
+    @FXML private ProgressBar indexBar;
+    @FXML private ProgressIndicator indexIndic;
+    public static DoubleProperty indexUpdater = new SimpleDoubleProperty(.0);
 
-    @FXML
-    private Button testBlocks;
+    @FXML private ProgressBar loadBar ;
+    @FXML private ProgressIndicator loadIndic;
+    public static DoubleProperty loadUpdater = new SimpleDoubleProperty(.0);
+
+
+
 
     @Autowired
     private BlockRepository blockRepo;
 
-
-    public AdminFX() {
-
-    }
-
+    @Autowired
+    private Indexer indexer;
 
     @FXML
-    public void deleteOne() {
-        LOG.info("Couldn't delete Block, error parsing blockNumber " + delOne);
+    private TextField indexTil;
 
-        Integer id = Integer.parseInt(delOne.getText());
-        if (id != null) {
 
-            LOG.info("deleting Block # " + id + " " + blockRepo);
+    public AdminFX() { }
 
-            blockRepo.block(id).ifPresent(block -> {
-                blockRepo.delete(block);
-            });
-        } else {
-            LOG.info("Couldn't delete Block, error parsing blockNumber " + delOne.getText());
-        }
+    @FXML
+    public void indexUntil(){
 
+        indexer.indexUntil(Integer.parseInt(indexTil.getText()));
     }
+
 
     @FXML
     public void deleteSome() {
         String[] ids = delSome.getText().split(",");
 
         Stream.of(ids) //
-                .map(id -> Integer.parseInt(id))//
+                .map(Integer::parseInt)//
                 .forEach(id -> {
                     LOG.info("deleting Blocks # " + id);
 
@@ -126,24 +122,6 @@ public class AdminFX extends AbstractJavaFxApplicationSupport {
         pubkey.setText(secretBox.getPublicKey());
     }
 
-    @FXML
-    public void testOne() {
-        Integer id = Integer.parseInt(tstOne.getText());
-
-        blockRepo.block(id).ifPresent(block -> {
-            LOG.info("testing Block # " + id);
-            boolean result;
-            try {
-                StaticValid.assertBlock(block);
-                result = ConfirmBox.display("All good", "repository node is local validation ");
-
-            } catch (AssertionError ea) {
-                result = ConfirmBox.display("AssertionError", ea.getMessage());
-            }
-            LOG.info("testing Block # " + result);
-
-        });
-    }
 
 
     @FXML
@@ -151,7 +129,7 @@ public class AdminFX extends AbstractJavaFxApplicationSupport {
         String[] ids = tstSome.getText().split(",");
 
         Stream.of(ids) //
-                .map(id -> Integer.parseInt(id))//
+                .map(Integer::parseInt)//
                 .forEach(id -> {
                     LOG.info("testing Blocks # " + id);
 
@@ -185,6 +163,20 @@ public class AdminFX extends AbstractJavaFxApplicationSupport {
         stage.show();
 
     }
+    @FXML
+    public void viewDocs(ActionEvent event) {
+        LOG.info("view Docs " + event.getEventType());
+
+        BorderPane page = (BorderPane) load("/adminfx/DUPForm.fxml");
+
+        Scene scene = new Scene(page);
+
+
+        Stage stage = (Stage) login.getScene().getWindow();
+        stage.setScene(scene);
+        stage.show();
+
+    }
 
     @Override
     public void start(Stage primaryStage) {
@@ -200,14 +192,25 @@ public class AdminFX extends AbstractJavaFxApplicationSupport {
         scene.getStylesheets().add("/adminfx/search.css");
 
 
+
+
         primaryStage.setTitle("Juniter - Admin panel ");
         primaryStage.setScene(scene);
+
         primaryStage.getIcons().add(new Image(AdminFX.class.getResourceAsStream("/adminfx/logo.png")));
         primaryStage.show();
         primaryStage.setOnHidden(e -> Platform.exit());
 
-
     }
 
 
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+
+        indexBar.progressProperty().bind(indexUpdater);
+        indexIndic.progressProperty().bind(indexUpdater);
+
+        loadBar.progressProperty().bind(loadUpdater);
+        loadIndic.progressProperty().bind(loadUpdater);
+    }
 }

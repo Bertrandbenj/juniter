@@ -1,24 +1,15 @@
 package juniter.core.model.wot;
 
-import java.io.Serializable;
-
-import javax.persistence.AttributeOverride;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.validation.Valid;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import juniter.core.model.BStamp;
 import juniter.core.model.Pubkey;
 import juniter.core.model.Signature;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import javax.persistence.*;
+import javax.validation.Valid;
+import java.io.Serializable;
 
 /**
  * Pubkey : signature : buid : buid : pseudo;
@@ -71,6 +62,10 @@ public class Identity implements Serializable, Comparable<Identity> {
 
 	public String pseudo() {
 		return pseudo;
+	}
+
+	public String signature() {
+		return signature.toString();
 	}
 
 //	public String getIdentity() {

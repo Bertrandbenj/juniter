@@ -37,7 +37,7 @@ public class GVAController {
 				.withBasePackages("juniter.graphql")
 				.withResolverBuilders(new AnnotatedResolverBuilder()) //
 				.withOperationsFromSingleton(bService, BlockService.class) //
-				.withOperationsFromSingleton(tService, GQLTxService.class) //
+				//.withOperationsFromSingleton(tService, GQLTxService.class) //
 				.withOperationsFromSingleton(wService, WoTService.class) //
 				.withOperationsFromSingleton(wMutate, WoTMutation.class) //
 				.withValueMapperFactory(new JacksonValueMapperFactory()) //

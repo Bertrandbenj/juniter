@@ -112,10 +112,11 @@ public class WebMVCITest implements BlockLocalValid {
 		+ " which is " + perBlock + " ms per block validated, " //
 		+ "estimating: " + TimeUtils.format(estimate));
 
-		LOG.info("blocks erroring :"
-				+ erroringBlock.stream().collect(Collectors.joining("\n")));
+		LOG.info("blocks erroring :" + erroringBlock.stream().collect(Collectors.joining("\n")));
 
 	}
+
+
 
 	public void testOne(Integer i) throws AssertionError, Exception {
 

@@ -55,15 +55,13 @@ public class MissingBlocksLoader  {
 			return new ArrayList<Integer>();
 		}
 
-
-
 	}
 
 
 	@Scheduled(fixedRate = 3 * 60 * 1000, initialDelay = 5 * 60 * 1000)
 	public void run() {
 
-		LOG.info("Entering MissingBlocksLoader.runPeerCheck  ");
+		LOG.info("@Scheduled MissingBlocksLoader.run  ");
 		final var start = System.nanoTime();
 
 

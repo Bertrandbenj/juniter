@@ -11,6 +11,7 @@ import juniter.repository.jpa.PeersRepository;
 import juniter.service.bma.NetworkService;
 import juniter.service.bma.dto.PeerBMA;
 import juniter.service.bma.dto.PeersDTO;
+import juniter.service.front.AdminFX;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,6 +87,8 @@ public class PeerLoader {
 
     @Scheduled(fixedDelay = 3 * 60 * 1000)
     public void runPeerCheck() {
+
+        LOG.info("@Scheduled runPeerCheck ");
         final var start = System.nanoTime();
 
         final var blacklistHosts = new ArrayList<String>();
@@ -113,12 +116,21 @@ public class PeerLoader {
 
         }
 
+        var maxBlockPeer = peersDTO.getPeers().stream().map(Peer::getBlock).map(b-> b.split("-")[0]).mapToLong(Long::parseLong).max();
+        var maxBlockDB = blockRepo.currentBlockNumber();
+
+        if(maxBlockPeer.isPresent())
+            AdminFX.loadUpdater.setValue(maxBlockDB * 1.0 / maxBlockPeer.getAsLong());
+
+
         final var elapsed = Long.divideUnsigned(System.nanoTime() - start, 1000000);
-        LOG.info("Elapsed time: " + TimeUtils.format(elapsed));
+        LOG.info("Max block found peers:" + maxBlockPeer +
+                "  db: " + maxBlockDB +
+                " Elapsed time: " + TimeUtils.format(elapsed));
 
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     @Scheduled(fixedDelay = 5 * 60 * 1000)
     public void doPairing() {
 

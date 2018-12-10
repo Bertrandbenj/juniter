@@ -70,8 +70,9 @@ public interface BlockRepository extends JpaRepository<Block, Long>, BlockLocalV
 		if (checkBlockisLocalValid(block)){
 			try{
 				return Optional.of(save(block));
-			}catch(GenericJDBCException e){
-				LOG.error("GenericJDBCException ", e);
+			}catch(Exception e){
+				LOG.error("Error saving block "+block.getNumber());
+				return Optional.empty();
 			}
 		}
 
