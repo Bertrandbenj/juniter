@@ -38,8 +38,8 @@ public class Identity implements Serializable, Comparable<Identity> {
 	private Signature signature = new Signature();
 
 	@Valid
-	@AttributeOverride(name = "buid", column = @Column(name = "buid"))
-	private BStamp buid = new BStamp();
+	@AttributeOverride(name = "buid", column = @Column(name = "createdOn"))
+	private BStamp createdOn = new BStamp();
 
 	private String pseudo;
 
@@ -57,7 +57,7 @@ public class Identity implements Serializable, Comparable<Identity> {
 	}
 
 	public BStamp createdOn() {
-		return buid;
+		return createdOn;
 	}
 
 	public String pseudo() {
@@ -85,13 +85,13 @@ public class Identity implements Serializable, Comparable<Identity> {
 		final var vals = identity.split(":");
 		newidentity.setPubkey(vals[0]);
 		signature.setSignature(vals[1]);
-		buid.parse(vals[2]);
+		createdOn.parse(vals[2]);
 		pseudo = vals[3];
 	}
 
 	@Override
 	public String toString() {
-		return newidentity.getPubkey() + ":" + signature.getSignature() + ":" + buid + ":" + pseudo;
+		return newidentity.getPubkey() + ":" + signature.getSignature() + ":" + createdOn + ":" + pseudo;
 	}
 
 }

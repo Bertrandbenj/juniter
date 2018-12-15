@@ -3,7 +3,7 @@ package juniter.core;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import juniter.core.model.Block;
-import juniter.repository.memory.Index;
+import juniter.repository.jpa.index.Index;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Before;

@@ -2,7 +2,7 @@ package juniter.repository;
 
 import juniter.core.utils.TimeUtils;
 import juniter.repository.jpa.BlockRepository;
-import juniter.repository.memory.Index;
+import juniter.repository.jpa.index.Index;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Test;

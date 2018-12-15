@@ -1,16 +1,15 @@
 package juniter.core.model.wot;
 
-import java.io.Serializable;
+import juniter.core.model.BStamp;
+import juniter.core.model.Pubkey;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.validation.Valid;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import juniter.core.model.Pubkey;
+import java.io.Serializable;
 
 @Embeddable
 public class Revoked implements Serializable, Comparable<Revoked> {
@@ -54,6 +53,10 @@ public class Revoked implements Serializable, Comparable<Revoked> {
 		signature = vals[1];
 	}
 
+	public String signature(){
+		return signature;
+	}
+
 	public String toDUP() {
 		return getRevoked();
 	}
@@ -61,5 +64,9 @@ public class Revoked implements Serializable, Comparable<Revoked> {
 	@Override
 	public String toString() {
 		return getRevoked();
+	}
+
+	public BStamp createdOn() {
+		return new BStamp("1234-REVOKED");
 	}
 }

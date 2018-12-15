@@ -30,7 +30,7 @@
       * [with/](#blockchainwith)
           * [newcomers](#blockchainwithnewcomers)
           * [certs](#blockchainwithcerts)
-          * [actives](#blockchainwithactives)
+          * [renewed](#blockchainwithactives)
           * [leavers](#blockchainwithleavers)
           * [excluded](#blockchainwithexcluded)
           * [ud](#blockchainwithud)
@@ -78,7 +78,7 @@ Data is made accessible through an HTTP API mainly inspired from [OpenUDC_exchan
     |       |-- newcomers
     |       |-- certs
     |       |-- joiners
-    |       |-- actives
+    |       |-- renewed
     |       |-- leavers
     |       |-- excluded
     |       |-- ud
@@ -987,10 +987,10 @@ Block numbers.
 }
 ```
 
-#### `blockchain/with/actives`
+#### `blockchain/with/renewed`
 **Goal**
 
-GET the block numbers containing actives (members updating their membership).
+GET the block numbers containing renewed (members updating their membership).
 
 **Parameters**
 

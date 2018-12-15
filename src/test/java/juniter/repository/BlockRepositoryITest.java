@@ -1,9 +1,7 @@
 package juniter.repository;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.List;
-
+import juniter.core.model.Block;
+import juniter.repository.jpa.BlockRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -12,8 +10,9 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import juniter.core.model.Block;
-import juniter.repository.jpa.BlockRepository;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
@@ -33,7 +32,7 @@ public class BlockRepositoryITest {
 		final Block block1 = blockRepo.save(new Block());
 		final Block block2 = blockRepo.save(new Block());
 
-		final List<Block> result = blockRepo.findByHash("hash");
+		final List<Block> result = blockRepo.findAll();
 		assertThat(result.size()).isEqualTo(1);
 		assertThat(result.get(0).equals(block1));
 

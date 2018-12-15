@@ -1,14 +1,13 @@
 package juniter.service.ws2p;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Request implements Serializable {
@@ -57,7 +56,6 @@ public class Request implements Serializable {
 	/**
 	 * https://git.duniter.org/nodes/common/doc/blob/master/rfc/0004_ws2p_v1.md#getblocks
 	 *
-	 * @param number
 	 * @return
 	 */
 	Request getBlocks(Integer count, Integer from) {
@@ -77,7 +75,6 @@ public class Request implements Serializable {
 	/**
 	 * https://git.duniter.org/nodes/common/doc/blob/master/rfc/0004_ws2p_v1.md#getcurrent
 	 *
-	 * @param number
 	 * @return
 	 */
 	Request getCurrent() {
@@ -96,9 +93,7 @@ public class Request implements Serializable {
 	/**
 	 * https://git.duniter.org/nodes/common/doc/blob/master/rfc/0004_ws2p_v1.md#getrequirementspending
 	 *
-	 *
-	 * @param number
-	 * @return
+	 ** @return
 	 */
 	Request getRequirementsPending(Integer minCert) {
 

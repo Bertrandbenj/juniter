@@ -187,7 +187,7 @@ public class BlockchainService {
 			st = repository.with(block -> !block.getCertifications().isEmpty());
 			break;
 		case "actives":
-			st = repository.with(block -> !block.getActives().isEmpty());
+			st = repository.with(block -> !block.getRenewed().isEmpty());
 			break;
 		case "leavers":
 			st = repository.with(block -> !block.getLeavers().isEmpty());

@@ -9,52 +9,12 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.web.WebView?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.service.front.GraphPanel">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.service.adminfx.GraphPanel">
     <right>
-        <VBox alignment="CENTER" BorderPane.alignment="CENTER">
+        <VBox alignment="CENTER"  prefHeight="800.0" prefWidth="180.0">
             <children>
-                <Region prefHeight="560.0" prefWidth="115.0" VBox.vgrow="ALWAYS" />
-                <Hyperlink onAction="#viewMain">
-                    <graphic>
-                        <ImageView fx:id="logo2" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
-                            <image>
-                                <Image url="@logo.png" />
-                            </image>
-                        </ImageView>
-                    </graphic>
-               <tooltip>
-                  <Tooltip text="Empty Tooltip" />
-               </tooltip>
-                </Hyperlink>
-                <Hyperlink>
-                    <graphic>
-                        <ImageView fx:id="logo21" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
-                            <image>
-                                <Image url="@dotex.png" />
-                            </image>
-                        </ImageView>
-                    </graphic>
-               <tooltip>
-                  <Tooltip text="Empty Tooltip" />
-               </tooltip>
-                </Hyperlink>
-                <Hyperlink onAction="#viewDocs">
-                    <graphic>
-                        <ImageView fx:id="logo211" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
-                            <image>
-                                <Image url="@logo.png" />
-                            </image>
-                        </ImageView>
-                    </graphic>
-               <tooltip>
-                  <Tooltip text="Empty Tooltip" />
-               </tooltip>
-                </Hyperlink>
-            <Region prefHeight="560.0" prefWidth="115.0" />
+                <fx:include source="include/Menu.fxml" />
             </children>
-            <padding>
-                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-            </padding>
         </VBox>
     </right>
 

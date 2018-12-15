@@ -14,7 +14,7 @@ public class AppConfig {
 	@Bean
 	public ModelMapper modelMapper() {
 		final var res = new ModelMapper();
-		res.getConfiguration().setMatchingStrategy(MatchingStrategies.LOOSE);
+		res.getConfiguration().setMatchingStrategy(MatchingStrategies.STANDARD);
 
 		return res;
 	}

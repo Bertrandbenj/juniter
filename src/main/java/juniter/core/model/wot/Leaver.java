@@ -1,17 +1,17 @@
 package juniter.core.model.wot;
 
-import java.io.Serializable;
-
-import javax.persistence.AttributeOverride;
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.validation.Valid;
-
+import juniter.core.model.BStamp;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import juniter.core.model.Pubkey;
-
+import javax.persistence.Embeddable;
+import java.io.Serializable;
+@Getter
+@Setter
+@NoArgsConstructor
 @Embeddable
 public class Leaver implements Serializable, Comparable<Leaver> {
 
@@ -19,60 +19,48 @@ public class Leaver implements Serializable, Comparable<Leaver> {
 
 	private static final Logger LOG = LogManager.getLogger();
 
-	@Valid
-	@AttributeOverride(name = "pubkey", column = @Column(name = "leaver"))
-	private Pubkey leaver = new Pubkey();
+
+	private String pubkey ;
 
 	private String signature;
 
-	@AttributeOverride(name = "buid", column = @Column(name = "buid1"))
-	@Valid
-	private String buid1; // = new BStamp();
+	private String createdOn;
 
-	//	@AttributeOverride(name = "buid2", column = @Column(name = "buid2"))
-	@Valid
 	private String buid2;
 
 	private String pseudo;
 
-	public Leaver() {
-	}
 
-	public Leaver(String Leaver) {
-		setLeaver(Leaver);
+	public Leaver(String leaver) {
+		LOG.debug("Parsing Leaver... " + leaver);
+		final var vals = leaver.split(":");
+
+		pubkey = vals[0];
+		signature = vals[1];
+		createdOn = vals[2];
+		buid2 = vals[3];
+		pseudo = vals[4];
 	}
 
 	@Override
 	public int compareTo(Leaver o) {
-		return getLeaver().compareTo(o.getLeaver());
-	}
-
-	public String getLeaver() {
-		return leaver + ":" + signature + ":" + buid1 + ":" + buid2 + ":" + pseudo;
+		return toDUP().compareTo(o.toDUP());
 	}
 
 	public String leaver() {
-		return leaver.getPubkey();
-	}
-
-	public void setLeaver(String leaver) {
-
-		LOG.debug("Parsing Leaver... " + leaver);
-		final var vals = leaver.split(":");
-		this.leaver.setPubkey(vals[0]);
-		signature = vals[1];
-		buid1 = vals[2];
-		buid2 = vals[3];
-		pseudo = vals[4];
-		// this.leaver = joiner;
+		return pubkey;
 	}
 
 	public String toDUP() {
-		return getLeaver();
+		return pubkey + ":" + signature + ":" + createdOn + ":" + buid2 + ":" + pseudo;
 	}
 
 	@Override
 	public String toString() {
-		return getLeaver();
+		return toDUP();
+	}
+
+	public BStamp createdOn() {
+		return new BStamp(createdOn);
 	}
 }

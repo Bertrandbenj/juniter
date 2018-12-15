@@ -7,12 +7,12 @@ import org.apache.logging.log4j.Logger;
 import org.hibernate.exception.GenericJDBCException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -26,6 +26,24 @@ public interface BlockRepository extends JpaRepository<Block, Long>, BlockLocalV
 	default Optional<Block> block(Integer number) {
 		return findTop1ByNumber(number);
 	}
+
+	@Query("select b from Block b where number = ?1 AND hash = ?2")
+	Stream<Block> block(Integer number, String hash) ;
+
+	default Optional<Block> cachedBlock(Integer bstamp) {
+
+		if(cache.containsKey(bstamp) )
+			return Optional.of(cache.get(bstamp));
+
+		var res = block(bstamp);
+
+		res.ifPresent(b->{
+			 cache.put(b.getNumber(), b);
+		});
+
+		return  res;
+	}
+
 
 	@Query("select number from Block")
 	List<Integer> blockNumbers();
@@ -46,10 +64,11 @@ public interface BlockRepository extends JpaRepository<Block, Long>, BlockLocalV
 		return current().map(Block::getNumber).orElseThrow();
 	}
 
-    List<Block> findByHash(String hash);
 
-	//	@Override
-	//	Optional<Block> findById(Long id);
+	Map<Integer, Block> cache = new HashMap<>();
+
+
+
 
 	Stream<Block> findByNumberIn(List<Integer> number);
 
@@ -68,6 +87,9 @@ public interface BlockRepository extends JpaRepository<Block, Long>, BlockLocalV
 	default Optional<Block> localSave(Block block) throws AssertionError {
 
 		if (checkBlockisLocalValid(block)){
+			if(block.size()>0){
+				cache.put(block.getNumber(), block);
+			}
 			try{
 				return Optional.of(save(block));
 			}catch(Exception e){
@@ -86,9 +108,6 @@ public interface BlockRepository extends JpaRepository<Block, Long>, BlockLocalV
 		final var bl = existingBlock.orElse(block);
 		return save(bl);
 	}
-
-	@Async
-	CompletableFuture<List<Block>> readAllBy();
 
 	/**
 	 * Saves the given {@link Block}. unsafe

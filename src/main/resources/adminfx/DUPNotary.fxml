@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane fx:id="content" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.service.adminfx.DUPNotary">
+   <right>
+       <VBox alignment="CENTER" prefHeight="800.0" prefWidth="180.0">
+          <children>
+              <fx:include source="include/Menu.fxml" />
+          </children>
+       </VBox>
+   </right>
+   <bottom>
+      <HBox BorderPane.alignment="CENTER">
+         <children>
+            <Label text="Szia, Salut, Hi, ">
+               <HBox.margin>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </HBox.margin>
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Label>
+         </children>
+      </HBox>
+   </bottom>
+   <center>
+      <HBox prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <children>
+              <VBox prefHeight="730.0" prefWidth="1098.0" spacing="10.0">
+                  <padding>
+                      <Insets right="20.0" />
+                  </padding>
+                 <children>
+                     <TabPane prefHeight="719.0" prefWidth="713.0" tabClosingPolicy="UNAVAILABLE">
+                        <tabs>
+                            <Tab text="Peer">
+                                <tooltip>
+                                    <Tooltip text="This document help you connect" />
+                                </tooltip>
+                               <content>
+                                   <fx:include source="include/PeerPanel.fxml" />
+                               </content>
+                            </Tab>
+                            <Tab text="Web Of Trust">
+                                <tooltip>
+                                    <Tooltip text="Document signing about your identity" />
+                                </tooltip>
+                               <content>
+                                   <fx:include source="include/WotPanel.fxml" />
+                               </content>
+                            </Tab>
+                            <Tab text="Transaction">
+                                <tooltip>
+                                    <Tooltip text="Make transactions here " />
+                                </tooltip>
+                               <content>
+                                   <fx:include source="include/TxPanel.fxml" />
+                               </content>
+                            </Tab>
+                            <Tab text="Block #0 ">
+                                <tooltip>
+                                    <Tooltip text="What about starting another libre crypto currency  " />
+                                </tooltip>
+                               <content>
+                                   <fx:include source="include/Block0Panel.fxml" />
+                               </content>
+                            </Tab>
+                            <Tab text="Other Application .. ">
+                                <tooltip>
+                                    <Tooltip text="Or whatever" />
+                                </tooltip>
+                               <content>
+                                   <VBox prefHeight="200.0" prefWidth="100.0" />
+                               </content>
+                            </Tab>
+                        </tabs>
+                     </TabPane>
+                 </children>
+              </VBox>
+            <VBox alignment="CENTER" prefHeight="759.0" prefWidth="592.0" spacing="10.0">
+               <children>
+                  <Label text="Raw Document" />
+                  <TextArea editable="false" prefHeight="200.0" prefWidth="200.0" promptText="here comes the document " />
+                  <Label text="Valid ?" />
+                  <TextArea editable="false" prefHeight="132.0" prefWidth="176.0" promptText="Log Local validation" />
+                  <TextArea editable="false" prefHeight="118.0" prefWidth="176.0" promptText="log global validation " />
+               </children>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+            </VBox>
+         </children>
+      </HBox>
+   </center>
+</BorderPane>

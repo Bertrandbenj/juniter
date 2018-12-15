@@ -99,7 +99,7 @@ block_
 
 	Joiners_ joiners
 
-	Actives_ actives
+	Actives_ renewed
 
 	Leavers_ leavers
 
@@ -312,10 +312,10 @@ locals [int i=0]
 	)*
 ;
 
-actives
+renewed
 locals [int i=0]
 :
-	{System.out.println("    actives: ");}
+	{System.out.println("    renewed: ");}
 
 
 	(

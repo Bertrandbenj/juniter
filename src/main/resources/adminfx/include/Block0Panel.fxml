@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.Group?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="juniter.service.adminfx.include.Block0Panel">
+    <VBox  prefHeight="401.0" prefWidth="880.0"  spacing="5.0">
+        <children>
+            <HBox spacing="20.0">
+                <children>
+                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Version" />
+                    <TextField disable="true" editable="false" text="10" />
+                </children>
+            </HBox>
+            <HBox spacing="20.0">
+                <children>
+                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Currency" />
+                    <TextField disable="true" editable="false" text="g1" />
+                </children>
+            </HBox>
+            <HBox spacing="20.0">
+                <children>
+                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Type" />
+                    <TextField disable="true" editable="false" text="Block" />
+                </children>
+            </HBox>
+            <HBox spacing="20.0">
+                <children>
+                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Number" />
+                    <TextField disable="true" editable="false" text="0" />
+                </children>
+            </HBox>
+            <HBox spacing="20.0">
+                <children>
+                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="PoWMin" />
+                    <TextField disable="true" editable="false" text="Block" />
+                </children>
+            </HBox>
+            <HBox spacing="20.0">
+                <children>
+                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Time" />
+                    <TextField disable="true" editable="false" text="Block" />
+                </children>
+            </HBox>
+            <HBox spacing="20.0">
+                <children>
+                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="MedianTime" />
+                    <TextField disable="true" editable="false" text="Block" />
+                </children>
+            </HBox>
+            <HBox spacing="20.0">
+                <children>
+                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="UnitBase" />
+                    <TextField disable="true" editable="false" text="Block" />
+                </children>
+            </HBox>
+            <HBox spacing="20.0">
+                <children>
+                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Issuer" />
+                    <TextField disable="true" editable="false" text="Block" />
+                </children>
+            </HBox>
+            <HBox spacing="20.0">
+                <children>
+                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="IssuersFrame" />
+                    <TextField disable="true" editable="false" text="Block" />
+                </children>
+            </HBox>
+            <HBox spacing="20.0">
+                <children>
+                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="IssuersFrameVar" />
+                    <TextField disable="true" editable="false" text="Block" />
+                </children>
+            </HBox>
+            <HBox spacing="20.0">
+                <children>
+                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="DifferentIssuersCount" />
+                    <TextField disable="true" editable="false" text="Block" />
+                </children>
+            </HBox>
+            <HBox spacing="20.0">
+                <children>
+                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Parameters" />
+                </children>
+            </HBox>
+            <HBox spacing="20.0">
+                <children>
+                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="MembersCount" />
+                    <TextField text="59" />
+                </children>
+            </HBox>
+            <HBox spacing="20.0">
+                <children>
+                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Identities" />
+                </children>
+            </HBox>
+            <HBox spacing="20.0">
+                <children>
+                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Joiners" />
+                </children>
+            </HBox>
+            <HBox spacing="20.0">
+                <children>
+                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Actives" />
+                </children>
+            </HBox>
+            <HBox spacing="20.0">
+                <children>
+                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Leavers" />
+                </children>
+            </HBox>
+            <HBox spacing="20.0">
+                <children>
+                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Revoked" />
+                </children>
+            </HBox>
+            <HBox spacing="20.0">
+                <children>
+                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Excluded" />
+                </children>
+            </HBox>
+            <HBox spacing="20.0">
+                <children>
+                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Certifications" />
+                </children>
+            </HBox>
+            <HBox spacing="20.0">
+                <children>
+                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Transactions" />
+                </children>
+            </HBox>
+        </children>
+        <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+        </padding>
+    </VBox>
+</AnchorPane>

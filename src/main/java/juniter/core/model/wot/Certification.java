@@ -1,25 +1,18 @@
 package juniter.core.model.wot;
 
-import java.io.Serializable;
-
-import javax.persistence.AttributeOverride;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.validation.Valid;
-import javax.validation.constraints.Pattern;
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import javax.persistence.*;
+import java.io.Serializable;
 
-import juniter.core.model.Pubkey;
-import juniter.core.utils.Constants;
-
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "Certification", schema = "public")
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -28,28 +21,28 @@ public class Certification implements Serializable, Comparable<Certification> {
 	private static final long serialVersionUID = -2973877562500906569L;
 	private static final Logger LOG = LoggerFactory.getLogger(Certification.class);
 
-	@Valid
-	@AttributeOverride(name = "pubkey", column = @Column(name = "certifier"))
-	private final Pubkey certifier = new Pubkey();
-
-	@Valid
-	@AttributeOverride(name = "pubkey", column = @Column(name = "certified"))
-	private final Pubkey certified = new Pubkey();
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 
+	private  String certifier ;
+
+	private  String certified;
+
 	private Integer blockNumber;
 
-	@Pattern(regexp = Constants.Regex.SIGNATURE)
 	private String signature;
 
-	public Certification() {
-	}
 
 	public Certification(String certif) {
-		setCertif(certif);
+		LOG.debug("Parsing certif ... " + certif);
+
+		final var it = certif.split(":");
+		certifier = it[0];
+		certified = it[1];
+		blockNumber = Integer.valueOf(it[2]);
+		signature = it[3];
 	}
 
 	@Override
@@ -57,51 +50,27 @@ public class Certification implements Serializable, Comparable<Certification> {
 		return (certifier + " " + certified).compareTo(o.certifier + " " + o.certified);
 	}
 
-	public Integer getBlockNumber() {
-		return blockNumber;
-	}
-
-	public String getCertif() {
-		return certifier.getPubkey() + ":" + certified + ":" + blockNumber + ":" + signature;
-	}
-
-	public Pubkey getCertified() {
-		return certified;
-	}
-
-	public Pubkey getCertifier() {
-		return certifier;
-	}
-
-	public String getSignature() {
-		return signature;
-	}
-
-	public boolean isCertifiedBy(String cert) {
-		return certified.getPubkey().equals(cert);
-	}
-
-	public boolean isCertifierOf(String cert) {
-		return certifier.getPubkey().equals(cert);
-	}
-
-	public void setCertif(String certif) {
-
-		LOG.debug("Parsing certif ... " + certif);
-
-		final var it = certif.split(":");
-		certifier.setPubkey(it[0]);
-		certified.setPubkey(it[1]);
-		blockNumber = Integer.valueOf(it[2]);
-		signature = it[3];
-	}
-
 	public String toDUP() {
-		return getCertif();
+		return certifier + ":" + certified + ":" + blockNumber + ":" + signature;
 	}
 
 	@Override
 	public String toString() {
 		return toDUP();
+	}
+
+	public String certifier() {
+		return certifier;
+	}
+
+	public String certified() {
+		return certified;
+	}
+
+	public String signature() {
+		return signature;
+	}
+
+	public Integer getBlockNumber() { return blockNumber;
 	}
 }

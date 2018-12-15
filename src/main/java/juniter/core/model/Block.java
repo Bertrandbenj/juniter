@@ -26,11 +26,11 @@ import static java.util.stream.Collectors.toList;
  *
  * <pre>
  *
- * 	&#64;Valid  -> is useful to enforce encapsulated object validation
+ * 	&#64;Valid  : is useful to enforce encapsulated object validation
  *
-	&#64;AttributeOverride(name = "pubkey", column = @Column(name = "issuer"))  ->
+	&#64;AttributeOverride(name = "pubkey", column = @Column(name = "issuer"))
 
-	private PubKey issuer = new PubKey(); -> the constructor at initialization is needed by the json parser
+	private PubKey issuer = new PubKey(); The constructor at initialization is needed by the json parser
  *
  * </pre>
  *
@@ -115,19 +115,19 @@ public class Block implements Serializable, DUPComponent {
 	@LazyCollection(LazyCollectionOption.FALSE)
 	@ElementCollection
 	@OneToMany(cascade = CascadeType.ALL)
-	private List<Identity> identities = new ArrayList<Identity>();
+	private List<Identity> identities = new ArrayList<>();
 
 	@Valid
 	@LazyCollection(LazyCollectionOption.FALSE)
 	@ElementCollection
 	@CollectionTable(name = "wot_joiners", joinColumns = { @JoinColumn(name = "number"), @JoinColumn(name = "hash") })
-	private List<Joiner> joiners = new ArrayList<Joiner>();
+	private List<Joiner> joiners = new ArrayList<>();
 
 	@Valid
 	@LazyCollection(LazyCollectionOption.FALSE)
 	@ElementCollection
-	@CollectionTable(name = "wot_actives", joinColumns = { @JoinColumn(name = "number"), @JoinColumn(name = "hash") })
-	private List<Active> actives = new ArrayList<Active>();
+	@CollectionTable(name = "wot_renewed", joinColumns = { @JoinColumn(name = "number"), @JoinColumn(name = "hash") })
+	private List<Renew> renewed = new ArrayList<>();
 
 	@Valid
 	@LazyCollection(LazyCollectionOption.FALSE)
@@ -167,14 +167,15 @@ public class Block implements Serializable, DUPComponent {
 	}
 
 	/**
-	 * @return the active
+	 * alias
+	 * @return
 	 */
-	public List<Active> getActives() {
-		return actives;
+	public List<Renew> getActives() {
+		return getRenewed();
 	}
 
 	public List<String> getActivesAsStrings() {
-		return actives.stream().map(Active::toString).collect(toList());
+		return renewed.stream().map(Renew::toString).collect(toList());
 	}
 
 	/**
@@ -365,6 +366,11 @@ public class Block implements Serializable, DUPComponent {
 		return revoked; // .stream().map(Revoked::toString).collect(Collectors.toList());
 	}
 
+
+	public List<Renew> getRenewed() {
+		return renewed;
+	}
+
 	/**
 	 * @return the signature
 	 */
@@ -402,8 +408,8 @@ public class Block implements Serializable, DUPComponent {
 		return version;
 	}
 
-	public void setActives(List<Active> actives) {
-		this.actives = actives;
+	public void setActives(List<Renew> renewed) {
+		this.renewed = renewed;
 	}
 
 	public void setCertifications(List<Certification> certifications) {
@@ -551,7 +557,7 @@ public class Block implements Serializable, DUPComponent {
 	 */
 	public Integer size() {
 
-		return identities.size() + joiners.size() + actives.size() + leavers.size() + revoked.size()
+		return identities.size() + joiners.size() + renewed.size() + leavers.size() + revoked.size()
 		+ certifications.size() + transactions.size();
 	}
 
@@ -603,8 +609,8 @@ public class Block implements Serializable, DUPComponent {
 				+ (identities.size() > 0 ? "\n" : "") + "Joiners:\n"
 				+ joiners.stream().map(Joiner::toDUP).collect(Collectors.joining("\n"))
 				+ (joiners.size() > 0 ? "\n" : "") + "Actives:\n"
-				+ actives.stream().map(Active::toDUP).collect(Collectors.joining("\n"))
-				+ (actives.size() > 0 ? "\n" : "") + "Leavers:\n"
+				+ renewed.stream().map(Renew::toDUP).collect(Collectors.joining("\n"))
+				+ (renewed.size() > 0 ? "\n" : "") + "Leavers:\n"
 				+ leavers.stream().map(Leaver::toDUP).collect(Collectors.joining("\n"))
 				+ (leavers.size() > 0 ? "\n" : "") + "Revoked:\n"
 				+ revoked.stream().map(Revoked::toDUP).collect(Collectors.joining("\n"))

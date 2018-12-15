@@ -8,11 +8,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClientException;
@@ -34,7 +34,7 @@ import java.util.stream.IntStream;
 @ConditionalOnExpression("${juniter.useDefaultLoader:true}") // Must be up for dependencies
 @Component
 @Order(1)
-public class BlockLoader implements CommandLineRunner, BlockLocalValid {
+public class BlockLoader implements  BlockLocalValid {
 
     private static final Logger LOG = LogManager.getLogger();
 
@@ -44,7 +44,7 @@ public class BlockLoader implements CommandLineRunner, BlockLocalValid {
     @Value("${juniter.network.bulkSize:50}")
     private Integer bulkSize;
 
-    @Value("${juniter.reset:false}")
+    @Value("${juniter.init:false}")
     private boolean reset;
 
 
@@ -63,15 +63,23 @@ public class BlockLoader implements CommandLineRunner, BlockLocalValid {
                 .findAny();
     }
 
+    private boolean bulkLoadOn = false;
 
+    public boolean bulkLoadOn(){
+        return bulkLoadOn;
+    }
+
+    @Async
     @Transactional
-    private void bulkLoad() {
-
+    public void bulkLoad() {
+        bulkLoadOn = true;
+        if (reset) resetBlockinDB();
 
         final var start = System.nanoTime();
         final var currentNumber = fetchAndSaveBlock("current").getNumber();
         if (blockRepo.count() > currentNumber * 0.9) {
             LOG.warn(" = Ignore bulk loading " + blockRepo.count() + " blocks");
+            bulkLoadOn = false;
             return;
         }
 
@@ -118,6 +126,7 @@ public class BlockLoader implements CommandLineRunner, BlockLocalValid {
         return blockRepo.localSave(block).orElse(block);
     }
 
+    private ArrayList<String> blacklistHosts = new ArrayList<>();
 
     /**
      * Fetch a block and save it synchronously
@@ -125,8 +134,7 @@ public class BlockLoader implements CommandLineRunner, BlockLocalValid {
      * @param id the block id
      */
     @Transactional
-    public Block fetchBlock(String id) {
-        final var blacklistHosts = new ArrayList<String>();
+    Block fetchBlock(String id) {
         String url = null;
         Block block = null;
         final var attempts = 0;
@@ -136,7 +144,6 @@ public class BlockLoader implements CommandLineRunner, BlockLocalValid {
 
             final var host = anyNotIn(blacklistHosts);
             if (host.isPresent()) {
-                blacklistHosts.add(host.get());
                 try {
                     url = host.get() + "blockchain/" + id;
                     block = restTemplate.getForObject(url, Block.class);
@@ -145,6 +152,8 @@ public class BlockLoader implements CommandLineRunner, BlockLocalValid {
                     LOG.info("  Fetched ... : " + id);
 
                 } catch (Exception e) {
+                    blacklistHosts.add(host.get());
+
                     LOG.error("Retrying : Net error accessing node " + url + " " + e.getMessage());
                 }
             }
@@ -159,12 +168,12 @@ public class BlockLoader implements CommandLineRunner, BlockLocalValid {
     /**
      * uses /blockchain/blocks/[count]/[from]
      *
-     * @param bulkSize
-     * @param i
-     * @return
+     * @param bulkSize:
+     * @param i;
+     * @return .
      */
     @Transactional
-    public List<Block> fetchBlocks(int bulkSize, int i) {
+    List<Block> fetchBlocks(int bulkSize, int i) {
         List<Block> body = null;
         final var blacklistHosts = new ArrayList<String>();
         String url = null;
@@ -183,6 +192,10 @@ public class BlockLoader implements CommandLineRunner, BlockLocalValid {
 
                 body = responseEntity.getBody();
 
+                assert body != null;
+                if(body.size()!=bulkSize) {
+                    throw new Exception();
+                }
 
                 final var contentType = responseEntity.getHeaders().getContentType().toString();
                 final var statusCode = responseEntity.getStatusCode().getReasonPhrase();
@@ -197,17 +210,15 @@ public class BlockLoader implements CommandLineRunner, BlockLocalValid {
 
             } catch (final RestClientException e) {
                 LOG.error("fetchBlocks failed - RestClientException at " + url + " retrying .. ");
-                continue;
+
             } catch (final Exception e) {
                 LOG.error("fetchBlocks failed at " + url + " retrying .. ");
-                continue;
+
             }
 
 
         }
-
-
-        return null;
+        return new ArrayList<>();
     }
 
     public Optional<Block> fetchOrRetry(String id) {
@@ -228,32 +239,18 @@ public class BlockLoader implements CommandLineRunner, BlockLocalValid {
         return configuredNodes.get(ai);
     }
 
-    @Override
-    public void run(String... args) {
-        final var start = System.nanoTime();
-
-        LOG.info("Entering: blockloader.run reset ? " + reset);
-
-
-        if (reset) reset();
-
-        bulkLoad();
-
-        final var elapsed = Long.divideUnsigned(System.nanoTime() - start, 1000000);
-        LOG.info("Elapsed time: " + TimeUtils.format(elapsed));
-    }
 
 
     @Transactional
-    private void reset() {
-
+    private void resetBlockinDB() {
         LOG.info(" === Reseting DB "+ blockRepo.findAll().size());
+        blockRepo.deleteAllInBatch();
         blockRepo.findAll().forEach(b -> {
             blockRepo.delete(b);
             LOG.info("deleted " + b.getNumber());
 
         });
-        blockRepo.deleteAll();
+
         LOG.info(" === Reseting DB - DONE ");
 
     }

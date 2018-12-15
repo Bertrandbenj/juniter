@@ -1,18 +1,18 @@
 package juniter.core.model.wot;
 
-import java.io.Serializable;
-
-import javax.persistence.AttributeOverride;
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.validation.Valid;
-
+import juniter.core.model.BStamp;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import juniter.core.model.BStamp;
-import juniter.core.model.Pubkey;
+import javax.persistence.Embeddable;
+import java.io.Serializable;
 
+@Getter
+@Setter
+@NoArgsConstructor
 @Embeddable
 public class Joiner implements Serializable, Comparable<Joiner> {
 
@@ -20,81 +20,60 @@ public class Joiner implements Serializable, Comparable<Joiner> {
 
 	private static final long serialVersionUID = 4413010134970991059L;
 
-	//	@Column(name = "joiner", nullable = true, length = 350)
-	//	private String joiner;
 
-	@Valid
-	@AttributeOverride(name = "pubkey", column = @Column(name = "joinerKey"))
-	private Pubkey joinerKey = new Pubkey();
+	private String pubkey;
 
 	private String signature;
 
-	@Valid
-	//	@Embedded
-	//	@AttributeOverride(name = "stamp", column = @Column(name = "hash"))
-	//	    @AttributeOverrides( {
-	//	        @AttributeOverride(name="buid1.number", column = @Column(name="") ),
-	//	        @AttributeOverride(name="foundedFromOwnResources.amount", column = @Column(name="previousReport_foundedFromOwnResources")),
-	//	        @AttributeOverride(name="personalContribution.amount", column = @Column(name="previousReport_personalContribution"))
-	//	    } )
-	private String m_block_uid;// = new BStamp();
+	private String createdOn;
 
-	//	@Valid
-	//	@AttributeOverride(name = "buid2", column = @Column(name = "buid2"))
 	private String i_block_uid;
 
 	private String pseudo;
 
-	public Joiner() {
 
-	}
 
 	public Joiner(String joiner) {
-		setJoiner(joiner);
+		LOG.debug("Parsing Joiner... " + joiner);
+		final var vals = joiner.split(":");
+		pubkey = vals[0];
+		signature = vals[1];
+		createdOn = vals[2];
+		i_block_uid = vals[3];
+		pseudo = vals[4];
 	}
 
-	public String bstamp() {
-		return m_block_uid;
-	}
 
 	@Override
 	public int compareTo(Joiner o) {
-		return joinerKey.getPubkey().compareTo(o.joinerKey.getPubkey());
+		return pubkey.compareTo(o.pubkey);
 	}
 
+
+
+	public String bstamp() { return createdOn; }
 	public BStamp createdOn() {
-		return new BStamp(m_block_uid);
-	}
-
-	public String getJoiner() {
-		return joinerKey + ":" + signature + ":" + m_block_uid + ":" + i_block_uid + ":" + pseudo;
+		return new BStamp(createdOn);
 	}
 
 	public String pseudo() {
 		return pseudo;
 	}
-
 	public String pub() {
-		return joinerKey.getPubkey();
+		return pubkey;
+	}
+	public String signature() {
+		return signature;
 	}
 
-	public void setJoiner(String joiner) {
-		LOG.debug("Parsing Joiner... " + joiner);
-		final var vals = joiner.split(":");
-		joinerKey.setPubkey(vals[0]);
-		signature = vals[1];
-		m_block_uid = vals[2];
-		i_block_uid = vals[3];
-		pseudo = vals[4];
-	}
 
 	public String toDUP() {
-		return getJoiner();
+		return pubkey + ":" + signature + ":" + createdOn + ":" + i_block_uid + ":" + pseudo;
 	}
 
 	@Override
 	public String toString() {
-		return getJoiner();
+		return toDUP();
 	}
 
 	public BStamp writtenOn() {

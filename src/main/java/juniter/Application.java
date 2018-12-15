@@ -1,6 +1,6 @@
 package juniter;
 
-import juniter.service.front.AdminFX;
+import juniter.service.adminfx.FrontPage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -44,8 +44,8 @@ public class Application {
 
         var useJavaFX = context.getEnvironment().getProperty("juniter.useJavaFX", Boolean.class);
         if (useJavaFX) {
-            AdminFX.launchGUI(AdminFX.class, context);
-            LOG.info("!!! AdminFX.launchGUI !!!");
+            FrontPage.launchGUI(FrontPage.class, context);
+            LOG.info("!!! FrontPage.launchGUI !!!");
         }
 
 

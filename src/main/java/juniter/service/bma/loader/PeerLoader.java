@@ -11,7 +11,7 @@ import juniter.repository.jpa.PeersRepository;
 import juniter.service.bma.NetworkService;
 import juniter.service.bma.dto.PeerBMA;
 import juniter.service.bma.dto.PeersDTO;
-import juniter.service.front.AdminFX;
+import juniter.service.adminfx.FrontPage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +24,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -120,7 +121,7 @@ public class PeerLoader {
         var maxBlockDB = blockRepo.currentBlockNumber();
 
         if(maxBlockPeer.isPresent())
-            AdminFX.loadUpdater.setValue(maxBlockDB * 1.0 / maxBlockPeer.getAsLong());
+            FrontPage.loadUpdater.setValue(maxBlockDB * 1.0 / maxBlockPeer.getAsLong());
 
 
         final var elapsed = Long.divideUnsigned(System.nanoTime() - start, 1000000);
@@ -131,11 +132,10 @@ public class PeerLoader {
     }
 
     @Transactional
-    @Scheduled(fixedDelay = 5 * 60 * 1000)
+    @Async
     public void doPairing() {
 
         LOG.info("Entering doPairing " + endPointRepo.endpointsBMAS().count());
-
 
         var max = endPointRepo.endpointsBMAS()
                 .parallel()

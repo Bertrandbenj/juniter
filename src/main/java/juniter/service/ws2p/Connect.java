@@ -1,15 +1,13 @@
 package juniter.service.ws2p;
 
-import java.io.Serializable;
-import java.util.UUID;
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import juniter.core.crypto.Crypto;
+import juniter.core.crypto.SecretBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import juniter.core.crypto.Crypto;
-import juniter.core.crypto.SecretBox;
+import java.io.Serializable;
+import java.util.UUID;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Connect implements Serializable {
@@ -74,7 +72,8 @@ public class Connect implements Serializable {
 	}
 
 	/**
-	 * JSON format
+	 *
+	 * @return the json Connect string
 	 */
 	public String connectJson() {
 		return "{\"auth\":\"" + "CONNECT" + //

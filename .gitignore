@@ -7,7 +7,6 @@ src/main/resources/static/dot/*
 /build/
 /.gradle/
 /bin/
-docs/javadoc
 *.interp
 *.tokens
 /.settings/

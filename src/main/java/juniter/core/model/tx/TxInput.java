@@ -1,19 +1,14 @@
 package juniter.core.model.tx;
 
-import java.io.Serializable;
-
-import javax.persistence.AttributeOverride;
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.validation.Valid;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-
 import juniter.core.model.DUPComponent;
 import juniter.core.model.Hash;
 import juniter.core.model.Pubkey;
+
+import javax.persistence.*;
+import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import java.io.Serializable;
 
 //@JsonIgnoreProperties(ignoreUnknown = true)
 @Embeddable

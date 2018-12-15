@@ -19,7 +19,7 @@ juniter:
   useJavaFX: true
   indexer: true
   useDefaultLoader: true
-##  reset: true     # default false
+##  init: true     # default false
 
 spark:
   master: local[*]
@@ -58,7 +58,7 @@ spring:
 #    bootstrap-servers: kafka:9092  
     consumer:
       group-id: juniter
-#      auto-offset-reset: earliest   
+#      auto-offset-init: earliest
 
      
 
