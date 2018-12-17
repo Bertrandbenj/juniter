@@ -4,9 +4,11 @@ It is not yet a calculating node of the network
 
 ## Try it 
 
- - [test online](https://juniter.bnimajneb.online:8443/html)
- - [report, feedbacks](https://github.com/Bertrandbenj/juniter/issues/new)
- - [Presentation Juniter](http://bertrandbenjamin.com/juniter/presentation/)
+ - [Test Service](https://juniter.bnimajneb.online:8443/html)
+ - [Report, Feedbacks](https://github.com/Bertrandbenj/juniter/issues/new)
+ - [1st Presentation](http://bertrandbenjamin.com/juniter/presentation/)
+ - [Javadoc](http://bertrandbenjamin.com/juniter/javadoc/index.html?overview-summary.html)
+
 
 ## Features (in progress )
  - Database: Postgresql  

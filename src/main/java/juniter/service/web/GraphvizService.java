@@ -1,7 +1,6 @@
 package juniter.service.web;
 
 import juniter.core.model.Block;
-import juniter.core.model.Pubkey;
 import juniter.core.model.tx.*;
 import juniter.repository.jpa.BlockRepository;
 import juniter.repository.jpa.CertsRepository;
@@ -193,7 +192,7 @@ public class GraphvizService {
 						+ "\t\t\tgraph [rankdir=LR, style=dotted, color=black]\n" //
 						+ "\t\t\tlabelloc=\"t\";\n" //
 						+ "\t\t\tlabel=\"Transactions\";";
-//						+ "\t\t\t" + prefix + "tx [label=\"Transaction\", shape=circle];\n"; //
+//						+ "\t\t\t" + prefix + "tx [label=\"TransactionDTO\", shape=circle];\n"; //
 
 				for (final Transaction tx : b.getTransactions()) {
 					sub += "\t\t\ttx" + tx.getThash() + " [label=\"  "
@@ -211,7 +210,7 @@ public class GraphvizService {
 			}
 
 			if (b.getIdentities().size() > 0) {
-				sub += "\t\t" + prefix + "idty [label=\"Idty: " + b.getIdentities().size() + "\", shape=octagon];\n";
+				sub += "\t\t" + prefix + "reduceI [label=\"Idty: " + b.getIdentities().size() + "\", shape=octagon];\n";
 			}
 
 			if (b.getExcluded().size() > 0) {
@@ -582,7 +581,7 @@ public class GraphvizService {
 				links += "\t\t_dest" + dest + " [label=\"" + mini(dest)
 						+ "\", weight=0, shape=pentagon, fontsize=9];\n";
 
-				if (tx.getIssuers().stream().map(p -> p.getPubkey()).anyMatch(s -> dest.equals(s))) { // is Issuer?
+				if (tx.getIssuers().stream().map(p -> p).anyMatch(s -> dest.equals(s))) { // is Issuer?
 					links += "\t\tamountOut" + i + " -> _dest" + dest + " [weight=0, label=\"the rest\"];\n";
 				} else {
 					links += "\t\tamountOut" + i + " -> _dest" + dest + " [weight=0];\n";
@@ -609,11 +608,11 @@ public class GraphvizService {
 
 //			res += "\t\tlockOut" + out.hashCode() + " -> amountOut" + i + ";\n";
 //		}
-		for (final Pubkey issuer : tx.getIssuers()) {
-			res += "\t_" + issuer.getPubkey() + " [label=\"issuer\\n" + mini(issuer.getPubkey())
+		for (final String issuer : tx.getIssuers()) {
+			res += "\t_" + issuer + " [label=\"issuer\\n" + mini(issuer)
 					+ "\", shape=pentagon];\n";
 //			res += "\t_" + issuer.getPubkey() + " -> cluster_inputs;\n";
-			res += "\t{rank = same; _" + issuer.getPubkey() + "; buyer;}\n";
+			res += "\t{rank = same; _" + issuer + "; buyer;}\n";
 
 		}
 		res += "\t{rank = same; good; sum; info};\n";

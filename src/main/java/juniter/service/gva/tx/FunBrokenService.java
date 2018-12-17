@@ -29,7 +29,7 @@ public class FunBrokenService {
 	private TxRepository txRepository;
 
 	@Transactional
-	@GraphQLQuery(name = "findByCommentIsNotNull", description = "find a Transaction having more than one issuer")
+	@GraphQLQuery(name = "findByCommentIsNotNull", description = "find a TransactionDTO having more than one issuer")
 	public List<Transaction> findByCommentIsNotNull() {
 		try (var txs = txRepository.findTxsHavingComment().limit(10)) {
 			return txs.collect(Collectors.toList());
@@ -40,7 +40,7 @@ public class FunBrokenService {
 	}
 
 	@Transactional
-	@GraphQLQuery(name = "findTxsHavingTxInput", description = "find a Transaction having more than one issuer")
+	@GraphQLQuery(name = "findTxsHavingTxInput", description = "find a TransactionDTO having more than one issuer")
 	public List<Transaction> findTxsHavingTxInput() {
 		try (var txs = txRepository.findTxsHavingTxInput().limit(10)) {
 			return txs.collect(Collectors.toList());
@@ -51,7 +51,7 @@ public class FunBrokenService {
 	}
 
 	@Transactional
-	@GraphQLQuery(name = "findTxsWithMultipleOutputs", description = "find a Transaction having more than one issuer")
+	@GraphQLQuery(name = "findTxsWithMultipleOutputs", description = "find a TransactionDTO having more than one issuer")
 	public List<Transaction> findTxsWithMultipleOutputs() {
 		try (var txs = txRepository.findTxsWithMultipleOutputs().limit(10)) {
 			return txs.collect(Collectors.toList());
@@ -62,7 +62,7 @@ public class FunBrokenService {
 	}
 
 	@Transactional
-	@GraphQLQuery(name = "findTxToOneself", description = "find a Self Transaction having one input issuer equals to the output issuer ")
+	@GraphQLQuery(name = "findTxToOneself", description = "find a Self TransactionDTO having one input issuer equals to the output issuer ")
 	public List<Transaction> findTxToOneself() {
 		try (var txs = txRepository.findTxOneAndSameIssuerAndDest().limit(10)) {
 			return txs.collect(Collectors.toList());
@@ -73,7 +73,7 @@ public class FunBrokenService {
 	}
 
 	@Transactional
-	@GraphQLQuery(name = "findTxWithMultipleIssuers", description = "find a Transaction having more than one issuer")
+	@GraphQLQuery(name = "findTxWithMultipleIssuers", description = "find a TransactionDTO having more than one issuer")
 	public List<Transaction> findTxWithMultipleIssuers() {
 		try (var txs = txRepository.findTxWithMultipleIssuers().limit(10)) {
 			return txs.collect(Collectors.toList());
@@ -84,7 +84,7 @@ public class FunBrokenService {
 	}
 
 	@Transactional
-	@GraphQLQuery(name = "findTxWithOtherThanSig", description = "find a Transaction having more than one issuer")
+	@GraphQLQuery(name = "findTxWithOtherThanSig", description = "find a TransactionDTO having more than one issuer")
 	public List<Transaction> findTxWithOtherThanSig() {
 		try (var txs = txRepository.findTxWithOtherThanSig().limit(10)) {
 			return txs.collect(Collectors.toList());

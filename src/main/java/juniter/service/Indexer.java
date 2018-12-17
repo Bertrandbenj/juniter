@@ -1,20 +1,21 @@
 package juniter.service;
 
+import javafx.application.Platform;
+import juniter.core.utils.MemoryUtils;
 import juniter.core.utils.TimeUtils;
 import juniter.repository.jpa.BlockRepository;
 import juniter.repository.jpa.index.Index;
-import juniter.service.bma.loader.BlockLoader;
 import juniter.service.adminfx.FrontPage;
+import juniter.service.bma.loader.BlockLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
 
 @ConditionalOnExpression("${juniter.indexer:false}")
 @Service
@@ -22,8 +23,7 @@ public class Indexer {
 
     private Logger LOG = LogManager.getLogger();
 
-    @Autowired
-    public Index index;
+    @Autowired public Index index;
 
     @Autowired
     BlockRepository blockRepo;
@@ -34,7 +34,7 @@ public class Indexer {
 
 
 
-    @Transactional
+    //@Transactional
     @Async
     public void indexUntil(int syncUntil ) {
 
@@ -45,24 +45,33 @@ public class Indexer {
         final long time = System.currentTimeMillis();
         long delta = System.currentTimeMillis() - time;
         final var current = blockRepo.currentBlockNumber();
+        Platform.runLater(() -> FrontPage.maxDBBlock.setValue(current));
+
+
+
         final DecimalFormat decimalFormat = new DecimalFormat("##.###%");
 
 
         for (int i = 0; i <= syncUntil; i++) {
             final int finali = i;
+            Platform.runLater(() -> FrontPage.currentBindex.setValue(finali));
+
             final var block = blockRepo.cachedBlock(i)
                     .orElseGet(()->blockLoader.fetchAndSaveBlock(finali));
 
             try{
                 if (index.validate(block)) {
                     LOG.debug("Validated " + block);
+                    //Platform.runLater(() -> FrontPage.indexLogMessage.setValue("Validated " + block));
                 }else{
-                    LOG.warn("NOT Valid " + block);
+                    LOG.warn("ERROR Validating " + block);
+                    Platform.runLater(() -> FrontPage.indexLogMessage.setValue("ERROR Validating " + block));
+
                     break;
                 }
             }catch(AssertionError | Exception e){
                 LOG.warn("error validating block " + block, e);
-
+                Platform.runLater(() -> FrontPage.indexLogMessage.setValue("ERROR Validating " + block));
                 break;
             }
 
@@ -72,12 +81,14 @@ public class Indexer {
                 final var perBlock = delta / i;
                 final var estimate = current * perBlock;
                 final String perc = decimalFormat.format(1.0 * i / current);
-                FrontPage.indexUpdater.setValue(1.0 * i / current);
-                LOG.info(perc + ", elapsed time " + TimeUtils.format(delta) + " which is " + perBlock
-                        + " ms per block validated, estimating: " + TimeUtils.format(estimate) + " total");
+
+                var log = perc + ", elapsed time " + TimeUtils.format(delta) + " which is " + perBlock
+                        + " ms per block validated, estimating: " + TimeUtils.format(estimate) + " total";
+
+                LOG.info(log);
+                Platform.runLater(() -> FrontPage.indexLogMessage.setValue(log));
 
 
-                LOG.info("Memory usage" + memInfo());
             }
         }
 
@@ -87,26 +98,12 @@ public class Indexer {
 
     }
 
-    public String memInfo() {
-        NumberFormat format = NumberFormat.getInstance();
-        StringBuilder sb = new StringBuilder();
-        long maxMemory = Runtime.getRuntime().maxMemory();
-        long allocatedMemory = Runtime.getRuntime().totalMemory();
-        long freeMemory = Runtime.getRuntime().freeMemory();
-        sb.append("Free memory: ");
-        sb.append(format.format(freeMemory / 1024));
-        sb.append("\n");
-        sb.append("Allocated memory: ");
-        sb.append(format.format(allocatedMemory / 1024));
-        sb.append("\n");
-        sb.append("Max memory: ");
-        sb.append(format.format(maxMemory / 1024));
-        sb.append("\n");
-        sb.append("Total free memory: ");
-        sb.append(format.format((freeMemory + (maxMemory - allocatedMemory)) / 1024));
-        sb.append("\n");
-        return sb.toString();
 
+
+    @Scheduled(fixedRate = 60*1000)
+    public void checkMemory(){
+        LOG.info(MemoryUtils.memInfo());
     }
+
 
 }

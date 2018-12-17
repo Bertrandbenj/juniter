@@ -15,7 +15,7 @@ public interface TxRepository extends JpaRepository<Transaction, Long> {
 	Logger LOG = LogManager.getLogger();
 
 //	@Override
-//	Optional<Transaction> findById(Long id);
+//	Optional<TransactionDTO> findById(Long id);
 
 	@Query("select t from Transaction t where thash = ?1")
 	List<Transaction> findByTHash(String hash);
@@ -27,8 +27,8 @@ public interface TxRepository extends JpaRepository<Transaction, Long> {
 				.filter(t -> {
 					final var iss = t.getIssuers().iterator().next();
 					final var dest = t.getOutputs().iterator().next();
-					LOG.info(iss.getPubkey() + " " + dest.getOutputCondition());
-					return iss.getPubkey().equals(dest.getOutputCondition());
+					LOG.info(iss + " " + dest.getOutputCondition());
+					return iss.equals(dest.getOutputCondition());
 				});
 	}
 
@@ -60,13 +60,8 @@ public interface TxRepository extends JpaRepository<Transaction, Long> {
     @Query("select t from Transaction t")
 	Stream<Transaction> streamAll();
 
-	/**
-	 * Received by transactions
-	 *
-	 * @param pubkey as String or PubKey
-	 * @return
-	 */
-	default Stream<Transaction> streamTransactionReceivedBy(Object pubkey) {
+	@Query("select t from Transaction t where consumed = false ")
+	default Stream<Transaction> transactionsOfReceiver(String pubkey) {
 		return streamAll().filter(t -> t.txReceivedBy(pubkey));
 	}
 
@@ -76,7 +71,7 @@ public interface TxRepository extends JpaRepository<Transaction, Long> {
 	 * @param pubkey as String or PubKey
 	 * @return
 	 */
-	default Stream<Transaction> streamTransactionSentBy(Object pubkey) {
+	default Stream<Transaction> transactionsOfIssuer(Object pubkey) {
 		return streamAll().filter(t -> t.txSentBy(pubkey));
 	}
 

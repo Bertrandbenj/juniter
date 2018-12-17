@@ -60,13 +60,13 @@ public class TxService {
 		List<Transaction> sending = new ArrayList<Transaction>();
 		List<Transaction> pending = new ArrayList<Transaction>();
 
-		try (var s = repository.streamTransactionSentBy(pubkey)) {
+		try (var s = repository.transactionsOfIssuer(pubkey)) {
 			sent.addAll(s.collect(Collectors.toList()));
 		} catch (Exception e) {
 			LOG.error("tx/history TransactionSentBy ", e);
 		}
 
-		try (var s = repository.streamTransactionReceivedBy(pubkey)) {
+		try (var s = repository.transactionsOfReceiver(pubkey)) {
 			received.addAll(s.collect(Collectors.toList()));
 		} catch (Exception e) {
 			LOG.error("tx/history TransactionReceivedBy ", e);

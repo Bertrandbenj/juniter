@@ -8,9 +8,7 @@ import java.util.stream.Stream;
 
 public interface CertsRepository extends JpaRepository<Certification, Long> {
 
-//	@Override
-//	Optional<Transaction> findById(Long id);
-	
+
 	@Query("select t from Certification t where certified = ?1 ")
 	Stream<Certification> streamCertifiersOf(String pubkeyOrUid);
 

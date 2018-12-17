@@ -56,9 +56,11 @@ public class RAMIndex implements GlobalValid, Serializable {
 		return blockRepo.cachedBlock(number);
 	}
 
+
 	@Override
-	public boolean commit(BINDEX indexB, Set<IINDEX> indexI, Set<MINDEX> indexM, Set<CINDEX> indexC,
-						  Set<SINDEX> indexS) {
+	public boolean commit(BINDEX indexB, Set<IINDEX> indexI, Set<MINDEX> indexM, Set<CINDEX> indexC, Set<SINDEX> indexS,
+						  List<IINDEX> consumeI, List<MINDEX> consumeM, List<CINDEX> consumeC, List<SINDEX> consumeS) {
+
 
 		indexCG.addAll(indexC);
 		indexMG.addAll(indexM);
@@ -71,7 +73,7 @@ public class RAMIndex implements GlobalValid, Serializable {
 		LOG.info("Commit -  Certs: +" + indexC.size() + "," + indexCG.size() + //
 				"  Membship: +" + indexM.size() + "," + indexMG.size() + //
 				"  Idty: +" + indexI.size() + "," + indexIG.size() + //
-				"  IndexS: +" + indexS.size() + "," + indexSG.size() + //
+				"  localS: +" + indexS.size() + "," + indexSG.size() + //
 				"  IndexB: +" + indexB);
 
 		return true;

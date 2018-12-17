@@ -434,27 +434,27 @@ A Transaction structure is considered *valid* if:
   * `AMOUNT:BASE:T:T_HASH:T_INDEX` format
 * Field `Unlocks` is a multiline field whose lines follow `INDEX:UL_CONDITIONS` format:
   * `IN_INDEX` must be an integer value
-  * `UL_CONDITIONS` must be a valid [Input Condition](#input-condition)
+  * `UL_CONDITIONS` must be a valid [Input Condition](#input-conditions)
 * Field `Outputs` is a multiline field whose lines follow `AMOUNT:BASE:CONDITIONS` format:
   * `AMOUNT` must be an integer value
   * `BASE` must be an integer value
-  * `CONDITIONS` must be a valid [Output Condition](#output-condition)
+  * `CONDITIONS` must be a valid [Output Condition](#output-conditions)
 * Field `Comment` is a string of maximum 255 characters, exclusively composed of alphanumeric characters, space, `-`, `_`, `:`, `/`, `;`, `*`, `[`, `]`, `(`, `)`, `?`, `!`, `^`, `+`, `=`, `@`, `&`, `~`, `#`, `{`, `}`, `|`, `\`, `<`, `>`, `%`, `.`. Must be present even if empty.
 
-#### Input condition
+#### Input conditions
 
 It is a suite of values each separated by a space "` `". Values must be either a `SIG(INDEX)` or `HXH(INTEGER)`.
 
-If no values are provided, the valid input condition is an empty string.
+If no values are provided, the valid input conditions is an empty string.
 
-##### Input condition examples
+##### Input conditions examples
 
 * `SIG(0)`
 * `XHX(73856837)`
 * `SIG(0) SIG(2) XHX(343)`
 * `SIG(0) SIG(2) SIG(4) SIG(6)`
 
-#### Output condition
+#### Output conditions
 
 It follows a machine-readable BNF grammar composed of
 
@@ -463,9 +463,9 @@ It follows a machine-readable BNF grammar composed of
 * `SIG(PUBLIC_KEY)`, `XHX(SHA256_HASH)`, `CLTV(INTEGER)`, `CSV(INTEGER)` functions
 * ` ` space
 
-**An empty condition or a condition fully composed of spaces is considered an invalid output condition**.
+**An empty conditions or a conditions fully composed of spaces is considered an invalid output conditions**.
 
-##### Output condition examples
+##### Output conditions examples
 
 * `SIG(HgTTJLAQ5sqfknMq7yLPZbehtuLSsKj9CxWN7k8QvYJd)`
 * `(SIG(HgTTJLAQ5sqfknMq7yLPZbehtuLSsKj9CxWN7k8QvYJd) && XHX(309BC5E644F797F53E5A2065EAF38A173437F2E6))`
@@ -567,9 +567,9 @@ Unlock `SIG(INDEX)` returns TRUE if `Signatures[INDEX]` is a valid valid signatu
 This function is a control over the signature.
 
 * in an `Output` of a transaction TX1, `SIG(PUBKEY_A)` requires from a future transaction TX2 unlocking the output to give as parameter a valid signature of TX2 by `PUBKEY_A`
-  * if TX2 does not give `SIG(INDEX)` parameter as [matching parameter](#condition-matching), the condition fails
-  * if TX2's `Issuers[INDEX]` does not equal `PUBKEY_A`, the condition fails
-  * if TX2's `SIG(INDEX)` does not return TRUE, the condition fails
+  * if TX2 does not give `SIG(INDEX)` parameter as [matching parameter](#conditions-matching), the conditions fails
+  * if TX2's `Issuers[INDEX]` does not equal `PUBKEY_A`, the conditions fails
+  * if TX2's `SIG(INDEX)` does not return TRUE, the conditions fails
 * in an `Unlock` of TX2, `SIG(INDEX)` returns TRUE if `Signatures[INDEX]` is a valid signature of TX2 against `Issuers[INDEX]`
 
 So if we have, in TX1:
@@ -601,7 +601,7 @@ Where:
 * `SIG(0)` refers to the signature of `Issuers[0]`, here `BYfWYFrsyjpvpFysgu19rGK3VHBkz4MqmQbNyEuVU64g`
 * `6991C993631BED4733972ED7538E41CCC33660F554E3C51963E2A0AC4D6453D3` is the hash of TX1.
 
-The necessary condition `SIG(BYfWYFrsyjpvpFysgu19rGK3VHBkz4MqmQbNyEuVU64g)` is matched here if **both**:
+The necessary conditions `SIG(BYfWYFrsyjpvpFysgu19rGK3VHBkz4MqmQbNyEuVU64g)` is matched here if **both**:
 
 * the sufficient proof `SIG(0)` is a valid signature of TX2 against `Issuers[0]` public key
 * `Issuers[0] = BYfWYFrsyjpvpFysgu19rGK3VHBkz4MqmQbNyEuVU64g`

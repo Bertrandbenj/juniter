@@ -1,12 +1,13 @@
 package juniter.service.adminfx;
 
 import javafx.application.Platform;
-import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
@@ -17,11 +18,10 @@ import juniter.core.validation.StaticValid;
 import juniter.repository.jpa.BlockRepository;
 import juniter.service.Indexer;
 import juniter.service.adminfx.include.AbstractJuniterFX;
+import juniter.service.adminfx.include.ConfirmBox;
 import juniter.service.bma.loader.BlockLoader;
 import juniter.service.bma.loader.MissingBlocksLoader;
 import juniter.service.bma.loader.PeerLoader;
-import juniter.service.adminfx.include.ConfirmBox;
-import juniter.service.adminfx.include.Menu;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,13 +42,19 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
     private static final Logger LOG = LogManager.getLogger();
 
 
+    // updatable value from the outside
+    public static SimpleDoubleProperty currentBindex = new SimpleDoubleProperty(.0);
+    public static SimpleDoubleProperty maxDBBlock = new SimpleDoubleProperty(42.);
+    public static SimpleDoubleProperty maxPeerBlock = new SimpleDoubleProperty(42.);
+
+    public static SimpleStringProperty indexLogMessage = new SimpleStringProperty("here comes the log");
+
+
+    @FXML private Label indexLog;
 
     @FXML private TextField delSome;
 
     @FXML private TextField tstSome;
-
-    @FXML private Menu menuController;
-
 
 
 
@@ -60,11 +66,10 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
     @FXML private TextField indexTil;
     @FXML private ProgressBar indexBar;
     @FXML private ProgressIndicator indexIndic;
-    public static DoubleProperty indexUpdater = new SimpleDoubleProperty(.0);
 
     @FXML private ProgressBar loadBar ;
     @FXML private ProgressIndicator loadIndic;
-    public static DoubleProperty loadUpdater = new SimpleDoubleProperty(.0);
+
 
 
 
@@ -79,6 +84,8 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
             res = Integer.parseInt(indexTil.getText());
         }catch(Exception e){
             res = blockRepo.currentBlockNumber();
+            maxDBBlock.setValue(res);
+
         }
 
         indexer.indexUntil(res);
@@ -87,6 +94,7 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
     @FXML
     public void indexReset(){
         indexer.index.init(true);
+        currentBindex.setValue(0);
     }
 
     @Autowired
@@ -163,13 +171,9 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
             throw new IllegalStateException("BlockRepository was not injected properly");
         }
 
-
         BorderPane page = (BorderPane) load("/adminfx/FrontPage.fxml");
 
         Scene scene = new Scene(page);
-
-
-
 
         primaryStage.setTitle("Juniter - Admin panel ");
         primaryStage.setScene(scene);
@@ -180,16 +184,16 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
 
     }
 
-
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-        indexBar.progressProperty().bind(indexUpdater);
-        indexIndic.progressProperty().bind(indexUpdater);
+        indexBar.progressProperty().bind(currentBindex.divide(maxDBBlock));
+        indexIndic.progressProperty().bind(currentBindex.divide(maxDBBlock));
 
-        loadBar.progressProperty().bind(loadUpdater);
-        loadIndic.progressProperty().bind(loadUpdater);
+        loadBar.progressProperty().bind(maxDBBlock.divide(maxPeerBlock));
+        loadIndic.progressProperty().bind(maxDBBlock.divide(maxPeerBlock));
+
+        indexLog.textProperty().bind(indexLogMessage.concat(" - Bidx: ").concat(currentBindex).concat(" - DB: ").concat(maxDBBlock).concat(" - Peer: ").concat(maxPeerBlock.intValue()).concat(" - "));
 
     }
 
@@ -197,5 +201,10 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
     }
 
     public void revert1(ActionEvent actionEvent) {
+    }
+
+    @FXML
+    private void peerCheck(){
+        peerLoader.runPeerCheck();
     }
 }

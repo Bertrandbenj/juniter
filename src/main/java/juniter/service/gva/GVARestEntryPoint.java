@@ -33,16 +33,16 @@ public class GVARestEntryPoint {
 
 	private final GraphQL graphQL;
 
-	public GVARestEntryPoint(BlockService bService, TransactionService tService, WoTService wService, WoTService wMutate) {
+	public GVARestEntryPoint(BlockService bService, TransactionService tService,  WoTService wService) {
 
-		final GraphQLSchema schema = new GraphQLSchemaGenerator() //
+		final GraphQLSchema schema = new GraphQLSchemaGenerator()
 				.withBasePackages("juniter.graphql")
-				.withResolverBuilders(new AnnotatedResolverBuilder()) //
-				.withOperationsFromSingleton(bService, BlockService.class) //
-				.withOperationsFromSingleton(tService, TransactionService.class) //
-				.withOperationsFromSingleton(wService, WoTService.class) //
-				//.withOperationsFromSingleton(wMutate, WoTMutation.class) //
-				.withValueMapperFactory(new JacksonValueMapperFactory()) //
+				.withResolverBuilders(new AnnotatedResolverBuilder())
+				.withOperationsFromSingleton(bService, BlockService.class)
+				.withOperationsFromSingleton(tService, TransactionService.class)
+				.withOperationsFromSingleton(wService, WoTService.class)
+				//.withOperationsFromSingleton(wMutate, WoTMutation.class)
+				.withValueMapperFactory(new JacksonValueMapperFactory())
 
 				.generate();
 

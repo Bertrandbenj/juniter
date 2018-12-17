@@ -143,8 +143,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
     * HEAD: the BINDEX top entry (generated for incoming block, precisely)
     * HEAD~1: the BINDEX 1st entry before HEAD (= entry where ENTRY.number  = HEAD.number - 1)
     * HEAD~n: the BINDEX nth entry before HEAD (= entry where ENTRY.number = HEAD.number - n)
-    * HEAD~n[field=value, ...]: the BINDEX entry at HEAD~n if it fulfills the condition, null otherwise
-    * HEAD~n..m[field=value, ...]: the BINDEX entries between HEAD~n and HEAD~m, included, where each entry fulfills the condition
+    * HEAD~n[field=value, ...]: the BINDEX entry at HEAD~n if it fulfills the conditions, null otherwise
+    * HEAD~n..m[field=value, ...]: the BINDEX entries between HEAD~n and HEAD~m, included, where each entry fulfills the conditions
     * HEAD~n.property: get a BINDEX entry property. Ex.: HEAD~1.hash looks at the hash of the entry preceding HEAD.
     * (HEAD~n..m).property: get all the values of property in BINDEX for  entries between HEAD~n and HEAD~m, included.
     * (HEAD~..).property: same, but and are variables to be computed
@@ -161,7 +161,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
           * UNIQ returns a list of the unique values in a list of values
           * PICK returns a list of the values by picking a particular property on each record
           * INTEGER_PART return the integer part of a number
-          * FIRST return the first element in a list of values matching the given condition
+          * FIRST return the first element in a list of values matching the given conditions
           * REDUCE merges a set of elements into a single one, by extending the non-null properties from each record into the resulting record.
           * REDUCE_BY merges a set of elements into a new set, where each new element is the reduction of the first set sharing a given key.
           * CONCAT concatenates two sets of elements into a new one

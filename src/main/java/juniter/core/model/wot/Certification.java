@@ -2,7 +2,6 @@ package juniter.core.model.wot;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +11,6 @@ import java.io.Serializable;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @Entity
 @Table(name = "Certification", schema = "public")
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -34,6 +32,9 @@ public class Certification implements Serializable, Comparable<Certification> {
 
 	private String signature;
 
+
+
+	public Certification(){}
 
 	public Certification(String certif) {
 		LOG.debug("Parsing certif ... " + certif);

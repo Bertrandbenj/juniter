@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Repository to manage {@link IINDEX} instances.
@@ -14,11 +16,24 @@ public interface IINDEXRepository extends JpaRepository<IINDEX, Long> {
     @Override
     List<IINDEX> findAll();
 
-    @Query(value = "SELECT i from IINDEX i WHERE hash = ?1 ")
-    IINDEX pendingIdentityByHash(String hash);
+    @Query(value = "SELECT iindex from IINDEX iindex WHERE hash = ?1 ")
+    Stream<IINDEX> pendingIdentityByHash(String hash);
 
-    @Query(value = "SELECT i from IINDEX i WHERE member = TRUE AND ( uid = ?1 OR pubkey = ?2 ) ")
-    IINDEX memberByUidOrPubkey(String uid, String pubkey);
+    @Query(value = "SELECT iindex from IINDEX iindex WHERE  uid = ?1 OR pub = ?2 ")
+    Stream<IINDEX> byUidOrPubkey(String uid, String pubkey);
+
+    @Query(value = "SELECT iindex from IINDEX iindex WHERE  uid = ?1 ")
+    Stream<IINDEX> byUid(String uid);
+
+    @Query(value = "SELECT iindex from IINDEX iindex WHERE pub = ?1 ")
+    Stream<IINDEX> idtyByPubkey(String pubkey);
+
+    @Query(value = "SELECT iindex from IINDEX iindex WHERE pub = ?1 ")
+    Optional<IINDEX> findFirstByPubLike(String pub);
+
+    default Boolean idtyIsMember(String pubkey) {
+        return findFirstByPubLike(pubkey).map(i -> i.member).orElse(false);
+    }
 }
 
 	

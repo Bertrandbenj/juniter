@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import juniter.core.model.BStamp;
 import juniter.core.model.Pubkey;
 import juniter.core.model.Signature;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -18,6 +20,8 @@ import java.io.Serializable;
  *
  */
 @Entity
+@Getter
+@Setter
 @Table(name = "identity", schema = "public")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Identity implements Serializable, Comparable<Identity> {
@@ -48,8 +52,12 @@ public class Identity implements Serializable, Comparable<Identity> {
 	}
 
 	public Identity(String identity) {
-		setIdentity(identity);
-	}
+		LOG.debug("Parsing Identity... " + identity);
+		final var vals = identity.split(":");
+		newidentity.setPubkey(vals[0]);
+		signature.setSignature(vals[1]);
+		createdOn.parse(vals[2]);
+		pseudo = vals[3];	}
 
 	@Override
 	public int compareTo(Identity o) {
@@ -76,22 +84,13 @@ public class Identity implements Serializable, Comparable<Identity> {
 		return newidentity.getPubkey();
 	}
 
-//	public String toRaw() {
-//		return getIdentity();
-//	}
-
-	public void setIdentity(String identity) {
-		LOG.debug("Parsing Identity... " + identity);
-		final var vals = identity.split(":");
-		newidentity.setPubkey(vals[0]);
-		signature.setSignature(vals[1]);
-		createdOn.parse(vals[2]);
-		pseudo = vals[3];
+	public String toDUP() {
+		return newidentity.getPubkey() + ":" + signature.getSignature() + ":" + createdOn + ":" + pseudo;
 	}
 
 	@Override
 	public String toString() {
-		return newidentity.getPubkey() + ":" + signature.getSignature() + ":" + createdOn + ":" + pseudo;
+		return toDUP();
 	}
 
 }

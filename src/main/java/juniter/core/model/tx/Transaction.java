@@ -2,6 +2,7 @@ package juniter.core.model.tx;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.leangen.graphql.annotations.types.GraphQLType;
 import juniter.core.model.BStamp;
 import juniter.core.model.DUPComponent;
 import juniter.core.model.Pubkey;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "transaction", schema = "public")
 @JsonIgnoreProperties(ignoreUnknown = true)
+@GraphQLType(description = "core Transaction")
 public class Transaction implements Serializable, DUPComponent {
 
 	private static final Logger LOG = LogManager.getLogger();
@@ -124,8 +126,15 @@ public class Transaction implements Serializable, DUPComponent {
 	/**
 	 * @return the issuers
 	 */
-	public List<Pubkey> getIssuers() {
-		return issuers;// .stream().map(Pubkey::getPubkey).collect(Collectors.toList());
+	//public List<Pubkey> getIssuers() {
+	//	return issuers;// .stream().map(Pubkey::getPubkey).collect(Collectors.toList());
+	//}
+
+
+	public List<String> getIssuers() {
+		return issuers.stream()
+				.map(Pubkey::getPubkey)
+				.collect(Collectors.toList());
 	}
 
 	/**

@@ -24,118 +24,172 @@ import java.util.stream.Stream;
  * java
  *
  * @author BnimajneB
- *
  */
 @Service
 public class Index implements GlobalValid, Serializable {
 
 
-	private static final long serialVersionUID = 1321654987;
+    private static final long serialVersionUID = 1321654987;
 
-	private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger();
 
-	@Autowired
-	CINDEXRepository cRepo ;
+    @Autowired
+    CINDEXRepository cRepo;
 
-	@Autowired
-	IINDEXRepository iRepo ;
+    @Autowired
+    IINDEXRepository iRepo;
 
-	@Autowired
-	MINDEXRepository mRepo ;
+    @Autowired
+    MINDEXRepository mRepo;
 
-	@Autowired
-	SINDEXRepository sRepo ;
+    @Autowired
+    SINDEXRepository sRepo;
 
-	@Autowired
-	BINDEXRepository bRepo ;
+    @Autowired
+    BINDEXRepository bRepo;
 
-	@Autowired
-	private ModelMapper modelMapper;
+    @Autowired
+    private ModelMapper modelMapper;
 
-	@Autowired
-	BlockRepository blockRepo;
-
-
-
-	public void init(boolean resetDB){
-		if(resetDB){
-			cRepo.deleteAll();
-			iRepo.deleteAll();
-			mRepo.deleteAll();
-			sRepo.deleteAll();
-			bRepo.deleteAll();
-		}
-
-		resetLocalIndex();
-		IndexB.clear();
-		IndexB.addAll(indexBGlobal().collect(Collectors.toList()));
-		LOG.info(IndexB);
-
-	}
+    @Autowired
+    BlockRepository blockRepo;
 
 
+    @Transactional
+    public void init(boolean resetDB) {
+        if (resetDB) {
+            cRepo.deleteAll();
+            iRepo.deleteAll();
+            mRepo.deleteAll();
+            sRepo.deleteAll();
+            bRepo.deleteAll();
+        }
 
-	@Transactional(readOnly = true)
-	@Override
-	public Optional<Block> createdOnBlock(BStamp bstamp) {
-		return blockRepo.cachedBlock(bstamp.getNumber());
-	}
+        resetLocalIndex();
+        IndexB.clear();
+        IndexB.addAll(indexBGlobal().collect(Collectors.toList()));
+        LOG.info(IndexB);
 
-	@Override
-	public Optional<Block> createdOnBlock(Integer number) {
-		return blockRepo.cachedBlock(number);
-	}
-
-	@Override
-	public boolean commit(BINDEX indexB, Set<IINDEX> indexI, Set<MINDEX> indexM, Set<CINDEX> indexC,
-						  Set<SINDEX> indexS) {
-
-
-		bRepo.save(modelMapper.map(indexB, juniter.repository.jpa.index.BINDEX.class));
-		iRepo.saveAll(indexI.stream().map(i->modelMapper.map(i, juniter.repository.jpa.index.IINDEX.class)).collect(Collectors.toList()));
-		iig.addAll(indexI);
-		mRepo.saveAll(indexM.stream().map(i->modelMapper.map(i, juniter.repository.jpa.index.MINDEX.class)).collect(Collectors.toList()));
-		cRepo.saveAll(indexC.stream().map(i->modelMapper.map(i, juniter.repository.jpa.index.CINDEX.class)).collect(Collectors.toList()));
-		sRepo.saveAll(indexS.stream().map(i->modelMapper.map(i, juniter.repository.jpa.index.SINDEX.class)).collect(Collectors.toList()));
+    }
 
 
-		LOG.info("Commit -  Certs: +" + indexC.size() + "," + indexCGlobal().count() + //
-				"  Membship: +" + indexM.size() + "," + indexMGlobal().count() + //
-				"  Idty: +" + indexI.size() + "," + indexIGlobal().count() + //
-				"  IndexS: +" + indexS.size() + "," + indexSGlobal().count() + //
-				"  IndexB: +" + indexB);
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<Block> createdOnBlock(BStamp bstamp) {
+        return blockRepo.cachedBlock(bstamp.getNumber());
+    }
 
-		return true;
-	}
+    @Override
+    public Optional<Block> createdOnBlock(Integer number) {
+        return blockRepo.cachedBlock(number);
+    }
+
+    @Transactional
+    @Override
+    public boolean commit(BINDEX indexB,
+                          Set<IINDEX> indexI, Set<MINDEX> indexM, Set<CINDEX> indexC, Set<SINDEX> indexS,
+                          List<IINDEX> consumeI, List<MINDEX> consumeM, List<CINDEX> consumeC, List<SINDEX> consumeS) {
+
+        if (consumeS.size() > 0)
+            LOG.info("JACKPOT");
+
+        iRepo.deleteAll(consumeI.stream()
+                .map(i -> modelMapper.map(i, juniter.repository.jpa.index.IINDEX.class))
+                .collect(Collectors.toList()));
+
+        mRepo.deleteAll(consumeM.stream()
+                .map(i -> modelMapper.map(i, juniter.repository.jpa.index.MINDEX.class))
+                .collect(Collectors.toList()));
+
+        cRepo.deleteAll(consumeC.stream()
+                .map(i -> modelMapper.map(i, juniter.repository.jpa.index.CINDEX.class))
+                .collect(Collectors.toList()));
+
+        sRepo.deleteAll(consumeS.stream()
+                .peek(s-> System.out.println("deleting " + s))
+                .map(i -> modelMapper.map(i, juniter.repository.jpa.index.SINDEX.class))
+                .peek(s-> System.out.println("or should i say  " + s))
+                .collect(Collectors.toList()));
+
+        bRepo.save(modelMapper.map(indexB, juniter.repository.jpa.index.BINDEX.class));
+        iRepo.saveAll(indexI.stream().map(i -> modelMapper.map(i, juniter.repository.jpa.index.IINDEX.class)).collect(Collectors.toList()));
+        iig.addAll(indexI);
+        mRepo.saveAll(indexM.stream().map(i -> modelMapper.map(i, juniter.repository.jpa.index.MINDEX.class)).collect(Collectors.toList()));
+        cRepo.saveAll(indexC.stream().map(i -> modelMapper.map(i, juniter.repository.jpa.index.CINDEX.class)).collect(Collectors.toList()));
+        sRepo.saveAll(indexS.stream().map(i -> modelMapper.map(i, juniter.repository.jpa.index.SINDEX.class)).collect(Collectors.toList()));
 
 
+        LOG.info("Commit -  Certs: +" + indexC.size() + ",-" + consumeC.size() + "," + cRepo.count() + //
+                "  Membship: +" + indexM.size() + ",-" + consumeM.size() + "," + mRepo.count() + //
+                "  Idty: +" + indexI.size() + ",-" + consumeI.size() + "," + iRepo.count() + //
+                "  localS: +" + indexS.size() + ",-" + consumeS.size() + "," + sRepo.count() + //
+                "  IndexB: +" + indexB + "," + bRepo.count());
 
-	public Stream<BINDEX> indexBGlobal() {
-		return bRepo.findAll().stream().map(c-> modelMapper.map(c, BINDEX.class));
-	}
+        return true;
+    }
 
 
-	@Override
-	public Stream<CINDEX> indexCGlobal() {
-		return cRepo.findAll().stream().map(c-> modelMapper.map(c, CINDEX.class));
-	}
+    public Stream<BINDEX> indexBGlobal() {
+        return bRepo.findAll().stream().map(c -> modelMapper.map(c, BINDEX.class));
+    }
 
-	List<IINDEX> iig = new ArrayList<>();
 
-	@Override
-	public Stream<IINDEX> indexIGlobal() {
-		return iRepo.findAll().stream().map(c-> modelMapper.map(c, IINDEX.class));//.collect(Collectors.toList()).stream();
-	}
+    @Override
+    public Stream<CINDEX> indexCGlobal() {
+        return cRepo.findAll().stream().map(c -> modelMapper.map(c, CINDEX.class));
+    }
 
-	@Override
-	public Stream<MINDEX> indexMGlobal() {
-		return mRepo.findAll().stream().map(c-> modelMapper.map(c, MINDEX.class));
-	}
+    List<IINDEX> iig = new ArrayList<>();
 
-	@Override
-	public Stream<SINDEX> indexSGlobal() {
-		return sRepo.findAll().stream().map(c-> modelMapper.map(c, SINDEX.class));
-	}
+    @Override
+    public Stream<IINDEX> indexIGlobal() {
+        return iRepo.findAll().stream().map(c -> modelMapper.map(c, IINDEX.class));//.collect(Collectors.toList()).stream();
+    }
+
+    @Override
+    public Stream<CINDEX> reduceC(String issuer, String receiver) {
+        if (issuer == null && receiver != null) {
+            return cRepo.receivedBy(receiver).map(c -> modelMapper.map(c, CINDEX.class));
+        }
+
+        if (receiver == null && issuer != null) {
+            return cRepo.issuedBy(issuer).map(c -> modelMapper.map(c, CINDEX.class));
+        }
+
+        return Stream.empty();
+    }
+
+    @Override
+    public Stream<MINDEX> reduceM(String pub) {
+        return mRepo.member(pub).map(c -> modelMapper.map(c, MINDEX.class));
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Stream<IINDEX> reduceI(String pub) {
+        return iRepo.idtyByPubkey(pub).map(c -> modelMapper.map(c, IINDEX.class));
+    }
+
+    @Override
+    public Stream<IINDEX> idtyByUid(String uid) {
+        return iRepo.byUid(uid).map(c -> modelMapper.map(c, IINDEX.class));
+    }
+
+    @Override
+    public Stream<SINDEX> reduceS(String conditions) {
+        return sRepo.sourcesByConditions(conditions).map(c -> modelMapper.map(c, SINDEX.class));
+    }
+
+
+    @Override
+    public Stream<MINDEX> indexMGlobal() {
+        return mRepo.findAll().stream().map(c -> modelMapper.map(c, MINDEX.class));
+    }
+
+    @Override
+    public Stream<SINDEX> indexSGlobal() {
+        return sRepo.findAll().stream().map(c -> modelMapper.map(c, SINDEX.class));
+    }
 
 
 }

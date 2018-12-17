@@ -1,9 +1,10 @@
 package juniter.repository.jpa.index;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Repository to manage {@link CINDEX} instances.
@@ -11,11 +12,11 @@ import java.util.List;
 @Repository
 public interface CINDEXRepository extends JpaRepository<CINDEX, Long> {
 
-    @Override
-    <S extends CINDEX> List<S> saveAll(Iterable<S> entities);
+    @Query("select t from CINDEX t WHERE receiver = ?1")
+    Stream<CINDEX> receivedBy(String pubkey);
 
-    @Override
-    List<CINDEX> findAll();
+    @Query("select t from CINDEX t WHERE issuer = ?1")
+    Stream<CINDEX> issuedBy(String pubkey);
 }
 
 	

@@ -1,6 +1,7 @@
 package juniter.service.bma.loader;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import javafx.application.Platform;
 import juniter.core.model.BStamp;
 import juniter.core.model.net.EndPointType;
 import juniter.core.model.net.Peer;
@@ -8,10 +9,10 @@ import juniter.core.utils.TimeUtils;
 import juniter.repository.jpa.BlockRepository;
 import juniter.repository.jpa.EndPointsRepository;
 import juniter.repository.jpa.PeersRepository;
+import juniter.service.adminfx.FrontPage;
 import juniter.service.bma.NetworkService;
 import juniter.service.bma.dto.PeerBMA;
 import juniter.service.bma.dto.PeersDTO;
-import juniter.service.adminfx.FrontPage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,7 +87,7 @@ public class PeerLoader {
     }
 
 
-    @Scheduled(fixedDelay = 3 * 60 * 1000)
+    @Scheduled(fixedDelay = 10 * 60 * 1000)
     public void runPeerCheck() {
 
         LOG.info("@Scheduled runPeerCheck ");
@@ -118,10 +119,14 @@ public class PeerLoader {
         }
 
         var maxBlockPeer = peersDTO.getPeers().stream().map(Peer::getBlock).map(b-> b.split("-")[0]).mapToLong(Long::parseLong).max();
+
         var maxBlockDB = blockRepo.currentBlockNumber();
+        Platform.runLater(() -> FrontPage.maxDBBlock.setValue(maxBlockDB));
 
         if(maxBlockPeer.isPresent())
-            FrontPage.loadUpdater.setValue(maxBlockDB * 1.0 / maxBlockPeer.getAsLong());
+            Platform.runLater(() -> FrontPage.maxPeerBlock.setValue(maxBlockPeer.getAsLong()));
+
+
 
 
         final var elapsed = Long.divideUnsigned(System.nanoTime() - start, 1000000);

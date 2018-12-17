@@ -1,35 +1,29 @@
 package juniter.service.gva.wot;
 
 import io.leangen.graphql.annotations.GraphQLArgument;
+import io.leangen.graphql.annotations.GraphQLMutation;
 import io.leangen.graphql.annotations.GraphQLNonNull;
 import io.leangen.graphql.annotations.GraphQLQuery;
 import juniter.core.model.wot.Identity;
-import juniter.repository.jpa.index.CINDEXRepository;
 import juniter.repository.jpa.index.IINDEXRepository;
-import juniter.repository.jpa.index.MINDEXRepository;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class WoTService {
 
-	private static final Logger LOG = LoggerFactory.getLogger(WoTService.class);
+	private static final Logger LOG = LogManager.getLogger();
 
 	@Autowired ModelMapper modelMapper;
 
 	@Autowired IINDEXRepository iRepo;
-
-	@Autowired MINDEXRepository mRepo;
-
-	@Autowired CINDEXRepository cRepo;
-
 
 
 	@Transactional
@@ -37,7 +31,7 @@ public class WoTService {
 	public Identity member(@GraphQLArgument(name = "uid") String uid,
 								 @GraphQLArgument(name = "pubkey") String pubkey) {
 		LOG.info(" GVA - getIdentity");
-		return modelMapper.map(iRepo.memberByUidOrPubkey(uid, pubkey), Identity.class);
+		return modelMapper.map(iRepo.byUidOrPubkey(uid, pubkey), Identity.class);
 	}
 
 	@Transactional
@@ -45,7 +39,9 @@ public class WoTService {
 	@GraphQLNonNull
 	public List<@GraphQLNonNull PendingIdentity> pendingIdentities(@GraphQLNonNull @GraphQLArgument(name = "search") String search) {
 		LOG.info(" GVA - pendingIdentities");
-		return Collections.singletonList(new PendingIdentity());
+		return iRepo.byUidOrPubkey(search, search)
+					.map(x-> modelMapper.map(x, PendingIdentity.class))
+					.collect(Collectors.toList());
 	}
 
 	@Transactional
@@ -55,7 +51,31 @@ public class WoTService {
 		return modelMapper.map(iRepo.pendingIdentityByHash(hash), PendingIdentity.class);
 	}
 
+	// 						=============  Next comes the mutations =============
 
+	@Transactional
+	@GraphQLMutation(name = "submitIdentity", description = "post an identity document")
+	@GraphQLNonNull
+	public PendingIdentity submitIdentity(@GraphQLNonNull @GraphQLArgument(name = "raw") String raw) {
+		LOG.info(" GVA - submitIdentity");
+		return new PendingIdentity();
+	}
+
+	@Transactional
+	@GraphQLMutation(name = "submitCertification", description = "post a certification document")
+	@GraphQLNonNull
+	public PendingIdentity submitCertification(@GraphQLNonNull @GraphQLArgument(name = "raw") String raw) {
+		LOG.info(" GVA - submitCertification");
+		return new PendingIdentity();
+	}
+
+	@Transactional
+	@GraphQLMutation(name = "submitMembership", description = "post a membership document")
+	@GraphQLNonNull
+	public PendingIdentity submitMembership(@GraphQLNonNull @GraphQLArgument(name = "raw") String raw) {
+		LOG.info(" GVA - submitMembership");
+		return new PendingIdentity();
+	}
 
 
 
