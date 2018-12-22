@@ -1,5 +1,6 @@
 package juniter.grammar;
 
+import antlr.main.JuniterParser;
 import antlr.main.JuniterParser.IdentityContext;
 import antlr.main.JuniterParser.PeerContext;
 import antlr.main.JuniterParser.WotContext;
@@ -45,5 +46,14 @@ public class JuniterGrammar extends JuniterParserBaseVisitor<Document> implement
 		return res;
 	}
 
+	@Override
+	public Document visitCertification(JuniterParser.CertificationContext ctx) {
 
+		return super.visitCertification(ctx);
+	}
+
+	@Override
+	public Document visitMembership(JuniterParser.MembershipContext ctx) {
+		return super.visitMembership(ctx);
+	}
 }

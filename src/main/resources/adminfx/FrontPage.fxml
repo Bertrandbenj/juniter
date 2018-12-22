@@ -52,16 +52,17 @@
                   <HBox alignment="CENTER" spacing="10.0">
                      <children>
                         <Button mnemonicParsing="false" onAction="#indexReset" text="Reset" />
-                        <Button mnemonicParsing="false" onAction="#revert1" text="-1" />
-                        <Button mnemonicParsing="false" onAction="#index1" text="+1" />
-                        <TextField fx:id="indexTil" prefHeight="25.0" prefWidth="85.0" text="52">
-                           <tooltip>
-                              <Tooltip text="ex.. 1234   (leave blank for full sync)" />
-                           </tooltip>
-                        </TextField>
-                        <Button mnemonicParsing="false" onAction="#indexUntil" text="index until" />
+                        <Button mnemonicParsing="false" onAction="#revert1" text="&lt;" />
+                        <Button mnemonicParsing="false" onAction="#index1" text="&gt;" />
+
+                        <Button mnemonicParsing="false" onAction="#indexUntil" text="&gt;&gt;"  />
+                         <TextField fx:id="indexTil" prefHeight="25.0" prefWidth="85.0" promptText="until">
+                             <tooltip>
+                                 <Tooltip text="ex.. 1234   (leave blank for full sync)" />
+                             </tooltip>
+                         </TextField>
                         <Separator orientation="VERTICAL" />
-                        <Button mnemonicParsing="false" onAction="#loadMissing" text="loadMissing" />
+                        <Button mnemonicParsing="false" onAction="#loadMissing" text="loadMissing Ğ " />
                         <Button mnemonicParsing="false" onAction="#bulkLoad" text="bulkLoad" />
                      </children>
                   </HBox>

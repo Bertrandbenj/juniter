@@ -42,6 +42,23 @@ public class Transaction implements Serializable, DUPComponent {
 	@Pattern(regexp = Constants.Regex.G1)
 	protected String currency;
 
+	public Transaction(){}
+
+	public Transaction(Integer version, @Pattern(regexp = Constants.Regex.G1) String currency, Integer locktime,String thash, @Valid BStamp blockstamp, Integer blockstampTime, @Valid List<Pubkey> issuers, @Valid List<TxInput> inputs, @Valid List<TxOutput> outputs, @Valid List<TxUnlock> unlocks, @Valid List<Signature> signatures, @Size(max = 255) String comment) {
+		this.version = version;
+		this.currency = currency;
+		this.locktime = locktime;
+		this.thash = thash;
+		this.blockstamp = blockstamp;
+		this.blockstampTime = blockstampTime;
+		this.issuers = issuers;
+		this.inputs = inputs;
+		this.outputs = outputs;
+		this.unlocks = unlocks;
+		this.signatures = signatures;
+		this.comment = comment;
+	}
+
 	//	@JsonView(TxHistory.Summary.class)
 	protected Integer locktime;
 
@@ -84,6 +101,10 @@ public class Transaction implements Serializable, DUPComponent {
 	@ElementCollection
 	@CollectionTable(name = "tx_signatures", joinColumns = @JoinColumn(name = "tx_id"))
 	protected List<Signature> signatures = new ArrayList<>();
+
+	public void setSignatures(List<Signature> signatures) {
+		this.signatures = signatures;
+	}
 
 	@Size(max = 255)
 	protected String comment;
@@ -159,6 +180,7 @@ public class Transaction implements Serializable, DUPComponent {
 	 * @return the signatures
 	 */
 	public List<String> getSignatures() {
+
 		return signatures.stream().map(Signature::toString).collect(Collectors.toList());
 	}
 	//

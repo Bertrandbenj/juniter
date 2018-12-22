@@ -1,10 +1,7 @@
 package juniter.repository.jpa.index;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -12,6 +9,7 @@ import java.io.Serializable;
 @Getter
 @Setter
 @NoArgsConstructor
+@ToString
 @EqualsAndHashCode
 @Entity
 @Table(name = "BINDEX", schema = "public") // , indexes = @Index(columnList = "number,hash"))
@@ -26,10 +24,10 @@ public class BINDEX implements Serializable {
 
     Integer version;
     Integer size;
-    String hash;
+    public String hash;
     String issuer;
     Long time;
-    Integer number;
+    public Integer number;
     String currency;
     String previousHash ;
     String previousIssuer ;

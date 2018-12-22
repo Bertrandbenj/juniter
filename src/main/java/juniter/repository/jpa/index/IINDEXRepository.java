@@ -31,6 +31,9 @@ public interface IINDEXRepository extends JpaRepository<IINDEX, Long> {
     @Query(value = "SELECT iindex from IINDEX iindex WHERE pub = ?1 ")
     Optional<IINDEX> findFirstByPubLike(String pub);
 
+    @Query(value = "SELECT iindex from IINDEX iindex WHERE written_on = ?1 ")
+    List<IINDEX> idtyWrittenOn(String writtenOn);
+
     default Boolean idtyIsMember(String pubkey) {
         return findFirstByPubLike(pubkey).map(i -> i.member).orElse(false);
     }

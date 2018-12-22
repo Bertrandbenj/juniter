@@ -173,7 +173,7 @@ public class TestGrammar implements BlockExamples {
 
 		testFailDoc(WRONG_SIGNATURE);
 		testOneDoc(VALID_ROOT);
-		testOneDoc(WRONG_PROOF_OF_WORK);
+		testFailDoc(WRONG_PROOF_OF_WORK);
 		testOneDoc(ROOT_WITHOUT_PARAMETERS);
 		testOneDoc(NON_ROOT_WITH_PARAMETERS);
 		testOneDoc(ROOT_WITH_PREVIOUS_HASH);
@@ -309,15 +309,15 @@ public class TestGrammar implements BlockExamples {
 
 	}
 
-	void testOneDoc(String docString){
-		var doc = juniterParser(CharStreams.fromString(WRONG_SIGNATURE)).doc();
-		assert  doc !=null : "doc is null" ;
+	private void testOneDoc(String docString){
+		var doc = juniterParser(CharStreams.fromString(docString)).doc();
+		assert doc !=null : "doc is null" ;
 		LOG.info(doc);
 	}
 
-	void testFailDoc(String docString){
-		var doc = juniterParser(CharStreams.fromString(WRONG_SIGNATURE)).doc();
-		assert doc ==null : "doc should be null" ;
+	private void testFailDoc(String docString){
+		var doc = juniterParser(CharStreams.fromString(docString)).doc();
+		assert doc == null : "doc should be null" ;
 		LOG.info(doc);
 	}
 

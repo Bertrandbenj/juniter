@@ -42,6 +42,16 @@ public class TxInput implements Serializable, Comparable<TxInput>, DUPComponent 
 	public TxInput() {
 	}
 
+	public TxInput(@Min(1) Integer amount, @Min(0) @Max(0) Integer base, TxType type, @Valid Pubkey dsource, Integer dBlockID, @Valid Hash tHash, Integer tIndex) {
+		this.amount = amount;
+		this.base = base;
+		this.type = type;
+		this.dsource = dsource;
+		this.dBlockID = dBlockID;
+		this.tHash = tHash;
+		this.tIndex = tIndex;
+	}
+
 	public TxInput(String input) {
 		setInput(input);
 	}

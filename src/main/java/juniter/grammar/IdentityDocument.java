@@ -15,6 +15,15 @@ public class IdentityDocument implements Document, LocalValid {
 
 	}
 
+	public IdentityDocument(String version, String currency, String issuer, String uniqueID, BStamp timestamp, String signature) {
+		this.version = version;
+		this.currency = currency;
+		this.issuer = issuer;
+		this.uniqueID = uniqueID;
+		this.timestamp = timestamp;
+		this.signature = signature;
+	}
+
 	public String getCurrency() {
 		return currency;
 	}
@@ -82,7 +91,7 @@ public class IdentityDocument implements Document, LocalValid {
 				"Type: Identity\n" + //
 				"Currency: " + currency + "\n" + //
 				"Issuer: " + issuer + "\n" + //
-				"UniqueID: " + issuer + "\n" + //
+				"UniqueID: " + uniqueID + "\n" + //
 				"Timestamp: " + timestamp + "\n";
 	}
 

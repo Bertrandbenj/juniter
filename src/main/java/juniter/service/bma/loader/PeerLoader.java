@@ -126,9 +126,6 @@ public class PeerLoader {
         if(maxBlockPeer.isPresent())
             Platform.runLater(() -> FrontPage.maxPeerBlock.setValue(maxBlockPeer.getAsLong()));
 
-
-
-
         final var elapsed = Long.divideUnsigned(System.nanoTime() - start, 1000000);
         LOG.info("Max block found peers:" + maxBlockPeer +
                 "  db: " + maxBlockDB +

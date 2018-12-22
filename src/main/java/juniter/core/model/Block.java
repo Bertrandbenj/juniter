@@ -566,6 +566,10 @@ public class Block implements Serializable, DUPComponent {
 		return getNumber() + "-" + getHash();
 	}
 
+	public BStamp bStamp(){
+		return new BStamp(getNumber() , getHash());
+	}
+
 	@Override
 	public String toDUP() {
 		return toDUP(true, true);

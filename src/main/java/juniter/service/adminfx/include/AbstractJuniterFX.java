@@ -2,7 +2,6 @@ package juniter.service.adminfx.include;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.util.Callback;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 
@@ -37,12 +36,7 @@ public abstract class AbstractJuniterFX extends Application {
     public Object load(String url) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(url));
-            loader.setControllerFactory(new Callback<Class<?>, Object>() {
-                @Override
-                public Object call(Class<?> aClass) {
-                    return applicationContext.getBean(aClass);
-                }
-            });
+            loader.setControllerFactory(aClass -> applicationContext.getBean(aClass));
             return loader.load();
         } catch(Exception e) {
             e.printStackTrace();

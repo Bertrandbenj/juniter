@@ -1,6 +1,7 @@
 package juniter.core.model.wot;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import juniter.core.crypto.Crypto;
 import juniter.core.model.BStamp;
 import juniter.core.model.Pubkey;
 import juniter.core.model.Signature;
@@ -57,7 +58,12 @@ public class Identity implements Serializable, Comparable<Identity> {
 		newidentity.setPubkey(vals[0]);
 		signature.setSignature(vals[1]);
 		createdOn.parse(vals[2]);
-		pseudo = vals[3];	}
+		pseudo = vals[3];
+	}
+
+	public String getTargetHash(){
+		return Crypto.hash(pseudo+createdOn+pub());
+	}
 
 	@Override
 	public int compareTo(Identity o) {

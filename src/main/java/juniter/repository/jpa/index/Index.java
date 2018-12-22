@@ -67,8 +67,8 @@ public class Index implements GlobalValid, Serializable {
 
         resetLocalIndex();
         IndexB.clear();
-        IndexB.addAll(indexBGlobal().collect(Collectors.toList()));
-        LOG.info(IndexB);
+        IndexB.addAll(indexBGlobal().sorted().collect(Collectors.toList()));
+        LOG.info("Initialized index B:" + IndexB + " " );
 
     }
 
@@ -76,12 +76,12 @@ public class Index implements GlobalValid, Serializable {
     @Transactional(readOnly = true)
     @Override
     public Optional<Block> createdOnBlock(BStamp bstamp) {
-        return blockRepo.cachedBlock(bstamp.getNumber());
+        return blockRepo.block(bstamp.getNumber(), bstamp.getHash());
     }
 
     @Override
     public Optional<Block> createdOnBlock(Integer number) {
-        return blockRepo.cachedBlock(number);
+        return blockRepo.block(number);
     }
 
     @Transactional
@@ -89,6 +89,8 @@ public class Index implements GlobalValid, Serializable {
     public boolean commit(BINDEX indexB,
                           Set<IINDEX> indexI, Set<MINDEX> indexM, Set<CINDEX> indexC, Set<SINDEX> indexS,
                           List<IINDEX> consumeI, List<MINDEX> consumeM, List<CINDEX> consumeC, List<SINDEX> consumeS) {
+
+       // Platform.runLater(() ->  Database.refresh(indexB,indexI,indexM,indexC,indexS,consumeI,consumeM,consumeC,consumeS) );
 
         if (consumeS.size() > 0)
             LOG.info("JACKPOT");
@@ -111,19 +113,23 @@ public class Index implements GlobalValid, Serializable {
                 .peek(s-> System.out.println("or should i say  " + s))
                 .collect(Collectors.toList()));
 
+        //sRepo.flush();
+
         bRepo.save(modelMapper.map(indexB, juniter.repository.jpa.index.BINDEX.class));
         iRepo.saveAll(indexI.stream().map(i -> modelMapper.map(i, juniter.repository.jpa.index.IINDEX.class)).collect(Collectors.toList()));
         iig.addAll(indexI);
         mRepo.saveAll(indexM.stream().map(i -> modelMapper.map(i, juniter.repository.jpa.index.MINDEX.class)).collect(Collectors.toList()));
         cRepo.saveAll(indexC.stream().map(i -> modelMapper.map(i, juniter.repository.jpa.index.CINDEX.class)).collect(Collectors.toList()));
-        sRepo.saveAll(indexS.stream().map(i -> modelMapper.map(i, juniter.repository.jpa.index.SINDEX.class)).collect(Collectors.toList()));
+        sRepo.saveAll(indexS.stream()
+                .map(i -> modelMapper.map(i, juniter.repository.jpa.index.SINDEX.class))
+                .collect(Collectors.toList()));
 
 
-        LOG.info("Commit -  Certs: +" + indexC.size() + ",-" + consumeC.size() + "," + cRepo.count() + //
+        LOG.debug("Commit -  Certs: +" + indexC.size() + ",-" + consumeC.size() + "," + cRepo.count() + //
                 "  Membship: +" + indexM.size() + ",-" + consumeM.size() + "," + mRepo.count() + //
                 "  Idty: +" + indexI.size() + ",-" + consumeI.size() + "," + iRepo.count() + //
                 "  localS: +" + indexS.size() + ",-" + consumeS.size() + "," + sRepo.count() + //
-                "  IndexB: +" + indexB + "," + bRepo.count());
+                "  IndexB: " + bRepo.count() +", "+ indexB );
 
         return true;
     }
@@ -177,9 +183,19 @@ public class Index implements GlobalValid, Serializable {
 
     @Override
     public Stream<SINDEX> reduceS(String conditions) {
-        return sRepo.sourcesByConditions(conditions).map(c -> modelMapper.map(c, SINDEX.class));
+        return sRepo.sourcesByConditions(conditions)
+                .map(c -> modelMapper.map(c, SINDEX.class))
+                .peek(s->System.out.println("mapped cond" + s))
+                ;
     }
 
+    @Override
+    public Stream<SINDEX> reduceS(String identifier, Integer pos) {
+        return sRepo.sourcesByIdentifierAndPos(identifier, pos)
+                .map(c -> modelMapper.map(c, SINDEX.class))
+                .peek(s->System.out.println("mapped i p " + s))
+                ;
+    }
 
     @Override
     public Stream<MINDEX> indexMGlobal() {
@@ -188,8 +204,15 @@ public class Index implements GlobalValid, Serializable {
 
     @Override
     public Stream<SINDEX> indexSGlobal() {
-        return sRepo.findAll().stream().map(c -> modelMapper.map(c, SINDEX.class));
+        return sRepo.sourceNotConsumed()
+                .map(c -> modelMapper.map(c, SINDEX.class))
+                .peek(s-> System.out.println("mapped all " + s));
     }
 
-
+    @Override
+    public Long trimIndexes() {
+       Long bIndexSize = GlobalValid.super.trimIndexes();
+       bRepo.trim(bIndexSize);
+       return bIndexSize;
+    }
 }

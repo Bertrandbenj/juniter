@@ -34,8 +34,10 @@ public class LoginBox extends AbstractJuniterFX implements Initializable {
 
     @FXML private PasswordField password;
 
-    @FXML
-    private Label pubkey;
+    @FXML private Label pubkey;
+
+    public SecretBox secretBox;
+
 
 
 
@@ -46,7 +48,7 @@ public class LoginBox extends AbstractJuniterFX implements Initializable {
     @FXML
     public void login() {
         LOG.info("Login ... ");
-        var secretBox = new SecretBox(salt.getText(), password.getText());
+        secretBox = new SecretBox(salt.getText(), password.getText());
         pubkey.setText(secretBox.getPublicKey());
     }
 

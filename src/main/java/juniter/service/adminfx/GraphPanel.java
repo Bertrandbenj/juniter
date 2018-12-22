@@ -1,8 +1,5 @@
 package juniter.service.adminfx;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.concurrent.Worker;
 import javafx.concurrent.Worker.State;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -115,51 +112,49 @@ public class GraphPanel extends AbstractJuniterFX implements Initializable {
 		var webEngine = SVGAnchor.getEngine(); 	// Get WebEngine via WebView
 		SVGAnchor.setZoom(0.60);
 
-		webEngine.getLoadWorker().stateProperty().addListener(new ChangeListener<State>() {
-			public void changed(ObservableValue ov, State oldState, State newState) {
-				if (newState == Worker.State.SUCCEEDED) {
-					// note next classes are from org.w3c.dom domain
-					EventListener listener = (Event ev) ->  {
-						var me = ((MouseEvent) ev);
-						var link = ((Element)ev.getTarget()).getAttribute("href");
+		webEngine.getLoadWorker().stateProperty().addListener((ov, oldState, newState) -> {
+			if (newState == State.SUCCEEDED) {
+				// note next classes are from org.w3c.dom domain
+				EventListener listener = (Event ev) ->  {
+					var me = ((MouseEvent) ev);
+					var link = ((Element)ev.getTarget()).getAttribute("href");
 
-						if(link == null)
-							link = ((Element)ev.getTarget()).getAttribute("xlink:href");
+					if(link == null)
+						link = ((Element)ev.getTarget()).getAttribute("xlink:href");
 
-						//in case of an SVG document, we're likely going to click a child of the <a> tag, so we try the parent
-						var list = ((Element)ev.getTarget()).getParentNode().getAttributes();
-						for(var i = 0; i < list.getLength(); i++ ){
-							if(list.item(i).getNodeName().endsWith("href")){
-								link = list.item(i).getNodeValue();
-							}
-						}
-
-						if(link != null ){
-							uri.setText(link);
-							go();
-						}else{
-							LOG.error("no link found for event " + ev + " on " + ev.getTarget());
-						}
-
-					};
-
-					Document doc = webEngine.getDocument();
-					LOG.debug("doc : "+ doc);
-					if(doc != null) {
-						Element el = doc.getElementById("a");
-						NodeList aaa = doc.getElementsByTagName("a");
-						LOG.debug("list: "+ aaa.getLength());
-
-						for (int i=0; i<aaa.getLength(); i++) {
-
-							var target = ((EventTarget) aaa.item(i));
-							LOG.debug("target = " + target + " - " );
-							target.addEventListener("click", listener, false);
+					//in case of an SVG document, we're likely going to click a child of the <a> tag, so we try the parent
+					var list = ((Element)ev.getTarget()).getParentNode().getAttributes();
+					for(var i = 0; i < list.getLength(); i++ ){
+						if(list.item(i).getNodeName().endsWith("href")){
+							link = list.item(i).getNodeValue();
 						}
 					}
 
+					if(link != null ){
+						uri.setText(link);
+						go();
+					}else{
+						LOG.error("no link found for event " + ev + " on " + ev.getTarget());
+					}
 
+				};
+
+				Document doc = webEngine.getDocument();
+				LOG.debug("doc : "+ doc);
+				if(doc != null) {
+					Element el = doc.getElementById("a");
+					NodeList aaa = doc.getElementsByTagName("a");
+					LOG.debug("list: "+ aaa.getLength());
+
+					for (int i=0; i<aaa.getLength(); i++) {
+
+						var target = ((EventTarget) aaa.item(i));
+						LOG.debug("target = " + target + " - " );
+						target.addEventListener("click", listener, false);
+					}
 				}
+
+
 			}
 		});
 

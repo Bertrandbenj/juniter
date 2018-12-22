@@ -14,7 +14,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-@GraphQLType(description = "GVA Transaction - carefull with Class name conflict though ")
+@GraphQLType(description = "GVA Transaction Object - careful with class name conflict though ")
 public class Transaction implements Serializable {
 	private static final long serialVersionUID = 7842838617118486285L;
 

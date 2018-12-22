@@ -22,106 +22,101 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Collectors;
 
 /**
  * Handles publication of transaction documents
- * 
- * 
- * @author ben
  *
+ * @author ben
  */
 @RestController
 @ConditionalOnExpression("${juniter.bma.enabled:false}")
 @RequestMapping("/tx")
 public class TxService {
 
-	private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger();
 
-	@Autowired
-	private TxRepository repository;
-	
-	@Autowired
-    private ModelMapper modelMapper; 
+    @Autowired
+    private TxRepository repository;
+
+    @Autowired
+    private ModelMapper modelMapper;
 
 //	@Autowired
 //	private TxInRepository inRepo;
 
 
-	@Transactional(readOnly = true)
-	@RequestMapping(value = "/history/{pubkey}", method = RequestMethod.GET)
-	public TxHistory history(@PathVariable("pubkey") String pubkey) {
-		// TODO: COMPLETE the history and tidy the result if need be to match the
-		// duniter api exactly
-		List<Transaction> sent = new ArrayList<Transaction>();
-		List<Transaction> received = new ArrayList<Transaction>();
-		List<Transaction> receiving = new ArrayList<Transaction>();
-		List<Transaction> sending = new ArrayList<Transaction>();
-		List<Transaction> pending = new ArrayList<Transaction>();
+    @Transactional(readOnly = true)
+    @RequestMapping(value = "/history/{pubkey}", method = RequestMethod.GET)
+    public TxHistory history(@PathVariable("pubkey") String pubkey) {
+        // TODO: COMPLETE the history and tidy the result if need be to match the duniter api exactly
+        var sent = new ArrayList<Transaction>();
+        var received = new ArrayList<Transaction>();
+        var receiving = new ArrayList<Transaction>();
+        var sending = new ArrayList<Transaction>();
+        var pending = new ArrayList<Transaction>();
 
-		try (var s = repository.transactionsOfIssuer(pubkey)) {
-			sent.addAll(s.collect(Collectors.toList()));
-		} catch (Exception e) {
-			LOG.error("tx/history TransactionSentBy ", e);
-		}
+        try (var s = repository.transactionsOfIssuer(pubkey)) {
+            sent.addAll(s.collect(Collectors.toList()));
+        } catch (Exception e) {
+            LOG.error("tx/history TransactionSentBy ", e);
+        }
 
-		try (var s = repository.transactionsOfReceiver(pubkey)) {
-			received.addAll(s.collect(Collectors.toList()));
-		} catch (Exception e) {
-			LOG.error("tx/history TransactionReceivedBy ", e);
-		}
+        try (var s = repository.transactionsOfReceiver(pubkey)) {
+            received.addAll(s.collect(Collectors.toList()));
+        } catch (Exception e) {
+            LOG.error("tx/history TransactionReceivedBy ", e);
+        }
 
-		return new TxHistory(pubkey, sent, received, receiving, sending, pending);
-	}
+        return new TxHistory(pubkey, sent, received, receiving, sending, pending);
+    }
 
-	@Transactional(readOnly = true)
-	@RequestMapping(value = "/history/{pubkey}/pending", method = RequestMethod.GET)
-	public TxHistory pendingHistory(@PathVariable("pubkey") String pubkey) {
-		return null;
-	}
+    @Transactional(readOnly = true)
+    @RequestMapping(value = "/history/{pubkey}/pending", method = RequestMethod.GET)
+    public TxHistory pendingHistory(@PathVariable("pubkey") String pubkey) {
+        return null;
+    }
 
-	@RequestMapping(value = "/sources/{pubkey}", method = RequestMethod.GET)
-	public String sources(@PathVariable("pubkey") String pubkey) {
-		LOG.info("Entering /sources/{pubkey= " + pubkey+ "}");
-		return "not implemented yet";
-	}
+    @RequestMapping(value = "/sources/{pubkey}", method = RequestMethod.GET)
+    public String sources(@PathVariable("pubkey") String pubkey) {
+        LOG.info("Entering /sources/{pubkey= " + pubkey + "}");
+        return "not implemented yet";
+    }
 
-	@RequestMapping(value = "/history/{pubkey}/blocks/{from}/{to}", method = RequestMethod.GET)
-	public String historyFilterByBlockRange(@PathVariable("pubkey") String pubkey, @PathVariable("pubkey") String from,
-			@PathVariable("pubkey") String to) {
-		LOG.info("Entering /history/{pubkey}/blocks/{from}/{to}.. " + pubkey + " " + from + "->" + to);
-		return "not implemented yet";
-	}
+    @RequestMapping(value = "/history/{pubkey}/blocks/{from}/{to}", method = RequestMethod.GET)
+    public String historyFilterByBlockRange(@PathVariable("pubkey") String pubkey,
+                                            @PathVariable("pubkey") String from,
+                                            @PathVariable("pubkey") String to) {
+        LOG.info("Entering /history/{pubkey}/blocks/{from}/{to}.. " + pubkey + " " + from + "->" + to);
+        return "not implemented yet";
+    }
 
-	@RequestMapping(value = "/history/{pubkey}/times/{from}/{to}", method = RequestMethod.GET)
-	public String historyFilterByTimeRange(@PathVariable("pubkey") String pubkey, @PathVariable("pubkey") String from,
-			@PathVariable("pubkey") String to) {
-		LOG.info("Entering /history/{pubkey}/times/{from}/{to}.. " + pubkey + " " + from + "->" + to);
-		return "not implemented yet";
-	}
-
-
-
-	@RequestMapping(value = "/process", method = RequestMethod.POST)
-	ResponseEntity<Transaction> processTx (HttpServletRequest request, HttpServletResponse response) {
-
-		LOG.info("POSTING /tx/process ..."+ request.getRemoteHost());
-
-		try{
-			BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
-			LOG.info(in.lines().collect(Collectors.joining("\n")));
-		}catch (Exception e ){
-			LOG.error("error reading network/peering/peers inputStream ", e);
-		}
+    @RequestMapping(value = "/history/{pubkey}/times/{from}/{to}", method = RequestMethod.GET)
+    public String historyFilterByTimeRange(@PathVariable("pubkey") String pubkey, @PathVariable("pubkey") String from,
+                                           @PathVariable("pubkey") String to) {
+        LOG.info("Entering /history/{pubkey}/times/{from}/{to}.. " + pubkey + " " + from + "->" + to);
+        return "not implemented yet";
+    }
 
 
+    @RequestMapping(value = "/process", method = RequestMethod.POST)
+    ResponseEntity<Transaction> processTx(HttpServletRequest request, HttpServletResponse response) {
 
-		var tx = new Transaction();
-		final var headers = new HttpHeaders();
+        LOG.info("POSTING /tx/process ..." + request.getRemoteHost());
+
+        try {
+            BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
+            LOG.info(in.lines().collect(Collectors.joining("\n")));
+        } catch (Exception e) {
+            LOG.error("error reading network/peering/peers inputStream ", e);
+        }
 
 
-		return  new ResponseEntity<>(tx, headers, HttpStatus.OK);
-	}
+        var tx = new Transaction();
+        final var headers = new HttpHeaders();
+
+
+        return new ResponseEntity<>(tx, headers, HttpStatus.OK);
+    }
 
 }

@@ -27,8 +27,8 @@ public interface BlockRepository extends JpaRepository<Block, Long>, BlockLocalV
 		return findTop1ByNumber(number);
 	}
 
-	@Query("select b from Block b where number = ?1 AND hash = ?2")
-	Stream<Block> block(Integer number, String hash) ;
+	@Query("select b from Block b where number = ?1 AND hash = ?2 ")
+	Optional<Block> block(Integer number, String hash) ;
 
 	default Optional<Block> cachedBlock(Integer bstamp) {
 

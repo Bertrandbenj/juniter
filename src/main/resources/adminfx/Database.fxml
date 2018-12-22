@@ -36,55 +36,195 @@
    <center>
       <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
          <children>
-            <FlowPane hgap="10.0" prefHeight="200.0" prefWidth="200.0" vgap="10.0">
+            <FlowPane fx:id="flowPanel" hgap="2.0" prefHeight="200.0" prefWidth="200.0" vgap="2.0">
                <children>
                   <Label text="Block Index : ">
                      <font>
                         <Font size="17.0" />
                      </font>
                   </Label>
-                  <Button mnemonicParsing="false" text="Block #0" />
-                  <Button mnemonicParsing="false" text="Block #1" />
-                  <Button mnemonicParsing="false" text="Block #2" />
-                  <Button mnemonicParsing="false" text="Block #3" />
-                  <Button mnemonicParsing="false" text="Block #4" />
+                  <Button mnemonicParsing="false" onAction="#button1" text="Block #1">
+                     <font>
+                        <Font size="10.0" />
+                     </font></Button>
+                  <Button mnemonicParsing="false" text="Block #1">
+                     <font>
+                        <Font size="10.0" />
+                     </font>
+                  </Button>
+                  <Button mnemonicParsing="false" text="Block #1">
+                     <font>
+                        <Font size="10.0" />
+                     </font>
+                  </Button>
                </children>
                <padding>
                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                </padding>
             </FlowPane>
+            <Button mnemonicParsing="false" onAction="#reload" text="reload" />
             <Separator prefHeight="13.0" prefWidth="1100.0" />
-            <HBox prefHeight="212.0" prefWidth="1060.0" spacing="10.0">
-               <children>
-                  <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
-                     <children>
-                        <Label contentDisplay="CENTER" text="Idty Index" />
-                        <ListView VBox.vgrow="ALWAYS" />
-                     </children>
-                  </VBox>
-                  <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
-                     <children>
-                        <Label contentDisplay="CENTER" text="Membership Index" />
-                        <ListView prefHeight="200.0" prefWidth="200.0" />
-                     </children>
-                  </VBox>
-                  <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
-                     <children>
-                        <Label contentDisplay="CENTER" text="Certification Index" />
-                        <ListView prefHeight="200.0" prefWidth="200.0" />
-                     </children>
-                  </VBox>
-                  <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
-                     <children>
-                        <Label contentDisplay="CENTER" text="Tx Index" />
-                        <ListView prefHeight="200.0" prefWidth="200.0" />
-                     </children>
-                  </VBox>
-               </children>
-               <padding>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-               </padding>
-            </HBox>
+            <TabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+              <tabs>
+                  <Tab text="BINDEX">
+                     <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <VBox alignment="CENTER">
+                                 <children>
+                                    <TableView fx:id="tableB" maxWidth="1.7976931348623157E308" prefWidth="1050.0" tableMenuButtonVisible="true" VBox.vgrow="ALWAYS">
+                                       <columns>
+                                          <TableColumn fx:id="bNumberCol" maxWidth="74.0" minWidth="20.0" prefWidth="74.0" text="number" />
+                                          <TableColumn fx:id="bHashCol" maxWidth="74.0" minWidth="20.0" prefWidth="74.0" text="number" />
+
+                                          <TableColumn fx:id="bIssuerCol" maxWidth="137.0" prefWidth="83.0" text="issuer" />
+                                          <TableColumn fx:id="bSizeCol" maxWidth="-1.0" minWidth="75.0" prefWidth="75.0" text="size" />
+                                          <TableColumn fx:id="bTimeCol" maxWidth="-1.0" minWidth="75.0" prefWidth="75.0" text="time" />
+                                          <TableColumn fx:id="bMembersCountCol" maxWidth="-1.0" minWidth="75.0" prefWidth="75.0" text="membersCount" />
+                                          <TableColumn fx:id="bmedianTimeCol" maxWidth="-1.0" minWidth="75.0" prefWidth="75.0" text="medianTime" />
+                                          <TableColumn fx:id="bDividendCol" maxWidth="212.0" minWidth="-1.0" prefWidth="189.0" text="dividend" />
+                                       </columns>
+                                    </TableView>
+                                    <HBox alignment="CENTER" spacing="15.0">
+                                       <children>
+                                          <Label fx:id="txCountB" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
+                                          <TextField fx:id="filterB" alignment="CENTER" prefHeight="25.0" prefWidth="292.0" promptText="filter" />
+                                       </children>
+                                       <padding>
+                                          <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                       </padding>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                           </children>
+                        </AnchorPane>
+                     </content>
+                  </Tab>
+                  <Tab text="IINDEX">
+                     <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <VBox alignment="CENTER">
+                                 <children>
+                                    <TableView fx:id="tableI" prefWidth="1050.0" tableMenuButtonVisible="true" VBox.vgrow="ALWAYS">
+                                       <columns>
+                                          <TableColumn fx:id="iOpCol" prefWidth="75.0" text="op" />
+                                          <TableColumn fx:id="iUidCol" prefWidth="100.0" text="uid" />
+                                          <TableColumn fx:id="iPubCol" prefWidth="200.0" text="pub" />
+                                          <TableColumn fx:id="iWrittenOn" prefWidth="300.0" text="writtenOn" />
+                                       </columns>
+                                       <columnResizePolicy>
+                                          <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                       </columnResizePolicy>
+                                    </TableView>
+                                    <HBox alignment="CENTER" spacing="15.0">
+                                       <children>
+                                          <Label fx:id="txCountI" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
+                                          <TextField fx:id="filterI" alignment="CENTER" prefHeight="25.0" prefWidth="292.0" promptText="filter" />
+                                       </children>
+                                       <padding>
+                                          <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                       </padding>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                           </children>
+                        </AnchorPane>
+                     </content>
+                  </Tab>
+                <Tab text="MINDEX">
+                  <content>
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <VBox alignment="CENTER">
+                                 <children>
+                                    <TableView fx:id="tableM" prefWidth="1050.0">
+                                      <columns>
+                                        <TableColumn fx:id="mStatus" prefWidth="75.0" text="status" />
+                                        <TableColumn fx:id="mPubCol" prefWidth="300.0" text="pub" />
+                                          <TableColumn fx:id="mWrittenOn" prefWidth="200.0" text="writtenOn" />
+                                      </columns>
+                                    </TableView>
+                                    <HBox alignment="CENTER" spacing="15.0">
+                                       <children>
+                                          <Label fx:id="txCountM" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
+                                          <TextField fx:id="filterM" alignment="CENTER" prefHeight="25.0" prefWidth="292.0" promptText="filter" />
+                                       </children>
+                                       <padding>
+                                          <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                       </padding>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                           </children>
+                        </AnchorPane>
+                  </content>
+                </Tab>
+                <Tab fx:id="filterC" text="CINDEX">
+                  <content>
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <VBox alignment="CENTER">
+                                 <children>
+                                    <TableView fx:id="tableC" prefWidth="1050.0" tableMenuButtonVisible="true" VBox.vgrow="ALWAYS">
+                                      <columns>
+                                        <TableColumn fx:id="cIssuerCol" prefWidth="300.0" text="issuer" />
+                                        <TableColumn fx:id="cReceiverCol" prefWidth="300.0" text="receiver" />
+                                          <TableColumn fx:id="cCreatedOn" prefWidth="300.0" text="signedOn" />
+                                          <TableColumn fx:id="cWrittenOn" prefWidth="300.0" text="writtenOn" />
+                                      </columns>
+                                       <columnResizePolicy>
+                                          <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                       </columnResizePolicy>
+                                    </TableView>
+                                    <HBox alignment="CENTER" spacing="15.0">
+                                       <children>
+                                          <Label fx:id="txCountC" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
+                                          <TextField fx:id="filterC" alignment="CENTER" prefHeight="25.0" prefWidth="292.0" promptText="filter" />
+                                       </children>
+                                       <padding>
+                                          <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                       </padding>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                           </children>
+                        </AnchorPane>
+                  </content>
+                </Tab>
+                  <Tab text="SINDEX">
+                     <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <VBox alignment="CENTER">
+                                 <children>
+                                    <TableView fx:id="tableS" prefWidth="1050.0" tableMenuButtonVisible="true" VBox.vgrow="ALWAYS">
+                                      <columns>
+                                        <TableColumn fx:id="sOpCol" prefWidth="75.0" text="op" />
+                                          <TableColumn fx:id="sAmountCol" maxWidth="150.0" prefWidth="75.0" text="amount" />
+                                          <TableColumn fx:id="sBaseCol" maxWidth="100.0" minWidth="25.0" text="base" />
+                                        <TableColumn fx:id="sIdentifierCol" prefWidth="75.0" text="identifier" />
+                                          <TableColumn fx:id="sWrittenOn" prefWidth="300.0" text="writtenOn" />
+                                          <TableColumn fx:id="sConsumedCol" prefWidth="75.0" text="consumed" />
+                                      </columns>
+                                    </TableView>
+                                    <HBox alignment="CENTER" spacing="15.0">
+                                       <children>
+                                          <Label fx:id="txCountS" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
+                                          <TextField fx:id="filterS" alignment="CENTER" prefHeight="25.0" prefWidth="292.0" promptText="filter" />
+                                       </children>
+                                       <padding>
+                                          <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                       </padding>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                           </children>
+                        </AnchorPane>
+                     </content>
+                  </Tab>
+              </tabs>
+            </TabPane>
          </children>
          <BorderPane.margin>
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />

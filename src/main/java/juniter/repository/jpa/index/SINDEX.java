@@ -16,7 +16,6 @@ import java.io.Serializable;
 @Entity
 @Table(name = "SINDEX", schema = "public") // , indexes = @Index(columnList = "number,hash"))
 @JsonIgnoreProperties(ignoreUnknown = true)
-//@IdClass(BStamp.class)
 public class SINDEX implements Serializable {
 
     private static final long serialVersionUID = -6400219827778830671L;
@@ -39,7 +38,6 @@ public class SINDEX implements Serializable {
     boolean consumed;
     String conditions;
     Integer writtenOn;
-
 
 
 }

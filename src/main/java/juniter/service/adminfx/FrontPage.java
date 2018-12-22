@@ -1,6 +1,7 @@
 package juniter.service.adminfx;
 
 import javafx.application.Platform;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
@@ -44,8 +45,12 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
 
     // updatable value from the outside
     public static SimpleDoubleProperty currentBindex = new SimpleDoubleProperty(.0);
+    public static SimpleDoubleProperty maxBindex = new SimpleDoubleProperty(42.);
     public static SimpleDoubleProperty maxDBBlock = new SimpleDoubleProperty(42.);
     public static SimpleDoubleProperty maxPeerBlock = new SimpleDoubleProperty(42.);
+
+    public static SimpleBooleanProperty isIndexing = new SimpleBooleanProperty(false);
+    public static SimpleBooleanProperty isDownloading = new SimpleBooleanProperty(false);
 
     public static SimpleStringProperty indexLogMessage = new SimpleStringProperty("here comes the log");
 
@@ -72,6 +77,12 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
 
 
 
+    @Autowired
+    BlockLoader blockLoader ;
+    @Autowired
+    MissingBlocksLoader mBlockLoader ;
+
+
 
 
     public FrontPage() { }
@@ -79,34 +90,55 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
     @FXML
     public void indexUntil(){
 
-        int res ;
-        try{
-            res = Integer.parseInt(indexTil.getText());
-        }catch(Exception e){
-            res = blockRepo.currentBlockNumber();
-            maxDBBlock.setValue(res);
+        if(isIndexing.get())
+            return;
 
+        int until ;
+        try{
+            until = Integer.parseInt(indexTil.getText());
+        }catch(Exception e){
+            until = blockRepo.currentBlockNumber();
         }
 
-        indexer.indexUntil(res);
+        maxBindex.setValue(until);
+        indexer.indexUntil(until);
     }
 
     @FXML
     public void indexReset(){
-        indexer.index.init(true);
+        indexer.init();
         currentBindex.setValue(0);
     }
 
-    @Autowired
-    BlockLoader blockLoader ;
+
+
+    public void index1(ActionEvent actionEvent) {
+
+        if(isIndexing.get())
+            return;
+
+        indexer.indexUntil(currentBindex.intValue()+1);
+    }
+
+    public void revert1(ActionEvent actionEvent) {
+        if(isIndexing.get())
+            return;
+
+
+    }
+
+
 
     @FXML
     public void bulkLoad(){
+
+        if(isDownloading.getValue()){
+            return;
+        }
         blockLoader.bulkLoad();
     }
 
-    @Autowired
-    MissingBlocksLoader mBlockLoader ;
+
 
     @FXML
     public void loadMissing(){
@@ -187,8 +219,8 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-        indexBar.progressProperty().bind(currentBindex.divide(maxDBBlock));
-        indexIndic.progressProperty().bind(currentBindex.divide(maxDBBlock));
+        indexBar.progressProperty().bind(currentBindex.divide(maxBindex));
+        indexIndic.progressProperty().bind(currentBindex.divide(maxBindex));
 
         loadBar.progressProperty().bind(maxDBBlock.divide(maxPeerBlock));
         loadIndic.progressProperty().bind(maxDBBlock.divide(maxPeerBlock));
@@ -197,11 +229,6 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
 
     }
 
-    public void index1(ActionEvent actionEvent) {
-    }
-
-    public void revert1(ActionEvent actionEvent) {
-    }
 
     @FXML
     private void peerCheck(){

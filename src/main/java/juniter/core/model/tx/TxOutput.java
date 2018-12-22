@@ -76,6 +76,10 @@ public class TxOutput implements Serializable, Comparable<TxOutput>, DUPComponen
 		return condition;
 	}
 
+	public void setCondition(String condition) {
+		this.condition = condition;
+	}
+
 	public void setAmount(Integer amount) {
 		this.amount = amount;
 	}

@@ -23,7 +23,8 @@ public class Indexer {
 
     private Logger LOG = LogManager.getLogger();
 
-    @Autowired public Index index;
+    @Autowired
+    public Index index;
 
     @Autowired
     BlockRepository blockRepo;
@@ -32,44 +33,40 @@ public class Indexer {
     BlockLoader blockLoader;
 
 
-
-
     //@Transactional
     @Async
-    public void indexUntil(int syncUntil ) {
+    public void indexUntil(int syncUntil) {
 
         LOG.info("Testing the local repository ");
-        index.init(true);
-
+        index.init(false);
 
         final long time = System.currentTimeMillis();
-        long delta = System.currentTimeMillis() - time;
-        final var current = blockRepo.currentBlockNumber();
-        Platform.runLater(() -> FrontPage.maxDBBlock.setValue(current));
-
-
+        long delta;
 
         final DecimalFormat decimalFormat = new DecimalFormat("##.###%");
 
 
-        for (int i = 0; i <= syncUntil; i++) {
+        for (int i = index.head().map(h -> h.number + 1).orElse(0); i <= syncUntil; i++) {
             final int finali = i;
-            Platform.runLater(() -> FrontPage.currentBindex.setValue(finali));
+            Platform.runLater(() -> {
+                FrontPage.currentBindex.setValue(finali);
+                FrontPage.isIndexing.setValue(false);
+            });
 
             final var block = blockRepo.cachedBlock(i)
-                    .orElseGet(()->blockLoader.fetchAndSaveBlock(finali));
+                    .orElseGet(() -> blockLoader.fetchAndSaveBlock(finali));
 
-            try{
+            try {
                 if (index.validate(block)) {
                     LOG.debug("Validated " + block);
-                    //Platform.runLater(() -> FrontPage.indexLogMessage.setValue("Validated " + block));
-                }else{
+
+                } else {
                     LOG.warn("ERROR Validating " + block);
                     Platform.runLater(() -> FrontPage.indexLogMessage.setValue("ERROR Validating " + block));
 
                     break;
                 }
-            }catch(AssertionError | Exception e){
+            } catch (AssertionError | Exception e) {
                 LOG.warn("error validating block " + block, e);
                 Platform.runLater(() -> FrontPage.indexLogMessage.setValue("ERROR Validating " + block));
                 break;
@@ -79,8 +76,8 @@ public class Indexer {
                 delta = System.currentTimeMillis() - time;
 
                 final var perBlock = delta / i;
-                final var estimate = current * perBlock;
-                final String perc = decimalFormat.format(1.0 * i / current);
+                final var estimate = syncUntil * perBlock;
+                final String perc = decimalFormat.format(1.0 * i / syncUntil);
 
                 var log = perc + ", elapsed time " + TimeUtils.format(delta) + " which is " + perBlock
                         + " ms per block validated, estimating: " + TimeUtils.format(estimate) + " total";
@@ -92,6 +89,7 @@ public class Indexer {
             }
         }
 
+        FrontPage.isIndexing.setValue(false);
         delta = System.currentTimeMillis() - time;
         LOG.info("Finished validation, took :  " + TimeUtils.format(delta));
 
@@ -99,11 +97,13 @@ public class Indexer {
     }
 
 
-
-    @Scheduled(fixedRate = 60*1000)
-    public void checkMemory(){
+    @Scheduled(fixedRate = 60 * 1000)
+    public void checkMemory() {
         LOG.info(MemoryUtils.memInfo());
     }
 
 
+    public void init() {
+        index.init(true);
+    }
 }

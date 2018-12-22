@@ -1,218 +1,223 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import javafx.scene.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.Group?>
 <?import javafx.scene.layout.*?>
-<AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="juniter.service.adminfx.include.WotPanel">
-    <Group>
-        <children>
-            <VBox  prefHeight="401.0" prefWidth="880.0">
-                <children>
-                    <VBox fx:id="identityForm" prefHeight="200.0" prefWidth="100.0">
-                        <children>
-                            <HBox spacing="20.0">
-                                <children>
-                                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Version" />
-                                    <TextField disable="true" editable="false" text="10" />
-                                </children>
-                                <padding>
+
+<AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.service.adminfx.include.WotPanel">
+   <children>
+       <Group>
+           <children>
+               <VBox>
+                   <children>
+                       <VBox fx:id="identityForm">
+                           <children>
+                               <HBox spacing="20.0">
+                                   <children>
+                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Version" />
+                                       <TextField disable="true" editable="false" prefHeight="25.0" prefWidth="120.0" text="10" />
+                                   </children>
+                                   <padding>
+                                       <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                   </padding>
+                               </HBox>
+                               <HBox spacing="20.0">
+                                   <children>
+                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Type" />
+                                       <RadioButton fx:id="swIdty" mnemonicParsing="false" onAction="#switchIdty" selected="true" text="Identity">
+                                           <padding>
+                                               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                           </padding>
+                                           <toggleGroup>
+                                               <ToggleGroup fx:id="wotType" />
+                                           </toggleGroup>
+                                       </RadioButton>
+                                       <RadioButton fx:id="swMember" mnemonicParsing="false" onAction="#switchMembership" text="Membership" toggleGroup="$wotType">
+                                           <padding>
+                                               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                           </padding>
+                                       </RadioButton>
+                                       <RadioButton fx:id="swCertif" mnemonicParsing="false" onAction="#switchCertif" text="Certification" toggleGroup="$wotType">
+                                           <padding>
+                                               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                           </padding>
+                                       </RadioButton>
+                              <RadioButton fx:id="swRevoc" mnemonicParsing="false" onAction="#switchRevoc" text="Revocation" toggleGroup="$wotType">
+                                 <padding>
                                     <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                </padding>
-                            </HBox>
-                            <HBox spacing="20.0">
-                                <children>
-                                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Type" />
-                                    <RadioButton mnemonicParsing="false" selected="true" text="Identity">
-                                        <padding>
-                                            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                        </padding>
-                                        <toggleGroup>
-                                            <ToggleGroup fx:id="wotType" />
-                                        </toggleGroup>
-                                    </RadioButton>
-                                    <RadioButton mnemonicParsing="false" text="Membership" toggleGroup="$wotType">
-                                        <padding>
-                                            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                        </padding>
-                                    </RadioButton>
-                                    <RadioButton mnemonicParsing="false" text="Certification" toggleGroup="$wotType">
-                                        <padding>
-                                            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                        </padding>
-                                    </RadioButton>
-                                </children>
-                                <padding>
-                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                </padding>
-                            </HBox>
-                            <HBox spacing="20.0">
-                                <children>
-                                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Currency" />
-                                    <TextField disable="true" editable="false" promptText="g1" text="g1" />
-                                </children>
-                                <padding>
-                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                </padding>
-                            </HBox>
-                            <HBox spacing="20.0">
-                                <children>
-                                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Issuer" />
-                                    <TextField />
-                                </children>
-                                <padding>
-                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                </padding>
-                            </HBox>
-                            <HBox spacing="20.0" VBox.vgrow="ALWAYS">
-                                <padding>
-                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                </padding>
-                                <children>
-                                    <VBox prefHeight="225.0" prefWidth="404.0">
-                                        <children>
-                                            <Separator prefWidth="200.0" />
-                                            <HBox spacing="20.0">
-                                                <children>
-                                                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="UniqueID" />
-                                                    <TextField />
-                                                </children>
-                                                <padding>
-                                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                                </padding>
-                                            </HBox>
-                                            <HBox spacing="20.0">
-                                                <children>
-                                                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Timestamp" />
-                                                    <TextField />
-                                                </children>
-                                                <padding>
-                                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                                </padding>
-                                            </HBox>
-                                        </children>
-                                    </VBox>
-                                    <Separator orientation="VERTICAL" prefHeight="231.0" prefWidth="18.0" />
-                                    <VBox prefHeight="180.0" prefWidth="301.0">
-                                        <children>
-                                            <Separator prefWidth="200.0" />
-                                            <HBox spacing="20.0">
-                                                <children>
-                                                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Block" />
-                                                    <TextField />
-                                                </children>
-                                                <padding>
-                                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                                </padding>
-                                            </HBox>
-                                            <HBox spacing="20.0">
-                                                <children>
-                                                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Membership" />
-                                                    <TextField />
-                                                </children>
-                                                <padding>
-                                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                                </padding>
-                                            </HBox>
-                                            <HBox spacing="20.0">
-                                                <children>
-                                                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="UserID" />
-                                                    <TextField />
-                                                </children>
-                                                <padding>
-                                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                                </padding>
-                                            </HBox>
-                                            <HBox spacing="20.0">
-                                                <children>
-                                                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="CertTS" />
-                                                    <TextField />
-                                                </children>
-                                                <padding>
-                                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                                </padding>
-                                            </HBox>
-                                        </children>
-                                    </VBox>
-                                    <Separator orientation="VERTICAL" prefHeight="229.0" prefWidth="21.0">
-                                        <opaqueInsets>
-                                            <Insets />
-                                        </opaqueInsets>
-                                    </Separator>
-                                    <VBox prefHeight="180.0" prefWidth="300.0">
-                                        <children>
-                                            <Separator prefWidth="200.0" />
-                                            <HBox spacing="20.0">
-                                                <children>
-                                                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="IdtyIssuer" />
-                                                    <TextField />
-                                                </children>
-                                                <padding>
-                                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                                </padding>
-                                            </HBox>
-                                            <HBox spacing="20.0">
-                                                <children>
-                                                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="IdtyUniqueID" />
-                                                    <TextField />
-                                                </children>
-                                                <padding>
-                                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                                </padding>
-                                            </HBox>
-                                            <HBox spacing="20.0">
-                                                <children>
-                                                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="IdtyTimestamp" />
-                                                    <TextField />
-                                                </children>
-                                                <padding>
-                                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                                </padding>
-                                            </HBox>
-                                            <HBox spacing="20.0">
-                                                <children>
-                                                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="IdtySignature" />
-                                                    <TextField />
-                                                </children>
-                                                <padding>
-                                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                                </padding>
-                                            </HBox>
-                                            <HBox spacing="20.0">
-                                                <children>
-                                                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="CertTimestamp" />
-                                                    <TextField />
-                                                </children>
-                                                <padding>
-                                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                                </padding>
-                                            </HBox>
-                                        </children>
-                                    </VBox>
-                                </children>
-                            </HBox>
-                            <HBox spacing="20.0">
-                                <children>
-                                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Signature" />
-                                    <TextField editable="false" prefHeight="25.0" prefWidth="589.0" />
-                                </children>
-                                <padding>
-                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                </padding>
-                            </HBox>
-                        </children>
-                    </VBox>
-                    <HBox alignment="CENTER" prefHeight="49.0" prefWidth="880.0">
-                        <padding>
-                            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                        </padding>
-                    </HBox>
-                </children>
-                <padding>
-                    <Insets bottom="10.0" top="10.0" />
-                </padding>
-            </VBox>
-        </children>
-    </Group>
+                                 </padding>
+                              </RadioButton>
+                                   </children>
+                                   <padding>
+                                       <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                   </padding>
+                               </HBox>
+                               <HBox spacing="20.0">
+                                   <children>
+                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Currency" />
+                                       <TextField disable="true" editable="false" prefHeight="25.0" prefWidth="120.0" promptText="g1" text="g1" HBox.hgrow="NEVER" />
+                                   </children>
+                                   <padding>
+                                       <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                   </padding>
+                               </HBox>
+                               <HBox spacing="20.0">
+                                   <children>
+                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Issuer" />
+                              <VBox spacing="5.0">
+                                 <children>
+                                     <PasswordField fx:id="salt" onKeyTyped="#refresh" promptText="salt" />
+                                    <PasswordField fx:id="password" onKeyTyped="#refresh" promptText="password" />
+                                 </children>
+                              </VBox>
+                              <Label fx:id="pk" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="pubkey" HBox.hgrow="ALWAYS" />
+                                   </children>
+                                   <padding>
+                                       <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                   </padding>
+                               </HBox>
+                                   <Separator prefWidth="200.0" />
+                               <HBox VBox.vgrow="ALWAYS">
+                                   <children>
+                                       <VBox fx:id="boxIdty" minWidth="0.0" prefWidth="404.0" HBox.hgrow="ALWAYS">
+                                           <children>
+                                               <HBox spacing="20.0">
+                                                   <children>
+                                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="UniqueID" />
+                                                       <TextField fx:id="uniqueID" onKeyTyped="#refresh" HBox.hgrow="ALWAYS" />
+                                                   </children>
+                                                   <padding>
+                                                       <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                                   </padding>
+                                               </HBox>
+                                               <HBox spacing="20.0">
+                                                   <children>
+                                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Timestamp" />
+                                                       <TextField fx:id="timestamp" disable="true" editable="false" HBox.hgrow="ALWAYS" />
+                                                   </children>
+                                                   <padding>
+                                                       <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                                   </padding>
+                                               </HBox>
+                                           </children>
+                                       </VBox>
+                                       <VBox fx:id="boxMembership" minWidth="0.0" visible="false" HBox.hgrow="ALWAYS">
+                                           <children>
+                                               <HBox spacing="20.0">
+                                                   <children>
+                                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Block" />
+                                                       <TextField fx:id="block" disable="true" editable="false" HBox.hgrow="ALWAYS" />
+                                                   </children>
+                                                   <padding>
+                                                       <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                                   </padding>
+                                               </HBox>
+                                               <HBox spacing="20.0">
+                                                   <children>
+                                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Membership" />
+                                                       <TextField disable="true" editable="false" maxWidth="100.0" text="IN" />
+                                                   </children>
+                                                   <padding>
+                                                       <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                                   </padding>
+                                               </HBox>
+                                               <HBox spacing="20.0">
+                                                   <children>
+                                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="UserID" />
+                                                       <TextField fx:id="userid" onKeyTyped="#refresh" HBox.hgrow="ALWAYS" />
+                                                   </children>
+                                                   <padding>
+                                                       <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                                   </padding>
+                                               </HBox>
+                                               <HBox spacing="20.0">
+                                                   <children>
+                                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="CertTS" />
+                                                       <TextField fx:id="certTS" disable="true" editable="false" HBox.hgrow="ALWAYS" />
+                                                   </children>
+                                                   <padding>
+                                                       <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                                   </padding>
+                                               </HBox>
+                                           </children>
+                                       </VBox>
+                                       <VBox fx:id="boxCertification" minWidth="0.0" prefWidth="500.0" visible="false" HBox.hgrow="ALWAYS">
+                                           <children>
+                                               <HBox spacing="20.0">
+                                                   <children>
+                                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="IdtyIssuer" />
+                                                       <TextField fx:id="idtyIssuer" onKeyTyped="#refresh" HBox.hgrow="ALWAYS" />
+                                                   </children>
+                                                   <padding>
+                                                       <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                                   </padding>
+                                               </HBox>
+                                               <HBox spacing="20.0">
+                                                   <children>
+                                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="IdtyUniqueID" />
+                                                       <TextField fx:id="idtyUniqueID" onKeyTyped="#refresh" HBox.hgrow="ALWAYS" />
+                                                   </children>
+                                                   <padding>
+                                                       <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                                   </padding>
+                                               </HBox>
+                                               <HBox spacing="20.0">
+                                                   <children>
+                                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="IdtyTimestamp" />
+                                                       <TextField fx:id="idtyTimestamp" disable="true" editable="false" HBox.hgrow="ALWAYS" />
+                                                   </children>
+                                                   <padding>
+                                                       <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                                   </padding>
+                                               </HBox>
+                                               <HBox spacing="20.0">
+                                                   <children>
+                                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="IdtySignature" />
+                                                       <TextField fx:id="idtySignature" editable="false" HBox.hgrow="ALWAYS" />
+                                                   </children>
+                                                   <padding>
+                                                       <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                                   </padding>
+                                               </HBox>
+                                               <HBox spacing="20.0">
+                                                   <children>
+                                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="CertTimestamp" />
+                                                       <TextField fx:id="certTimestamp" disable="true" editable="false" HBox.hgrow="ALWAYS" />
+                                                   </children>
+                                                   <padding>
+                                                       <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                                   </padding>
+                                               </HBox>
+                                           </children>
+                                       </VBox>
+                                   </children>
+                               </HBox>
+                                   <Separator prefWidth="200.0" />
+                               <HBox spacing="20.0">
+                                   <children>
+                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Signature" />
+                                       <TextField fx:id="signature" disable="true" editable="false" maxWidth="450.0" HBox.hgrow="ALWAYS" />
+                                   </children>
+                                   <padding>
+                                       <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                   </padding>
+                               </HBox>
+                           </children>
+                       </VBox>
+                       <HBox alignment="CENTER">
+                           <padding>
+                               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                           </padding>
+                       </HBox>
+                   </children>
+                   <padding>
+                       <Insets bottom="10.0" top="10.0" />
+                   </padding>
+               </VBox>
+           </children>
+       </Group>
+   </children>
 </AnchorPane>

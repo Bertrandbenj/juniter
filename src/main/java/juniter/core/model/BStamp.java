@@ -2,6 +2,8 @@ package juniter.core.model;
 
 import juniter.core.utils.Constants;
 import lombok.EqualsAndHashCode;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -22,6 +24,7 @@ import java.io.Serializable;
 public class BStamp implements Serializable {
 
 	private static final long serialVersionUID = -165962007943111454L;
+	private static final Logger LOG = LogManager.getLogger();
 
 	@Min(0)
 	@Column(name = "number")
@@ -54,9 +57,13 @@ public class BStamp implements Serializable {
 
 
 	public void parse(String string) {
-		final String[] pat = string.split("-");
-		number = Integer.valueOf(pat[0]);
-		hash = pat[1];
+		try{
+			final String[] pat = string.split("-");
+			number = Integer.valueOf(pat[0]);
+			hash = pat[1];
+		}catch(Exception e){
+			LOG.error( "Error parsing " + string, e );
+		}
 	}
 
 	public void setHash(String blockHash) {
