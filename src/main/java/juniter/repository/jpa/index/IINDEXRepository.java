@@ -22,6 +22,10 @@ public interface IINDEXRepository extends JpaRepository<IINDEX, Long> {
     @Query(value = "SELECT iindex from IINDEX iindex WHERE  uid = ?1 OR pub = ?2 ")
     Stream<IINDEX> byUidOrPubkey(String uid, String pubkey);
 
+    @Query(value = "SELECT iindex from IINDEX iindex WHERE  uid LIKE CONCAT('%',?1,'%') OR pub LIKE CONCAT('%',?1,'%') ")
+    List<IINDEX> search(String search);
+
+
     @Query(value = "SELECT iindex from IINDEX iindex WHERE  uid = ?1 ")
     Stream<IINDEX> byUid(String uid);
 
@@ -33,6 +37,8 @@ public interface IINDEXRepository extends JpaRepository<IINDEX, Long> {
 
     @Query(value = "SELECT iindex from IINDEX iindex WHERE written_on = ?1 ")
     List<IINDEX> idtyWrittenOn(String writtenOn);
+
+
 
     default Boolean idtyIsMember(String pubkey) {
         return findFirstByPubLike(pubkey).map(i -> i.member).orElse(false);

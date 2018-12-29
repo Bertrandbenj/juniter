@@ -6,27 +6,25 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
 /**
- *
  * @author BnimajneB
- *
  */
 @Configuration
 public class SparkService {
 
-	@Bean
-	public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
-		return new PropertySourcesPlaceholderConfigurer();
-	}
+    @Bean
+    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
+        return new PropertySourcesPlaceholderConfigurer();
+    }
 
 
-	@Value("${spark.app.name:juniter}")
-	private String appName;
+    @Value("${spark.app.name:juniter}")
+    private String appName;
 
-	@Value("${spark.home}")
-	private String sparkHome;
+    @Value("${spark.home}")
+    private String sparkHome;
 
-	@Value("${spark.master:local[*]}")
-	private String masterUri;
+    @Value("${spark.master:local[*]}")
+    private String masterUri;
 
 	//	@Bean
 	//	public JavaSparkContext javaSparkContext() {

@@ -16,8 +16,10 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import juniter.core.validation.StaticValid;
+import juniter.repository.hadoop.SparkTest;
 import juniter.repository.jpa.BlockRepository;
 import juniter.service.Indexer;
+import juniter.service.UtilsService;
 import juniter.service.adminfx.include.AbstractJuniterFX;
 import juniter.service.adminfx.include.ConfirmBox;
 import juniter.service.bma.loader.BlockLoader;
@@ -61,6 +63,8 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
 
     @FXML private TextField tstSome;
 
+    @Autowired
+    SparkTest sparkT ;
 
 
     //                                  LOADING  SECTION
@@ -233,5 +237,24 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
     @FXML
     private void peerCheck(){
         peerLoader.runPeerCheck();
+    }
+
+
+
+    public void parseBlockchain(ActionEvent actionEvent) {
+        sparkT.parseBlockchain();
+    }
+
+    @Autowired
+    UtilsService utilsService ;
+
+    @FXML
+    public void dumpJsonRows(ActionEvent actionEvent) {
+
+        utilsService.dumpJsonRows();
+    }
+
+    public void dumpIndexes(ActionEvent actionEvent) {
+        sparkT.dumpIndexes();
     }
 }

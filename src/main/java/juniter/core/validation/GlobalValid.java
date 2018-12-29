@@ -153,7 +153,7 @@ public interface GlobalValid {
         long idtyWindow = 5259600;
         long msWindow = 5259600;
         double xpercent = 0.8;
-        long msValidity = 31557600; // 365 days, 6 hours,
+        public long msValidity = 31557600; // 365 days, 6 hours,
         long stepMax = 5;
         long medianTimeBlocks = 24;
         long avgGenTime = 300;
@@ -164,7 +164,7 @@ public interface GlobalValid {
         long dtReeval = 15778800; // 182 days, 15 hours
 
         // New parameter, defaults to msWindow
-        long msPeriod = msWindow;
+        public long msPeriod = msWindow;
         long sigReplay = msWindow;
 
         /**

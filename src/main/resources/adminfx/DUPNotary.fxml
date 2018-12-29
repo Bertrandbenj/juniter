@@ -40,14 +40,7 @@
                  <children>
                      <TabPane tabClosingPolicy="UNAVAILABLE">
                         <tabs>
-                            <Tab text="Peer">
-                                <tooltip>
-                                    <Tooltip text="This document help you connect" />
-                                </tooltip>
-                               <content>
-                                   <fx:include source="include/PeerPanel.fxml" />
-                               </content>
-                            </Tab>
+
                             <Tab text="Web Of Trust">
                                 <tooltip>
                                     <Tooltip text="Document signing about your identity" />
@@ -71,6 +64,14 @@
                                <content>
                                    <fx:include source="include/Block0Panel.fxml" />
                                </content>
+                            </Tab>
+                            <Tab text="Peer">
+                                <tooltip>
+                                    <Tooltip text="This document help you connect" />
+                                </tooltip>
+                                <content>
+                                    <fx:include source="include/PeerPanel.fxml" />
+                                </content>
                             </Tab>
                             <Tab text="Other Application .. ">
                                 <tooltip>

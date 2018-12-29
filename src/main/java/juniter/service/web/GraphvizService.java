@@ -8,6 +8,7 @@ import juniter.repository.jpa.TxRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -77,9 +78,12 @@ public class GraphvizService {
 
 	private static final Logger LOG = LogManager.getLogger();
 
-	private static final String svgFile = "src/main/resources/static/dot/%s.svg";
+	@Value("${juniter.dataPath:/tmp/juniter/data/}")
+	private String dataPath;
 
-	private static final String dotFile = "src/main/resources/static/dot/%s.dot";
+	private final String svgFile =  "%s/dot/%s.svg";
+
+	private final String dotFile =  "%s/dot/%s.dot";
 
 
 	@Autowired
@@ -433,8 +437,8 @@ public class GraphvizService {
 	}
 
 	private String localConvertToSVG(String graph, String fileName) {
-		final String svgOut = String.format(svgFile, fileName);
-		final String dotOut = String.format(dotFile, fileName);
+		final String svgOut = String.format(svgFile, dataPath, fileName);
+		final String dotOut = String.format(dotFile, dataPath, fileName);
 
 		try (PrintWriter out = new PrintWriter(dotOut)) {
 			out.println(graph);

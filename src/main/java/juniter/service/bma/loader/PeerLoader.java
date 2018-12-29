@@ -112,8 +112,7 @@ public class PeerLoader {
                 }
 
             } else {
-                LOG.error("Please, connect to the internet and provide BMA configuredNodes ");
-                break;
+                throw new RuntimeException("Please, connect to the internet and provide BMA configuredNodes ");
             }
 
         }

@@ -18,6 +18,10 @@ public interface MINDEXRepository extends JpaRepository<MINDEX, Long> {
 
     @Query(value = "SELECT c from MINDEX c WHERE written_on = ?1")
     List<MINDEX> writtenOn(String s);
+
+    @Query(value = "SELECT m from MINDEX m WHERE  pub LIKE CONCAT('%',?1,'%')")
+    List<MINDEX> search(String search);
+
 }
 
 	

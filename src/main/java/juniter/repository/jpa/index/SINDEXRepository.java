@@ -34,6 +34,10 @@ public interface SINDEXRepository extends JpaRepository<SINDEX, Long> {
 
     @Query(value = "SELECT sindex from SINDEX sindex WHERE written_on = ?1")
     List<SINDEX> writtenOn(String s);
+
+
+    @Query(value = "SELECT s from SINDEX s WHERE identifier LIKE CONCAT('%',?1,'%')")
+    List<SINDEX> search(String search);
 }
 
 	

@@ -121,7 +121,7 @@ public interface BlockRepository extends JpaRepository<Block, Long>, BlockLocalV
 	@Query("select c from Block c")
 	Stream<Block> streamAllBlocks();
 
-	@Query("select c from Block c where number >= ?1 AND number < ?2")
+	@Query("select c from Block c where number >= ?1 AND number < ?2 ")
 	Stream<Block> streamBlocksFromTo(int from, int to);
 
 	default Stream<Block> with(Predicate<Block> predicate) {
@@ -129,5 +129,8 @@ public interface BlockRepository extends JpaRepository<Block, Long>, BlockLocalV
 				.filter(predicate) //
 				.sorted((b1, b2) -> b1.getNumber().compareTo(b2.getNumber()));
 	}
+
+	@Query("select c from Block c where number >= ?1 AND number < ?2")
+	List<Block> blocksFromTo(int from, int to);
 
 }

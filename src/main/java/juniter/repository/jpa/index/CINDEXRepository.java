@@ -21,6 +21,10 @@ public interface CINDEXRepository extends JpaRepository<CINDEX, Long> {
 
     @Query(value = "SELECT c from CINDEX c WHERE written_on = ?1")
     List<CINDEX> writtenOn(String s);
+
+    @Query(value = "SELECT c from CINDEX c WHERE receiver LIKE CONCAT('%',?1,'%') OR issuer LIKE CONCAT('%',?1,'%')")
+    List<CINDEX> search(String search);
+
 }
 
 	

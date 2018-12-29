@@ -6,6 +6,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.TextField;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
+import juniter.repository.jpa.BlockRepository;
 import juniter.service.adminfx.include.AbstractJuniterFX;
 import juniter.service.web.GraphvizService;
 import org.apache.logging.log4j.LogManager;
@@ -42,6 +43,8 @@ public class GraphPanel extends AbstractJuniterFX implements Initializable {
 	@Autowired
 	GraphvizService graphvizService;
 
+	@Autowired
+	BlockRepository blockRepo;
 
 	@Override
 	public void start(Stage primaryStage) {
@@ -107,7 +110,7 @@ public class GraphPanel extends AbstractJuniterFX implements Initializable {
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		uri.setText("/graphviz/svg/block/114907");
+		uri.setText("/graphviz/svg/block/"+(blockRepo.currentBlockNumber()-2));
 
 		var webEngine = SVGAnchor.getEngine(); 	// Get WebEngine via WebView
 		SVGAnchor.setZoom(0.60);
@@ -159,7 +162,7 @@ public class GraphPanel extends AbstractJuniterFX implements Initializable {
 		});
 
 		go();
-		CesiumAnchor.getEngine().load("https://duniter.normandie-libre.fr/wotmap/");
-		WotMapAnchor.getEngine().load("https://g1.duniter.fr/");
+		WotMapAnchor.getEngine().load("https://duniter.normandie-libre.fr/wotmap/");
+		CesiumAnchor.getEngine().load("https://g1.duniter.fr/");
 	}
 }

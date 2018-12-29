@@ -20,9 +20,10 @@ juniter:
   indexer: true
   useDefaultLoader: true
 ##  init: true     # default false
+  dataPath: /home/ben/ws/juniter/_data/
 
 spark:
-  master: local[*]
+  master: spark://ben:7077
   app.name: juniter
   home:
 

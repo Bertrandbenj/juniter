@@ -68,7 +68,7 @@ public class BlockchainService {
 	private static final Logger LOG = LogManager.getLogger();
 
 	@Autowired
-	private BlockRepository repository;
+	private BlockRepository blockRepo;
 
 	@Autowired
 	private BlockLoader defaultLoader;
@@ -82,7 +82,7 @@ public class BlockchainService {
 
 		LOG.info("Entering /blockchain/all");
 
-		try (Stream<juniter.core.model.Block> items = repository.findTop10ByOrderByNumberDesc()) {
+		try (Stream<juniter.core.model.Block> items = blockRepo.findTop10ByOrderByNumberDesc()) {
 			return items.collect(toList());
 		} catch (final Exception e) {
 			LOG.error(e);
@@ -95,7 +95,7 @@ public class BlockchainService {
 	public Block block(@PathVariable("id") Integer id) {
 
 		LOG.info("Entering /blockchain/block/{number=" + id + "}");
-		final var block = repository.findTop1ByNumber(id).orElseGet(() -> defaultLoader.fetchAndSaveBlock(id));
+		final var block = blockRepo.findTop1ByNumber(id).orElseGet(() -> defaultLoader.fetchAndSaveBlock(id));
 
 		return convertToDto(block);
 	}
@@ -109,7 +109,7 @@ public class BlockchainService {
 		final List<Integer> blocksToFind = IntStream.range(from, from + count).boxed().collect(toList());
 		LOG.debug("---blocksToFind: " + blocksToFind);
 
-		final List<juniter.core.model.Block> knownBlocks = repository.findByNumberIn(blocksToFind).collect(toList());
+		final List<juniter.core.model.Block> knownBlocks = blockRepo.findByNumberIn(blocksToFind).collect(toList());
 		LOG.debug("---known blocks: " + knownBlocks.stream().map(b -> b.getNumber()).collect(toList()));
 
 		final List<juniter.core.model.Block> blocksToSave = blocksToFind.stream()
@@ -119,7 +119,7 @@ public class BlockchainService {
 		LOG.debug("---fetch blocks: " + Stream.concat(blocksToSave.stream(), knownBlocks.stream())
 		.map(b -> b.getNumber().toString()).collect(joining(",")));
 
-		repository.saveAll(blocksToSave);
+		blockRepo.saveAll(blocksToSave);
 
 		return Stream.concat(blocksToSave.stream(), knownBlocks.stream()) //
 				.map(b -> convertToDto(b)) //
@@ -138,7 +138,7 @@ public class BlockchainService {
 	@RequestMapping(value = "/current", method = RequestMethod.GET)
 	public Block current() {
 		LOG.info("Entering /blockchain/current");
-		final var b = repository.findTop1ByOrderByNumberDesc()//
+		final var b = blockRepo.findTop1ByOrderByNumberDesc()//
 				.orElse(defaultLoader.fetchAndSaveBlock("current"));
 
 		return convertToDto(b);
@@ -148,8 +148,8 @@ public class BlockchainService {
 	public Block deleteBlock(@PathVariable("id") Integer id) {
 		LOG.warn("Entering /blockchain/deleteBlock/{id=" + id + "}");
 
-		repository.block(id).ifPresent(block -> {
-			repository.delete(block);
+		blockRepo.block(id).ifPresent(block -> {
+			blockRepo.delete(block);
 		});
 
 		return convertToDto(defaultLoader.fetchAndSaveBlock(id));
@@ -181,26 +181,26 @@ public class BlockchainService {
 		Stream<juniter.core.model.Block> st;
 		switch (what) {
 		case "newcomers":
-			st = repository.with(block -> !block.getJoiners().isEmpty());
+			st = blockRepo.with(block -> !block.getJoiners().isEmpty());
 			break;
 		case "certs":
-			st = repository.with(block -> !block.getCertifications().isEmpty());
+			st = blockRepo.with(block -> !block.getCertifications().isEmpty());
 			break;
 		case "actives":
-			st = repository.with(block -> !block.getRenewed().isEmpty());
+			st = blockRepo.with(block -> !block.getRenewed().isEmpty());
 			break;
 		case "leavers":
-			st = repository.with(block -> !block.getLeavers().isEmpty());
+			st = blockRepo.with(block -> !block.getLeavers().isEmpty());
 			break;
 		case "excluded":
-			st = repository.with(block -> !block.getExcluded().isEmpty());
+			st = blockRepo.with(block -> !block.getExcluded().isEmpty());
 			break;
 		case "ud":
-			st = repository.with(block -> block.getDividend() != null);
+			st = blockRepo.with(block -> block.getDividend() != null);
 			break;
 		case "tx":
 		default:
-			st = repository.with(block -> !block.getTransactions().isEmpty());
+			st = blockRepo.with(block -> !block.getTransactions().isEmpty());
 		}
 
 		try (Stream<Integer> items = st.map(b -> b.getNumber())) {

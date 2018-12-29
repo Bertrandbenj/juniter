@@ -55,7 +55,7 @@
                         <Button mnemonicParsing="false" onAction="#revert1" text="&lt;" />
                         <Button mnemonicParsing="false" onAction="#index1" text="&gt;" />
 
-                        <Button mnemonicParsing="false" onAction="#indexUntil" text="&gt;&gt;"  />
+                        <Button mnemonicParsing="false" onAction="#indexUntil" text="&gt;&gt;" />
                          <TextField fx:id="indexTil" prefHeight="25.0" prefWidth="85.0" promptText="until">
                              <tooltip>
                                  <Tooltip text="ex.. 1234   (leave blank for full sync)" />
@@ -117,6 +117,10 @@
                      <children>
                         <Button mnemonicParsing="false" onAction="#pairing" text="Pairing" />
                         <Button mnemonicParsing="false" onAction="#peerCheck" text="peerCheck" />
+                         <Button mnemonicParsing="false" onAction="#parseBlockchain" text="parseBlockchain" />
+
+                         <Button mnemonicParsing="false" onAction="#dumpIndexes" text="dumpIndexes" />
+                         <Button mnemonicParsing="false" onAction="#dumpJsonRows" text="dumpJsonRows" />
                      </children>
                   </HBox>
                </children>

@@ -57,7 +57,7 @@ public interface BlockLocalValid extends LocalValid {
 			assertBlockLocalValid(block);
 			return true;
 		}catch(final AssertionError ea){
-			System.out.println("At block " + block.getNumber());
+			System.out.println("checkBlockisLocalValid At block " + block.getNumber() + ea. getMessage());
 		}
 
 		return false;
@@ -71,7 +71,7 @@ public interface BlockLocalValid extends LocalValid {
 					block.getIssuer()) : "dfsdfdsf";
 		});
 
-		permutation(block.getSignature().toRaw()).forEach(sign -> {
+		permutation(block.getSignature()).forEach(sign -> {
 			System.out.println("testing " + sign);
 
 			assert !Crypto.verify(sign, block.getSignature().toString(),

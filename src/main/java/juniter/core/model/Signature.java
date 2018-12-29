@@ -1,13 +1,16 @@
 package juniter.core.model;
 
-import java.io.Serializable;
+import juniter.core.utils.Constants;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.Embeddable;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import java.io.Serializable;
 
-import juniter.core.utils.Constants;
-
+@Getter
+@Setter
 @Embeddable
 public class Signature implements Serializable, Comparable<Signature> {
 

@@ -38,141 +38,146 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class WebMVCITest implements BlockLocalValid {
 
-	private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger();
 
-	@Autowired
-	private MockMvc mvc;
+    @Autowired
+    private MockMvc mvc;
 
-	@Value("${juniter.network.bulkSize:500}")
-	private Integer bulkSize;
+    @Value("${juniter.network.bulkSize:500}")
+    private Integer bulkSize;
 
-	final ObjectMapper jsonMapper = new ObjectMapper();
 
-	AtomicInteger intt = new AtomicInteger();
+    @Value("${juniter.dataPath:/tmp/juniter/data/}")
+    private String dataPath;
 
-	List<String> erroringBlock = new ArrayList<>();
+    final ObjectMapper jsonMapper = new ObjectMapper();
 
-	private void dirtyReload(Integer bnumber) {
-		try {
-			LOG.error("Deleting to reload block #" + bnumber);
+    AtomicInteger intt = new AtomicInteger();
 
-			mvc.perform(MockMvcRequestBuilders
-					.get("/blockchain/deleteBlock/" + bnumber))
-			.andExpect(status().isOk())
-			.andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8));
-		} catch (final Exception e1) {
-			LOG.error("Retried but failed ", e1);
-			erroringBlock.add(bnumber + " - " + e1.getMessage().split("\n")[0]);
+    List<String> erroringBlock = new ArrayList<>();
 
-		}
 
-	}
+    private void dirtyReload(Integer bnumber) {
+        try {
+            LOG.error("Deleting to reload block #" + bnumber);
 
-	@Test
-	public void test90830(){
+            mvc.perform(MockMvcRequestBuilders
+                    .get("/blockchain/deleteBlock/" + bnumber))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8));
+        } catch (final Exception e1) {
+            LOG.error("Retried but failed ", e1);
+            erroringBlock.add(bnumber + " - " + e1.getMessage().split("\n")[0]);
+
+        }
 
     }
 
-	@Test
-	public void fetchingFirstBlock() throws Exception {
-		mvc.perform(MockMvcRequestBuilders.get("/blockchain/block/0"))//
-		.andExpect(status().isOk())//
-		.andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))//
-		.andExpect(jsonPath("$.currency", is("g1")))
-		.andExpect(jsonPath("$.number", is(0)));
-	}
+    @Test
+    public void test90830() {
 
-	@Before
-	public void init() {
-	}
+    }
 
-	@Test
-	public void testBMABlockOutputValidity() {
+    @Test
+    public void fetchingFirstBlock() throws Exception {
+        mvc.perform(MockMvcRequestBuilders.get("/blockchain/block/0"))//
+                .andExpect(status().isOk())//
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))//
+                .andExpect(jsonPath("$.currency", is("g1")))
+                .andExpect(jsonPath("$.number", is(0)));
+    }
 
-		final long time = System.currentTimeMillis();
+    @Before
+    public void init() {
+    }
 
-		final var current = 160000;
-		final DecimalFormat decimalFormat = new DecimalFormat("##.###%");
+    @Test
+    public void testBMABlockOutputValidity() {
 
-		final var nbPackage = Integer.divideUnsigned(current, bulkSize);
+        final long time = System.currentTimeMillis();
 
-		IntStream.range(0, nbPackage)// get nbPackage Integers
-		.map(nbb -> (nbb * bulkSize)) // with an offset of bulkSize
-		.boxed() //
-		.sorted() //
-		.parallel() // parallel stream if needed
-		.map(i -> "/blockchain/blocks/" + bulkSize + "/" + i) // url
-		.forEach(url -> testOneChunk(url));
+        final var current = 160000;
+        final DecimalFormat decimalFormat = new DecimalFormat("##.###%");
 
-		final long delta = System.currentTimeMillis() - time;
+        final var nbPackage = Integer.divideUnsigned(current, bulkSize);
 
-		final var perBlock = delta / current;
-		final var estimate = current * perBlock;
-		LOG.info(", elapsed time: " + TimeUtils.format(delta) //
-		+ " which is " + perBlock + " ms per block validated, " //
-		+ "estimating: " + TimeUtils.format(estimate));
+        IntStream.range(0, nbPackage)// get nbPackage Integers
+                .map(nbb -> (nbb * bulkSize)) // with an offset of bulkSize
+                .boxed() //
+                .sorted() //
+                .parallel() // parallel stream if needed
+                .map(i -> "/blockchain/blocks/" + bulkSize + "/" + i) // url
+                .forEach(url -> testOneChunk(url));
 
-		LOG.info("blocks erroring :" + erroringBlock.stream().collect(Collectors.joining("\n")));
+        final long delta = System.currentTimeMillis() - time;
 
-	}
+        final var perBlock = delta / current;
+        final var estimate = current * perBlock;
+        LOG.info(", elapsed time: " + TimeUtils.format(delta) //
+                + " which is " + perBlock + " ms per block validated, " //
+                + "estimating: " + TimeUtils.format(estimate));
+
+        LOG.info("blocks erroring :" + erroringBlock.stream().collect(Collectors.joining("\n")));
+
+    }
 
 
+    public void testOne(Integer i) throws AssertionError, Exception {
 
-	public void testOne(Integer i) throws AssertionError, Exception {
+        mvc.perform(MockMvcRequestBuilders.get("/blockchain/block/" + i))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andDo(result -> {
+                    final var body = result.getResponse().getContentAsString();
+                    final Block block = jsonMapper.readValue(body, Block.class);
+                    assertBlockLocalValid(block);
+                });
+    }
 
-		mvc.perform(MockMvcRequestBuilders.get("/blockchain/block/" + i))
-		.andExpect(status().isOk())
-		.andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
-		.andDo(result -> {
-			final var body = result.getResponse().getContentAsString();
-			final Block block = jsonMapper.readValue(body, Block.class);
-			assertBlockLocalValid(block);
-		});
-	}
+    public void testOneChunk(String url) {
 
-	public void testOneChunk(String url) {
+        try {
+            mvc.perform(MockMvcRequestBuilders.get(url))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                    .andDo(result -> {
+                        final var body = result.getResponse().getContentAsString();
+                        final List<Block> blocks = jsonMapper.readValue(body,
+                                new TypeReference<List<Block>>() {
+                                });
+                        blocks.forEach(block -> {
+                            try {
+                                assertBlockLocalValid(block);
+                            } catch (final AssertionError e) {
+                                dirtyReload(block.getNumber());
+                            }
 
-		try {
-			mvc.perform(MockMvcRequestBuilders.get(url))
-			.andExpect(status().isOk())
-			.andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
-			.andDo(result -> {
-				final var body = result.getResponse().getContentAsString();
-				final List<Block> blocks = jsonMapper.readValue(body,
-						new TypeReference<List<Block>>() {
-				});
-				blocks.forEach(block -> {
-					try {
-						assertBlockLocalValid(block);
-					} catch (final AssertionError e) {
-						dirtyReload(block.getNumber());
-					}
+                        });
+                    });
+        } catch (final Exception e) {
 
-				});
-			});
-		} catch (final Exception e) {
+            LOG.info("erroring " + erroringBlock.stream().collect(Collectors.joining("\n")));
+            e.printStackTrace();
+        }
+    }
 
-			LOG.info("erroring " + erroringBlock.stream().collect(Collectors.joining("\n")));
-			e.printStackTrace();
-		}
-	}
 
-	@Test
-	public void testSome(){
+    @Test
+    public void testSome() {
 
-		final List<Integer> numbers = List.of(15144, 109327, 87566, 90830, 85448);
+        final List<Integer> numbers = List.of(15144, 109327, 87566, 90830, 85448);
 
-		numbers.forEach(n -> dirtyReload(n));
+        numbers.forEach(n -> dirtyReload(n));
 
-		numbers.forEach(i -> {
-			try {
-				testOne(i);
-			} catch (final AssertionError e) {
-				e.printStackTrace();
-			} catch (final Exception e) {
-				LOG.error("testSome ", e);
-			}
-		});
-	}
+        numbers.forEach(i -> {
+            try {
+                testOne(i);
+            } catch (final AssertionError e) {
+                e.printStackTrace();
+            } catch (final Exception e) {
+                LOG.error("testSome ", e);
+            }
+        });
+    }
 
 }

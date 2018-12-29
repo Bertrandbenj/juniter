@@ -6,10 +6,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.text.Font;
@@ -36,6 +33,45 @@ public class Database extends AbstractJuniterFX implements Initializable {
     public static ObservableList<CINDEX> cindex = FXCollections.observableArrayList();
     public static ObservableList<MINDEX> mindex = FXCollections.observableArrayList();
     public static ObservableList<SINDEX> sindex = FXCollections.observableArrayList();
+    public TabPane tabPane;
+    @FXML private TableColumn bAvgSizeCol;
+    @FXML private TableColumn bMonetaryMassCol;
+    @FXML private TableColumn bPowMinCol;
+    @FXML private TableColumn bIssuersCountCol;
+    @FXML private TableColumn bIssuersFrameCol;
+    @FXML private TableColumn bIssuerFrameVarCol;
+    @FXML private TextField filterB;
+    @FXML private TableColumn iWotbidCol;
+    @FXML private TableColumn iCreatedOnCol;
+    @FXML private TableColumn iHashCol;
+    @FXML private TableColumn iMemberCol;
+    @FXML private TableColumn iWasMemberCol;
+    @FXML private TableColumn iKickCol;
+    @FXML private TextField filterI;
+    @FXML private TableColumn mOpCol;
+    @FXML private TableColumn mCreatedOn;
+    @FXML private TableColumn mexpiresOn;
+    @FXML private TableColumn mExpiredOn;
+    @FXML private TableColumn mRevokesOn;
+    @FXML private TableColumn mRevokedOn;
+    @FXML private TableColumn mLeaving;
+    @FXML private TableColumn mRevocationSig;
+    @FXML private TableColumn mChainableOn;
+    @FXML private TextField filterM;
+    @FXML private TableColumn cOp;
+    @FXML private TableColumn cExpiresOn;
+    @FXML private TableColumn cExpiredOn;
+    @FXML private TableColumn cSig;
+    @FXML private TableColumn cSignedOn;
+    @FXML private TableColumn cChainableOn;
+    @FXML private TableColumn cFromWid;
+    @FXML private TableColumn ctoWid;
+    @FXML private TextField filterC;
+    @FXML private TableColumn sWrittenTime;
+    @FXML private TableColumn sLocktime;
+    @FXML private TableColumn sPos;
+    @FXML private TableColumn sConditions;
+    @FXML private TextField filterS;
 
 
     @FXML
@@ -143,6 +179,8 @@ public class Database extends AbstractJuniterFX implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
+
+
         tableB.setItems(bindex);
         tableI.setItems(iindex);
         tableM.setItems(mindex);
@@ -157,23 +195,51 @@ public class Database extends AbstractJuniterFX implements Initializable {
         bSizeCol.setCellValueFactory(new PropertyValueFactory<>("size"));
         bTimeCol.setCellValueFactory(new PropertyValueFactory<>("time"));
         bmedianTimeCol.setCellValueFactory(new PropertyValueFactory<>("medianTime"));
+        bMonetaryMassCol.setCellValueFactory(new PropertyValueFactory<>("mass"));
+        bAvgSizeCol.setCellValueFactory(new PropertyValueFactory<>("avgBlockSize"));
+        bIssuerFrameVarCol.setCellValueFactory(new PropertyValueFactory<>("issuersFrameVar"));
+        bIssuersCountCol.setCellValueFactory(new PropertyValueFactory<>("issuersCount"));
+        bIssuersFrameCol.setCellValueFactory(new PropertyValueFactory<>("issuersFrame"));
+        bPowMinCol.setCellValueFactory(new PropertyValueFactory<>("powMin"));
 
 
         iOpCol.setCellValueFactory(new PropertyValueFactory<>("op"));
         iPubCol.setCellValueFactory(new PropertyValueFactory<>("pub"));
         iUidCol.setCellValueFactory(new PropertyValueFactory<>("uid"));
         iWrittenOn.setCellValueFactory(new PropertyValueFactory<>("written_on"));
+        iCreatedOnCol.setCellValueFactory(new PropertyValueFactory<>("created_on"));
+        iHashCol.setCellValueFactory(new PropertyValueFactory<>("hash"));
+        iKickCol.setCellValueFactory(new PropertyValueFactory<>("kick"));
+        iMemberCol.setCellValueFactory(new PropertyValueFactory<>("member"));
+        iWasMemberCol.setCellValueFactory(new PropertyValueFactory<>("wasMember"));
+        iWotbidCol.setCellValueFactory(new PropertyValueFactory<>("wotbid"));
 
 
         cIssuerCol.setCellValueFactory(new PropertyValueFactory<>("issuer"));
         cReceiverCol.setCellValueFactory(new PropertyValueFactory<>("receiver"));
         cCreatedOn.setCellValueFactory(new PropertyValueFactory<>("createdOn"));
         cWrittenOn.setCellValueFactory(new PropertyValueFactory<>("written_on"));
+        cChainableOn.setCellValueFactory(new PropertyValueFactory<>("chainable_on"));
+        cExpiredOn.setCellValueFactory(new PropertyValueFactory<>("expired_on"));
+        cFromWid.setCellValueFactory(new PropertyValueFactory<>("from_wid"));
+        ctoWid.setCellValueFactory(new PropertyValueFactory<>("to_wid"));
+        cSig.setCellValueFactory(new PropertyValueFactory<>("sig"));
+        cOp.setCellValueFactory(new PropertyValueFactory<>("op"));
 
 
         mPubCol.setCellValueFactory(new PropertyValueFactory<>("pub"));
         mStatus.setCellValueFactory(new PropertyValueFactory<>("type"));
         mWrittenOn.setCellValueFactory(new PropertyValueFactory<>("written_on"));
+        mChainableOn.setCellValueFactory(new PropertyValueFactory<>("chainable_on"));
+        mCreatedOn.setCellValueFactory(new PropertyValueFactory<>("created_on"));
+        mRevokedOn.setCellValueFactory(new PropertyValueFactory<>("revoked_on"));
+        mexpiresOn.setCellValueFactory(new PropertyValueFactory<>("expires_on"));
+        mRevokesOn.setCellValueFactory(new PropertyValueFactory<>("revokes_on"));
+        mLeaving.setCellValueFactory(new PropertyValueFactory<>("leaving"));
+        mExpiredOn.setCellValueFactory(new PropertyValueFactory<>("expired_on"));
+        mRevocationSig.setCellValueFactory(new PropertyValueFactory<>("revocation"));
+        mOpCol.setCellValueFactory(new PropertyValueFactory<>("op"));
+
 
         sWrittenOn.setCellValueFactory(new PropertyValueFactory<>("written_on"));
         sAmountCol.setCellValueFactory(new PropertyValueFactory<>("amount"));
@@ -181,7 +247,30 @@ public class Database extends AbstractJuniterFX implements Initializable {
         sConsumedCol.setCellValueFactory(new PropertyValueFactory<>("consumed"));
         sIdentifierCol.setCellValueFactory(new PropertyValueFactory<>("identifier"));
         sOpCol.setCellValueFactory(new PropertyValueFactory<>("op"));
+        sConditions.setCellValueFactory(new PropertyValueFactory<>("conditions"));
+        sLocktime.setCellValueFactory(new PropertyValueFactory<>("locktime"));
+        sPos.setCellValueFactory(new PropertyValueFactory<>("pos"));
 
+
+        filterI.setOnAction(event -> {
+            iindex.clear();
+            iindex.addAll(iRepo.search(filterI.getText()));
+        });
+
+        filterM.setOnAction(event -> {
+            mindex.clear();
+            mindex.addAll(mRepo.search(filterM.getText()));
+        });
+
+        filterC.setOnAction(event -> {
+            cindex.clear();
+            cindex.addAll(cRepo.search(filterC.getText()));
+        });
+
+        filterS.setOnAction(event -> {
+            sindex.clear();
+            sindex.addAll(sRepo.search(filterS.getText()));
+        });
 
         tableB.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
@@ -241,7 +330,6 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
             var blocks = bRepo.findAll();//.stream().map(b -> modelMapper.map(b, GlobalValid.BINDEX.class)).collect(Collectors.toList());
 
-
             // draw the button list
             flowPanel.getChildren().clear();
             blocks.forEach(block -> {
@@ -276,6 +364,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
 
         });
+        tabPane.requestLayout();
 
     }
 

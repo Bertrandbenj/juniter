@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import juniter.core.model.tx.Transaction;
 import juniter.core.model.wot.*;
 import juniter.core.utils.Constants;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
@@ -12,6 +14,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +42,8 @@ import static java.util.stream.Collectors.toList;
  *
  */
 @Entity
+@Getter
+@Setter
 @Table(name = "block", schema = "public") // , indexes = @Index(columnList = "number,hash"))
 @JsonIgnoreProperties(ignoreUnknown = true)
 @IdClass(BStamp.class)
@@ -80,9 +85,9 @@ public class Block implements Serializable, DUPComponent {
 	@AttributeOverride(name = "pubkey", column = @Column(name = "issuer"))
 	private final Pubkey issuer = new Pubkey();
 
-	@Valid
-	@AttributeOverride(name = "signature", column = @Column(name = "signature"))
-	private Signature signature = new Signature();
+	@Pattern(regexp = Constants.Regex.SIGNATURE)
+	@Size(max = 88)
+	private String signature;
 
 	@Valid
 	//	@AttributeOverride(name = "hash", column = @Column(name = "hash"))
@@ -374,7 +379,7 @@ public class Block implements Serializable, DUPComponent {
 	/**
 	 * @return the signature
 	 */
-	public Signature getSignature() {
+	public String getSignature() {
 		return signature;// .getSignature();
 	}
 
@@ -508,7 +513,7 @@ public class Block implements Serializable, DUPComponent {
 		this.revoked = revoked;
 	}
 
-	public void setSignature(Signature signature) {
+	public void setSignature(String signature) {
 		this.signature = signature;
 	}
 

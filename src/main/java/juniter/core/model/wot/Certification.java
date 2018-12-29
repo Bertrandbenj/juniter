@@ -1,6 +1,7 @@
 package juniter.core.model.wot;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import java.io.Serializable;
 @Getter
 @Setter
 @Entity
+@AllArgsConstructor
 @Table(name = "Certification", schema = "public")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Certification implements Serializable, Comparable<Certification> {
@@ -20,7 +22,9 @@ public class Certification implements Serializable, Comparable<Certification> {
 	private static final Logger LOG = LoggerFactory.getLogger(Certification.class);
 
 
-	@Id
+
+
+    @Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 
@@ -72,6 +76,42 @@ public class Certification implements Serializable, Comparable<Certification> {
 		return signature;
 	}
 
-	public Integer getBlockNumber() { return blockNumber;
+	public Integer getBlockNumber() { return blockNumber;	}
+
+
+	public Long getId() {
+		return id;
 	}
+
+	public String getCertifier() {
+		return certifier;
+	}
+
+	public String getCertified() {
+		return certified;
+	}
+
+	public String getSignature() {
+		return signature;
+	}
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setCertifier(String certifier) {
+        this.certifier = certifier;
+    }
+
+    public void setCertified(String certified) {
+        this.certified = certified;
+    }
+
+    public void setBlockNumber(Integer blockNumber) {
+        this.blockNumber = blockNumber;
+    }
+
+    public void setSignature(String signature) {
+        this.signature = signature;
+    }
 }
