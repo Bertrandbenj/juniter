@@ -1,5 +1,8 @@
 package juniter.repository.hadoop;
 
+import org.apache.spark.SparkConf;
+import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.sql.SparkSession;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,7 +12,7 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
  * @author BnimajneB
  */
 @Configuration
-public class SparkService {
+public class SparkConfig {
 
     @Bean
     public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
@@ -26,28 +29,31 @@ public class SparkService {
     @Value("${spark.master:local[*]}")
     private String masterUri;
 
-	//	@Bean
-	//	public JavaSparkContext javaSparkContext() {
-	//		return new JavaSparkContext(sparkConf());
-	//	}
-	//
-	//	@Bean
-	//	public SparkConf sparkConf() {
-	//		final SparkConf sparkConf = new SparkConf()
-	//				.setAppName(appName)
-	//				.setSparkHome(sparkHome)
-	//				.setMaster(masterUri);
-	//
-	//		return sparkConf;
-	//	}
-	//
-	//	@Bean
-	//	public SparkSession sparkSession() {
-	//		return SparkSession
-	//				.builder()
-	//				.sparkContext(javaSparkContext().sc())
-	//				.appName("Java Spark SQL basic example")
-	//				.getOrCreate();
-	//	}
+    @Bean
+    public JavaSparkContext javaSparkContext() {
+        return new JavaSparkContext(sparkConf());
+    }
+
+    @Bean
+    public SparkConf sparkConf() {
+        return new org.apache.spark.SparkConf()
+                .setAppName(appName)
+                .setSparkHome(sparkHome)
+                .setMaster(masterUri)
+                .set("spark.hadoop.mapred.output.compress", "true")
+                .set("spark.hadoop.mapred.output.compression.codec", "org.apache.hadoop.io.compress.GzipCodec")
+                .set("spark.hadoop.mapred.output.compression.type", "BLOCK")
+                //.set("spark.eventLog.enabled", "true")
+                ;
+    }
+
+    @Bean
+    public SparkSession sparkSession() {
+        return SparkSession
+                .builder()
+                .sparkContext(javaSparkContext().sc())
+                .appName("Java Spark SQL basic example")
+                .getOrCreate();
+    }
 
 }
