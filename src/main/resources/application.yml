@@ -1,4 +1,3 @@
-
 ##
 ## =========================== Juniter Configs ===========================
 ##
@@ -19,13 +18,13 @@ juniter:
   useJavaFX: true
   indexer: true
   useDefaultLoader: true
-##  init: true     # default false
+  ##  init: true     # default false
   dataPath: /home/ben/ws/juniter/_data/
 
 spark:
   master: spark://ben:7077
   app.name: juniter
-  home:
+  home: /home/ben/spark-2.4.0-bin-hadoop2.7/
 
 
 ##
@@ -42,32 +41,34 @@ spring:
     driverClassName: org.postgresql.Driver
     jdbcUrl: jdbc:postgresql://localhost/testdb
 
-  jpa:  
-    database: default 
+  jpa:
+    database: default
     generate-ddl: true
     show-sql: false
     hibernate.ddl-auto: create-drop
     properties.hibernate.jdbc:
-          lob.non_contextual_creation: true # disable an ugly exception at start 
-#  mvc.view:
-#      prefix: /WEB-INF/view/
-#      suffix: .jsp
-#  autoconfigure.exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration 
+      lob.non_contextual_creation: true # disable an ugly exception at start
+  #  mvc.view:
+  #      prefix: /WEB-INF/view/
+  #      suffix: .jsp
+  #  autoconfigure.exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
 
-# https://kafka.apache.org/quickstart
+
+  ##
+  ## =========================== Web Server Configs ===========================
+  ## https://kafka.apache.org/quickstart
   kafka:
-#    bootstrap-servers: kafka:9092  
+    #    bootstrap-servers: kafka:9092
     consumer:
       group-id: juniter
-#      auto-offset-init: earliest
+      #      auto-offset-init: earliest
 
-     
+
 
 
 ##
 ## =========================== Web Server Configs ===========================
-## 
-
+##
 server:
   port: 8443
   ssl:
@@ -78,6 +79,11 @@ server:
   compression:
     enabled: true
     mime-types: application/json,application/xml,text/html,text/xml,text/plain,application/javascript,text/css,image/svg+xml
+
+
+##
+## =========================== GraphQL ===========================
+##
 
 graphql:
   servlet:
@@ -112,16 +118,18 @@ graphiql:
 
 ##
 ## =========================== Logging Configs ===========================
-##    
-#logging:
-#  path: /var/log/juniter
-##  file: juniter.log
-#  level:
-#    root: info
-#    org.springframework.web: info
-#    org.hibernate.SQL: warn
-#    juniter: info
-#hibernate.show_sql: false
+##
+
+
+    #logging:
+    #  path: /var/log/juniter
+    ##  file: juniter.log
+    #  level:
+    #    root: info
+    #    org.springframework.web: info
+    #    org.hibernate.SQL: warn
+    #    juniter: info
+    #hibernate.show_sql: false
     
     
     

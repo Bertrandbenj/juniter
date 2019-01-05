@@ -1,13 +1,11 @@
 package juniter.core.model.tx;
 
-import java.io.Serializable;
-
-import javax.persistence.Embeddable;
-
+import juniter.core.model.DUPComponent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import juniter.core.model.DUPComponent;
+import javax.persistence.Embeddable;
+import java.io.Serializable;
 
 @Embeddable
 public class TxUnlock implements Serializable, Comparable<TxUnlock>, DUPComponent {
@@ -42,7 +40,11 @@ public class TxUnlock implements Serializable, Comparable<TxUnlock>, DUPComponen
 	}
 
 	public TxUnlock(String unlock) {
-		setUnlock(unlock);
+		final var vals = unlock.split(":");
+		inputRef = Integer.valueOf(vals[0]);
+		final var function = vals[1];
+		setFct(UnlockFct.valueOf(function.substring(0, 3)));
+		setFctParam(function.substring(4, function.length() - 1));
 	}
 
 	@Override
@@ -79,16 +81,7 @@ public class TxUnlock implements Serializable, Comparable<TxUnlock>, DUPComponen
 		inputRef = id;
 	}
 
-	public void setUnlock(String unlock) {
 
-		//		LOG.debug("Parsing TxUnlock... " + unlock);
-
-		final var vals = unlock.split(":");
-		inputRef = Integer.valueOf(vals[0]);
-		final var function = vals[1];
-		setFct(UnlockFct.valueOf(function.substring(0, 3)));
-		setFctParam(function.substring(4, function.length() - 1));
-	}
 
 	@Override
 	public String toDUP() {

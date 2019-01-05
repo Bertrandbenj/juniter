@@ -88,16 +88,17 @@ public class BlockchainService {
 			LOG.error(e);
 			return null;
 		}
-
 	}
 
 	@RequestMapping(value = "/block/{id}", method = RequestMethod.GET)
 	public Block block(@PathVariable("id") Integer id) {
 
 		LOG.info("Entering /blockchain/block/{number=" + id + "}");
-		final var block = blockRepo.findTop1ByNumber(id).orElseGet(() -> defaultLoader.fetchAndSaveBlock(id));
+		final var block = blockRepo
+				.findTop1ByNumber(id)
+				.orElseGet(() -> defaultLoader.fetchAndSaveBlock(id));
 
-		return convertToDto(block);
+		return modelMapper.map(block, Block.class);
 	}
 
 	@Transactional
@@ -113,7 +114,7 @@ public class BlockchainService {
 		LOG.debug("---known blocks: " + knownBlocks.stream().map(b -> b.getNumber()).collect(toList()));
 
 		final List<juniter.core.model.Block> blocksToSave = blocksToFind.stream()
-				.filter(b -> !knownBlocks.stream().anyMatch(kb -> kb.getNumber().equals(b)))
+				.filter(b -> knownBlocks.stream().noneMatch(kb -> kb.getNumber().equals(b)))
 				.map(lg -> defaultLoader.fetchAndSaveBlock(lg)).collect(toList());
 
 		LOG.debug("---fetch blocks: " + Stream.concat(blocksToSave.stream(), knownBlocks.stream())
@@ -122,17 +123,10 @@ public class BlockchainService {
 		blockRepo.saveAll(blocksToSave);
 
 		return Stream.concat(blocksToSave.stream(), knownBlocks.stream()) //
-				.map(b -> convertToDto(b)) //
+				.map(b -> modelMapper.map(b, Block.class)) //
 				.collect(toList());
 	}
 
-	private Block convertToDto(juniter.core.model.Block block) {
-		//		LOG.debug(" - Converting block " + block);
-
-		final Block postDto = modelMapper.map(block, Block.class);
-
-		return postDto;
-	}
 
 	@Transactional
 	@RequestMapping(value = "/current", method = RequestMethod.GET)
@@ -141,7 +135,7 @@ public class BlockchainService {
 		final var b = blockRepo.findTop1ByOrderByNumberDesc()//
 				.orElse(defaultLoader.fetchAndSaveBlock("current"));
 
-		return convertToDto(b);
+		return modelMapper.map(b, Block.class);
 	}
 
 	@RequestMapping(value = "/deleteBlock/{id}", method = RequestMethod.GET)
@@ -152,7 +146,7 @@ public class BlockchainService {
 			blockRepo.delete(block);
 		});
 
-		return convertToDto(defaultLoader.fetchAndSaveBlock(id));
+		return modelMapper.map(defaultLoader.fetchAndSaveBlock(id), Block.class);
 	}
 
 	@RequestMapping(value = "/", method = RequestMethod.GET)

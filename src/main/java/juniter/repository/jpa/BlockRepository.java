@@ -61,7 +61,7 @@ public interface BlockRepository extends JpaRepository<Block, Long>, BlockLocalV
 	}
 
 	default Integer currentBlockNumber() {
-		return current().map(Block::getNumber).orElseThrow();
+		return current().map(Block::getNumber).orElse(-1);
 	}
 
 

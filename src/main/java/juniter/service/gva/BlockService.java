@@ -80,7 +80,7 @@ public class BlockService {
 
 //	@Transactional
 //	@GraphQLMutation(name = "block", description = "post a block document")
-//	public void block(@GraphQLArgument(name = "raw") String raw) {
+//	public void block(@GraphQLArgument(name = "rawDocument") String rawDocument) {
 //		LOG.info(" GVA - block");
 //	}
 }

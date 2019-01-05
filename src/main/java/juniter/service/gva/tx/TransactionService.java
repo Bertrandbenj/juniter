@@ -6,6 +6,7 @@ import io.leangen.graphql.annotations.GraphQLMutation;
 import io.leangen.graphql.annotations.GraphQLNonNull;
 import io.leangen.graphql.annotations.GraphQLQuery;
 import juniter.repository.jpa.TxRepository;
+import juniter.repository.jpa.index.SINDEX;
 import juniter.repository.jpa.index.SINDEXRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -66,7 +67,7 @@ public class TransactionService {
 	@GraphQLQuery(name = "sourcesOfPubkey", description = "find a wallet's sources  ")
 	@GraphQLNonNull
 	public List<@GraphQLNonNull Source> sourcesOfPubkey(@GraphQLNonNull @GraphQLArgument(name = "pub") String pub) {
-		return sRepo.sourcesOfPubkey(pub).map(s-> modelMapper.map(s, Source.class)).collect(Collectors.toList());
+		return sRepo.sourcesOfPubkey(pub).map(SINDEX::asSourceGVA).collect(Collectors.toList());
 	}
 
 
@@ -75,7 +76,7 @@ public class TransactionService {
 	@Transactional
 	@GraphQLMutation(name = "submitTransaction", description = "post a transaction document")
 	@GraphQLNonNull
-	public Transaction submitTransaction(@GraphQLNonNull @GraphQLArgument(name = "raw") String raw) {
+	public Transaction submitTransaction(@GraphQLNonNull @GraphQLArgument(name = "rawDocument") String raw) {
 		LOG.info(" GVA - submitTransaction");
 		return new Transaction();
 	}

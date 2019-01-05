@@ -1,164 +1,102 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import javafx.scene.text.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.Group?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="juniter.service.adminfx.include.PeerPanel">
-    <Group>
-        <children>
-            <VBox prefHeight="401.0" prefWidth="880.0">
-                <children>
-                    <VBox fx:id="identityForm1" prefHeight="200.0" prefWidth="100.0">
-                        <children>
-                            <HBox spacing="20.0">
-                                <children>
-                                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Version" />
-                                    <TextField disable="true" editable="false" text="10" />
-                                </children>
-                                <padding>
-                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                </padding>
-                            </HBox>
-                            <HBox spacing="20.0">
-                                <children>
-                                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Type" />
-                                    <TextField disable="true" editable="false" text="Peer" />
-                                </children>
-                                <padding>
-                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                </padding>
-                            </HBox>
-                            <HBox spacing="20.0">
-                                <children>
-                                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Currency" />
-                                    <TextField disable="true" editable="false" promptText="g1" text="g1" />
-                                </children>
-                                <padding>
-                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                </padding>
-                            </HBox>
-                            <HBox spacing="20.0">
-                                <children>
-                                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="PublicKey" />
-                                    <TextField />
-                                </children>
-                                <padding>
-                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                </padding>
-                            </HBox>
-                            <HBox spacing="20.0">
-                                <children>
-                                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Block" />
-                                    <TextField />
-                                </children>
-                                <padding>
-                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                </padding>
-                            </HBox>
-                            <HBox prefHeight="444.0" prefWidth="880.0" spacing="20.0" VBox.vgrow="ALWAYS">
-                                <children>
-                                    <VBox prefHeight="225.0" prefWidth="404.0">
-                                        <children>
-                                            <HBox prefHeight="357.0" prefWidth="404.0" spacing="20.0">
-                                                <children>
-                                                    <VBox prefHeight="335.0" prefWidth="288.0" spacing="10.0">
-                                                        <children>
-                                                            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="26.0" prefWidth="248.0" text="End Point">
-                                                                <font>
-                                                                    <Font size="22.0" />
-                                                                </font>
-                                                            </Label>
-                                                            <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0">
-                                                                <children>
-                                                                    <RadioButton mnemonicParsing="false" text="WS2P">
-                                                                        <font>
-                                                                            <Font size="10.0" />
-                                                                        </font>
-                                                                    </RadioButton>
-                                                                    <RadioButton mnemonicParsing="false" text="BMAS">
-                                                                        <font>
-                                                                            <Font size="10.0" />
-                                                                        </font>
-                                                                    </RadioButton>
-                                                                    <RadioButton mnemonicParsing="false" text="BASIC_MERKLED_API">
-                                                                        <toggleGroup>
-                                                                            <ToggleGroup fx:id="epType" />
-                                                                        </toggleGroup>
-                                                                        <font>
-                                                                            <Font size="10.0" />
-                                                                        </font>
-                                                                    </RadioButton>
-                                                                </children>
-                                                                <padding>
-                                                                    <Insets bottom="10.0" left="30.0" right="10.0" top="10.0" />
-                                                                </padding>
-                                                            </VBox>
-                                                            <HBox prefHeight="100.0" prefWidth="200.0" spacing="20.0">
-                                                                <children>
-                                                                    <Label alignment="CENTER" prefHeight="25.0" prefWidth="88.0" text="SessionID" />
-                                                                    <TextField editable="false" prefHeight="25.0" prefWidth="125.0" />
-                                                                </children>
-                                                            </HBox>
-                                                            <HBox prefHeight="100.0" prefWidth="200.0" spacing="20.0">
-                                                                <children>
-                                                                    <Label alignment="CENTER" prefHeight="25.0" prefWidth="87.0" text="URL" />
-                                                                    <TextField prefHeight="25.0" prefWidth="125.0" />
-                                                                </children>
-                                                            </HBox>
-                                                            <HBox prefHeight="100.0" prefWidth="200.0" spacing="20.0">
-                                                                <children>
-                                                                    <Label alignment="CENTER" prefHeight="25.0" prefWidth="88.0" text="IP4" />
-                                                                    <TextField prefHeight="25.0" prefWidth="125.0" />
-                                                                </children>
-                                                            </HBox>
-                                                            <HBox prefHeight="100.0" prefWidth="200.0" spacing="20.0">
-                                                                <children>
-                                                                    <Label alignment="CENTER" prefHeight="25.0" prefWidth="87.0" text="IP6 " />
-                                                                    <TextField prefHeight="25.0" prefWidth="125.0" />
-                                                                </children>
-                                                            </HBox>
-                                                            <HBox prefHeight="100.0" prefWidth="200.0" spacing="20.0">
-                                                                <children>
-                                                                    <Label alignment="CENTER" prefHeight="25.0" prefWidth="87.0" text="Port" />
-                                                                    <TextField prefHeight="25.0" prefWidth="125.0" />
-                                                                </children>
-                                                            </HBox>
-                                                            <Button alignment="CENTER" contentDisplay="TOP" mnemonicParsing="false" prefHeight="32.0" prefWidth="105.0" text="add Endpoint" />
-                                                        </children>
-                                                        <padding>
-                                                            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                                        </padding>
-                                                    </VBox>
-                                                </children>
-                                                <padding>
-                                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                                </padding>
-                                            </HBox>
-                                        </children>
-                                    </VBox>
-                                </children>
-                                <padding>
-                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                </padding>
-                            </HBox>
-                        </children>
-                    </VBox>
-                    <HBox alignment="CENTER" prefHeight="56.0" prefWidth="880.0" spacing="20.0">
-                        <padding>
-                            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                        </padding>
-                        <children>
-                            <CheckBox disable="true" indeterminate="true" mnemonicParsing="false" prefHeight="18.0" prefWidth="118.0" text="isValid ?" />
-                            <Button mnemonicParsing="false" prefHeight="37.0" prefWidth="55.0" text="Save" />
-                            <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="108.0" text="Broadcast" />
-                        </children>
-                    </HBox>
-                </children>
-            </VBox>
-        </children>
-    </Group>
 
-</AnchorPane>
+<VBox prefHeight="401.0" prefWidth="880.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="juniter.service.adminfx.include.PeerPanel">
+    <children>
+        <VBox fx:id="identityForm1" prefHeight="200.0" prefWidth="100.0">
+            <children>
+                <HBox spacing="20.0">
+                    <children>
+                        <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Version"/>
+                        <TextField fx:id="version" disable="true" editable="false" text="10"/>
+                    </children>
+                    <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                    </padding>
+                </HBox>
+                <HBox spacing="20.0">
+                    <children>
+                        <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Type"/>
+                        <TextField fx:id="type" disable="true" editable="false" text="Peer"/>
+                    </children>
+                    <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                    </padding>
+                </HBox>
+                <HBox spacing="20.0">
+                    <children>
+                        <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Currency"/>
+                        <TextField fx:id="currency" disable="true" editable="false" promptText="g1" text="g1"/>
+                    </children>
+                    <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                    </padding>
+                </HBox>
+                <HBox spacing="20.0">
+                    <children>
+                        <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="PublicKey"/>
+                        <PasswordField fx:id="salt"/>
+                        <PasswordField fx:id="password"/>
+                        <Label fx:id="pubkey" maxHeight="1.7976931348623157E308" HBox.hgrow="ALWAYS"/>
+                    </children>
+                    <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                    </padding>
+                </HBox>
+                <HBox spacing="20.0">
+                    <children>
+                        <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Block"/>
+                        <TextField fx:id="block" editable="false" prefHeight="25.0" prefWidth="400.0"/>
+                    </children>
+                    <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                    </padding>
+                </HBox>
+                <HBox prefHeight="444.0" prefWidth="880.0" spacing="20.0" VBox.vgrow="ALWAYS">
+                    <children>
+                        <VBox spacing="10.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label alignment="CENTER" contentDisplay="CENTER" maxWidth="1.7976931348623157E308"
+                                       text="Endpoints" VBox.vgrow="ALWAYS">
+                                    <font>
+                                        <Font size="22.0"/>
+                                    </font>
+                                </Label>
+                                <HBox spacing="10.0">
+                                    <children>
+                                        <ComboBox fx:id="typeCombo" prefWidth="150.0" promptText="Type"/>
+                                        <TextField fx:id="sessid" editable="false" prefHeight="25.0" prefWidth="80.0"
+                                                   promptText="SessionID"/>
+                                        <TextField fx:id="url" prefHeight="25.0" prefWidth="150.0" promptText="URL"
+                                                   HBox.hgrow="ALWAYS"/>
+                                        <TextField fx:id="ip4" prefHeight="25.0" prefWidth="150.0" promptText="IP4"/>
+                                        <TextField fx:id="ip6" prefHeight="25.0" prefWidth="150.0" promptText="IP6"/>
+                                        <TextField fx:id="port" prefHeight="25.0" prefWidth="80.0" promptText="Port"/>
+                                        <Button alignment="CENTER" contentDisplay="TOP" mnemonicParsing="false"
+                                                onAction="#addEndPoint" text="+"
+                                                HBox.hgrow="NEVER"/>
+                                    </children>
+                                </HBox>
+                                <VBox fx:id="endpointsContainer" prefHeight="200.0" prefWidth="100.0"/>
+                            </children>
+                            <padding>
+                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                            </padding>
+                        </VBox>
+                    </children>
+                    <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                    </padding>
+                </HBox>
+            </children>
+        </VBox>
+    </children>
+</VBox>

@@ -2,7 +2,13 @@ package juniter.service.bma;
 
 import juniter.core.model.tx.Transaction;
 import juniter.repository.jpa.TxRepository;
+import juniter.repository.jpa.index.SINDEX;
+import juniter.repository.jpa.index.SINDEXRepository;
 import juniter.service.bma.dto.TxHistory;
+import juniter.service.bma.dto.Source;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
@@ -21,7 +27,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -38,6 +46,9 @@ public class TxService {
 
     @Autowired
     private TxRepository repository;
+
+    @Autowired private SINDEXRepository sRepo;
+
 
     @Autowired
     private ModelMapper modelMapper;
@@ -77,10 +88,32 @@ public class TxService {
         return null;
     }
 
+    @Transactional(readOnly = true)
     @RequestMapping(value = "/sources/{pubkey}", method = RequestMethod.GET)
-    public String sources(@PathVariable("pubkey") String pubkey) {
+    public Wrapper sources(@PathVariable("pubkey") String pubkey) {
         LOG.info("Entering /sources/{pubkey= " + pubkey + "}");
-        return "not implemented yet";
+        return new Wrapper(
+                pubkey,
+                sRepo.sourcesOfPubkey(pubkey).map(SINDEX::asSourceBMA).collect(Collectors.toList())
+        );
+
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public class Wrapper implements Serializable {
+
+        private static final long serialVersionUID = 7842838617478484444L;
+
+        String currency =  "g1";
+        String pubkey ;
+        List<Source> sources = new ArrayList<>();
+
+        Wrapper(String pubkey, List<Source> sources) {
+            this.pubkey = pubkey;
+            this.sources = sources;
+        }
     }
 
     @RequestMapping(value = "/history/{pubkey}/blocks/{from}/{to}", method = RequestMethod.GET)

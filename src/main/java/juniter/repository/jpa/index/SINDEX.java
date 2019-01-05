@@ -39,5 +39,52 @@ public class SINDEX implements Serializable {
     String conditions;
     Integer writtenOn;
 
+    public juniter.service.gva.tx.Source asSourceGVA(){
+        return new juniter.service.gva.tx.Source(
+                tx == null ? "D":"T",
+                pos,
+                identifier,
+                amount,
+                base,
+                conditions,
+                consumed);
+    }
 
+    /**
+     * return available sources
+     * @return
+     */
+    public juniter.service.bma.dto.Source asSourceBMA(){
+        return new juniter.service.bma.dto.Source(
+                tx == null ? "D":"T",
+                pos,
+                identifier,
+                amount,
+                base,
+                conditions);
+    }
+
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public String getWritten_on() {
+        return written_on;
+    }
+
+    public int getAmount() {
+        return amount;
+    }
+
+    public int getBase() {
+        return base;
+    }
+
+    public String getConditions() {
+        return conditions;
+    }
+
+    public int getPos() {
+        return pos;
+    }
 }

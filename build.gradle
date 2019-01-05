@@ -10,14 +10,14 @@ buildscript {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:2.0.2.RELEASE")
     	//classpath 'me.champeau.gradle:antlr4-gradle-plugin:0.1'
     	classpath 'org.hidetake:gradle-ssh-plugin:2.9.0'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.2.51"
+        //classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.2.51"
     }
    
 }
 
 plugins {
 	id 'org.springframework.boot' version '2.0.2.RELEASE'
-    id 'org.jetbrains.kotlin.jvm' version '1.2.51'
+    //id 'org.jetbrains.kotlin.jvm' version '1.2.51'
 }
 
 group 'org.duniter'
@@ -124,8 +124,8 @@ configurations {
 
     // add antlr4 to classpath
     //compileJava.dependsOn generateGrammarSource
-    compileJava.dependsOn compileScala
-    compileScala.dependsOn.remove("compileJava")
+    //compileJava.dependsOn compileScala
+    //compileScala.dependsOn.remove("compileJava")
     compile.extendsFrom = extendsFrom.findAll { it != configurations.antlr }
     //compile.extendsFrom antlr4
 
@@ -245,9 +245,12 @@ dependencies {
 
     compile 'org.projectlombok:lombok:1.18.4'
 
-    compile files("$sourceSets.main.scala.outputDir")
+    //compile files("$sourceSets.main.scala.outputDir")
+
     antlr "org.antlr:antlr4:4.7.1"
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    //compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+
+    compile "org.xerial:sqlite-jdbc:3.23.1"
 }
 
 
@@ -335,13 +338,14 @@ jar {
 clean.doLast {
     file('generated-src').deleteDir()
 }
-compileKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
-}
-compileTestKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
-}
+
+//compileKotlin {
+//    kotlinOptions {
+//        jvmTarget = "1.8"
+//    }
+//}
+//compileTestKotlin {
+//    kotlinOptions {
+//        jvmTarget = "1.8"
+//    }
+//}

@@ -53,7 +53,7 @@ public class TestIndex {
 		assertTrue("blockchain not parsed " + blockchain.size(), blockchain.size() == 12);
 
 		for (final Block b : blockchain) {
-			assertTrue("NOT Valid \n" + b.toDUP(), idx_duniter.validate(b));
+			assertTrue("NOT Valid \n" + b.toDUP(), idx_duniter.validate(b, false));
 		}
 
 	}
@@ -64,7 +64,7 @@ public class TestIndex {
 		assertTrue("blockchain not parsed " + blockchaing1.size(), blockchaing1.size() == 100);
 
 		for (final Block b : blockchaing1) {
-			assertTrue("NOT Valid \n" + b.toDUP(), idx_g1.validate(b));
+			assertTrue("NOT Valid \n" + b.toDUP(), idx_g1.validate(b, false));
 		}
 
 

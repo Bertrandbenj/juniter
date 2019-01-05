@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.text.*?>
 <?import java.lang.*?>
 <?import javafx.scene.*?>
 <?import javafx.geometry.*?>
@@ -18,7 +19,7 @@
                                <HBox spacing="20.0">
                                    <children>
                                        <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Version" />
-                                       <TextField disable="true" editable="false" prefHeight="25.0" prefWidth="120.0" text="10" />
+                                       <TextField fx:id="version" editable="false" prefHeight="25.0" prefWidth="120.0" text="10" />
                                    </children>
                                    <padding>
                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
@@ -58,7 +59,7 @@
                                <HBox spacing="20.0">
                                    <children>
                                        <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Currency" />
-                                       <TextField disable="true" editable="false" prefHeight="25.0" prefWidth="120.0" promptText="g1" text="g1" HBox.hgrow="NEVER" />
+                                       <TextField fx:id="currency" editable="false" prefHeight="25.0" prefWidth="120.0" promptText="g1" text="g1" HBox.hgrow="NEVER" />
                                    </children>
                                    <padding>
                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
@@ -69,8 +70,8 @@
                                        <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Issuer" />
                               <VBox spacing="5.0">
                                  <children>
-                                     <PasswordField fx:id="salt" onKeyTyped="#refresh" promptText="salt" />
-                                    <PasswordField fx:id="password" onKeyTyped="#refresh" promptText="password" />
+                                     <PasswordField fx:id="salt" onAction="#refresh" promptText="salt" />
+                                    <PasswordField fx:id="password" onAction="#refresh" promptText="password" />
                                  </children>
                               </VBox>
                               <Label fx:id="pk" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="pubkey" HBox.hgrow="ALWAYS" />
@@ -87,7 +88,7 @@
                                                <HBox spacing="20.0">
                                                    <children>
                                                        <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="UniqueID" />
-                                                       <TextField fx:id="uniqueID" onKeyTyped="#refresh" HBox.hgrow="ALWAYS" />
+                                                       <TextField fx:id="uniqueID" onAction="#refresh" HBox.hgrow="ALWAYS" />
                                                    </children>
                                                    <padding>
                                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
@@ -96,7 +97,7 @@
                                                <HBox spacing="20.0">
                                                    <children>
                                                        <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Timestamp" />
-                                                       <TextField fx:id="timestamp" disable="true" editable="false" HBox.hgrow="ALWAYS" />
+                                                       <TextField fx:id="timestamp" HBox.hgrow="ALWAYS" />
                                                    </children>
                                                    <padding>
                                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
@@ -104,12 +105,12 @@
                                                </HBox>
                                            </children>
                                        </VBox>
-                                       <VBox fx:id="boxMembership" minWidth="0.0" visible="false" HBox.hgrow="ALWAYS">
+                                       <VBox fx:id="boxMembership" minWidth="0.0" HBox.hgrow="ALWAYS">
                                            <children>
                                                <HBox spacing="20.0">
                                                    <children>
                                                        <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Block" />
-                                                       <TextField fx:id="block" disable="true" editable="false" HBox.hgrow="ALWAYS" />
+                                                       <TextField fx:id="block" editable="false" HBox.hgrow="ALWAYS" />
                                                    </children>
                                                    <padding>
                                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
@@ -136,7 +137,7 @@
                                                <HBox spacing="20.0">
                                                    <children>
                                                        <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="CertTS" />
-                                                       <TextField fx:id="certTS" disable="true" editable="false" HBox.hgrow="ALWAYS" />
+                                                       <TextField fx:id="certTS" HBox.hgrow="ALWAYS" />
                                                    </children>
                                                    <padding>
                                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
@@ -144,7 +145,7 @@
                                                </HBox>
                                            </children>
                                        </VBox>
-                                       <VBox fx:id="boxCertification" minWidth="0.0" prefWidth="500.0" visible="false" HBox.hgrow="ALWAYS">
+                                       <VBox fx:id="boxCertification" minWidth="0.0" prefWidth="500.0" HBox.hgrow="ALWAYS">
                                            <children>
                                                <HBox spacing="20.0">
                                                    <children>
@@ -167,7 +168,7 @@
                                                <HBox spacing="20.0">
                                                    <children>
                                                        <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="IdtyTimestamp" />
-                                                       <TextField fx:id="idtyTimestamp" disable="true" editable="false" HBox.hgrow="ALWAYS" />
+                                                       <TextField fx:id="idtyTimestamp" editable="false" HBox.hgrow="ALWAYS" />
                                                    </children>
                                                    <padding>
                                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
@@ -176,7 +177,7 @@
                                                <HBox spacing="20.0">
                                                    <children>
                                                        <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="IdtySignature" />
-                                                       <TextField fx:id="idtySignature" editable="false" HBox.hgrow="ALWAYS" />
+                                                       <TextField fx:id="idtySignature" HBox.hgrow="ALWAYS" />
                                                    </children>
                                                    <padding>
                                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
@@ -185,7 +186,7 @@
                                                <HBox spacing="20.0">
                                                    <children>
                                                        <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="CertTimestamp" />
-                                                       <TextField fx:id="certTimestamp" disable="true" editable="false" HBox.hgrow="ALWAYS" />
+                                                       <TextField fx:id="certTimestamp" editable="false" HBox.hgrow="ALWAYS" />
                                                    </children>
                                                    <padding>
                                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
@@ -193,13 +194,44 @@
                                                </HBox>
                                            </children>
                                        </VBox>
+                              <VBox fx:id="boxRevocation" minWidth="0.0" prefWidth="500.0">
+                                 <children>
+                                    <HBox spacing="20.0">
+                                       <children>
+                                          <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="IdtyUniqueID" />
+                                          <TextField fx:id="idtyUniqueIDRev" onKeyTyped="#refresh" HBox.hgrow="ALWAYS" />
+                                       </children>
+                                       <padding>
+                                          <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                       </padding>
+                                    </HBox>
+                                    <HBox spacing="20.0">
+                                       <children>
+                                          <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="IdtyTimestamp" />
+                                          <TextField fx:id="idtyTimestampRev" editable="false" HBox.hgrow="ALWAYS" />
+                                       </children>
+                                       <padding>
+                                          <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                       </padding>
+                                    </HBox>
+                                    <HBox spacing="20.0">
+                                       <children>
+                                          <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="IdtySignature" />
+                                          <TextField fx:id="idtySignatureRev" onKeyTyped="#refresh" HBox.hgrow="ALWAYS" />
+                                       </children>
+                                       <padding>
+                                          <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                       </padding>
+                                    </HBox>
+                                 </children>
+                              </VBox>
                                    </children>
                                </HBox>
                                    <Separator prefWidth="200.0" />
-                               <HBox spacing="20.0">
+                               <HBox spacing="20.0" VBox.vgrow="ALWAYS">
                                    <children>
                                        <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Signature" />
-                                       <TextField fx:id="signature" disable="true" editable="false" maxWidth="450.0" HBox.hgrow="ALWAYS" />
+                                       <TextField fx:id="signature" editable="false" prefWidth="400.0" />
                                    </children>
                                    <padding>
                                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />

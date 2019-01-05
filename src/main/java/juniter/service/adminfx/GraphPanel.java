@@ -163,6 +163,6 @@ public class GraphPanel extends AbstractJuniterFX implements Initializable {
 
 		go();
 		WotMapAnchor.getEngine().load("https://duniter.normandie-libre.fr/wotmap/");
-		CesiumAnchor.getEngine().load("https://g1.duniter.fr/");
+		CesiumAnchor.getEngine().load("https://g1.le-sou.org/#/app/currency/lg");
 	}
 }

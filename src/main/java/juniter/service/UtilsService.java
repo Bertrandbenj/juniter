@@ -1,6 +1,7 @@
 package juniter.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import juniter.core.utils.MemoryUtils;
 import juniter.repository.jpa.BlockRepository;
 import juniter.service.bma.BlockchainService;
 import juniter.service.bma.dto.Block;
@@ -10,11 +11,12 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.*;
-import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 public class UtilsService {
@@ -31,20 +33,22 @@ public class UtilsService {
     BlockRepository blockRepo;
 
     @Transactional(readOnly = true)
-    @Async
+    @Async("AsyncJuniterPool")
     public void dumpJsonRows() {
         LOG.info("starting dumpJsonRows");
         try {
 
-            var dumpSize = 15000;
-            for (int i = 0; i <= blockService.current().getNumber(); i+=dumpSize ) {
-                final var finali = i;
-                final var end = (i+dumpSize-1);
-                if(i%dumpSize==0){
-                   final var  file = dataPath + "dump/blockchain_"+i+"to"+end+".jsonrows";
-                   new Thread(()->write(finali, end, file)).start();
-                }
-            }
+            var dumpSize = 5000;
+
+            IntStream.iterate(0, x -> x <= blockRepo.currentBlockNumber(), x -> x + dumpSize)
+                    .parallel()
+                    .forEach(i -> {
+                        final var end = (i + dumpSize - 1);
+                        if (i % dumpSize == 0) {
+                            final var file = dataPath + "dump/blockchain_" + i + "to" + end + ".jsonrows";
+                            write(i, end, file);
+                        }
+                    });
         } catch (final Exception e) {
 
             LOG.info("erroring ");
@@ -57,29 +61,36 @@ public class UtilsService {
     private ModelMapper modelMapper;
 
     @Transactional(readOnly = true)
-    @Async
-    private void write(int from, int to , String fileName) {
+    @Async("AsyncJuniterPool")
+    private void write(int from, int to, String fileName) {
         ObjectMapper objectMapper = new ObjectMapper();
+        //BufferedWriter bw;
+        try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(fileName)))) ) {
 
-        try (var bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(fileName))))){
+            var blocks = blockRepo.blocksFromTo(from, to);
+            blocks.forEach(block -> {
+                try {
+                    String output = objectMapper.writeValueAsString(modelMapper.map(block, Block.class));
+                    bw.write(output + "\n");
+                } catch (final Exception e) {
+                    LOG.warn("erroring writing jsonrows ", e);
+                }
 
-            try(var blocks = blockRepo.streamBlocksFromTo(from, to)) {
-                blocks.collect(Collectors.toList()).forEach(block -> {
-                    try {
-                        String output = objectMapper.writeValueAsString(modelMapper.map(block, Block.class));
-                        bw.write(output + "\n");
-                    } catch (final Exception e) {
-                        LOG.warn("erroring writing jsonrows ", e);
-                    }
+            });
 
-                });
-            }
-
-        }catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             LOG.warn("FileNotFoundException jsonrows ", e);
         } catch (IOException e) {
             LOG.warn("IOException jsonrows ", e);
         }
 
     }
+
+
+    @Scheduled(fixedRate = 5 * 60 * 1000)
+    public void checkMemory() {
+        LOG.info(MemoryUtils.memInfo());
+    }
+
+
 }

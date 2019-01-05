@@ -9,7 +9,7 @@ import juniter.core.utils.TimeUtils;
 import juniter.repository.jpa.BlockRepository;
 import juniter.repository.jpa.EndPointsRepository;
 import juniter.repository.jpa.PeersRepository;
-import juniter.service.adminfx.FrontPage;
+import juniter.service.adminfx.include.Bus;
 import juniter.service.bma.NetworkService;
 import juniter.service.bma.dto.PeerBMA;
 import juniter.service.bma.dto.PeersDTO;
@@ -95,10 +95,9 @@ public class PeerLoader {
 
         final var blacklistHosts = new ArrayList<String>();
         PeersDTO peersDTO = null;
-
         while (peersDTO == null) {
 
-            final var host = anyNotIn(blacklistHosts);
+           final var  host = anyNotIn(blacklistHosts);
 
             if (host.isPresent()) {
 
@@ -106,6 +105,24 @@ public class PeerLoader {
                 try {
                     peersDTO = fetchPeers(host.get());
                     LOG.info("fetched " + peersDTO.getPeers().size() + " peers from " + host);
+
+                    var maxBlockPeer = peersDTO.getPeers().stream().map(Peer::getBlock).map(b-> b.split("-")[0]).mapToLong(Long::parseLong).max();
+
+                    var maxBlockDB = blockRepo.currentBlockNumber();
+                    Platform.runLater(() -> {
+                        Bus.maxDBBlock.setValue(maxBlockDB);
+                        Bus.peerLogMessage.setValue(host.orElse(""));
+                    });
+
+                    if(maxBlockPeer.isPresent())
+                        Platform.runLater(() -> Bus.maxPeerBlock.setValue(maxBlockPeer.getAsLong()));
+
+                    final var elapsed = Long.divideUnsigned(System.nanoTime() - start, 1000000);
+                    LOG.info("Max block found peers:" + maxBlockPeer +
+                            "  db: " + maxBlockDB +
+                            " Elapsed time: " + TimeUtils.format(elapsed));
+
+                    return;
 
                 } catch (Exception e) {
                     LOG.error("Retrying : Net error accessing node " + host + " " + e.getMessage());
@@ -117,18 +134,7 @@ public class PeerLoader {
 
         }
 
-        var maxBlockPeer = peersDTO.getPeers().stream().map(Peer::getBlock).map(b-> b.split("-")[0]).mapToLong(Long::parseLong).max();
 
-        var maxBlockDB = blockRepo.currentBlockNumber();
-        Platform.runLater(() -> FrontPage.maxDBBlock.setValue(maxBlockDB));
-
-        if(maxBlockPeer.isPresent())
-            Platform.runLater(() -> FrontPage.maxPeerBlock.setValue(maxBlockPeer.getAsLong()));
-
-        final var elapsed = Long.divideUnsigned(System.nanoTime() - start, 1000000);
-        LOG.info("Max block found peers:" + maxBlockPeer +
-                "  db: " + maxBlockDB +
-                " Elapsed time: " + TimeUtils.format(elapsed));
 
     }
 

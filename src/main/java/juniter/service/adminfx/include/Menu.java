@@ -32,6 +32,8 @@ public class Menu extends AbstractJuniterFX implements Initializable {
     @FXML ImageView logoGraphs;
     @FXML ImageView logoNetwork;
     @FXML ImageView logoDatabase;
+    @FXML ImageView logoSpark;
+
 
     public Menu() { }
 
@@ -61,6 +63,7 @@ public class Menu extends AbstractJuniterFX implements Initializable {
         logoNotary.setImage(new Image("/adminfx/images/logo.png"));
         logoNetwork.setImage(new Image("/adminfx/images/logo.png"));
         logoDatabase.setImage(new Image("/adminfx/images/logo.png"));
+        logoSpark.setImage(new Image("/adminfx/images/logo.png"));
 
         current.setScene(scene);
         current.show();
@@ -83,6 +86,7 @@ public class Menu extends AbstractJuniterFX implements Initializable {
         logoMain.setImage(new Image("/adminfx/images/logo.png"));
         logoNetwork.setImage(new Image("/adminfx/images/logo.png"));
         logoDatabase.setImage(new Image("/adminfx/images/logo.png"));
+        logoSpark.setImage(new Image("/adminfx/images/logo.png"));
 
         current.show();
     }
@@ -91,7 +95,7 @@ public class Menu extends AbstractJuniterFX implements Initializable {
     public void viewNotary(ActionEvent event) {
         LOG.info("view Notary " + event.getEventType());
 
-        BorderPane page = (BorderPane) load("/adminfx/DUPNotary.fxml");
+        BorderPane page = (BorderPane) load("/adminfx/Notary.fxml");
         Scene scene = new Scene(page);
         Stage current = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
@@ -103,6 +107,7 @@ public class Menu extends AbstractJuniterFX implements Initializable {
         logoMain.setImage(new Image("/adminfx/images/logo.png"));
         logoNetwork.setImage(new Image("/adminfx/images/logo.png"));
         logoDatabase.setImage(new Image("/adminfx/images/logo.png"));
+        logoSpark.setImage(new Image("/adminfx/images/logo.png"));
 
         current.show();
     }
@@ -121,6 +126,7 @@ public class Menu extends AbstractJuniterFX implements Initializable {
         logoNotary.setImage(new Image("/adminfx/images/logo.png"));
         logoNetwork.setImage(new Image("/adminfx/images/network.png"));
         logoDatabase.setImage(new Image("/adminfx/images/logo.png"));
+        logoSpark.setImage(new Image("/adminfx/images/logo.png"));
 
 
         current.setScene(scene);
@@ -141,6 +147,29 @@ public class Menu extends AbstractJuniterFX implements Initializable {
         logoNotary.setImage(new Image("/adminfx/images/logo.png"));
         logoNetwork.setImage(new Image("/adminfx/images/logo.png"));
         logoDatabase.setImage(new Image("/adminfx/images/database.png"));
+        logoSpark.setImage(new Image("/adminfx/images/logo.png"));
+
+        current.setScene(scene);
+        current.show();
+    }
+
+
+    public void viewSpark(ActionEvent event) {
+        LOG.info(" view Spark " + event.getEventType());
+
+        BorderPane page =  (BorderPane) load("/adminfx/Spark.fxml");
+
+        Scene scene = new Scene(page);
+        Stage current = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        current.setTitle("Juniter - Spark ");
+
+        logoMain.setImage(new Image("/adminfx/images/logo.png"));
+        logoGraphs.setImage(new Image("/adminfx/images/logo.png"));
+        logoNotary.setImage(new Image("/adminfx/images/logo.png"));
+        logoNetwork.setImage(new Image("/adminfx/images/logo.png"));
+        logoDatabase.setImage(new Image("/adminfx/images/logo.png"));
+        logoSpark.setImage(new Image("/adminfx/images/Ancient_fire_making_methods.jpg"));
+
 
         current.setScene(scene);
         current.show();

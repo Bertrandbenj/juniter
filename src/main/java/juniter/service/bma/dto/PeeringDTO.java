@@ -11,6 +11,7 @@ import java.util.List;
 public class PeeringDTO implements Serializable{
 
 	private static final long serialVersionUID = 1618741167475514278L;
+
 	private List<Peer> peers ;
 
 	public transient String url;

@@ -1,4 +1,4 @@
-package juniter.repository.hadoop;
+package juniter.conf;
 
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -40,9 +40,11 @@ public class SparkConfig {
                 .setAppName(appName)
                 .setSparkHome(sparkHome)
                 .setMaster(masterUri)
+                .set("spark.scheduler.mode", "FAIR")
                 .set("spark.hadoop.mapred.output.compress", "true")
                 .set("spark.hadoop.mapred.output.compression.codec", "org.apache.hadoop.io.compress.GzipCodec")
                 .set("spark.hadoop.mapred.output.compression.type", "BLOCK")
+                .setJars(new String[] {"/home/ben/ws/juniter/lib/sqlite-jdbc-3.23.1.jar"})
                 //.set("spark.eventLog.enabled", "true")
                 ;
     }

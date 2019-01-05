@@ -1,18 +1,16 @@
 package juniter.service;
 
 import javafx.application.Platform;
-import juniter.core.utils.MemoryUtils;
 import juniter.core.utils.TimeUtils;
 import juniter.repository.jpa.BlockRepository;
 import juniter.repository.jpa.index.Index;
-import juniter.service.adminfx.FrontPage;
+import juniter.service.adminfx.include.Bus;
 import juniter.service.bma.loader.BlockLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.text.DecimalFormat;
@@ -49,26 +47,26 @@ public class Indexer {
         for (int i = index.head().map(h -> h.number + 1).orElse(0); i <= syncUntil; i++) {
             final int finali = i;
             Platform.runLater(() -> {
-                FrontPage.currentBindex.setValue(finali);
-                FrontPage.isIndexing.setValue(false);
+                Bus.currentBindex.setValue(finali);
+                Bus.isIndexing.setValue(false);
             });
 
             final var block = blockRepo.cachedBlock(i)
                     .orElseGet(() -> blockLoader.fetchAndSaveBlock(finali));
 
             try {
-                if (index.validate(block)) {
+                if (index.validate(block, false)) {
                     LOG.debug("Validated " + block);
 
                 } else {
                     LOG.warn("ERROR Validating " + block);
-                    Platform.runLater(() -> FrontPage.indexLogMessage.setValue("ERROR Validating " + block));
+                    Platform.runLater(() -> Bus.indexLogMessage.setValue("NOT Validated " + block));
 
                     break;
                 }
             } catch (AssertionError | Exception e) {
                 LOG.warn("error validating block " + block, e);
-                Platform.runLater(() -> FrontPage.indexLogMessage.setValue("ERROR Validating " + block));
+                Platform.runLater(() -> Bus.indexLogMessage.setValue("ERROR Validating " + block + " - " + e.getMessage()));
                 break;
             }
 
@@ -83,24 +81,19 @@ public class Indexer {
                         + " ms per block validated, estimating: " + TimeUtils.format(estimate) + " total";
 
                 LOG.info(log);
-                Platform.runLater(() -> FrontPage.indexLogMessage.setValue(log));
+                Platform.runLater(() -> Bus.indexLogMessage.setValue(log));
 
 
             }
         }
 
-        FrontPage.isIndexing.setValue(false);
+        Bus.isIndexing.setValue(false);
         delta = System.currentTimeMillis() - time;
         LOG.info("Finished validation, took :  " + TimeUtils.format(delta));
 
 
     }
 
-
-    @Scheduled(fixedRate = 60 * 1000)
-    public void checkMemory() {
-        LOG.info(MemoryUtils.memInfo());
-    }
 
 
     public void init() {

@@ -56,7 +56,7 @@ public class WoTService {
 	@Transactional
 	@GraphQLMutation(name = "submitIdentity", description = "post an identity document")
 	@GraphQLNonNull
-	public PendingIdentity submitIdentity(@GraphQLNonNull @GraphQLArgument(name = "raw") String raw) {
+	public PendingIdentity submitIdentity(@GraphQLNonNull @GraphQLArgument(name = "rawDocument") String raw) {
 		LOG.info(" GVA - submitIdentity");
 		return new PendingIdentity();
 	}
@@ -64,7 +64,7 @@ public class WoTService {
 	@Transactional
 	@GraphQLMutation(name = "submitCertification", description = "post a certification document")
 	@GraphQLNonNull
-	public PendingIdentity submitCertification(@GraphQLNonNull @GraphQLArgument(name = "raw") String raw) {
+	public PendingIdentity submitCertification(@GraphQLNonNull @GraphQLArgument(name = "rawDocument") String raw) {
 		LOG.info(" GVA - submitCertification");
 		return new PendingIdentity();
 	}
@@ -72,7 +72,7 @@ public class WoTService {
 	@Transactional
 	@GraphQLMutation(name = "submitMembership", description = "post a membership document")
 	@GraphQLNonNull
-	public PendingIdentity submitMembership(@GraphQLNonNull @GraphQLArgument(name = "raw") String raw) {
+	public PendingIdentity submitMembership(@GraphQLNonNull @GraphQLArgument(name = "rawDocument") String raw) {
 		LOG.info(" GVA - submitMembership");
 		return new PendingIdentity();
 	}

@@ -76,40 +76,12 @@ public class Certification implements Serializable, Comparable<Certification> {
 		return signature;
 	}
 
-	public Integer getBlockNumber() { return blockNumber;	}
-
-
-	public Long getId() {
-		return id;
-	}
-
-	public String getCertifier() {
-		return certifier;
-	}
-
-	public String getCertified() {
-		return certified;
-	}
+	public Integer getBlockNumber() { return blockNumber; }
 
 	public String getSignature() {
 		return signature;
 	}
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setCertifier(String certifier) {
-        this.certifier = certifier;
-    }
-
-    public void setCertified(String certified) {
-        this.certified = certified;
-    }
-
-    public void setBlockNumber(Integer blockNumber) {
-        this.blockNumber = blockNumber;
-    }
 
     public void setSignature(String signature) {
         this.signature = signature;

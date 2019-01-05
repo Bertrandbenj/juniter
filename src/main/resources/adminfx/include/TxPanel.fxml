@@ -95,8 +95,7 @@
                                 <Label alignment="CENTER_RIGHT" prefWidth="100.0" text="Inputs" />
                         <HBox HBox.hgrow="ALWAYS">
                            <children>
-                              <Button mnemonicParsing="false" onAction="#refreshInputs" text="refreshInputs" />
-                                      <VBox fx:id="inputContainer" alignment="CENTER" HBox.hgrow="SOMETIMES" />
+                                      <VBox fx:id="inputContainer" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS" />
                            </children>
                         </HBox>
                             </children>
@@ -107,8 +106,7 @@
                                 <Label alignment="CENTER_RIGHT" prefWidth="100.0" text="Unlocks" />
                         <HBox HBox.hgrow="ALWAYS">
                            <children>
-                              <Button mnemonicParsing="false" onAction="#refreshUnlocks" text="refreshUnlocks" />
-                                      <VBox fx:id="unlockContainer" HBox.hgrow="ALWAYS" />
+                                      <VBox fx:id="unlockContainer" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS" />
                            </children>
                         </HBox>
                             </children>

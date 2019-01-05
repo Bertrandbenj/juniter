@@ -105,7 +105,11 @@ public class NetworkService {
 
     }
 
-
+    /**
+     * Create the peer card of this node
+     * @param number the block number we declare the node
+     * @return the Peer object
+     */
     public Peer endPointPeer(Integer number){
         LOG.info("endPointPeer " + number);
 

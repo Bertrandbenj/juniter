@@ -1,26 +1,19 @@
 package juniter.service.adminfx;
 
 import javafx.application.Platform;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import juniter.core.validation.StaticValid;
-import juniter.repository.hadoop.SparkTest;
 import juniter.repository.jpa.BlockRepository;
-import juniter.service.Indexer;
-import juniter.service.UtilsService;
+import juniter.repository.jpa.index.BINDEXRepository;
 import juniter.service.adminfx.include.AbstractJuniterFX;
+import juniter.service.adminfx.include.Bus;
 import juniter.service.adminfx.include.ConfirmBox;
 import juniter.service.bma.loader.BlockLoader;
 import juniter.service.bma.loader.MissingBlocksLoader;
@@ -45,98 +38,41 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
     private static final Logger LOG = LogManager.getLogger();
 
 
-    // updatable value from the outside
-    public static SimpleDoubleProperty currentBindex = new SimpleDoubleProperty(.0);
-    public static SimpleDoubleProperty maxBindex = new SimpleDoubleProperty(42.);
-    public static SimpleDoubleProperty maxDBBlock = new SimpleDoubleProperty(42.);
-    public static SimpleDoubleProperty maxPeerBlock = new SimpleDoubleProperty(42.);
 
-    public static SimpleBooleanProperty isIndexing = new SimpleBooleanProperty(false);
-    public static SimpleBooleanProperty isDownloading = new SimpleBooleanProperty(false);
+    @FXML
+    private TextField delSome;
 
-    public static SimpleStringProperty indexLogMessage = new SimpleStringProperty("here comes the log");
-
-
-    @FXML private Label indexLog;
-
-    @FXML private TextField delSome;
-
-    @FXML private TextField tstSome;
-
-    @Autowired
-    SparkTest sparkT ;
+    @FXML
+    private TextField tstSome;
 
 
     //                                  LOADING  SECTION
-    @Autowired  private BlockRepository blockRepo;
-
-    @Autowired  private Indexer indexer;
-
-    @FXML private TextField indexTil;
-    @FXML private ProgressBar indexBar;
-    @FXML private ProgressIndicator indexIndic;
-
     @FXML private ProgressBar loadBar ;
-    @FXML private ProgressIndicator loadIndic;
 
 
 
     @Autowired
-    BlockLoader blockLoader ;
-    @Autowired
-    MissingBlocksLoader mBlockLoader ;
+    private BlockLoader blockLoader ;
 
+    @Autowired
+    private MissingBlocksLoader mBlockLoader ;
+
+    @Autowired
+    private BINDEXRepository bRepo;
+
+    @Autowired
+    private BlockRepository blockRepo;
 
 
 
     public FrontPage() { }
-
-    @FXML
-    public void indexUntil(){
-
-        if(isIndexing.get())
-            return;
-
-        int until ;
-        try{
-            until = Integer.parseInt(indexTil.getText());
-        }catch(Exception e){
-            until = blockRepo.currentBlockNumber();
-        }
-
-        maxBindex.setValue(until);
-        indexer.indexUntil(until);
-    }
-
-    @FXML
-    public void indexReset(){
-        indexer.init();
-        currentBindex.setValue(0);
-    }
-
-
-
-    public void index1(ActionEvent actionEvent) {
-
-        if(isIndexing.get())
-            return;
-
-        indexer.indexUntil(currentBindex.intValue()+1);
-    }
-
-    public void revert1(ActionEvent actionEvent) {
-        if(isIndexing.get())
-            return;
-
-
-    }
 
 
 
     @FXML
     public void bulkLoad(){
 
-        if(isDownloading.getValue()){
+        if(Bus.isDownloading.getValue()){
             return;
         }
         blockLoader.bulkLoad();
@@ -157,6 +93,10 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
         peerLoader.doPairing();
     }
 
+    @FXML
+    private void peerCheck(){
+        peerLoader.runPeerCheck();
+    }
 
     @FXML
     public void deleteSome() {
@@ -223,38 +163,16 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-        indexBar.progressProperty().bind(currentBindex.divide(maxBindex));
-        indexIndic.progressProperty().bind(currentBindex.divide(maxBindex));
 
-        loadBar.progressProperty().bind(maxDBBlock.divide(maxPeerBlock));
-        loadIndic.progressProperty().bind(maxDBBlock.divide(maxPeerBlock));
+        loadBar.progressProperty().bind(Bus.maxDBBlock.divide(Bus.maxPeerBlock));
+        Bus.maxBindex.setValue(blockRepo.currentBlockNumber());
+        Bus.maxDBBlock.setValue(blockRepo.currentBlockNumber());
+        Bus.currentBindex.setValue(bRepo.head().map(b -> b.number).orElse(0));
 
-        indexLog.textProperty().bind(indexLogMessage.concat(" - Bidx: ").concat(currentBindex).concat(" - DB: ").concat(maxDBBlock).concat(" - Peer: ").concat(maxPeerBlock.intValue()).concat(" - "));
+
 
     }
 
 
-    @FXML
-    private void peerCheck(){
-        peerLoader.runPeerCheck();
-    }
 
-
-
-    public void parseBlockchain(ActionEvent actionEvent) {
-        sparkT.parseBlockchain();
-    }
-
-    @Autowired
-    UtilsService utilsService ;
-
-    @FXML
-    public void dumpJsonRows(ActionEvent actionEvent) {
-
-        utilsService.dumpJsonRows();
-    }
-
-    public void dumpIndexes(ActionEvent actionEvent) {
-        sparkT.dumpIndexes();
-    }
 }

@@ -125,7 +125,7 @@ public class Index implements GlobalValid, Serializable {
                 .collect(Collectors.toList()));
 
 
-        LOG.debug("Commit -  Certs: +" + indexC.size() + ",-" + consumeC.size() + "," + cRepo.count() + //
+        LOG.info("Commit -  Certs: +" + indexC.size() + ",-" + consumeC.size() + "," + cRepo.count() + //
                 "  Membship: +" + indexM.size() + ",-" + consumeM.size() + "," + mRepo.count() + //
                 "  Idty: +" + indexI.size() + ",-" + consumeI.size() + "," + iRepo.count() + //
                 "  localS: +" + indexS.size() + ",-" + consumeS.size() + "," + sRepo.count() + //

@@ -11,8 +11,11 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import juniter.repository.jpa.BlockRepository;
 import juniter.repository.jpa.index.*;
+import juniter.service.Indexer;
 import juniter.service.adminfx.include.AbstractJuniterFX;
+import juniter.service.adminfx.include.Bus;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,50 +31,92 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
     private static final Logger LOG = LogManager.getLogger();
 
-    public static ObservableList<IINDEX> iindex = FXCollections.observableArrayList();
-    public static ObservableList<BINDEX> bindex = FXCollections.observableArrayList();
-    public static ObservableList<CINDEX> cindex = FXCollections.observableArrayList();
-    public static ObservableList<MINDEX> mindex = FXCollections.observableArrayList();
-    public static ObservableList<SINDEX> sindex = FXCollections.observableArrayList();
-    public TabPane tabPane;
-    @FXML private TableColumn bAvgSizeCol;
-    @FXML private TableColumn bMonetaryMassCol;
-    @FXML private TableColumn bPowMinCol;
-    @FXML private TableColumn bIssuersCountCol;
-    @FXML private TableColumn bIssuersFrameCol;
-    @FXML private TableColumn bIssuerFrameVarCol;
-    @FXML private TextField filterB;
-    @FXML private TableColumn iWotbidCol;
-    @FXML private TableColumn iCreatedOnCol;
-    @FXML private TableColumn iHashCol;
-    @FXML private TableColumn iMemberCol;
-    @FXML private TableColumn iWasMemberCol;
-    @FXML private TableColumn iKickCol;
-    @FXML private TextField filterI;
-    @FXML private TableColumn mOpCol;
-    @FXML private TableColumn mCreatedOn;
-    @FXML private TableColumn mexpiresOn;
-    @FXML private TableColumn mExpiredOn;
-    @FXML private TableColumn mRevokesOn;
-    @FXML private TableColumn mRevokedOn;
-    @FXML private TableColumn mLeaving;
-    @FXML private TableColumn mRevocationSig;
-    @FXML private TableColumn mChainableOn;
-    @FXML private TextField filterM;
-    @FXML private TableColumn cOp;
-    @FXML private TableColumn cExpiresOn;
-    @FXML private TableColumn cExpiredOn;
-    @FXML private TableColumn cSig;
-    @FXML private TableColumn cSignedOn;
-    @FXML private TableColumn cChainableOn;
-    @FXML private TableColumn cFromWid;
-    @FXML private TableColumn ctoWid;
-    @FXML private TextField filterC;
-    @FXML private TableColumn sWrittenTime;
-    @FXML private TableColumn sLocktime;
-    @FXML private TableColumn sPos;
-    @FXML private TableColumn sConditions;
-    @FXML private TextField filterS;
+    private static ObservableList<IINDEX> iindex = FXCollections.observableArrayList();
+    private static ObservableList<BINDEX> bindex = FXCollections.observableArrayList();
+    private static ObservableList<CINDEX> cindex = FXCollections.observableArrayList();
+    private static ObservableList<MINDEX> mindex = FXCollections.observableArrayList();
+    private static ObservableList<SINDEX> sindex = FXCollections.observableArrayList();
+    @FXML
+    private TabPane tabPane;
+    @FXML
+    private TableColumn bAvgSizeCol;
+    @FXML
+    private TableColumn bMonetaryMassCol;
+    @FXML
+    private TableColumn bPowMinCol;
+    @FXML
+    private TableColumn bIssuersCountCol;
+    @FXML
+    private TableColumn bIssuersFrameCol;
+    @FXML
+    private TableColumn bIssuerFrameVarCol;
+    @FXML
+    private TextField filterB;
+    @FXML
+    private TableColumn iWotbidCol;
+    @FXML
+    private TableColumn iCreatedOnCol;
+    @FXML
+    private TableColumn iHashCol;
+    @FXML
+    private TableColumn iMemberCol;
+    @FXML
+    private TableColumn iWasMemberCol;
+    @FXML
+    private TableColumn iKickCol;
+    @FXML
+    private TextField filterI;
+    @FXML
+    private TableColumn mOpCol;
+    @FXML
+    private TableColumn mCreatedOn;
+    @FXML
+    private TableColumn mexpiresOn;
+    @FXML
+    private TableColumn mExpiredOn;
+    @FXML
+    private TableColumn mRevokesOn;
+    @FXML
+    private TableColumn mRevokedOn;
+    @FXML
+    private TableColumn mLeaving;
+    @FXML
+    private TableColumn mRevocationSig;
+    @FXML
+    private TableColumn mChainableOn;
+    @FXML
+    private TextField filterM;
+    @FXML
+    private TableColumn cOp;
+    @FXML
+    private TableColumn cExpiresOn;
+    @FXML
+    private TableColumn cExpiredOn;
+    @FXML
+    private TableColumn cSig;
+    @FXML
+    private TableColumn cSignedOn;
+    @FXML
+    private TableColumn cChainableOn;
+    @FXML
+    private TableColumn cFromWid;
+    @FXML
+    private TableColumn ctoWid;
+    @FXML
+    private TextField filterC;
+    @FXML
+    private TableColumn sWrittenTime;
+    @FXML
+    private TableColumn sLocktime;
+    @FXML
+    private TableColumn sPos;
+    @FXML
+    private TableColumn sTx;
+
+    @FXML
+    private TableColumn sConditions;
+    @FXML
+    private TextField filterS;
 
 
     @FXML
@@ -164,7 +209,79 @@ public class Database extends AbstractJuniterFX implements Initializable {
     @Autowired
     SINDEXRepository sRepo;
 
+    @Autowired
+    private Indexer indexer;
 
+    @FXML
+    private TextField indexTil;
+    @FXML
+    private ProgressBar indexBar;
+
+    @Autowired
+    private BlockRepository blockRepo;
+
+
+    @FXML
+    public void indexUntil() {
+
+        if (Bus.isIndexing.get())
+            return;
+
+        int until;
+        try {
+            until = Integer.parseInt(indexTil.getText());
+        } catch (Exception e) {
+            until = blockRepo.currentBlockNumber();
+        }
+
+        Bus.maxBindex.setValue(until);
+        indexer.indexUntil(until);
+    }
+
+    @FXML
+    public void indexReset() {
+        indexer.init();
+        Bus.currentBindex.setValue(0);
+    }
+
+
+    public void index1(ActionEvent actionEvent) {
+
+        if (Bus.isIndexing.get())
+            return;
+
+
+        indexer.indexUntil(Bus.currentBindex.intValue() + 1);
+        Bus.indexLogMessage.setValue("Validated " + Bus.currentBindex.intValue());
+
+    }
+
+    public void revert1(ActionEvent actionEvent) {
+        if (Bus.isIndexing.get())
+            return;
+
+        bRepo.head().ifPresent(h -> {
+            bRepo.delete(h);
+            Bus.currentBindex.setValue(h.number - 1);
+            Bus.indexLogMessage.setValue("Reverted " + Bus.currentBindex.intValue());
+
+            iRepo.deleteAll(
+                    iRepo.writtenOn(h.number + "-" + h.hash)
+            );
+            mRepo.deleteAll(
+                    mRepo.writtenOn(h.number + "-" + h.hash)
+            );
+            cRepo.deleteAll(
+                    cRepo.writtenOn(h.number + "-" + h.hash)
+            );
+            sRepo.deleteAll(
+                    sRepo.writtenOn(h.number + "-" + h.hash)
+            );
+
+            indexer.index.init(false);
+        });
+
+    }
 
 
     @Override
@@ -178,7 +295,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
+        indexBar.progressProperty().bind(Bus.currentBindex.divide(Bus.maxBindex));
 
 
         tableB.setItems(bindex);
@@ -250,6 +367,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
         sConditions.setCellValueFactory(new PropertyValueFactory<>("conditions"));
         sLocktime.setCellValueFactory(new PropertyValueFactory<>("locktime"));
         sPos.setCellValueFactory(new PropertyValueFactory<>("pos"));
+        sTx.setCellValueFactory(new PropertyValueFactory<>("tx"));
 
 
         filterI.setOnAction(event -> {
@@ -274,11 +392,11 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
         tableB.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
-                LOG.info("onSelect  " + newSelection.number + "-" + newSelection.hash + "   "+newSelection  );
+                LOG.info("onSelect  " + newSelection.number + "-" + newSelection.hash + "   " + newSelection);
 
 
                 iindex.clear();
-                iindex.addAll(iRepo.idtyWrittenOn(newSelection.number + "-" + newSelection.hash));
+                iindex.addAll(iRepo.writtenOn(newSelection.number + "-" + newSelection.hash));
 
                 cindex.clear();
                 cindex.addAll(cRepo.writtenOn(newSelection.number + "-" + newSelection.hash));
@@ -301,7 +419,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
             if (selected == null)
                 return;
             LOG.info("onSelect  " + selected);
-            var fromDB = iRepo.idtyWrittenOn(selected.number + "-" + selected.hash);
+            var fromDB = iRepo.writtenOn(selected.number + "-" + selected.hash);
             // .collect(Collectors.toList());
 
             if (fromDB.size() <= 0)

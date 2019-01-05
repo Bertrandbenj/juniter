@@ -18,7 +18,7 @@
             <Region VBox.vgrow="ALWAYS" />
               <Hyperlink onAction="#viewMain">
                   <graphic>
-                      <ImageView fx:id="logoMain" fitHeight="120.0" fitWidth="120.0" pickOnBounds="true" preserveRatio="true">
+                      <ImageView fx:id="logoMain" fitHeight="100.0" fitWidth="120.0" pickOnBounds="true" preserveRatio="true">
                          <image>
                              <Image url="@../images/whiterabbit.jpg" />
                          </image>
@@ -30,7 +30,7 @@
               </Hyperlink>
               <Hyperlink onAction="#viewSVGGraph">
                   <graphic>
-                      <ImageView fx:id="logoGraphs" fitHeight="120.0" fitWidth="120.0" pickOnBounds="true" preserveRatio="true">
+                      <ImageView fx:id="logoGraphs" fitHeight="100.0" fitWidth="120.0" pickOnBounds="true" preserveRatio="true">
                          <image>
                              <Image url="@../images/logo.png" />
                          </image>
@@ -42,7 +42,7 @@
               </Hyperlink>
               <Hyperlink onAction="#viewNotary">
                   <graphic>
-                      <ImageView fx:id="logoNotary" fitHeight="120.0" fitWidth="120.0" pickOnBounds="true" preserveRatio="true">
+                      <ImageView fx:id="logoNotary" fitHeight="100.0" fitWidth="120.0" pickOnBounds="true" preserveRatio="true">
                          <image>
                              <Image url="@../images/logo.png" />
                          </image>
@@ -54,7 +54,7 @@
               </Hyperlink>
             <Hyperlink onAction="#viewNetwork">
                <graphic>
-                  <ImageView fx:id="logoNetwork" fitHeight="120.0" fitWidth="120.0" pickOnBounds="true" preserveRatio="true">
+                  <ImageView fx:id="logoNetwork" fitHeight="100.0" fitWidth="120.0" pickOnBounds="true" preserveRatio="true">
                      <image>
                         <Image url="@../images/logo.png" />
                      </image>
@@ -64,18 +64,30 @@
                   <Tooltip text="Plugged in ?" />
                </tooltip>
             </Hyperlink>
-            <Hyperlink onAction="#viewDatabase">
-               <graphic>
-                  <ImageView fx:id="logoDatabase" fitHeight="120.0" fitWidth="120.0" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@../images/logo.png" />
-                     </image>
-                  </ImageView>
-               </graphic>
-               <tooltip>
-                  <Tooltip text="How does it actualy works ?" />
-               </tooltip>
-            </Hyperlink>
+              <Hyperlink onAction="#viewDatabase">
+                  <graphic>
+                      <ImageView fx:id="logoDatabase" fitHeight="100.0" fitWidth="120.0" pickOnBounds="true" preserveRatio="true">
+                          <image>
+                              <Image url="@../images/logo.png" />
+                          </image>
+                      </ImageView>
+                  </graphic>
+                  <tooltip>
+                      <Tooltip text="How does it actualy works ?" />
+                  </tooltip>
+              </Hyperlink>
+              <Hyperlink onAction="#viewSpark">
+                  <graphic>
+                      <ImageView fx:id="logoSpark" fitHeight="100.0" fitWidth="120.0" pickOnBounds="true" preserveRatio="true">
+                          <image>
+                              <Image url="@../images/logo.png" />
+                          </image>
+                      </ImageView>
+                  </graphic>
+                  <tooltip>
+                      <Tooltip text="Consistent partitioning ... " />
+                  </tooltip>
+              </Hyperlink>
           </children>
        </VBox>
       <Region />

@@ -8,11 +8,8 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import juniter.core.crypto.SecretBox;
-import juniter.core.model.BStamp;
-import juniter.grammar.Document;
-import juniter.grammar.IdentityDocument;
+import juniter.grammar.*;
 import juniter.repository.jpa.BlockRepository;
-import juniter.service.adminfx.DUPNotary;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,12 +28,25 @@ public class WotPanel  implements Initializable {
 
     private static final Logger LOG = LogManager.getLogger();
 
-    @FXML private TextField salt;
-    @FXML private TextField password;
+
     @FXML private VBox boxIdty;
     @FXML private VBox boxMembership;
     @FXML private VBox boxCertification;
+    @FXML private VBox boxRevocation;
+
+    @FXML private RadioButton swIdty;
+    @FXML private RadioButton swMember;
+    @FXML private RadioButton swCertif;
+    @FXML private RadioButton swRevoc;
+
+    @FXML private TextField salt;
+    @FXML private TextField password;
     @FXML private Label pk;
+    @FXML private TextField userid;
+    @FXML private TextField version;
+    @FXML private TextField currency;
+
+
     @FXML private TextField uniqueID;
     @FXML private TextField timestamp;
     @FXML private TextField signature;
@@ -47,14 +57,17 @@ public class WotPanel  implements Initializable {
     @FXML private TextField idtyIssuer;
     @FXML private TextField certTS;
     @FXML private TextField block;
-    @FXML private RadioButton swIdty;
-    @FXML private RadioButton swMember;
-    @FXML private RadioButton swCertif;
-    @FXML private RadioButton swRevoc;
-    @FXML private TextField userid;
+    @FXML private TextField idtySignatureRev;
+    @FXML private TextField idtyTimestampRev;
+    @FXML private TextField idtyUniqueIDRev;
+
+
+
 
     @Autowired
     BlockRepository blockRepo;
+
+    private Document doc;
 
 
     public WotPanel() { }
@@ -62,9 +75,6 @@ public class WotPanel  implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        boxMembership.setPrefWidth(0);
-        boxCertification.setPrefWidth(0);
-        boxIdty.setPrefWidth(500);
 
         blockRepo.current().ifPresent(b->{
             timestamp.setText(b.bstamp());
@@ -73,9 +83,10 @@ public class WotPanel  implements Initializable {
             certTimestamp.setText(b.bstamp());
             idtyTimestamp.setText(b.bstamp());
         });
-    }
 
-    Document doc;
+        switchIdty(null);
+
+    }
 
     @FXML
     public void refresh(){
@@ -83,20 +94,70 @@ public class WotPanel  implements Initializable {
         var sb = new SecretBox(salt.getText(),password.getText());
 
         if(swIdty.isSelected()){
-            doc = new IdentityDocument("10","g1",sb.getPublicKey(), uniqueID.getText(),new BStamp(timestamp.getText()),signature.getText() );
-            var idty = (IdentityDocument) doc;
-            idty.setSignature(sb.sign(idty.unsignedDoc()));
-            signature.setText(idty.getSignature());
-            DUPNotary.raw.setValue(idty.toString());
+            doc = new IdentityDoc(
+                    version.getText(),
+                    currency.getText(),
+                    sb.getPublicKey(),
+                    uniqueID.getText(),
+                    timestamp.getText());
+            var idty = (IdentityDoc) doc;
+
+            var sign = sb.sign(idty.unsignedDoc());
+            idty.setSignature(sign);
+            signature.setText(sign);
         }
 
         if(swCertif.isSelected()){
-            DUPNotary.raw.setValue("");
+            doc = new CertificationDoc(
+                    version.getText(),
+                    currency.getText(),
+                    sb.getPublicKey(),
+                    idtyIssuer.getText(),
+                    idtyUniqueID.getText(),
+                    idtyTimestamp.getText(),
+                    idtySignature.getText(),
+                    certTimestamp.getText());
+            var cert = (CertificationDoc) doc;
+
+            var sign = sb.sign(cert.unsignedDoc());
+            cert.setSignature(sign);
+            signature.setText(sign);
         }
 
-        if(swMember.isSelected()){
-            DUPNotary.raw.setValue("");
+        if(swRevoc.isSelected()){
+            doc = new RevocationDoc(
+                    version.getText(),
+                    currency.getText(),
+                    sb.getPublicKey(),
+                    idtyUniqueIDRev.getText(),
+                    idtyTimestampRev.getText(),
+                    idtySignatureRev.getText());
+            var rev = (RevocationDoc) doc;
+
+            var sign = sb.sign(rev.unsignedDoc());
+            rev.setSignature(sign);
+            signature.setText(sign);
         }
+
+
+        if(swMember.isSelected()){
+            doc = new MembershipDoc(
+                    version.getText(),
+                    currency.getText(),
+                    sb.getPublicKey(),
+                    block.getText(),
+                    "IN",
+                    userid.getText(),
+                    certTimestamp.getText());
+            var mem = (MembershipDoc) doc;
+
+            var sign = sb.sign(mem.unsignedDoc());
+            mem.setSignature(sign);
+            signature.setText(sign);
+        }
+
+        Bus.rawDocument.setValue(doc.toString());
+        pk.setText(sb.getPublicKey());
 
     }
 
@@ -105,9 +166,12 @@ public class WotPanel  implements Initializable {
         boxMembership.setPrefWidth(0);
         boxCertification.setPrefWidth(0);
         boxIdty.setPrefWidth(500);
+        boxRevocation.setPrefWidth(0);
+
         boxIdty.setVisible(true);
         boxMembership.setVisible(false);
         boxCertification.setVisible(false);
+        boxRevocation.setVisible(false);
     }
 
     @FXML
@@ -115,9 +179,13 @@ public class WotPanel  implements Initializable {
         boxMembership.setPrefWidth(500);
         boxCertification.setPrefWidth(0);
         boxIdty.setPrefWidth(0);
+        boxRevocation.setPrefWidth(0);
+
         boxIdty.setVisible(false);
         boxMembership.setVisible(true);
         boxCertification.setVisible(false);
+        boxRevocation.setVisible(false);
+
 
     }
 
@@ -126,9 +194,13 @@ public class WotPanel  implements Initializable {
         boxMembership.setPrefWidth(0);
         boxCertification.setPrefWidth(500);
         boxIdty.setPrefWidth(0);
+        boxRevocation.setPrefWidth(0);
+
         boxIdty.setVisible(false);
         boxMembership.setVisible(false);
         boxCertification.setVisible(true);
+        boxRevocation.setVisible(false);
+
     }
 
     @FXML
@@ -136,8 +208,12 @@ public class WotPanel  implements Initializable {
         boxMembership.setPrefWidth(0);
         boxCertification.setPrefWidth(0);
         boxIdty.setPrefWidth(0);
+        boxRevocation.setPrefWidth(500);
+
         boxIdty.setVisible(false);
         boxMembership.setVisible(false);
         boxCertification.setVisible(false);
+        boxRevocation.setVisible(true);
+
     }
 }
