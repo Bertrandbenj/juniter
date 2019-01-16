@@ -2,7 +2,7 @@ package juniter.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import juniter.core.model.Block;
+import juniter.core.model.DBBlock;
 import juniter.core.utils.TimeUtils;
 import juniter.core.validation.BlockLocalValid;
 import org.apache.logging.log4j.LogManager;
@@ -129,8 +129,8 @@ public class WebMVCITest implements BlockLocalValid {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andDo(result -> {
                     final var body = result.getResponse().getContentAsString();
-                    final Block block = jsonMapper.readValue(body, Block.class);
-                    assertBlockLocalValid(block);
+                    final DBBlock block = jsonMapper.readValue(body, DBBlock.class);
+                    assertBlockLocalValid(block, true);
                 });
     }
 
@@ -142,12 +142,12 @@ public class WebMVCITest implements BlockLocalValid {
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                     .andDo(result -> {
                         final var body = result.getResponse().getContentAsString();
-                        final List<Block> blocks = jsonMapper.readValue(body,
-                                new TypeReference<List<Block>>() {
+                        final List<DBBlock> blocks = jsonMapper.readValue(body,
+                                new TypeReference<List<DBBlock>>() {
                                 });
                         blocks.forEach(block -> {
                             try {
-                                assertBlockLocalValid(block);
+                                assertBlockLocalValid(block, true);
                             } catch (final AssertionError e) {
                                 dirtyReload(block.getNumber());
                             }

@@ -33,7 +33,7 @@ public class BStamp implements Serializable {
 	@Pattern(regexp = Constants.Regex.HASH)
 	@Column(length = 64)
 	@Size(max = 64)
-	private String hash;// = new Hash();
+	private String hash;
 
 	public BStamp() {
 	}
@@ -62,7 +62,7 @@ public class BStamp implements Serializable {
 			number = Integer.valueOf(pat[0]);
 			hash = pat[1];
 		}catch(Exception e){
-			LOG.error( "Error parsing " + string, e );
+			//LOG.error( "Error parsing " + string, e );
 		}
 	}
 

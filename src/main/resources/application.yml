@@ -16,6 +16,7 @@ juniter:
   useWS2P: false
   utils.enabled: false
   useJavaFX: true
+  useSpark: true
   indexer: true
   useDefaultLoader: true
   ##  init: true     # default false
@@ -64,7 +65,7 @@ spring:
       #      auto-offset-init: earliest
 
 
-
+  boot.admin.url: http://localhost:8080
 
 ##
 ## =========================== Web Server Configs ===========================
@@ -130,7 +131,13 @@ graphiql:
     #    org.hibernate.SQL: warn
     #    juniter: info
     #hibernate.show_sql: false
-    
-    
+
+management.endpoint.metrics.enabled: true
+
+management.endpoints.web.exposure.include: '*'
+
+management.endpoint.prometheus.enabled: true
+
+management.metrics.export.prometheus.enabled: true
     
 

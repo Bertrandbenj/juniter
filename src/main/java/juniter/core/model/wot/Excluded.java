@@ -3,6 +3,7 @@ package juniter.core.model.wot;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.lang.NonNull;
 
 import javax.persistence.Embeddable;
 import java.io.Serializable;
@@ -22,7 +23,7 @@ public class Excluded implements Serializable, Comparable<Excluded> {
 	}
 
 	@Override
-	public int compareTo(Excluded o) {
+	public int compareTo(@NonNull Excluded o) {
 		return pubkey.compareTo(o.pubkey);
 	}
 

@@ -41,7 +41,7 @@ public class TestRepoBlockchain {
 
 			final var block = blockRepo.block(i).get();
 
-			if (idx.validate(block)) {
+			if (idx.validate(block, false)) {
 				LOG.info("Validated " + block);
 			} else {
 				LOG.warn("NOT Valid " + block.toDUP());

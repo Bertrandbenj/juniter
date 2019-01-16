@@ -1,8 +1,10 @@
 package juniter.repository.jpa.index;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -25,6 +27,10 @@ public interface CINDEXRepository extends JpaRepository<CINDEX, Long> {
     @Query(value = "SELECT c from CINDEX c WHERE receiver LIKE CONCAT('%',?1,'%') OR issuer LIKE CONCAT('%',?1,'%')")
     List<CINDEX> search(String search);
 
+    @Transactional
+    @Modifying
+    @Query("DELETE from CINDEX c WHERE op = 'huhu'")
+    void trim(int bIndexSize);
 }
 
 	

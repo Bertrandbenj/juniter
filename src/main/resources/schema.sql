@@ -45,3 +45,15 @@ WITH (
 ALTER TABLE public.block
   OWNER TO testuser;
 
+
+
+
+CREATE VIEW accounts as
+
+SELECT conditions, sum(case WHEN consumed THEN 0-amount ELSE amount end )  bSum
+  FROM sindex
+ -- where consumed = false
+ GROUP BY conditions
+ --HAVING sum(case WHEN consumed THEN 0-amount ELSE amount end ) < 100
+ ORDER by conditions
+  ;

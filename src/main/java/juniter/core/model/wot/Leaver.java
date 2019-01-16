@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.lang.NonNull;
 
 import javax.persistence.Embeddable;
 import java.io.Serializable;
@@ -43,7 +44,7 @@ public class Leaver implements Serializable, Comparable<Leaver> {
 	}
 
 	@Override
-	public int compareTo(Leaver o) {
+	public int compareTo(@NonNull Leaver o) {
 		return toDUP().compareTo(o.toDUP());
 	}
 

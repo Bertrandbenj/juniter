@@ -14,7 +14,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @ToString
 @Entity
-@Table(name = "SINDEX", schema = "public") // , indexes = @Index(columnList = "number,hash"))
+@Table(name = "SINDEX", schema = "public")//,uniqueConstraints={@UniqueConstraint(columnNames={"op","",""})}) // , indexes = @Index(columnList = "number,hash"))
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SINDEX implements Serializable {
 
@@ -22,22 +22,23 @@ public class SINDEX implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    Long id;
+    private Long id;
 
+    // Business variables
 
-    String op;
-    String tx;
-    String identifier;
-    Integer pos;
-    String created_on;
-    String written_on;
-    Long written_time;
-    int amount;
-    int base;
-    Long locktime;
-    boolean consumed;
-    String conditions;
-    Integer writtenOn;
+    private String op;
+    private String tx;
+    private String identifier;
+    private Integer pos;
+    private String created_on;
+    private String written_on;
+    private Long written_time;
+    private int amount;
+    private int base;
+    private Long locktime;
+    private boolean consumed;
+    private String conditions;
+    private Integer writtenOn;
 
     public juniter.service.gva.tx.Source asSourceGVA(){
         return new juniter.service.gva.tx.Source(

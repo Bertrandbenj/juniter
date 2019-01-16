@@ -2,9 +2,10 @@ package juniter.repository.memory;
 
 import com.google.common.collect.Lists;
 import juniter.core.model.BStamp;
-import juniter.core.model.Block;
+import juniter.core.model.DBBlock;
 import juniter.core.validation.GlobalValid;
 import juniter.repository.jpa.BlockRepository;
+import juniter.repository.jpa.index.Account;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,12 +48,12 @@ public class RAMIndex implements GlobalValid, Serializable {
 
 	@Transactional(readOnly = true)
 	@Override
-	public Optional<Block> createdOnBlock(BStamp bstamp) {
+	public Optional<DBBlock> createdOnBlock(BStamp bstamp) {
 		return blockRepo.cachedBlock(bstamp.getNumber());
 	}
 
 	@Override
-	public Optional<Block> createdOnBlock(Integer number) {
+	public Optional<DBBlock> createdOnBlock(Integer number) {
 		return blockRepo.cachedBlock(number);
 	}
 
@@ -69,11 +70,10 @@ public class RAMIndex implements GlobalValid, Serializable {
 		IndexB.add(indexB);
 
 
-
-		LOG.info("Commit -  Certs: +" + indexC.size() + "," + indexCG.size() + //
-				"  Membship: +" + indexM.size() + "," + indexMG.size() + //
-				"  Idty: +" + indexI.size() + "," + indexIG.size() + //
-				"  localS: +" + indexS.size() + "," + indexSG.size() + //
+		LOG.info("Commit -  Certs: +" + indexC.size() + "," + indexCG.size() +
+				"  Membship: +" + indexM.size() + "," + indexMG.size() +
+				"  Idty: +" + indexI.size() + "," + indexIG.size() +
+				"  localS: +" + indexS.size() + "," + indexSG.size() +
 				"  IndexB: +" + indexB);
 
 		return true;
@@ -100,6 +100,10 @@ public class RAMIndex implements GlobalValid, Serializable {
 		return indexSG.stream();
 	}
 
+	@Override
+	public Stream<Account> lowAccounts() {
+		return null;
+	}
 
 
 	public String dumpToTxT() {

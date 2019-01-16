@@ -1,5 +1,6 @@
 package juniter.service.bma;
 
+import juniter.core.model.DBBlock;
 import juniter.repository.jpa.BlockRepository;
 import juniter.service.bma.loader.BlockLoader;
 import juniter.service.bma.dto.Block;
@@ -78,11 +79,11 @@ public class BlockchainService {
 
 	@Transactional(readOnly = true)
 	@RequestMapping(value = "/all", method = RequestMethod.GET)
-	public List<juniter.core.model.Block> all() {
+	public List<DBBlock> all() {
 
 		LOG.info("Entering /blockchain/all");
 
-		try (Stream<juniter.core.model.Block> items = blockRepo.findTop10ByOrderByNumberDesc()) {
+		try (Stream<DBBlock> items = blockRepo.findTop10ByOrderByNumberDesc()) {
 			return items.collect(toList());
 		} catch (final Exception e) {
 			LOG.error(e);
@@ -110,10 +111,10 @@ public class BlockchainService {
 		final List<Integer> blocksToFind = IntStream.range(from, from + count).boxed().collect(toList());
 		LOG.debug("---blocksToFind: " + blocksToFind);
 
-		final List<juniter.core.model.Block> knownBlocks = blockRepo.findByNumberIn(blocksToFind).collect(toList());
+		final List<DBBlock> knownBlocks = blockRepo.findByNumberIn(blocksToFind).collect(toList());
 		LOG.debug("---known blocks: " + knownBlocks.stream().map(b -> b.getNumber()).collect(toList()));
 
-		final List<juniter.core.model.Block> blocksToSave = blocksToFind.stream()
+		final List<DBBlock> blocksToSave = blocksToFind.stream()
 				.filter(b -> knownBlocks.stream().noneMatch(kb -> kb.getNumber().equals(b)))
 				.map(lg -> defaultLoader.fetchAndSaveBlock(lg)).collect(toList());
 
@@ -172,7 +173,7 @@ public class BlockchainService {
 	public WithDTO with(@PathVariable("what") String what) {
 
 		LOG.info("Entering /blockchain/with/{newcomers,certs,actives,leavers,excluded,ud,tx}");
-		Stream<juniter.core.model.Block> st;
+		Stream<DBBlock> st;
 		switch (what) {
 		case "newcomers":
 			st = blockRepo.with(block -> !block.getJoiners().isEmpty());
@@ -229,7 +230,7 @@ public class BlockchainService {
 
 
     @RequestMapping(value = "/block", method = RequestMethod.POST)
-    ResponseEntity<juniter.core.model.Block> block (HttpServletRequest request, HttpServletResponse response) {
+    ResponseEntity<DBBlock> block (HttpServletRequest request, HttpServletResponse response) {
 
         LOG.info("POSTING /blockchain/block ..." + request.getRemoteHost());
 
@@ -242,7 +243,7 @@ public class BlockchainService {
 		}
 
 
-		juniter.core.model.Block block = new juniter.core.model.Block();
+		DBBlock block = new DBBlock();
         final var headers = new HttpHeaders();
 
 

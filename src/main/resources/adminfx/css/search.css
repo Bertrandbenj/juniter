@@ -2,3 +2,27 @@
     // -fx-background-color: red;
     // -fx-text-fill: white;
 }
+
+.root { -fx-background-color: cornsilk; -fx-padding: 15; }
+
+.progress-bar { -fx-box-border: goldenrod; }
+
+.green-bar  { -fx-accent: green;  }
+.yellow-bar { -fx-accent: yellow; }
+.orange-bar { -fx-accent: orange; }
+.red-bar    { -fx-accent: red;    }
+
+
+.technology{
+    -fx-border-style : dotted;
+    -fx-padding : 5 5 5 5;
+}
+
+.technology .boxtitle {
+    -fx-font-size: 18;
+}
+
+.technology .checklist {
+    -fx-padding: 5;
+    -fx-spacing: 5;
+}

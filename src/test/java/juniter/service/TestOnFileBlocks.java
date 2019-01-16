@@ -3,7 +3,7 @@ package juniter.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import juniter.core.crypto.Crypto;
-import juniter.core.model.Block;
+import juniter.core.model.DBBlock;
 import juniter.core.validation.BlockLocalValid;
 import juniter.repository.jpa.index.Index;
 import org.apache.logging.log4j.LogManager;
@@ -23,44 +23,44 @@ public class TestOnFileBlocks implements BlockLocalValid {
 	/**
 	 * joiners/identity/certification & parameters
 	 */
-	public Block _0;
+	public DBBlock _0;
 
-	public Block _1;
+	public DBBlock _1;
 
 	/**
 	 *
 	 */
-	public Block _1437;
+	public DBBlock _1437;
 
-	public Block _15144;
+	public DBBlock _15144;
 
 	/**
 	 * transactions
 	 */
-	public Block _127128;
+	public DBBlock _127128;
 
 	/**
 	 * leavers
 	 */
-	public Block _102093;
+	public DBBlock _102093;
 
 	/**
 	 * actives
 	 */
-	public Block _17500;
+	public DBBlock _17500;
 
 	/**
 	 * revoked/excluded
 	 */
-	public Block _33396;
+	public DBBlock _33396;
 
-	public List<Block> blockchain;
+	public List<DBBlock> blockchain;
 
-	public List<Block> blockchaing1;
+	public List<DBBlock> blockchaing1;
 
 	final Index idx = new Index();
 
-	private Block _92636;
+	private DBBlock _92636;
 
 
 	@Before
@@ -71,22 +71,22 @@ public class TestOnFileBlocks implements BlockLocalValid {
 		final ObjectMapper jsonMapper = new ObjectMapper();
 
 		try {
-			_0 = jsonMapper.readValue(cl.getResourceAsStream("blocks/0.json"), Block.class);
-			_1 = jsonMapper.readValue(cl.getResourceAsStream("blocks/1.json"), Block.class);
-			_1437 = jsonMapper.readValue(cl.getResourceAsStream("blocks/1437.json"), Block.class);
-			_15144 = jsonMapper.readValue(cl.getResourceAsStream("blocks/15144.json"), Block.class);
-			_17500 = jsonMapper.readValue(cl.getResourceAsStream("blocks/17500.json"), Block.class);
-			_33396 = jsonMapper.readValue(cl.getResourceAsStream("blocks/33396.json"), Block.class);
-			_92636 = jsonMapper.readValue(cl.getResourceAsStream("blocks/92636.json"), Block.class);
-			_102093 = jsonMapper.readValue(cl.getResourceAsStream("blocks/102093.json"), Block.class);
-			_127128 = jsonMapper.readValue(cl.getResourceAsStream("blocks/127128.json"), Block.class);
+			_0 = jsonMapper.readValue(cl.getResourceAsStream("blocks/0.json"), DBBlock.class);
+			_1 = jsonMapper.readValue(cl.getResourceAsStream("blocks/1.json"), DBBlock.class);
+			_1437 = jsonMapper.readValue(cl.getResourceAsStream("blocks/1437.json"), DBBlock.class);
+			_15144 = jsonMapper.readValue(cl.getResourceAsStream("blocks/15144.json"), DBBlock.class);
+			_17500 = jsonMapper.readValue(cl.getResourceAsStream("blocks/17500.json"), DBBlock.class);
+			_33396 = jsonMapper.readValue(cl.getResourceAsStream("blocks/33396.json"), DBBlock.class);
+			_92636 = jsonMapper.readValue(cl.getResourceAsStream("blocks/92636.json"), DBBlock.class);
+			_102093 = jsonMapper.readValue(cl.getResourceAsStream("blocks/102093.json"), DBBlock.class);
+			_127128 = jsonMapper.readValue(cl.getResourceAsStream("blocks/127128.json"), DBBlock.class);
 
 			blockchain = jsonMapper.readValue(cl.getResourceAsStream("blocks/blockchain.json"),
-					new TypeReference<List<Block>>() {
+					new TypeReference<List<DBBlock>>() {
 			});
 
 			blockchaing1 = jsonMapper.readValue(cl.getResourceAsStream("blocks/g1_0_99.json"),
-					new TypeReference<List<Block>>() {
+					new TypeReference<List<DBBlock>>() {
 			});
 
 			LOG.info("Sucessfully parsed " + blockchain + "\tfrom " + cl.getResource("blocks/blockchain.json"));
@@ -172,43 +172,43 @@ public class TestOnFileBlocks implements BlockLocalValid {
 
 	@Test
 	public void testBlock0() {
-		assertBlockLocalValid(_0);
+		assertBlockLocalValid(_0, true);
 
 	}
 
 	@Test
 	public void testBlock1() {
-		assertBlockLocalValid(_1);
+		assertBlockLocalValid(_1, true);
 	}
 
 	@Test
 	public void testBlock102093() {
-		assertBlockLocalValid(_102093);
+		assertBlockLocalValid(_102093, true);
 	}
 
 	@Test
 	public void testBlock127128() {
-		assertBlockLocalValid(_127128);
+		assertBlockLocalValid(_127128, true);
 	}
 
 	@Test
 	public void testBlock1437() {
-		assertBlockLocalValid(_1437);
+		assertBlockLocalValid(_1437, true);
 	}
 
 	@Test
 	public void testBlock15144() {
-		assertBlockLocalValid(_15144);
+		assertBlockLocalValid(_15144, true);
 	}
 
 	@Test
 	public void testBlock17500() {
-		assertBlockLocalValid(_1437);
+		assertBlockLocalValid(_1437, true);
 	}
 
 	@Test
 	public void testBlock33396() {
-		assertBlockLocalValid(_33396);
+		assertBlockLocalValid(_33396, true);
 	}
 
 
@@ -218,7 +218,7 @@ public class TestOnFileBlocks implements BlockLocalValid {
 				blockchain.size() == 11);
 
 		blockchain.forEach(b -> {
-			assertBlockLocalValid(b);
+			assertBlockLocalValid(b, true);
 		});
 
 	}
@@ -230,15 +230,15 @@ public class TestOnFileBlocks implements BlockLocalValid {
 
 		blockchaing1.forEach(b -> {
 			LOG.info("asserting " + b);
-			assertBlockLocalValid(b);
+			assertBlockLocalValid(b, true);
 		});
 
 	}
 
 	@Test
 	public void testIndexing() {
-		idx.validate(_0);
-		idx.validate(_1);
+		idx.validate(_0, false);
+		idx.validate(_1, false);
 	}
 
 	@Test

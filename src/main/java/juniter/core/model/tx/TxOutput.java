@@ -1,10 +1,14 @@
 package juniter.core.model.tx;
 
 import juniter.core.model.DUPComponent;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.lang.NonNull;
 
 import javax.persistence.Embeddable;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 
 /**
@@ -23,41 +27,40 @@ import java.io.Serializable;
  *
  */
 @Embeddable
+@Getter
+@Setter
+
 public class TxOutput implements Serializable, Comparable<TxOutput>, DUPComponent {
 
-	public enum OutFunction {
-		SIG("SIG"), XHX("XHX"), CLTV("CLTV"), CSV("CSV");
-
-		private final String FCT_TYPE;
-
-		OutFunction(String output) {
-			FCT_TYPE = output;
-		}
-
-		@Override
-		public String toString() {
-			return FCT_TYPE;
-		}
-
-	}
-
 	private static final long serialVersionUID = 2208036347838232516L;
+
 	static final Logger LOG = LogManager.getLogger();
+
+
 	private Integer base;
 	private Integer amount;
 
+	@Size(max = 255)
 	private String condition;
+
 
 	public TxOutput() {
 	}
 
 	public TxOutput(String output) {
-		setOutput(output);
+		final var vals = output.split(":");
+		amount = Integer.valueOf(vals[0]);
+		base = Integer.valueOf(vals[1]);
+		try {
+			condition = OutCondition.parse(vals[2]).toString();
+		} catch (final Exception e) {
+			LOG.error("Error parsing " + output, e);
+		}
 	}
 
 	@Override
-	public int compareTo(TxOutput o) {
-		return getOutput().compareTo(o.getOutput());
+	public int compareTo(@NonNull TxOutput o) {
+		return toDUP().compareTo(o.toDUP());
 	}
 
 	public Integer getAmount() {
@@ -88,18 +91,7 @@ public class TxOutput implements Serializable, Comparable<TxOutput>, DUPComponen
 		this.base = base;
 	}
 
-	public void setOutput(String output) {
-		//		LOG.debug("Parsing TxOutput... " + output);
 
-		final var vals = output.split(":");
-		amount = Integer.valueOf(vals[0]);
-		base = Integer.valueOf(vals[1]);
-		try {
-			condition = OutCondition.parse(vals[2]).toString();
-		} catch (final Exception e) {
-			LOG.error("Error parsing " + output, e);
-		}
-	}
 
 	@Override
 	public String toDUP() {
@@ -109,6 +101,24 @@ public class TxOutput implements Serializable, Comparable<TxOutput>, DUPComponen
 	@Override
 	public String toString() {
 		return toDUP();
+	}
+
+
+
+	public enum OutFunction {
+		SIG("SIG"), XHX("XHX"), CLTV("CLTV"), CSV("CSV");
+
+		private final String FCT_TYPE;
+
+		OutFunction(String output) {
+			FCT_TYPE = output;
+		}
+
+		@Override
+		public String toString() {
+			return FCT_TYPE;
+		}
+
 	}
 
 }

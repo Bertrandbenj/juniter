@@ -1,16 +1,20 @@
 package juniter.core.model.wot;
 
 import juniter.core.model.BStamp;
-import juniter.core.model.Pubkey;
+import juniter.core.utils.Constants;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.lang.NonNull;
 
-import javax.persistence.AttributeOverride;
-import javax.persistence.Column;
 import javax.persistence.Embeddable;
-import javax.validation.Valid;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 
+@Getter
+@Setter
 @Embeddable
 public class Revoked implements Serializable, Comparable<Revoked> {
 
@@ -18,9 +22,9 @@ public class Revoked implements Serializable, Comparable<Revoked> {
 
 	private static final Logger LOG = LogManager.getLogger();
 
-	@Valid
-	@AttributeOverride(name = "pubkey", column = @Column(name = "revoked"))
-	private Pubkey revoked = new Pubkey();
+	@Size(max = 45)
+	@Pattern(regexp = Constants.Regex.PUBKEY)
+	private String revoked;
 
 	private String signature;
 
@@ -32,25 +36,20 @@ public class Revoked implements Serializable, Comparable<Revoked> {
 	}
 
 	@Override
-	public int compareTo(Revoked o) {
-		// TODO Auto-generated method stub
-		return getRevoked().compareTo(o.getRevoked());
+	public int compareTo(@NonNull Revoked o) {
+		return toDUP().compareTo(o.toDUP());
 	}
 
-	public String getRevoked() {
-		return revoked + ":" + signature;
-	}
 
 	public String revoked() {
-		return revoked.getPubkey();
+		return revoked;
 	}
 
 	public void setRevoked(String rev) {
-
-		LOG.debug("Parsing Revoked... " + rev);
 		final var vals = rev.split(":");
-		revoked.setPubkey(vals[0]);
+		revoked = vals[0] ;
 		signature = vals[1];
+		LOG.debug("Parsed Revoked... " + rev);
 	}
 
 	public String signature(){
@@ -58,12 +57,12 @@ public class Revoked implements Serializable, Comparable<Revoked> {
 	}
 
 	public String toDUP() {
-		return getRevoked();
+		return revoked + ":" + signature;
 	}
 
 	@Override
 	public String toString() {
-		return getRevoked();
+		return toDUP();
 	}
 
 	public BStamp createdOn() {

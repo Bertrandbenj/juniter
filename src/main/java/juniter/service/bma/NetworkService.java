@@ -1,7 +1,7 @@
 package juniter.service.bma;
 
 import juniter.core.crypto.SecretBox;
-import juniter.core.model.Block;
+import juniter.core.model.DBBlock;
 import juniter.core.model.net.EndPoint;
 import juniter.core.model.net.Peer;
 import juniter.repository.jpa.BlockRepository;
@@ -113,7 +113,7 @@ public class NetworkService {
     public Peer endPointPeer(Integer number){
         LOG.info("endPointPeer " + number);
 
-        Block current = blockRepo.block(number ).orElseThrow();
+        DBBlock current = blockRepo.block(number ).orElseThrow();
         var peer = new Peer();
         peer.setVersion(10);
         peer.setBlock(current.bstamp());
@@ -121,8 +121,8 @@ public class NetworkService {
         peer.setPubkey(secretBox.getPublicKey());
         peer.setStatus("UP");
 
-        peer.endpoints().add(new EndPoint("BMAS " + serverName + " " + port));
-        peer.endpoints().add(new EndPoint("WS2P " + serverName + " " + port));
+        //peer.endpoints().add(new EndPoint("BMAS " + serverName + " " + port));
+        //peer.endpoints().add(new EndPoint("WS2P " + serverName + " " + port));
 
         whatsMyIp().ifPresent(ip -> {
             peer.endpoints().add(new EndPoint("BMAS "  + ip + " " + port));

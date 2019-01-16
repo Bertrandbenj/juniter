@@ -8,7 +8,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import juniter.core.model.Block;
+import juniter.core.model.DBBlock;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 
@@ -19,9 +19,9 @@ public class ResponseBlocks implements Serializable {
 
 	String resId;
 
-	List<Block> body;
+	List<DBBlock> body;
 
-	public List<Block> getBody() {
+	public List<DBBlock> getBody() {
 		return body;
 	}
 

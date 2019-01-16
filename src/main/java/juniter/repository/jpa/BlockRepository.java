@@ -1,6 +1,6 @@
 package juniter.repository.jpa;
 
-import juniter.core.model.Block;
+import juniter.core.model.DBBlock;
 import juniter.core.validation.BlockLocalValid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,20 +17,20 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**
- * Repository to manage {@link Block} instances.
+ * Repository to manage {@link DBBlock} instances.
  */
 @Repository
-public interface BlockRepository extends JpaRepository<Block, Long>, BlockLocalValid {
+public interface BlockRepository extends JpaRepository<DBBlock, Long>, BlockLocalValid {
 	Logger LOG = LogManager.getLogger();
 
-	default Optional<Block> block(Integer number) {
+	default Optional<DBBlock> block(Integer number) {
 		return findTop1ByNumber(number);
 	}
 
-	@Query("select b from Block b where number = ?1 AND hash = ?2 ")
-	Optional<Block> block(Integer number, String hash) ;
+	@Query("select b from DBBlock b where number = ?1 AND hash = ?2 ")
+	Optional<DBBlock> block(Integer number, String hash) ;
 
-	default Optional<Block> cachedBlock(Integer bstamp) {
+	default Optional<DBBlock> cachedBlock(Integer bstamp) {
 
 		if(cache.containsKey(bstamp) )
 			return Optional.of(cache.get(bstamp));
@@ -38,58 +38,56 @@ public interface BlockRepository extends JpaRepository<Block, Long>, BlockLocalV
 		var res = block(bstamp);
 
 		res.ifPresent(b->{
-			 cache.put(b.getNumber(), b);
+			 //cache.put(b.getNumber(), b);
 		});
 
 		return  res;
 	}
 
 
-	@Query("select number from Block")
+	@Query("select number from DBBlock")
 	List<Integer> blockNumbers();
 
-    @Query("select number from Block WHERE number NOT IN :notIn")
+    @Query("select number from DBBlock WHERE number NOT IN :notIn")
     List<Integer> blockNumbers(List<Integer> notIn);
 
 	/**
 	 * highest block by block number in base
 	 *
-	 * @return Optional<Block>
+	 * @return Optional<DBBlock>
 	 */
-	default Optional<Block> current() {
+	default Optional<DBBlock> current() {
 		return findTop1ByOrderByNumberDesc();
 	}
 
 	default Integer currentBlockNumber() {
-		return current().map(Block::getNumber).orElse(-1);
+		return current().map(DBBlock::getNumber).orElse(-1);
 	}
 
 
-	Map<Integer, Block> cache = new HashMap<>();
+	Map<Integer, DBBlock> cache = new HashMap<>();
 
 
 
 
-	Stream<Block> findByNumberIn(List<Integer> number);
+	Stream<DBBlock> findByNumberIn(List<Integer> number);
 
-	Stream<Block> findTop10ByOrderByNumberDesc();
+	Stream<DBBlock> findTop10ByOrderByNumberDesc();
 
 	// TODO clean this up
-	Optional<Block> findTop1ByNumber(Integer number);
+	Optional<DBBlock> findTop1ByNumber(Integer number);
 
 	/**
 	 * Alias for current()
 	 *
-	 * @return Optional<Block>
+	 * @return Optional<DBBlock>
 	 */
-	Optional<Block> findTop1ByOrderByNumberDesc();
+	Optional<DBBlock> findTop1ByOrderByNumberDesc();
 
-	default Optional<Block> localSave(Block block) throws AssertionError {
+	default Optional<DBBlock> localSave(DBBlock block) throws AssertionError {
 
-		if (checkBlockisLocalValid(block)){
-			if(block.size()>0){
-				cache.put(block.getNumber(), block);
-			}
+		if (checkBlockIsLocalValid(block)){
+
 			try{
 				return Optional.of(save(block));
 			}catch(Exception e){
@@ -103,34 +101,34 @@ public interface BlockRepository extends JpaRepository<Block, Long>, BlockLocalV
 	}
 
 
-    default <S extends Block> Block override(S block) {
+    default <S extends DBBlock> DBBlock override(S block) {
 		final var existingBlock = findTop1ByNumber(block.getNumber());
 		final var bl = existingBlock.orElse(block);
 		return save(bl);
 	}
 
 	/**
-	 * Saves the given {@link Block}. unsafe
+	 * Saves the given {@link DBBlock}. unsafe
 	 *
 	 * @param block the block to save
 	 * @return the block saved
 	 */
 	@Override
-	<S extends Block> S save(S block) throws GenericJDBCException;
+	<S extends DBBlock> S save(S block) throws GenericJDBCException;
 
-	@Query("select c from Block c")
-	Stream<Block> streamAllBlocks();
+	@Query("select c from DBBlock c")
+	Stream<DBBlock> streamAllBlocks();
 
-	@Query("select c from Block c where number >= ?1 AND number < ?2 ")
-	Stream<Block> streamBlocksFromTo(int from, int to);
+	@Query("select c from DBBlock c where number >= ?1 AND number < ?2 ")
+	Stream<DBBlock> streamBlocksFromTo(int from, int to);
 
-	default Stream<Block> with(Predicate<Block> predicate) {
-		return streamAllBlocks() //
-				.filter(predicate) //
-				.sorted((b1, b2) -> b1.getNumber().compareTo(b2.getNumber()));
+	default Stream<DBBlock> with(Predicate<DBBlock> predicate) {
+		return streamAllBlocks()
+				.filter(predicate)
+				.sorted();
 	}
 
-	@Query("select c from Block c where number >= ?1 AND number < ?2")
-	List<Block> blocksFromTo(int from, int to);
+	@Query("select c from DBBlock c where number >= ?1 AND number < ?2")
+	List<DBBlock> blocksFromTo(int from, int to);
 
 }

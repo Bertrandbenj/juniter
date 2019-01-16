@@ -1,39 +1,45 @@
 package juniter.core.model.wot;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import juniter.core.utils.Constants;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.persistence.*;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 
 @Getter
 @Setter
 @Entity
 @AllArgsConstructor
-@Table(name = "Certification", schema = "public")
+@Table(name = "certification", schema = "public")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Certification implements Serializable, Comparable<Certification> {
 
 	private static final long serialVersionUID = -2973877562500906569L;
-	private static final Logger LOG = LoggerFactory.getLogger(Certification.class);
-
-
+	private static final Logger LOG = LogManager.getLogger();
 
 
     @Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 
+	@Size(max = 45)
+	@Pattern(regexp = Constants.Regex.PUBKEY)
 	private  String certifier ;
 
+	@Size(max = 45)
+	@Pattern(regexp = Constants.Regex.PUBKEY)
 	private  String certified;
 
 	private Integer blockNumber;
 
+	@Size(max = 88)
 	private String signature;
 
 

@@ -1,8 +1,8 @@
 package juniter.repository.spark;
 
-import juniter.core.model.Block;
+import juniter.core.model.ChainParameters;
+import juniter.core.model.DBBlock;
 import juniter.core.utils.TimeUtils;
-import juniter.core.validation.GlobalValid;
 import juniter.repository.jpa.BlockRepository;
 import juniter.repository.jpa.index.*;
 import org.apache.logging.log4j.LogManager;
@@ -22,7 +22,7 @@ import java.util.stream.Stream;
 import static org.apache.spark.sql.functions.*;
 
 
-@ConditionalOnExpression("${juniter.useSpark:true}")
+@ConditionalOnExpression("${juniter.useSpark:false}")
 @Service
 public class SparkService {
 
@@ -72,7 +72,7 @@ public class SparkService {
     public static Dataset<Row> outputs;
 
 
-    GlobalValid.ChainParameters conf = new GlobalValid.ChainParameters();
+    ChainParameters conf = new ChainParameters();
 
 
     @Async("AsyncJuniterPool")
@@ -502,7 +502,7 @@ public class SparkService {
 //                            return res;
 //                        })
                         .collect(Collectors.toList())
-                , Block.class);
+                , DBBlock.class);
         df.show();
         df.write().mode(SaveMode.Overwrite).parquet(dataPath + "blocks");
         df.printSchema();
@@ -512,8 +512,8 @@ public class SparkService {
         LOG.info("reread count  = " + df2.count());
         df2.show();
         df2.printSchema();
-        Encoder<Block> encoder = Encoders.bean(Block.class);
-        Dataset<Block> ds = df2.as(encoder);
+        Encoder<DBBlock> encoder = Encoders.bean(DBBlock.class);
+        Dataset<DBBlock> ds = df2.as(encoder);
 
 
         LOG.info("reopen count  = " + ds.count() + " ");

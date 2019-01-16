@@ -2,6 +2,8 @@ package juniter.core.model.net;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import juniter.core.utils.Constants;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -12,10 +14,11 @@ import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Entity
+@Getter
+@Setter
 @Table(name = "peer", schema = "public")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Peer  implements Serializable{
@@ -27,13 +30,17 @@ public class Peer  implements Serializable{
 //	private Long id;
 
 	private Integer version;
-	
-	private String currency; 
-	
+
+	@Size(max = 42)
+	private String currency;
+
+	@Size(max = 10)
 	private String status; 
-	
-	private String first_down; 
-	
+
+	@Size(max = 42)
+	private String first_down;
+
+	@Size(max = 42)
 	private String last_try; 
 	
 	/**
@@ -42,7 +49,8 @@ public class Peer  implements Serializable{
 //	@OneToOne(cascade = { CascadeType.ALL })
 //	@JoinColumn(name = "pubkey", referencedColumnName= "pubkey")
 	@Id
-	@Pattern(regexp = Constants.Regex.PUBKEY) @Size(max=45)
+	@Pattern(regexp = Constants.Regex.PUBKEY)
+	@Size(max=45)
 	private String pubkey; 
 	
 	/**
@@ -52,17 +60,14 @@ public class Peer  implements Serializable{
 	//@Pattern(regexp = Constants.Regex.BUID) 
 	private String block;
 	
-	/**
-	 * ex : GKTrlUc4um9lQuj9UI8fyA/n/JKieYqBYcl9keIWfAVOnvHamLHaqGzijsdX1kNt64cadcle/zkd7xOgMTdQAQ==
-	 */
-	@Pattern(regexp = Constants.Regex.SIGNATURE) @Size(max=88)
+
+	@Size(max=88)
+	@Pattern(regexp = Constants.Regex.SIGNATURE)
 	private String signature; 
 	
-	/**
-	 * ex : BASIC_MERKLED_API metab.ucoin.io 88.174.120.187 9201
-	 */
+
 	@OneToMany(mappedBy="peer")
-	private List<EndPoint> endpoints = new ArrayList<EndPoint>(); 
+	private List<EndPoint> endpoints = new ArrayList<>();
 	
 	
 	public Integer getVersion() {
@@ -71,23 +76,11 @@ public class Peer  implements Serializable{
 	public String getCurrency() {
 		return currency;
 	}
-	public String getStatus() {
-		return status;
-	}
-	public String getFirst_down() {
-		return first_down;
-	}
-	public String getLast_try() {
-		return last_try;
-	}
 	public String getPubkey() {
 		return pubkey;
 	}
 	public String getBlock() {
-		return block;//.getBuid();
-	}
-	public String getSignature() {
-		return signature;
+		return block;
 	}
 	public String getRaw(){
 		return toDUP(true);
@@ -97,14 +90,7 @@ public class Peer  implements Serializable{
 		return endpoints;
 	}
 
-	public List<String> getEndpoints() {
-		return endpoints.stream().map(ep->ep.getEndpoint()).collect(Collectors.toList());
-	}
 
-
-	public static Predicate<Peer> blockHigherThan (int x){
-		return p-> Integer.parseInt(p.block.split("-")[0]) > x;
-	}
 	public void setVersion(Integer version) {
 		this.version = version;
 	}
@@ -113,12 +99,6 @@ public class Peer  implements Serializable{
 	}
 	public void setStatus(String status) {
 		this.status = status;
-	}
-	public void setFirst_down(String first_down) {
-		this.first_down = first_down;
-	}
-	public void setLast_try(String last_try) {
-		this.last_try = last_try;
 	}
 	public void setPubkey(String pubkey) {
 		this.pubkey = pubkey;
@@ -130,12 +110,6 @@ public class Peer  implements Serializable{
 		this.signature = signature;
 	}
 
-	public Peer putEndpoints(List<EndPoint> endpoints) {
-		this.endpoints.removeIf(x->true);
-		this.endpoints.addAll(endpoints);
-		return this;
-	}
-
 	public String toDUP(boolean signed ){
 		return "Version: "+version+
 				"\nType: Peer" +
@@ -143,7 +117,7 @@ public class Peer  implements Serializable{
 				"\nPublicKey: "+pubkey+"" +
 				"\nBlock: "+block+"" +
 				"\nEndpoints:\n"
-				+endpoints.stream().map(ep -> ep.getEndpoint()).collect(Collectors.joining("\n"))
+				+endpoints.stream().map(EndPoint::getEndpoint).collect(Collectors.joining("\n"))
 				+"\n" +
 				(signed? signature + "\n" : "");
 	}

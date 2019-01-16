@@ -1,16 +1,28 @@
 package juniter.core.model.tx;
 
 import juniter.core.model.DUPComponent;
-import juniter.core.model.Hash;
-import juniter.core.model.Pubkey;
+import juniter.core.utils.Constants;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.lang.NonNull;
 
-import javax.persistence.*;
-import javax.validation.Valid;
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 
 //@JsonIgnoreProperties(ignoreUnknown = true)
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Embeddable
 public class TxInput implements Serializable, Comparable<TxInput>, DUPComponent {
 
@@ -27,40 +39,48 @@ public class TxInput implements Serializable, Comparable<TxInput>, DUPComponent 
 	@Column(length = 1)
 	private TxType type;
 
-	@Valid
-	@AttributeOverride(name = "pubkey", column = @Column(name = "dsource"))
-	private Pubkey dsource = new Pubkey();
+	@Size(max = 45)
+	@Pattern(regexp = Constants.Regex.PUBKEY)
+	private String dsource ;
 
 	private Integer dBlockID;
 
-	@Valid
-	@AttributeOverride(name = "hash", column = @Column(name = "thash"))
-	private Hash tHash = new Hash();
+	@Size(max = 64)
+	@Pattern(regexp = Constants.Regex.HASH)
+	private String tHash;
 
 	private Integer tIndex;
 
-	public TxInput() {
-	}
 
-	public TxInput(@Min(1) Integer amount, @Min(0) @Max(0) Integer base, TxType type, @Valid Pubkey dsource, Integer dBlockID, @Valid Hash tHash, Integer tIndex) {
-		this.amount = amount;
-		this.base = base;
-		this.type = type;
-		this.dsource = dsource;
-		this.dBlockID = dBlockID;
-		this.tHash = tHash;
-		this.tIndex = tIndex;
-	}
-
+	/**
+	 * Build input from String
+     *
+	 * @param input as a DUP String
+	 */
 	public TxInput(String input) {
-		setInput(input);
+		final var it = input.split(":");
+		amount = Integer.valueOf(it[0]);
+		base = Integer.valueOf(it[1]);
+		type = TxType.valueOf(it[2]);
+
+		if (type.equals(TxType.T)) {
+			tHash = it[3];
+			tIndex = Integer.valueOf(it[4]);
+		}
+
+		if (type.equals(TxType.D)) {
+			dsource = it[3];
+			dBlockID = Integer.valueOf(it[4]);
+		}
 	}
+
 
 	@Override
-	public int compareTo(TxInput o) {
-
-		return getInput().compareTo(o.getInput());
+	public String toDUP() {
+		return amount + ":" + base + ":" + type + ":"
+				+ (TxType.D.equals(type) ? dsource + ":" + dBlockID : tHash + ":" + tIndex);
 	}
+
 
 	public Integer getAmount() {
 		return amount;
@@ -74,15 +94,11 @@ public class TxInput implements Serializable, Comparable<TxInput>, DUPComponent 
 		return dBlockID;
 	}
 
-	public Pubkey getDsource() {
+	public String getDsource() {
 		return dsource;
 	}
 
-	public String getInput() {
-		return toDUP();
-	}
-
-	public Hash getTHash() {
+	public String getTHash() {
 		return tHash;
 	}
 
@@ -94,60 +110,13 @@ public class TxInput implements Serializable, Comparable<TxInput>, DUPComponent 
 		return type;
 	}
 
-	public void setAmount(Integer amount) {
-		this.amount = amount;
-	}
-
-	public void setBase(Integer base) {
-		this.base = base;
-	}
-
-	public void setdBlockID(Integer dBlockID) {
-		this.dBlockID = dBlockID;
-	}
-
-	public void setdSource(Pubkey dSource) {
-		dsource = dSource;
-	}
-
-	public void setInput(String input) {
-		// this.input = input;
-		final var it = input.split(":");
-		amount = Integer.valueOf(it[0]);
-		base = Integer.valueOf(it[1]);
-		setType(TxType.valueOf(it[2]));
-
-		if (type.equals(TxType.T)) {
-			tHash.setHash(it[3]);
-			tIndex = Integer.valueOf(it[4]);
-		}
-
-		if (type.equals(TxType.D)) {
-			dsource.setPubkey(it[3]);
-			dBlockID = Integer.valueOf(it[4]);
-		}
-	}
-
-	public void settHash(String tHash) {
-		this.tHash.setHash(tHash);
-	}
-
-	public void settIndex(Integer tIndex) {
-		this.tIndex = tIndex;
-	}
-
-	public void setType(TxType txType) {
-		type = txType;
-	}
-
-	@Override
-	public String toDUP() {
-		return amount + ":" + base + ":" + type + ":"
-				+ (TxType.D.equals(type) ? dsource + ":" + dBlockID : tHash + ":" + tIndex);
-	}
-
 	@Override
 	public String toString() {
-		return getInput();
+		return toDUP();
+	}
+
+	@Override
+	public int compareTo(@NonNull TxInput o) {
+		return toDUP().compareTo(o.toDUP());
 	}
 }

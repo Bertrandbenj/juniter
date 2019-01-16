@@ -1,18 +1,16 @@
 package juniter.core.crypto;
 
-import static org.abstractj.kalium.NaCl.sodium;
+import com.lambdaworks.codec.Base64;
+import jnr.ffi.byref.LongLongByReference;
+import org.abstractj.kalium.NaCl;
+import org.abstractj.kalium.NaCl.Sodium;
+import org.abstractj.kalium.crypto.Util;
 
 import java.nio.charset.Charset;
 import java.util.Random;
 import java.util.stream.IntStream;
 
-import org.abstractj.kalium.NaCl;
-import org.abstractj.kalium.NaCl.Sodium;
-import org.abstractj.kalium.crypto.Util;
-
-import com.lambdaworks.codec.Base64;
-
-import jnr.ffi.byref.LongLongByReference;
+import static org.abstractj.kalium.NaCl.sodium;
 
 public class Crypto extends Util {
 
@@ -172,6 +170,10 @@ public class Crypto extends Util {
 	 */
 
 	public static boolean verify(String rawMsg, String rawSig, String rawPub) {
+
+		if(rawMsg == null || rawSig ==null || rawPub==null)
+			return false;
+
 		final var msg = decodeUTF8(rawMsg);
 		final var sig = decodeBase64(rawSig);
 		final var pub = decodeBase58(rawPub);

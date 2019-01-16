@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,7 +68,6 @@ public class MissingBlocksLoader {
     }
 
 
-    @Scheduled(fixedRate = 30 * 60 * 1000, initialDelay = 60 * 60 * 1000)
     @Async
     public void checkMissingBlocks() {
 

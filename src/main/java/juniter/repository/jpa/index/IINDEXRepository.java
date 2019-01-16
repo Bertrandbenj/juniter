@@ -1,8 +1,10 @@
 package juniter.repository.jpa.index;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -43,6 +45,11 @@ public interface IINDEXRepository extends JpaRepository<IINDEX, Long> {
     default Boolean idtyIsMember(String pubkey) {
         return findFirstByPubLike(pubkey).map(i -> i.member).orElse(false);
     }
+
+    @Transactional
+    @Modifying
+    @Query("DELETE from IINDEX i WHERE op = 'huhu'")
+    void trim(int bIndexSize);
 }
 
 	

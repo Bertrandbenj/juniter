@@ -1,5 +1,6 @@
 package juniter.service;
 
+import io.micrometer.core.annotation.Timed;
 import javafx.application.Platform;
 import juniter.core.utils.TimeUtils;
 import juniter.repository.jpa.BlockRepository;
@@ -33,7 +34,8 @@ public class Indexer {
 
     //@Transactional
     @Async
-    public void indexUntil(int syncUntil) {
+    @Timed(longTask = true, histogram = true)
+    public void indexUntil(int syncUntil, boolean quick) {
 
         LOG.info("Testing the local repository ");
         index.init(false);
@@ -55,7 +57,7 @@ public class Indexer {
                     .orElseGet(() -> blockLoader.fetchAndSaveBlock(finali));
 
             try {
-                if (index.validate(block, false)) {
+                if (index.validate(block, quick)) {
                     LOG.debug("Validated " + block);
 
                 } else {

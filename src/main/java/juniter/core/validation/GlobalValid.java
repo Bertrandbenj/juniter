@@ -2,11 +2,16 @@ package juniter.core.validation;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.collect.Lists;
+import com.ryantenney.metrics.annotation.Counted;
+import io.micrometer.core.annotation.Timed;
 import juniter.core.crypto.Crypto;
 import juniter.core.model.BStamp;
-import juniter.core.model.Block;
+import juniter.core.model.ChainParameters;
+import juniter.core.model.DBBlock;
 import juniter.core.model.tx.TxType;
+import juniter.repository.jpa.index.Account;
 import lombok.*;
+import org.springframework.lang.NonNull;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
@@ -100,7 +105,7 @@ public interface GlobalValid {
         Integer issuersFrameVar = null;
         Integer issuerDiff = null;
         Integer avgBlockSize = null;
-        Long medianTime = null;
+        public Long medianTime = null;
         Integer dividend = null;
         Long mass = null;
         Long massReeval = null;
@@ -111,15 +116,15 @@ public interface GlobalValid {
         Long diffTime = null;
         Long speed = null;
 
-        // FIXME these shouldnt be in BINDEX
-        Integer new_dividend;
-        long diffNumber;
-        int powRemainder;
-        int powZeros;
-        long udReevalTime;
+
+        transient Integer new_dividend;
+        transient long diffNumber;
+        transient int powRemainder;
+        transient int powZeros;
+        transient long udReevalTime;
 
         @Override
-        public int compareTo(BINDEX o) {
+        public int compareTo(@NonNull BINDEX o) {
             return Integer.compare(number, o.number);
         }
 
@@ -131,99 +136,6 @@ public interface GlobalValid {
 
     }
 
-
-    /**
-     * <pre>
-     * the DUP format in block 0  :
-     * 0.0488:86400:1000:432000:100:5259600:63115200:5:5259600:5259600:0.8:31557600:5:24:300:12:0.67:1488970800:1490094000:15778800
-     * </pre>
-     *
-     * @see <a href="https://git.duniter.org/nodes/typescript/duniter/blob/dev/doc/Protocol.md#protocol-parameters"></a>
-     */
-    class ChainParameters {
-
-        double c = 0.0488; // growth rate
-        long dt = 86400; // 1 day between DU
-        long ud0 = 1000; // 10.00 g1
-        public long sigPeriod = 432000; // 5 days signature period
-        long sigStock = 100;
-        long sigWindow = 5259600; // 60 days, 21 hours
-        public long sigValidity = 63115200; // 730 days, 12 hours,
-        long sigQty = 5;
-        long idtyWindow = 5259600;
-        long msWindow = 5259600;
-        double xpercent = 0.8;
-        public long msValidity = 31557600; // 365 days, 6 hours,
-        long stepMax = 5;
-        long medianTimeBlocks = 24;
-        long avgGenTime = 300;
-        long dtDiffEval = 12;
-        double percentRot = 0.67;
-        long udTime0 = 1488970800; // GMT: Wednesday, March 8, 2017 11:00:00 AM
-        long udReevalTime0 = 1490094000; // GMT: Tuesday, March 21, 2017 11:00:00 AM ??
-        long dtReeval = 15778800; // 182 days, 15 hours
-
-        // New parameter, defaults to msWindow
-        public long msPeriod = msWindow;
-        long sigReplay = msWindow;
-
-        /**
-         * c:dt:ud0:sigPeriod:sigStock:sigWindow:sigValidity:sigQty:idtyWindow:msWindow:xpercent:msValidity:
-         * stepMax:medianTimeBlocks:avgGenTime:dtDiffEval:percentRot:udTime0:udReevalTime0:dtReeval
-         * <p>
-         * 0.0488:86400:1000:432000:100:5259600:63115200:5:5259600:5259600:0.8:31557600:5:24:300:12:0.67:1488970800:1490094000:15778800
-         * 0.007376575:3600:1200:0:40:604800:31536000:1:604800:604800:0.9:31536000:3:20:960:10:0.6666666666666666:1489675722:1489675722:3600",
-         *
-         * @param DUPParams:
-         */
-        void accept(String DUPParams) {
-            final var params = DUPParams.split(":");
-            c = Double.parseDouble(params[0]);
-            dt = Long.parseLong(params[1]);
-            ud0 = Long.parseLong(params[2]);
-            sigPeriod = Long.parseLong(params[3]);
-            sigStock = Long.parseLong(params[4]);
-            sigWindow = Long.parseLong(params[5]);
-            sigValidity = Long.parseLong(params[6]);
-            sigQty = Long.parseLong(params[7]);
-            idtyWindow = Long.parseLong(params[8]);
-            msWindow = Long.parseLong(params[9]);
-            xpercent = Double.parseDouble(params[10]);
-            msValidity = Long.parseLong(params[11]);
-            stepMax = Long.parseLong(params[12]);
-            medianTimeBlocks = Long.parseLong(params[13]);
-            avgGenTime = Long.parseLong(params[14]);
-            dtDiffEval = Long.parseLong(params[15]);
-            percentRot = Double.parseDouble(params[16]);
-            udTime0 = Long.parseLong(params[17]);
-            udReevalTime0 = Long.parseLong(params[18]);
-            dtReeval = Long.parseLong(params[19]);
-            // New parameter, defaults to msWindow
-            msPeriod = msWindow;
-            sigReplay = msWindow;
-        }
-
-        double maxAcceleration() {
-            return Math.ceil(maxGenTime() * medianTimeBlocks);
-        }
-
-        private double maxGenTime() {
-            return Math.ceil(avgGenTime * 1.189);
-        }
-
-        double maxSpeed() {
-            return 1 / minGenTime();
-        }
-
-        private double minGenTime() {
-            return Math.floor(avgGenTime / 1.189);
-        }
-
-        double minSpeed() {
-            return 1 / maxGenTime();
-        }
-
-    }
 
     /**
      * <pre>
@@ -265,17 +177,17 @@ public interface GlobalValid {
         String to_wid;
         int writtenOn;
 
-        // transient variable
-        long unchainables;
-        long age;
-        long stock;
-        boolean toMember;
-        boolean toNewcomer;
-        boolean toLeaver;
-        boolean isReplay;
-        boolean sigOK;
-        boolean fromMember;
-        Block created_on;
+        //  Local to the Block we are validating
+        transient long unchainables;
+        transient long age;
+        transient long stock;
+        transient boolean toMember;
+        transient boolean toNewcomer;
+        transient boolean toLeaver;
+        transient boolean isReplay;
+        transient boolean sigOK;
+        transient boolean fromMember;
+        transient DBBlock created_on;
 
 
         CINDEX(String op, String issuer, String receiver, Integer createdOn, BStamp written_on, String sig,
@@ -293,7 +205,7 @@ public interface GlobalValid {
             this.expired_on = expired_on;
         }
 
-        public CINDEX putCreatedOn(Block b) {
+        CINDEX putCreatedOn(DBBlock b) {
             created_on = b;
             return this;
         }
@@ -308,12 +220,14 @@ public interface GlobalValid {
         }
 
         @Override
-        public int compareTo(CINDEX o) {
+        public int compareTo(@NonNull CINDEX o) {
             return (receiver + "-" + issuer).compareTo(o.receiver + "-" + o.issuer);
         }
 
         @Override
         public boolean equals(Object obj) {
+            if (!(obj instanceof CINDEX))
+                return false;
             final var c = (CINDEX) obj;
             return c.issuer.equals(issuer) && c.receiver.equals(receiver) && c.receiver.equals(receiver);
         }
@@ -327,10 +241,10 @@ public interface GlobalValid {
 
     }
 
-    class Conf {
+    interface Conf {
         int NB_DIGITS_UD = 4;
         long txWindow = 604800; // 3600 * 24 * 7
-        long forksize = 100;
+        int forksize = 100;
 
     }
 
@@ -371,14 +285,13 @@ public interface GlobalValid {
         int wotbid;
         int writtenOn;
 
-        // transient variable
+        // Transient variable local to the Block we are validating
         transient long age;
         transient boolean uidUnique;
         transient boolean pubUnique;
         transient boolean excludedIsMember;
         transient boolean isBeingKicked;
         transient boolean hasToBeExcluded;
-        transient boolean leaving;
 
         IINDEX(String op, String pub, BStamp written_on, boolean kick) {
             this.op = op;
@@ -405,7 +318,7 @@ public interface GlobalValid {
         }
 
         @Override
-        public int compareTo(IINDEX o) {
+        public int compareTo(@NonNull IINDEX o) {
             return pub.compareTo(o.pub);
         }
 
@@ -444,6 +357,7 @@ public interface GlobalValid {
     @EqualsAndHashCode
     @Setter
     @Getter
+    @ToString
     @JsonIgnoreProperties(ignoreUnknown = true)
     class MINDEX implements Comparable<MINDEX> {
 
@@ -462,7 +376,7 @@ public interface GlobalValid {
         int writtenOn;
         String type;
 
-        // transient variable
+        // Transient variable local to the Block we are validating
         long age;
         boolean numberFollowing;
         boolean distanceOK;
@@ -474,12 +388,11 @@ public interface GlobalValid {
         boolean revokedIsMember;
         boolean alreadyRevoked;
         boolean revocationSigOK;
-        boolean excludedIsMember;
         boolean isBeingRevoked;
         long unchainables;
 
 
-        MINDEX(String op, String pub, BStamp created_on, BStamp written_on, String type, Long expires_on,
+        MINDEX(String op, String pub, BStamp created_on, BStamp written_on, String type, Long expires_on,Long expired_on,
                Long revokes_on, Long revoked_on, String revocation_sig, boolean leaving, Long chainable_on) {
             this.op = op;
             this.pub = pub;
@@ -489,43 +402,33 @@ public interface GlobalValid {
             this.created_on = created_on;
             this.type = type;
             this.expires_on = expires_on;
+            this.expired_on = expired_on;
             this.revokes_on = revokes_on;
             this.revocation = revocation_sig;
             this.leaving = leaving;
             this.chainable_on = chainable_on;
         }
 
-        MINDEX(String op, String pub, BStamp written_on, Long revoked_on) {
-            this.op = op;
-            this.pub = pub;
-            this.written_on = written_on;
-            this.writtenOn = written_on.getNumber();
-            this.revoked_on = revoked_on;
+        public void setCreated_on(String created_on) {
+            this.created_on = new BStamp(created_on);
+        }
+
+        public void setWritten_on(String written_on) {
+            this.written_on = new BStamp(written_on);
+            this.writtenOn = this.written_on.getNumber();
         }
 
         @Override
-        public int compareTo(MINDEX o) {
+        public int compareTo(@NonNull MINDEX o) {
             return (pub + type).compareTo(o.pub + o.type);
         }
 
-        @Override
-        public String toString() {
-            return "MINDEX[" + op + "," + pub + "," + created_on + "," + written_on + "," + expires_on + ","
-                    + expired_on + "," + revokes_on + "," + revoked_on + "," + leaving + "," + revocation + ","
-                    + chainable_on + "," + writtenOn + "]";
-        }
 
     }
 
+    Optional<DBBlock> createdOnBlock(BStamp bstamp);
 
-    default Optional<BINDEX> createdOnRef(BStamp bstamp) {
-        return IndexB.stream().filter(b -> b.bstamp().equals(bstamp)).findAny();
-    }
-
-
-    Optional<Block> createdOnBlock(BStamp bstamp);
-
-    Optional<Block> createdOnBlock(Integer number);
+    Optional<DBBlock> createdOnBlock(Integer number);
 
     /**
      * <pre>
@@ -640,11 +543,12 @@ public interface GlobalValid {
         private static final long serialVersionUID = -6400219111111110671L;
 
 
-        Long id;
+        //Long id;
         String op;
         String tx;
         String identifier;
         Integer pos;
+
         BStamp created_on;
         BStamp written_on;
         Long written_time;
@@ -655,11 +559,11 @@ public interface GlobalValid {
         String conditions;
         Integer writtenOn;
 
-        // transient
-        long age;
-        boolean available;
-        boolean isLocked;
-        boolean isTimeLocked;
+        // Local to the Block we are validating
+        transient long age;
+        transient boolean available;
+        transient boolean isLocked;
+        transient boolean isTimeLocked;
 
         public void setCreated_on(String created_on) {
             this.created_on = new BStamp(created_on);
@@ -688,7 +592,7 @@ public interface GlobalValid {
         }
 
         @Override
-        public int compareTo(SINDEX o) {
+        public int compareTo(@NonNull SINDEX o) {
             return (op + "-" + identifier + "-" + pos + "-" + written_on)
                     .compareTo(o.op + "-" + o.identifier + "-" + o.pos + "-" + o.written_on);
         }
@@ -723,27 +627,26 @@ public interface GlobalValid {
     ChainParameters blockChainParams = new ChainParameters();
 
 
-    default Long bIndexSize() {
+    default int bIndexSize() {
         BINDEX tail = IndexB.stream().min(Comparator.comparingInt(b -> b.number)).orElseThrow();
-        BINDEX head = IndexB.stream().max(Comparator.comparingInt(b -> b.number)).orElseThrow();
+        //BINDEX head = IndexB.stream().max(Comparator.comparingInt(b -> b.number)).orElseThrow();
 
-        var res = Stream.of(
+        //System.out.println("At block  " + head.number + " bIndexSize: max(" + tail.issuersCount + ", " + tail.issuersFrame + ", " + 24 + ") => size : " + res);
+
+        return Stream.of(
                 blockChainParams.medianTimeBlocks,
                 blockChainParams.dtDiffEval,
                 tail.issuersCount.longValue(),
                 tail.issuersFrame.longValue())
                 .max(Comparator.naturalOrder())
-                .get();
-
-        //System.out.println("At block  " + head.number + " bIndexSize: max(" + tail.issuersCount + ", " + tail.issuersFrame + ", " + 24 + ") => size : " + res);
-
-        return res + conf().forksize;
+                .get().intValue();
     }
 
-    default Long trimIndexes() {
-        Long bIndexSize = bIndexSize();
+
+    default int trimIndexes(BINDEX head) {
+        int bIndexSize = bIndexSize() + Conf.forksize;
         if (bIndexSize < IndexB.size())
-            IndexB.removeIf(b -> b.number <= head().get().number - bIndexSize);
+            IndexB.removeIf(b -> b.number <= head.number - bIndexSize);
         return bIndexSize;
     }
 
@@ -754,16 +657,13 @@ public interface GlobalValid {
     }
 
 
-
-    default void augmentLocal(BINDEX head, Block block) {
+    default void augmentLocal(DBBlock block) {
         final var bstamp = new BStamp(block.getNumber(), block.getHash());
 
         BR_G94_ExclusionByMembership(bstamp);
         BR_G95_ExclusionByCertification(bstamp);
 
     }
-
-
 
 
     /**
@@ -949,7 +849,7 @@ public interface GlobalValid {
                     .mapToLong(h -> h.time)
                     .average().orElse(Double.NaN);
             //			System.out.println("BR_G08_setMedianTime : ==> max  " + head.medianTime + " " + head_1().medianTime);
-            head.medianTime = Math.max(head.medianTime, head_1().medianTime); // FIXME found in code, not in the spec
+            head.medianTime = Math.max(head.medianTime, head_1().medianTime); // found in code, not in the spec
             // used at block 3
         } else {
 
@@ -998,7 +898,9 @@ public interface GlobalValid {
      * Rather than using two counts use a single reduction
      */
     private void BR_G10_setMembersCount(BINDEX head) {
-        final int member = (int) localI.stream().filter(m -> "CREATE".equals(m.op) && m.member).count();
+        final int member = (int) localI.stream()
+                .peek(m -> System.out.println("BR_G10_setMembersCount " + m))
+                .filter(m -> m.member).count();
         final int notMember = (int) localI.stream().filter(m -> !m.member).count();
 
         //		System.out.println("BR_G10_setMembersCount " + localI.size() + " " + member + " " + notMember);
@@ -1008,7 +910,7 @@ public interface GlobalValid {
             head.membersCount = head_1().membersCount + member - notMember;
         }
 
-        assert head.membersCount > 0 : "BR_G10_setMembersCount  set membersCount - " + head.membersCount;
+        assert head.membersCount > 0 : "BR_G10_setMembersCount  - " + head.membersCount + " + " + member + " - " + notMember + " - " + head_1();
 
     }
 
@@ -1028,7 +930,7 @@ public interface GlobalValid {
                     .anyMatch(i -> head.issuer.equals(i.pub) && i.member);
 
         } else {
-            head.issuerIsMember = reduceI(head.issuer).anyMatch(i -> i.member);
+            head.issuerIsMember = idtyByPubkey(head.issuer).anyMatch(i -> i.member);
         }
     }
 
@@ -1074,7 +976,7 @@ public interface GlobalValid {
 
             entry.age = createdOnBlock(entry.created_on)
                     .map(block -> head_1().medianTime - block.getMedianTime())
-                    .orElseGet(() -> conf().txWindow + 1);
+                    .orElse(Conf.txWindow + 1);
 
         }
 
@@ -1089,8 +991,8 @@ public interface GlobalValid {
      * ENTRY.age <= [txWindow]
      */
     private boolean BR_G103_TransactionWritable(SINDEX s) {
-        assert s.age <= conf().txWindow : "BR_G103_TransactionWritable -  TransactionDTO writability - " + s.age + " " + conf().txWindow;
-        return s.age <= conf().txWindow;
+        assert s.age <= Conf.txWindow : "BR_G103_TransactionWritable - " + s.age + " <= " + Conf.txWindow + " for " + s;
+        return s.age <= Conf.txWindow;
     }
 
     /**
@@ -1109,7 +1011,7 @@ public interface GlobalValid {
      * </pre>
      */
     private void BR_G104_MembershipExpiryDateCorrection(MINDEX ms) {
-        if ("JOINN".equals(ms.type) || "RENEWW".equals(ms.type)) {
+        if ("JOIN".equals(ms.type) || "RENEW".equals(ms.type)) {
             ms.expires_on = ms.expires_on - ms.age;
             ms.revokes_on = ms.revokes_on - ms.age;
         }
@@ -1125,7 +1027,7 @@ public interface GlobalValid {
      * CERT.expires_on = CERT.expires_on - CERT.age
      */
     private void BR_G105_CertificationExpiryDateCorrection(CINDEX c) {
-        // c.expires_on = c.expires_on - c.age;
+        c.expires_on = c.expires_on - c.age;
 
     }
 
@@ -1158,43 +1060,46 @@ public interface GlobalValid {
      * </pre>
      */
     private void BR_G106_LowAccounts(BINDEX head, BStamp block) {
-        if (head.number >= 0)
-            return; // FIXME
+        if (head.number == 0)
+            return;
 
-        indexSGlobal().filter(distinctByKey(SINDEX::getConditions)).forEach(account -> {
-            final var sources = Stream
-                    .concat(reduceS(account.conditions), localS.stream().filter(s -> s.conditions.equals(account.conditions)))
-                    .filter(s -> !s.consumed)
-                    .peek(consumedS::add)
-                    .peek(s -> System.out.println(" BR_G106_LowAccounts  " + s))
-                    .collect(Collectors.toList());
+        lowAccounts().forEach(account -> {
 
-            final var balance = sources.stream()
-                    .map(src -> src.amount * Math.pow(src.base, 10))
-                    .reduce((bal1, bal2) -> bal1 + bal2)
-                    .orElse(Double.MAX_VALUE);
+            System.out.println("BR_G106_LowAccounts " + account);
+            sourcesByConditions(account.conditions)
+                    .collect(Collectors.groupingBy(s -> s.identifier, Collectors.groupingBy(s -> s.pos)))
+                    .forEach((id, l) -> {
 
-            if (balance < 100 * Math.pow(head.unitBase, 10)) {
+                        l.forEach((pos, ll) -> {
 
-                //Integer pos, BStamp created_on, BStamp written_on,
-                //                      long written_time, int amount, int base, Long locktime, String conditions, boolean consumed, String tx)
-                sources.forEach(src -> {
-                    localS.add(new SINDEX("UPDATE",
-                            src.identifier,
-                            src.pos,
-                            null,
-                            block,
-                            0L,
-                            1,
-                            src.base,
-                            0L,
-                            "LOW_ACCOUNT" + "wxc" + ")",
-                            true,
-                            null
-                    )); // TODO BLOCKSTAMP &
-                });
+                            var src = ll.get(0);
+                            if (ll.size() == 1 && "CREATE".equals(src.op)) {
 
-            }
+                                var lowAccount = new SINDEX("UPDATE",
+                                        src.identifier,
+                                        src.pos,
+                                        null,
+                                        block,
+                                        src.written_time,
+                                        src.amount,
+                                        src.base,
+                                        null,
+                                        src.conditions,
+                                        true,
+                                        src.tx
+                                );
+
+                                localS.add(lowAccount);
+                                System.out.println("BR_G106_LowAccounts comitting " + src);
+
+                                commit(null, Set.of(), Set.of(), Set.of(), Set.of(lowAccount), List.of(), List.of(), List.of(), List.of());
+
+                            }
+                        });
+
+
+                    });
+
         });
     }
 
@@ -1297,7 +1202,7 @@ public interface GlobalValid {
      * Else
      *     HEAD.dividend = HEAD~1.dividend EndIf
      *
-     *head
+     * head
      * If HEAD.number == 0
      *     HEAD.new_dividend = null
      * Else If HEAD.udTime != HEAD~1.udTime
@@ -1347,7 +1252,7 @@ public interface GlobalValid {
      */
     private void BR_G14_setUnitBase(BINDEX head) {
 
-        if (head.dividend >= Math.pow(10, conf().NB_DIGITS_UD)) {
+        if (head.dividend >= Math.pow(10, Conf.NB_DIGITS_UD)) {
             head.dividend = (int) Math.round(Math.ceil(1.0 * head.dividend / 10));
             head.new_dividend = head.dividend;
             head.unitBase = head.unitBase + 1;
@@ -1618,7 +1523,7 @@ public interface GlobalValid {
      */
     private void BR_G21_pubkeyUnicity(IINDEX entry) {
         if ("CREATE".equals(entry.op)) {
-            entry.pubUnique = reduceI(entry.pub).count() == 0;
+            entry.pubUnique = idtyByPubkey(entry.pub).count() == 0;
         } else {
             entry.pubUnique = true;
         }
@@ -1675,10 +1580,14 @@ public interface GlobalValid {
      */
     private void BR_G23_numberFollowing(MINDEX entry) {
         if (entry.revoked_on == null) {
+
+            System.out.println("BR_G23_numberFollowing " + entry);
             entry.numberFollowing = reduceM(entry.pub)
+                    .filter(m -> m.created_on != null)
+                    .peek(x -> System.out.println("BR_G23_numberFollowing " + x))
                     .findAny() // suppose unicity, allow parallel
-                    .map(m -> m.created_on)
-                    .map(on -> entry.created_on.getNumber() > on.getNumber())
+
+                    .map(m -> entry.created_on.getNumber() > m.created_on.getNumber())
                     .orElse(true);
 
         } else { // if revoked_on exists
@@ -1761,7 +1670,7 @@ public interface GlobalValid {
      */
     private void BR_G26_joinsTwice(MINDEX entry) {
         if (entry.op.equals("UPDATE") && entry.expired_on != null && entry.expired_on.equals(0L)) {
-            entry.joinsTwice = reduceI(entry.pub).anyMatch(i -> i.member);
+            entry.joinsTwice = idtyByPubkey(entry.pub).anyMatch(i -> i.member);
         }
     }
 
@@ -1809,7 +1718,7 @@ public interface GlobalValid {
      */
     private void BR_G28_leaverIsMember(MINDEX entry) {
         if (entry.type.equals("LEAVE")) {
-            entry.leaverIsMember = reduceI(entry.pub).anyMatch(i -> i.member);
+            entry.leaverIsMember = idtyByPubkey(entry.pub).anyMatch(i -> i.member);
         } else {
             entry.leaverIsMember = true;
         }
@@ -1829,7 +1738,7 @@ public interface GlobalValid {
      */
     private void BR_G29_activeIsMember(MINDEX entry) {
         if (entry.type.equals("RENEW")) {
-            entry.activeIsMember = reduceI(entry.pub).anyMatch(i -> i.member);
+            entry.activeIsMember = idtyByPubkey(entry.pub).anyMatch(i -> i.member);
         } else {
             entry.activeIsMember = true;
         }
@@ -1850,7 +1759,7 @@ public interface GlobalValid {
     private void BR_G30_revokedIsMember(MINDEX entry) {
         if (entry.revoked_on != null) {
             System.out.println("BR_G30_revokedIsMember - ENTRY.revokedIsMember - " + entry.pub);
-            entry.revokedIsMember = reduceI(entry.pub).anyMatch(i -> i.member);
+            entry.revokedIsMember = idtyByPubkey(entry.pub).anyMatch(i -> i.member);
         } else {
             entry.revokedIsMember = true;
         }
@@ -1890,8 +1799,9 @@ public interface GlobalValid {
      */
     private void BR_G32_revocationSigOK(MINDEX entry) {
         if (entry.revoked_on != null) {
-            entry.revocationSigOK = reduceM(entry.pub).allMatch(m -> Crypto.verify("", entry.revocation, entry.pub) || true);
-            // TODO sigcheck requires Membership Document?
+            entry.revocationSigOK = reduceM(entry.pub)
+                    .allMatch(m -> Crypto.verify("", entry.revocation, entry.pub) || true);
+            // TODO sigcheck requires Revoke Document?
         } else {
             entry.revocationSigOK = true;
         }
@@ -1912,7 +1822,7 @@ public interface GlobalValid {
         if (entry.member) {
             entry.excludedIsMember = true;
         } else {
-            entry.excludedIsMember = reduceI(entry.pub).anyMatch(i -> i.member);
+            entry.excludedIsMember = idtyByPubkey(entry.pub).anyMatch(i -> i.member);
         }
     }
 
@@ -1956,7 +1866,7 @@ public interface GlobalValid {
      * </pre>
      */
     private void BR_G36_hasToBeExcluded(IINDEX entry) {
-        entry.hasToBeExcluded = reduceI(entry.pub).anyMatch(i -> i.kick);
+        entry.hasToBeExcluded = idtyByPubkey(entry.pub).anyMatch(i -> i.kick);
 
     }
 
@@ -2043,7 +1953,7 @@ public interface GlobalValid {
      * </pre>
      */
     private void BR_G40_CertFromMember(CINDEX entry) {
-        entry.fromMember = reduceI(entry.issuer).anyMatch(i -> i.member);
+        entry.fromMember = idtyByPubkey(entry.issuer).anyMatch(i -> i.member);
     }
 
     /**
@@ -2055,7 +1965,7 @@ public interface GlobalValid {
      * </pre>
      */
     private void BR_G41_CertToMember(CINDEX entry) {
-        entry.toMember = reduceI(entry.receiver).allMatch(i -> i.member);
+        entry.toMember = idtyByPubkey(entry.receiver).allMatch(i -> i.member);
 
     }
 
@@ -2199,7 +2109,7 @@ public interface GlobalValid {
      * Number = HEAD.number
      * </pre>
      */
-    private boolean BR_G51_BlockNumber(BINDEX testHead, Block shouldBe) {
+    private boolean BR_G51_BlockNumber(BINDEX testHead, DBBlock shouldBe) {
         return testHead.number == shouldBe.getNumber();
     }
 
@@ -2210,7 +2120,7 @@ public interface GlobalValid {
      * PreviousHash = HEAD.previousHash
      * </pre>
      */
-    private boolean BR_G52_PreviousHash(BINDEX testHead, Block block) {
+    private boolean BR_G52_PreviousHash(BINDEX testHead, DBBlock block) {
         if (testHead.number == 0)
             return true;
 
@@ -2227,7 +2137,7 @@ public interface GlobalValid {
      * PreviousIssuer = HEAD.previousIssuer
      * </pre>
      */
-    private boolean BR_G53_PreviousIssuer(BINDEX testHead, Block shouldBe) {
+    private boolean BR_G53_PreviousIssuer(BINDEX testHead, DBBlock shouldBe) {
         if (testHead.number == 0)
             return true;
 
@@ -2243,7 +2153,7 @@ public interface GlobalValid {
      * DifferentIssuersCount = HEAD.issuersCount
      * </pre>
      */
-    private boolean BR_G54_DifferentIssuersCount(BINDEX testHead, Block shouldBe) {
+    private boolean BR_G54_DifferentIssuersCount(BINDEX testHead, DBBlock shouldBe) {
         assert testHead.issuersCount.equals(shouldBe.getIssuersCount()) : "BR_G54_DifferentIssuersCount - " + testHead.issuersCount + "-" + shouldBe.getIssuersCount();
         return testHead.issuersCount.equals(shouldBe.getIssuersCount());
     }
@@ -2255,7 +2165,7 @@ public interface GlobalValid {
      * IssuersFrame = HEAD.issuersFrame
      * </pre>
      */
-    private boolean BR_G55_IssuersFrame(BINDEX testHead, Block shouldBe) {
+    private boolean BR_G55_IssuersFrame(BINDEX testHead, DBBlock shouldBe) {
         return testHead.issuersFrame.equals(shouldBe.getIssuersFrame());
     }
 
@@ -2266,7 +2176,7 @@ public interface GlobalValid {
      * IssuersFrameVar = HEAD.issuersFrameVar
      * </pre>
      */
-    private boolean BR_G56_IssuersFrameVar(BINDEX testHead, Block block) {
+    private boolean BR_G56_IssuersFrameVar(BINDEX testHead, DBBlock block) {
         return testHead.issuersFrameVar.equals(block.getIssuersFrameVar());
     }
 
@@ -2277,7 +2187,7 @@ public interface GlobalValid {
      * MedianTime = HEAD.medianTime
      * </pre>
      */
-    private boolean BR_G57_MedianTime(BINDEX head, Block block) {
+    private boolean BR_G57_MedianTime(BINDEX head, DBBlock block) {
         assert head.medianTime.equals(block.getMedianTime()) : "BR_G57_MedianTime - rule Median Time - " + head.medianTime + " ==? " + block.getMedianTime();
         return head.medianTime.equals(block.getMedianTime());
     }
@@ -2294,7 +2204,7 @@ public interface GlobalValid {
      * @param block    the block we're comparing
      * @return ud equality accepting null
      */
-    private boolean BR_G58_UniversalDividend(BINDEX testHead, Block block) {
+    private boolean BR_G58_UniversalDividend(BINDEX testHead, DBBlock block) {
 
         if (testHead.number == 0)
             return true;
@@ -2316,7 +2226,7 @@ public interface GlobalValid {
      * UnitBase = HEAD.unitBase
      * </pre>
      */
-    private boolean BR_G59_UnitBase(BINDEX head, Block block) {
+    private boolean BR_G59_UnitBase(BINDEX head, DBBlock block) {
         assert head.unitBase.equals(block.getUnitbase()) : "BR_G59_UnitBase - UnitBase - " + head.unitBase + " "
                 + block.getDividend();
         return head.unitBase.equals(block.getUnitbase());
@@ -2329,9 +2239,9 @@ public interface GlobalValid {
      * MembersCount = HEAD.membersCount
      * </pre>
      */
-    private boolean BR_G60_ruleMembersCount(BINDEX head, Block block) {
-        assert block.getMembersCount().equals(head.membersCount) : "BR_G60_ruleMembersCount MembersCount " + head.membersCount + "-"
-                + block.getMembersCount();
+    private boolean BR_G60_ruleMembersCount(BINDEX head, DBBlock block) {
+        assert block.getMembersCount().equals(head.membersCount) :
+                "BR_G60_ruleMembersCount - " + head.membersCount + " - " + block.getMembersCount();
         return block.getMembersCount().equals(head.membersCount);
 
     }
@@ -2344,7 +2254,7 @@ public interface GlobalValid {
      *     PowMin = HEAD.powMin
      * </pre>
      */
-    private boolean BR_G61_rulePowMin(BINDEX head, Block block) {
+    private boolean BR_G61_rulePowMin(BINDEX head, DBBlock block) {
         assert block.getNumber() == 0 || head.powMin == block.getPowMin() : "BR_G61_rulePowMin - rule PowMin - " + head.powMin
                 + " != " + block.getPowMin();
         return block.getNumber() == 0 || head.powMin == block.getPowMin();
@@ -2462,7 +2372,7 @@ public interface GlobalValid {
      * ENTRY.age <= [sigWindow]
      */
     private boolean BR_G65_CertificationSigWindow(CINDEX c) {
-        //assert c.age <= blockChainParams.sigWindow : "BR_G65_CertificationSigWindow - Certification sigWindow";
+        assert c.age <= blockChainParams.sigWindow : "BR_G65_CertificationSigWindow - age " + c.age + " for " + c;
         return c.age <= blockChainParams.sigWindow;
     }
 
@@ -2475,7 +2385,7 @@ public interface GlobalValid {
      * ENTRY.stock <= sigStock
      */
     private boolean BR_G66_CertificationStock(CINDEX c) {
-        //assert c.stock <= blockChainParams.sigStock : "BR_G66_CertificationStock - Certification stock";
+        assert c.stock <= blockChainParams.sigStock : "BR_G66_CertificationStock - stock " + c.stock + " for " + c;
         return c.stock <= blockChainParams.sigStock;
     }
 
@@ -2488,7 +2398,7 @@ public interface GlobalValid {
      * ENTRY.unchainables == 0
      */
     private boolean BR_G67_CertificationPeriod(CINDEX c) {
-        //assert c.unchainables == 0 : "BR_G67_CertificationPeriod - Certification period";
+        assert c.unchainables == 0 : "BR_G67_CertificationPeriod - " + c.unchainables + " for " + c;
         return c.unchainables == 0;
     }
 
@@ -2502,9 +2412,9 @@ public interface GlobalValid {
      *
      * ENTRY.fromMember == true
      */
-    private boolean BR_G68_CertificationFromMember(BINDEX head, CINDEX entry) {
-        //assert head.number == 0 || entry.fromMember : "BR_G68_CertificationFromMember - Certification from member";
-        return head.number == 0 || entry.fromMember;
+    private boolean BR_G68_CertificationFromMember(BINDEX head, CINDEX c) {
+        assert head.number == 0 || c.fromMember : "BR_G68_CertificationFromMember - " + c.unchainables + " for " + c;
+        return head.number == 0 || c.fromMember;
     }
 
     /**
@@ -2516,7 +2426,7 @@ public interface GlobalValid {
      * ENTRY.toMember == true OR ENTRY.toNewcomer == true
      */
     private boolean BR_G69_CertificationToMemberOrNewComer(CINDEX c) {
-        //assert c.toMember || c.toNewcomer : "BR_G69_CertificationToMemberOrNewComer - Certification to member or newcomer";
+        assert c.toMember || c.toNewcomer : "BR_G69_CertificationToMemberOrNewComer - member? " + c.toMember + " - newComer?" + c.toNewcomer + " for " + c;
         return c.toMember || c.toNewcomer;
     }
 
@@ -2529,7 +2439,7 @@ public interface GlobalValid {
      * ENTRY.toLeaver == false
      */
     private boolean BR_G70_CertificationToNonLeaver(CINDEX c) {
-        //assert !c.toLeaver : "BR_G70_CertificationToNonLeaver - Certification to non-leaver";
+        assert !c.toLeaver : "BR_G70_CertificationToNonLeaver - toLeaver? " + c.toLeaver + " for " + c;
         return !c.toLeaver;
     }
 
@@ -2542,7 +2452,7 @@ public interface GlobalValid {
      * ENTRY.isReplay == false
      */
     private boolean BR_G71_CertificationReplay(CINDEX c) {
-        assert !c.isReplay : "BR_G71_CertificationReplay - Certification replay";
+        assert !c.isReplay : "BR_G71_CertificationReplay - isReplay? " + c.isReplay + " for " + c;
         return !c.isReplay;
     }
 
@@ -2555,7 +2465,7 @@ public interface GlobalValid {
      * ENTRY.sigOK == true
      */
     private boolean BR_G72_CertificationSignature(CINDEX c) {
-        assert c.sigOK : "BR_G72_CertificationSignature - Certification signature ";
+        assert c.sigOK : "BR_G72_CertificationSignature - sigOk? " + c.sigOK + " for " + c;
         return c.sigOK;
     }
 
@@ -2568,7 +2478,7 @@ public interface GlobalValid {
      * ENTRY.uidUnique == true
      */
     private boolean BR_G73_IdentityUserIdUnicity(IINDEX i) {
-        assert i.uidUnique : "BR_G73_IdentityUserIdUnicity - Identity UserID unicity ";
+        assert i.uidUnique : "BR_G73_IdentityUserIdUnicity - uidUnique? " + i.uidUnique + " for " + i;
         return i.uidUnique;
     }
 
@@ -2581,7 +2491,7 @@ public interface GlobalValid {
      * ENTRY.pubUnique == true
      */
     private boolean BR_G74_IdentityPubkeyUnicity(IINDEX i) {
-        assert i.pubUnique : "BR_G74_IdentityPubkeyUnicity - Identity pubkey unicity ";
+        assert i.pubUnique : "BR_G74_IdentityPubkeyUnicity - pubUnique? " + i.pubUnique + " for " + i;
         return i.pubUnique;
     }
 
@@ -2594,7 +2504,7 @@ public interface GlobalValid {
      * ENTRY.numberFollowing == true
      */
     private boolean BR_G75_MembershipSuccession(MINDEX m) {
-        assert m.numberFollowing : "BR_G75_MembershipSuccession - " + m;
+        assert m.numberFollowing : "BR_G75_MembershipSuccession - numberFollowing? " + m.numberFollowing + " for " + m;
         return m.numberFollowing;
     }
 
@@ -2607,7 +2517,7 @@ public interface GlobalValid {
      * ENTRY.distanceOK == true
      */
     private boolean BR_G76_MembershipDistance(MINDEX m) {
-        assert m.distanceOK : "BR_G76_MembershipDistance - " + m;
+        assert m.distanceOK : "BR_G76_MembershipDistance - " + " for " + m;
         return m.distanceOK;
     }
 
@@ -2620,7 +2530,7 @@ public interface GlobalValid {
      * ENTRY.onRevoked == false
      */
     private boolean BR_G77_MembershipOnRevoked(MINDEX m) {
-        assert !m.onRevoked : "BR_G77_MembershipOnRevoked - " + m.pub;
+        assert !m.onRevoked : "BR_G77_MembershipOnRevoked - " + m.pub + " for " + m;
         return !m.onRevoked;
     }
 
@@ -2633,7 +2543,7 @@ public interface GlobalValid {
      * ENTRY.joinsTwice == false
      */
     private boolean BR_G78_MembershipJoinsTwice(MINDEX m) {
-        assert !m.joinsTwice : "BR_G78_MembershipJoinsTwice - " + m;
+        assert !m.joinsTwice : "BR_G78_MembershipJoinsTwice - " + " for " + m;
         return !m.joinsTwice;
     }
 
@@ -2646,7 +2556,7 @@ public interface GlobalValid {
      * ENTRY.enoughCerts == true
      */
     private boolean BR_G79_MembershipEnoughCertifications(MINDEX m) {
-        assert m.enoughCerts : "BR_G79_MembershipEnoughCertifications - " + m;
+        assert m.enoughCerts : "BR_G79_MembershipEnoughCertifications - " + " for " + m;
         return m.enoughCerts;
     }
 
@@ -2659,7 +2569,7 @@ public interface GlobalValid {
      * ENTRY.leaverIsMember == true
      */
     private boolean BR_G80_MembershipLeaver(MINDEX m) {
-        assert m.leaverIsMember : "BR_G80_MembershipLeaver - ";
+        assert m.leaverIsMember : "BR_G80_MembershipLeaver - " + " for " + m;
         return m.leaverIsMember;
     }
 
@@ -2672,7 +2582,7 @@ public interface GlobalValid {
      * ENTRY.activeIsMember == true
      */
     private boolean BR_G81_MembershipActive(MINDEX m) {
-        assert m.activeIsMember : "BR_G81_MembershipActive - ";
+        assert m.activeIsMember : "BR_G81_MembershipActive - " + " for " + m;
         return m.activeIsMember;
     }
 
@@ -2685,7 +2595,7 @@ public interface GlobalValid {
      * ENTRY.revokedIsMember == true
      */
     private boolean BR_G82_RevokedIsMember(MINDEX m) {
-        assert m.revokedIsMember : "BR_G82_RevokedIsMember - ";
+        assert m.revokedIsMember : "BR_G82_RevokedIsMember - " + " for " + m;
         return m.revokedIsMember;
     }
 
@@ -2698,7 +2608,7 @@ public interface GlobalValid {
      * ENTRY.alreadyRevoked == false
      */
     private boolean BR_G83_RevocationSingleton(MINDEX m) {
-        assert !m.alreadyRevoked : "BR_G83_RevocationSingleton - ";
+        assert !m.alreadyRevoked : "BR_G83_RevocationSingleton - " + " for " + m;
         return !m.alreadyRevoked;
     }
 
@@ -2711,7 +2621,7 @@ public interface GlobalValid {
      * ENTRY.revocationSigOK == true
      */
     private boolean BR_G84_RevocationSignature(MINDEX m) {
-        assert m.revocationSigOK : "BR_G84_RevocationSignature - ";
+        assert m.revocationSigOK : "BR_G84_RevocationSignature - " + " for " + m;
         return m.revocationSigOK;
     }
 
@@ -2724,7 +2634,7 @@ public interface GlobalValid {
      * ENTRY.excludedIsMember == true
      */
     private boolean BR_G85_ExcludedIsMember(IINDEX i) {
-        assert i.excludedIsMember : "BR_G85_ExcludedIsMember - " + i.excludedIsMember;
+        assert i.excludedIsMember : "BR_G85_ExcludedIsMember - " + i.excludedIsMember + " for " + i;
         return i.excludedIsMember;
     }
 
@@ -2753,7 +2663,7 @@ public interface GlobalValid {
 
         boolean ExcludedContainsExactlyThoseToBeKicked =
                 indexIGlobal().filter(i -> i.kick)
-                        .flatMap(toKick -> reduceI(toKick.pub))
+                        .flatMap(toKick -> idtyByPubkey(toKick.pub))
                         .filter(i -> i.kick)
                         .flatMap(reduced -> reduceM(reduced.pub))
                         .count() == 1;
@@ -2899,6 +2809,7 @@ public interface GlobalValid {
         if (head.new_dividend == null)
             return;
 
+        //					System.out.println("BR_G91_Dividend adding tx " + tx.base + " from " + head.unitBase);
         Stream.concat(indexIGlobal(), localI.stream())
                 .filter(i -> i.member)
                 .map(i -> new SINDEX("CREATE",
@@ -2914,10 +2825,7 @@ public interface GlobalValid {
                         false, // consumed
                         null))
 
-                .forEach(tx -> {
-                    //					System.out.println("BR_G91_Dividend adding tx " + tx.base + " from " + head.unitBase);
-                    localS.add(tx);
-                });
+                .forEach(localS::add);
 
 
         //		assert localI.size() > 0 : "BR_G91_Dividend - Dividend - localS shouldnt be empty";
@@ -2967,6 +2875,7 @@ public interface GlobalValid {
      *          expired_on = HEAD.medianTime )
      * </pre>
      */
+    @Timed
     private void BR_G93_MembershipExpiry(BINDEX head) {
         indexMGlobal()
                 .filter(m -> {
@@ -2978,10 +2887,20 @@ public interface GlobalValid {
                 .flatMap(potential -> reduceM(potential.pub))
                 .filter(ms -> ms.expired_on == null || ms.expired_on == 0)
                 .forEach(ms -> {
-                    localM.add(new MINDEX("UPDATE",
-                            ms.pub,
-                            head.bstamp(),
-                            head.medianTime));
+                    System.out.println("BR_G93_MembershipExpiry " + ms);
+                    localM.add(
+                            new MINDEX("UPDATE",
+                                    ms.pub,
+                                    ms.created_on,
+                                    head.bstamp(),
+                                    "BR_G93",
+                                    null,
+                                    head.medianTime,
+                                    null,
+                                    null,
+                                    null,
+                                    false,
+                                    null));
                 });
     }
 
@@ -3004,8 +2923,8 @@ public interface GlobalValid {
             if (m.expired_on != null && m.expired_on != 0) {
                 localI.add(new IINDEX("UPDATE",
                         m.pub,
-                        blockstamp, // written_on
-                        true // kick
+                        blockstamp,
+                        true
                 ));
             }
         }
@@ -3077,10 +2996,22 @@ public interface GlobalValid {
                 .flatMap(potential -> reduceM(potential.pub))
                 .filter(ms -> ms.revokes_on.equals(head.medianTime) || ms.revoked_on == null)
                 .forEach(ms -> {
-                    localM.add(new MINDEX("UPDATE",
-                            ms.pub,
-                            head.bstamp(),
-                            head.medianTime));
+                    System.out.println("BR_G96_ImplicitRevocation");
+
+                    localM.add(
+                            new MINDEX("UPDATE",
+                                    ms.pub,
+                                    ms.created_on,
+                                    head.bstamp(),
+                                    "BR_G96",
+                                    null,
+                                    null,
+                                    null,
+                                    head.medianTime,
+                                    null,
+                                    false,
+                                    null
+                            ));
                 });
     }
 
@@ -3093,9 +3024,9 @@ public interface GlobalValid {
      *
      * </pre>
      */
-    private boolean BR_G97_TestIndex(BINDEX newHead, Block block, boolean checkPoW) {
+    private boolean BR_G97_TestIndex(BINDEX newHead, DBBlock block) {
 
-        if (globalCheckBINDEX(newHead, block, checkPoW) &&
+        if (globalCheckBINDEX(newHead, block, false) &&
                 globalCheckSINDEX() &&
                 globalCheckMINDEX() &&
                 globalCheckCINDEX(newHead) &&
@@ -3105,7 +3036,7 @@ public interface GlobalValid {
             return commit(newHead, localI, localM, localC, localS, consumedI, consumedM, consumedC, consumedS);
         } else {
             System.out.println("BR_G97_TestIndex did not pass at block " + block + " (ICM : " + localI.size() + " " + localC.size() + " " + localM.size() + ") " + newHead);
-            System.out.println("BR_G97_TestIndex: " + localI.size() + " " + globalCheckBINDEX(newHead, block, checkPoW) + " "
+            System.out.println("BR_G97_TestIndex: " + localI.size() + " " + globalCheckBINDEX(newHead, block, false) + " "
                     + globalCheckSINDEX() + " " + globalCheckMINDEX() + " " + globalCheckCINDEX(newHead) + " "
                     + globalCheckIINDEX());
             return false;
@@ -3125,7 +3056,7 @@ public interface GlobalValid {
      *     true
      * </pre>
      */
-    private boolean BR_G98_ruleCurrency(BINDEX head, Block ccy) {
+    private boolean BR_G98_ruleCurrency(BINDEX head, DBBlock ccy) {
         assert head != null : "BR_G98_ruleCurrency - rule currency - head is null ";
 
         if (head.number == 0)
@@ -3176,65 +3107,8 @@ public interface GlobalValid {
     boolean commit(BINDEX indexB, Set<IINDEX> indexI, Set<MINDEX> indexM, Set<CINDEX> indexC, Set<SINDEX> indexS,
                    List<IINDEX> consumeI, List<MINDEX> consumeM, List<CINDEX> consumeC, List<SINDEX> consumeS);
 
-    default Conf conf() {
-        return new Conf();
-    }
 
-    /**
-     * <pre>
-     * Transactions chaining max depth
-     *
-     * FUNCTION `getTransactionDepth(txHash, LOCAL_DEPTH)`:
-     *
-     * INPUTS = LOCAL_SINDEX[op='UPDATE',tx=txHash]
-     * DEPTH = LOCAL_DEPTH
-     *
-     * FOR EACH `INPUT` OF `INPUTS`
-     *     CONSUMED = LOCAL_SINDEX[op='CREATE',identifier=INPUT.identifier,pos=INPUT.pos]
-     *     IF (CONSUMED != NULL)
-     *         IF (LOCAL_DEPTH < 5)
-     *              DEPTH = MAX(DEPTH, getTransactionDepth(CONSUMED.tx, LOCAL_DEPTH +1)
-     *         ELSE
-     *              DEPTH++
-     * END_FOR
-     *
-     * RETURN DEPTH
-     *
-     * END_FUNCTION Then:
-     *
-     * maxTxChainingDepth = 0 For each TX_HASH of UNIQ(PICK(LOCAL_SINDEX, 'tx)):
-     *
-     * maxTxChainingDepth = MAX(maxTxChainingDepth, getTransactionDepth(TX_HASH, 0))
-     * Rule:
-     *
-     * maxTxChainingDepth <= 5
-     * </pre>
-     */
-    default int getTransactionDepth(String txHash, int localDepth) {
-        final var inputs = localS.stream()
-                .filter(s -> s.op.equals("UPDATE") && s.tx.equals(txHash))
-                .collect(Collectors.toList());
-        var depth = localDepth;
-        for (final SINDEX input : inputs) {
-            final var consumed = localS.stream()
-                    .filter(s -> s.op.equals("CREATE")
-                            && s.identifier.equals(input.identifier)
-                            && s.pos.equals(input.pos))
-                    .findAny();
-
-            if (consumed.isPresent()) {
-                if (localDepth < 5) {
-                    depth = Math.max(depth, getTransactionDepth(consumed.get().tx, localDepth));
-                } else {
-                    depth++;
-                }
-            }
-        }
-
-        return depth;
-    }
-
-    default boolean globalCheckBINDEX(BINDEX testHead, Block block, boolean checkPoW) {
+    default boolean globalCheckBINDEX(BINDEX testHead, DBBlock block, boolean checkPoW) {
 
         if (BR_G49_Version(testHead) &&
                 BR_G50_BlockSize(testHead) &&
@@ -3352,15 +3226,13 @@ public interface GlobalValid {
     }
 
     default boolean globalCheckSINDEX() {
-        return localS.stream().allMatch(tx -> {
-
-            //			System.out.println("globalCheckSINDEX : " + tx + " " + tx.base + " " + tx.op
-            //					+ "\n" + BR_G103_TransactionWritable(tx) + BR_G87_InputIsAvailable(tx) + " " + BR_G88_InputIsUnlocked(tx) + " " + BR_G89_InputIsTimeUnlocked(tx) + " " + BR_G90_OutputBase(tx)
-            //			);
-
-            return BR_G103_TransactionWritable(tx) && BR_G87_InputIsAvailable(tx) && BR_G88_InputIsUnlocked(tx) && BR_G89_InputIsTimeUnlocked(tx) && BR_G90_OutputBase(tx);
-
-        });
+        return localS.stream().allMatch(
+                tx -> BR_G103_TransactionWritable(tx)
+                        && BR_G87_InputIsAvailable(tx)
+                        && BR_G88_InputIsUnlocked(tx)
+                        && BR_G89_InputIsTimeUnlocked(tx)
+                        && BR_G90_OutputBase(tx)
+        );
     }
 
     default Optional<BINDEX> head() {
@@ -3471,15 +3343,14 @@ public interface GlobalValid {
      *
      * </pre>
      *
-     * @param block:
+     * @param block :
      * @return false
      */
-    default boolean indexBlock(Block block, BINDEX head) {
+    default void indexBlock(DBBlock block) {
 
-        final var blStamp = new BStamp(block.getNumber(), block.getHash());
-        final var blockMedianTime = block.getMedianTime();
-        final var blSignature = block.getSignature().toString();
-        final var blHash = block.getHash();
+        final var written_on = new BStamp(block.getNumber(), block.getHash());
+        final var writtenTime = block.getMedianTime();
+
 
         if (block.getNumber().equals(0)) {
 
@@ -3492,7 +3363,7 @@ public interface GlobalValid {
                         null,
                         excluded.getExcluded(),
                         null,
-                        blStamp,
+                        written_on,
                         false,
                         true,
                         false,
@@ -3502,12 +3373,13 @@ public interface GlobalValid {
         block.getRevoked().forEach(revoked ->
                 localM.add(new MINDEX("UPDATE",
                         revoked.revoked(),
-                        blStamp,
-                        blStamp,
+                        written_on,
+                        written_on,
                         "REV",
                         null,
                         null,
-                        block.getMedianTime(),
+                        null,
+                        writtenTime,
                         revoked.signature(),
                         false,
                         null))
@@ -3517,8 +3389,9 @@ public interface GlobalValid {
                 localM.add(new MINDEX("UPDATE",
                         leaver.leaver(),
                         leaver.createdOn(),
-                        blStamp,
+                        written_on,
                         "LEAVE",
+                        null,
                         null,
                         null,
                         null,
@@ -3532,14 +3405,15 @@ public interface GlobalValid {
             localM.add(new MINDEX("UPDATE",
                     renew.activepk(),
                     renew.createdOn(),
-                    blStamp,
+                    written_on,
                     "RENEW",
                     median + blockChainParams.msValidity,
+                    null,
                     median + blockChainParams.msValidity * 2,
                     null,
                     null,
                     false,
-                    block.getMedianTime() + blockChainParams.msWindow
+                    writtenTime + blockChainParams.msWindow
 
             ));
         });
@@ -3550,12 +3424,12 @@ public interface GlobalValid {
 
             //System.out.println("on block "+ block + " applying median "+ median );
 
-            //			System.out.println("    " + reduceI);
+            //			System.out.println("    " + idtyByPubkey);
             localI.add(new IINDEX("CREATE",
                     idty.pseudo(),
                     idty.pub(),
                     idty.createdOn(),
-                    blStamp,
+                    written_on,
                     true,
                     true,
                     false,
@@ -3564,14 +3438,15 @@ public interface GlobalValid {
             localM.add(new MINDEX("CREATE",
                     idty.pub(),
                     idty.createdOn(),
-                    blStamp,
+                    written_on,
                     "JOIN",
                     median + blockChainParams.msValidity,
+                    null,
                     median + blockChainParams.msValidity * 2,
                     null,
                     null,
                     false,
-                    block.getMedianTime() + blockChainParams.msPeriod)
+                    writtenTime + blockChainParams.msPeriod)
             );
         }
 
@@ -3585,7 +3460,7 @@ public interface GlobalValid {
                             joiner.pseudo(),
                             joiner.pub(),
                             joiner.createdOn(),
-                            blStamp,
+                            written_on,
                             true,
                             true,
                             false,
@@ -3594,14 +3469,15 @@ public interface GlobalValid {
                     localM.add(new MINDEX("UPDATE",
                             joiner.pub(),
                             joiner.createdOn(),
-                            blStamp,
+                            written_on,
                             "JOIN",
                             median + blockChainParams.msValidity,
+                            null,
                             median + blockChainParams.msValidity * 2,
                             null,
                             null,
                             false,
-                            block.getMedianTime() + blockChainParams.msPeriod)
+                            writtenTime + blockChainParams.msPeriod)
                     );
 
                 });
@@ -3616,10 +3492,10 @@ public interface GlobalValid {
                     cert.certifier(),
                     cert.certified(),
                     cert.getBlockNumber(),
-                    blStamp,
+                    written_on,
                     cert.signature(),
                     createOn.getMedianTime() + blockChainParams.sigValidity,
-                    block.getMedianTime() + blockChainParams.sigPeriod,
+                    writtenTime + blockChainParams.sigPeriod,
                     0L
             ).putCreatedOn(createOn));
         });
@@ -3633,11 +3509,11 @@ public interface GlobalValid {
                 var input = tx.getInputs().get(indIn);
 
                 localS.add(new SINDEX("UPDATE", // op
-                        input.getType().equals(TxType.D) ? input.getDsource().toString() : input.getTHash().toString(), // identifier
-                        input.getType().equals(TxType.D) ? 1 : indIn, // pos
-                        created_on, // created_on
-                        blStamp, // written_on
-                        block.getMedianTime(), // written_time
+                        input.getType().equals(TxType.D) ? input.getDsource() : input.getTHash(), // identifier
+                        input.getType().equals(TxType.D) ? input.getDBlockID() : input.getTIndex(), // pos
+                        created_on,
+                        written_on,
+                        writtenTime,
                         input.getAmount(),
                         input.getBase(),
                         (long) tx.getLocktime(),
@@ -3647,20 +3523,20 @@ public interface GlobalValid {
                 ));
             }
 
-            for (int indIn = 0; indIn < tx.getOutputs().size(); indIn++) {
-                var output = tx.getOutputs().get(indIn);
+            for (int indOut = 0; indOut < tx.getOutputs().size(); indOut++) {
+                var output = tx.getOutputs().get(indOut);
                 //				System.out.println("output.base " + output.getBase());
 
                 localS.add(new SINDEX("CREATE",
                         tx.getThash(),
-                        indIn,
+                        indOut,
                         null,
-                        blStamp, // written_on
-                        block.getMedianTime(), // written_time
-                        output.getAmount(), // amount
-                        output.getBase(), // unitbase
-                        (long) tx.getLocktime(), // locktime
-                        output.getOutputCondition(), // conditions
+                        written_on,
+                        writtenTime,
+                        output.getAmount(),
+                        output.getBase(),
+                        (long) tx.getLocktime(),
+                        output.getOutputCondition(),
                         false, // consumed
                         tx.getThash()
                 ));
@@ -3668,7 +3544,6 @@ public interface GlobalValid {
 
         }
 
-        return false;
     }
 
     /**
@@ -3676,7 +3551,7 @@ public interface GlobalValid {
      * <p>
      * provide a simple placeholder for indexes
      *
-     * @return CINDEX
+     * @return CINDEX all
      */
     Stream<CINDEX> indexCGlobal();
 
@@ -3685,7 +3560,7 @@ public interface GlobalValid {
      * <p>
      * provide a simple placeholder for indexes
      *
-     * @return IINDEX
+     * @return IINDEX all
      */
     Stream<IINDEX> indexIGlobal();
 
@@ -3695,7 +3570,7 @@ public interface GlobalValid {
      * <p>
      * provide a simple placeholder for indexes
      *
-     * @return MINDEX
+     * @return MINDEX all
      */
     Stream<MINDEX> indexMGlobal();
 
@@ -3704,12 +3579,12 @@ public interface GlobalValid {
      * <p>
      * provide a simple placeholder for indexes
      *
-     * @return SINDEX
+     * @return SINDEX all
      */
     Stream<SINDEX> indexSGlobal();
 
 
-    default Stream<IINDEX> reduceI(String pub) {
+    default Stream<IINDEX> idtyByPubkey(String pub) {
         return indexIGlobal().filter(i -> i.pub.equals(pub));
     }
 
@@ -3717,26 +3592,28 @@ public interface GlobalValid {
         return indexIGlobal().filter(i -> i.uid.equals(uid));
     }
 
-
     default Stream<MINDEX> reduceM(String pub) {
         return indexMGlobal().filter(i -> i.pub.equals(pub));
     }
 
-
     default Stream<CINDEX> reduceC(String issuer, String receiver) {
         return indexCGlobal().filter(i ->
-
                 (receiver == null || i.receiver.equals(receiver))
                         &&
                         (issuer == null || i.issuer.equals(issuer))
         );
     }
 
-    default Stream<SINDEX> reduceS(String conditions) {
+    Stream<Account> lowAccounts();
+
+    default Stream<SINDEX> sourcesByConditions(String conditions) {
         return indexSGlobal().filter(i -> i.conditions.equals(conditions));
     }
 
-    default Stream<SINDEX> reduceS(String identifier, Integer pos) {
+    //Stream<SINDEX> sourcesByConditions(String conditions, String amount );
+
+
+    default Stream<SINDEX> sourcesByConditions(String identifier, Integer pos) {
         return indexSGlobal().filter(i -> i.identifier.equals(identifier) && i.pos.equals(pos));
     }
 
@@ -3768,18 +3645,22 @@ public interface GlobalValid {
      * @return TX inputs, either local or global
      */
     default List<SINDEX> inputEntries(SINDEX entry) {
+        assert entry != null : "inputEntry SINDEX null ";
         var inputEntries = localS.stream()
-                .filter(s -> s.op.equals("CREATE")
-                        && s.identifier.equals(entry.identifier)
-                        && s.pos.equals(entry.pos)
-                        && s.amount == entry.amount
-                        && s.base == entry.base)
+                .filter(s -> {
+                    assert s != null : "inputEntry s null ";
+                    //assert s.identifier !=null : "inputEntry s.identifier null "+s+" - " + entry;
+                    return s.op.equals("CREATE")
+                            && Objects.equals(s.identifier, entry.identifier) // accept null equality ?
+                            && s.pos.equals(entry.pos)
+                            && s.amount == entry.amount
+                            && s.base == entry.base;
+                })
 
                 .collect(Collectors.toList());
 
         if (inputEntries.size() == 0) {
-
-            inputEntries = reduceS(entry.identifier, entry.pos)
+            inputEntries = sourcesByConditions(entry.identifier, entry.pos)
                     .peek(consumedS::add)
                     .peek(s -> System.out.println("huhu " + s))
                     .collect(Collectors.toList());
@@ -3814,9 +3695,9 @@ public interface GlobalValid {
      * @param block to validate
      * @return true or false or perhaps true
      */
+    @Counted
     @Transactional
-
-    default boolean validate(Block block, boolean quick) {
+    default boolean validate(DBBlock block, boolean quick) {
         resetLocalIndex();
 
         final var newHead = new BINDEX();
@@ -3828,15 +3709,15 @@ public interface GlobalValid {
         newHead.time = block.getTime();
         newHead.powMin = block.getPowMin();
 
-        indexBlock(block, newHead);
+        indexBlock(block);
 
         //        ===========    Augment BINDEX    ==============
 
-        if(!quick) BR_G01_setNumber(newHead);
+        if (!quick) BR_G01_setNumber(newHead);
 
-        if(!quick) BR_G02_setPreviousHash(newHead);
+        if (!quick) BR_G02_setPreviousHash(newHead);
 
-        if(!quick) BR_G03_setPreviousIssuer(newHead);
+        if (!quick) BR_G03_setPreviousIssuer(newHead);
 
         BR_G04_setIssuersCount(newHead);
 
@@ -3846,7 +3727,7 @@ public interface GlobalValid {
 
         BR_G07_setAvgBlockSize(newHead);
 
-        if(!quick) BR_G08_setMedianTime(newHead);
+        if (!quick) BR_G08_setMedianTime(newHead);
 
         BR_G09_setDiffNumber(newHead);
 
@@ -3856,7 +3737,7 @@ public interface GlobalValid {
 
         BR_G12_setUnitBase(newHead);
 
-        if(!quick) BR_G13_setDividend(newHead);
+        if (!quick) BR_G13_setDividend(newHead);
 
         BR_G14_setUnitBase(newHead);
 
@@ -3864,9 +3745,9 @@ public interface GlobalValid {
 
         BR_G16_setSpeed(newHead);
 
-        if(!quick) BR_G17_setPowMin(newHead);
+        if (!quick) BR_G17_setPowMin(newHead);
 
-        if(!quick) BR_G18_setPowZero(newHead);
+        if (!quick) BR_G18_setPowZero(newHead);
 
         BR_G99_setCurrency(newHead);
 
@@ -3885,7 +3766,7 @@ public interface GlobalValid {
             BR_G43_ToLeaver(entry);
             BR_G44_IsReplay(entry);
             BR_G45_sigOK(entry);
-            BR_G105_CertificationExpiryDateCorrection(entry);
+            if (false) BR_G105_CertificationExpiryDateCorrection(entry);
         }
 
         for (final var entry : localI) {
@@ -3896,6 +3777,8 @@ public interface GlobalValid {
             BR_G35_isBeingKicked(entry);
             BR_G36_hasToBeExcluded(entry);
         }
+
+        BR_G93_MembershipExpiry(newHead);
 
         for (final var entry : localM) {
             BR_G22_setAge(newHead, entry);
@@ -3910,27 +3793,25 @@ public interface GlobalValid {
             BR_G31_alreadyRevoked(entry);
             BR_G32_revocationSigOK(entry);
             BR_G34_isBeingRevoked(entry);
-            BR_G104_MembershipExpiryDateCorrection(entry);
+            if (false) BR_G104_MembershipExpiryDateCorrection(entry);
             BR_G107_unchainableM(entry);
         }
 
         for (final SINDEX entry : localS) {
-            if (entry.op.equals("CREATE")) {
-
-                inputEntries(entry).stream()
+            if ("CREATE".equals(entry.op)) {
+                inputEntries(entry)
                         .forEach(input -> {
                             BR_G46_prepareAvailableAndCondition(entry, input);
                             BR_G47_prepareIsLocked(entry, input);
                             BR_G48_prepareIsTimeLocked(entry, input);
                         });
-            }
 
-            if (entry.op.equals("UPDATE")) {
+            } else if ("UPDATE".equals(entry.op)) {
                 BR_G102_setAge(entry, newHead);
             }
         }
 
-        augmentLocal(newHead, block);
+        augmentLocal(block);
 
 
         final var bstamp = new BStamp(block.getNumber(), block.getHash());
@@ -3938,21 +3819,21 @@ public interface GlobalValid {
 
         BR_G92_CertificationExpiry(newHead);
 
-        BR_G93_MembershipExpiry(newHead);
 
         BR_G96_ImplicitRevocation(newHead);
 
+
+        final boolean commit = BR_G97_TestIndex(newHead, block);
         BR_G106_LowAccounts(newHead, bstamp);
 
-        final boolean commit = BR_G97_TestIndex(newHead, block, false);
-
         if (commit)
-            trimIndexes();
+            trimIndexes(newHead);
 
         return commit;
     }
 
     default void revertTo(Integer blockNumber) {
+
 
     }
 

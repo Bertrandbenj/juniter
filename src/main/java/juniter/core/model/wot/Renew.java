@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.lang.NonNull;
 
 import javax.persistence.Embeddable;
 import java.io.Serializable;
@@ -45,7 +46,7 @@ public class Renew implements Serializable, Comparable<Renew> {
 	}
 
 	@Override
-	public int compareTo(Renew o) {
+	public int compareTo(@NonNull Renew o) {
 		return pubkey.compareTo(o.pubkey) ;
 	}
 

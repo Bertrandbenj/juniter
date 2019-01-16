@@ -1,6 +1,6 @@
 package juniter.repository;
 
-import juniter.core.model.Block;
+import juniter.core.model.DBBlock;
 import juniter.repository.jpa.BlockRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
-public class BlockRepositoryITest {
+public class DBBlockRepositoryITest {
 
 	@Autowired
 	private TestEntityManager entityManager;
@@ -29,10 +29,10 @@ public class BlockRepositoryITest {
 	@Test
 	public void useJava8StreamsWithCustomQuery() {
 
-		final Block block1 = blockRepo.save(new Block());
-		final Block block2 = blockRepo.save(new Block());
+		final DBBlock block1 = blockRepo.save(new DBBlock());
+		final DBBlock block2 = blockRepo.save(new DBBlock());
 
-		final List<Block> result = blockRepo.findAll();
+		final List<DBBlock> result = blockRepo.findAll();
 		assertThat(result.size()).isEqualTo(1);
 		assertThat(result.get(0).equals(block1));
 
@@ -42,13 +42,13 @@ public class BlockRepositoryITest {
 	@Test
 	public void whenFindByNumber_thenReturnBlock() {
 		// given
-		final Block alex = new Block();
+		final DBBlock alex = new DBBlock();
 
 		entityManager.persist(alex);
 		entityManager.flush();
 
 		// when
-		final Block found = blockRepo.findTop1ByNumber(3).get();
+		final DBBlock found = blockRepo.findTop1ByNumber(3).get();
 
 		// then
 		assertThat(found.getIssuer()).isEqualTo(alex.getIssuer());

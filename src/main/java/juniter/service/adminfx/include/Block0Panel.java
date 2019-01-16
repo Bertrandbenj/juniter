@@ -9,7 +9,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import juniter.core.crypto.SecretBox;
-import juniter.core.model.Block;
+import juniter.core.model.DBBlock;
 import juniter.core.model.wot.Certification;
 import juniter.core.model.wot.Identity;
 import juniter.core.model.wot.Joiner;
@@ -147,6 +147,14 @@ public class Block0Panel implements Initializable {
     @FXML
     private ComboBox cIssuer;
 
+
+    private DBBlock block = new DBBlock();
+    private  Map<String, SecretBox> members = Maps.newHashMap();
+    private  Map<String, Set<String>> certs = Maps.newHashMap();
+
+
+
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
@@ -155,8 +163,9 @@ public class Block0Panel implements Initializable {
 
     }
 
-    public void refresh() {
-        Block block = new Block();
+
+
+    private void refresh() {
         block.setNumber(Integer.valueOf(number.getText()));
         block.setVersion(Short.valueOf(version.getText()));
         block.setCurrency(currency.getText());
@@ -167,6 +176,12 @@ public class Block0Panel implements Initializable {
         block.setIssuersFrame(Integer.valueOf(issuersFrame.getText()));
         block.setIssuersFrameVar(Integer.valueOf(issuersFrameVar.getText()));
         block.setIssuersCount(Integer.valueOf(issuersCount.getText()));
+
+        cIssuer.getSelectionModel().selectedItemProperty()
+                .addListener((observable, oldValue, newValue) -> {
+                    block.setIssuer(pubkeyOf(newValue.toString()));
+                });
+
 
         block.setParameters(c.getText() + ":" +
                 dt.getText() + ":" +
@@ -192,41 +207,42 @@ public class Block0Panel implements Initializable {
                 sigReplay.getText()
         );
 
+        block.getIdentities().clear();
         block.getIdentities().addAll(
                 members.entrySet().stream()
                         .map(ent ->
                                 new Identity(ent.getValue().getPublicKey()
-                                        + ":" // signature
-                                        + ":" // bstamp TODO complete
-
+                                        + ":" + "==" // signature
+                                        + ":" + "0-XXX" //  TODO complete
                                         + ":" + ent.getKey()))
                         .collect(Collectors.toList())
         );
 
+        block.getJoiners().clear();
         block.getJoiners().addAll(
                 members.entrySet().stream()
                         .map(ent ->
                                 new Joiner(ent.getValue().getPublicKey()
-                                        + ":" // signature
-                                        + ":" // bstamp TODO complete
-                                        + ":" // bstamp duplicate on block 0
+                                        + ":" + "==" // signature
+                                        + ":" + "0-XXX"// bstamp TODO complete
+                                        + ":" + "0-XXX"// bstamp duplicate on block 0
                                         + ":" + ent.getKey()))
                         .collect(Collectors.toList())
         );
 
+        block.getCertifications().clear();
         block.getCertifications().addAll(
                 certs.entrySet().stream()
-                        .flatMap(ent -> ent.getValue().stream().map(receiver->
-                            new Certification(
-                                    pubkeyOf(ent.getKey())
-                                    + ":" +  pubkeyOf(receiver)
-                                    + ":0:" + "_" // signature
-                            )))
+                        .flatMap(ent -> ent.getValue().stream().map(receiver ->
+                                new Certification(
+                                        pubkeyOf(ent.getKey())
+                                                + ":" + pubkeyOf(receiver)
+                                                + ":0:" + "_" // signature
+                                )))
                         .collect(Collectors.toList())
         );
 
         block.setMembersCount(members.size());
-
         certsContainers.getChildren().setAll(
                 certs.entrySet().stream()
                         .flatMap(ent -> ent.getValue().stream().map(dest -> new Label(ent.getKey() + " -> " + dest)))
@@ -243,16 +259,14 @@ public class Block0Panel implements Initializable {
         Bus.rawDocument.setValue(block.toDUP(true, true));
     }
 
-    public String pubkeyOf(String huhu){
+    private String pubkeyOf(String huhu) {
         return members.entrySet().stream()
-                .filter(ent->ent.getKey().equals(huhu))
-                .map(ent-> ent.getValue().getPublicKey())
+                .filter(ent -> ent.getKey().equals(huhu))
+                .map(ent -> ent.getValue().getPublicKey())
                 .findAny()
                 .orElse("NO_PUBKEY_FOUND");
     }
 
-    Map<String, SecretBox> members = Maps.newHashMap();
-    Map<String, Set<String>> certs = Maps.newHashMap();
 
 
     @FXML

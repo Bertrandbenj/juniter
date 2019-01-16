@@ -1,7 +1,8 @@
 package juniter.repository.jpa.index;
 
+import io.micrometer.core.annotation.Timed;
 import juniter.core.model.BStamp;
-import juniter.core.model.Block;
+import juniter.core.model.DBBlock;
 import juniter.core.validation.GlobalValid;
 import juniter.repository.jpa.BlockRepository;
 import org.apache.logging.log4j.LogManager;
@@ -68,19 +69,19 @@ public class Index implements GlobalValid, Serializable {
         resetLocalIndex();
         IndexB.clear();
         IndexB.addAll(indexBGlobal().sorted().collect(Collectors.toList()));
-        LOG.info("Initialized index B:" + IndexB + " " );
+        LOG.info("Initialized index B:" + IndexB.size() + " ");
 
     }
 
 
     @Transactional(readOnly = true)
     @Override
-    public Optional<Block> createdOnBlock(BStamp bstamp) {
+    public Optional<DBBlock> createdOnBlock(BStamp bstamp) {
         return blockRepo.block(bstamp.getNumber(), bstamp.getHash());
     }
 
     @Override
-    public Optional<Block> createdOnBlock(Integer number) {
+    public Optional<DBBlock> createdOnBlock(Integer number) {
         return blockRepo.block(number);
     }
 
@@ -90,32 +91,31 @@ public class Index implements GlobalValid, Serializable {
                           Set<IINDEX> indexI, Set<MINDEX> indexM, Set<CINDEX> indexC, Set<SINDEX> indexS,
                           List<IINDEX> consumeI, List<MINDEX> consumeM, List<CINDEX> consumeC, List<SINDEX> consumeS) {
 
-       // Platform.runLater(() ->  Database.refresh(indexB,indexI,indexM,indexC,indexS,consumeI,consumeM,consumeC,consumeS) );
+        // Platform.runLater(() ->  Database.refresh(indexB,indexI,indexM,indexC,indexS,consumeI,consumeM,consumeC,consumeS) );
 
         if (consumeS.size() > 0)
             LOG.info("JACKPOT");
 
-        iRepo.deleteAll(consumeI.stream()
-                .map(i -> modelMapper.map(i, juniter.repository.jpa.index.IINDEX.class))
-                .collect(Collectors.toList()));
-
-        mRepo.deleteAll(consumeM.stream()
-                .map(i -> modelMapper.map(i, juniter.repository.jpa.index.MINDEX.class))
-                .collect(Collectors.toList()));
-
-        cRepo.deleteAll(consumeC.stream()
-                .map(i -> modelMapper.map(i, juniter.repository.jpa.index.CINDEX.class))
-                .collect(Collectors.toList()));
-
-        sRepo.deleteAll(consumeS.stream()
-                .peek(s-> System.out.println("deleting " + s))
-                .map(i -> modelMapper.map(i, juniter.repository.jpa.index.SINDEX.class))
-                .peek(s-> System.out.println("or should i say  " + s))
-                .collect(Collectors.toList()));
+//        iRepo.deleteAll(consumeI.stream()
+//                .map(i -> modelMapper.map(i, juniter.repository.jpa.index.IINDEX.class))
+//                .collect(Collectors.toList()));
+//
+//        mRepo.deleteAll(consumeM.stream()
+//                .map(i -> modelMapper.map(i, juniter.repository.jpa.index.MINDEX.class))
+//                .collect(Collectors.toList()));
+//
+//        cRepo.deleteAll(consumeC.stream()
+//                .map(i -> modelMapper.map(i, juniter.repository.jpa.index.CINDEX.class))
+//                .collect(Collectors.toList()));
+//
+//        sRepo.deleteAll(consumeS.stream()
+//                .peek(s -> System.out.println("deleting " + s))
+//                .map(i -> modelMapper.map(i, juniter.repository.jpa.index.SINDEX.class))
+//                .peek(s -> System.out.println("or should i say  " + s))
+//                .collect(Collectors.toList()));
 
         //sRepo.flush();
 
-        bRepo.save(modelMapper.map(indexB, juniter.repository.jpa.index.BINDEX.class));
         iRepo.saveAll(indexI.stream().map(i -> modelMapper.map(i, juniter.repository.jpa.index.IINDEX.class)).collect(Collectors.toList()));
         iig.addAll(indexI);
         mRepo.saveAll(indexM.stream().map(i -> modelMapper.map(i, juniter.repository.jpa.index.MINDEX.class)).collect(Collectors.toList()));
@@ -125,11 +125,16 @@ public class Index implements GlobalValid, Serializable {
                 .collect(Collectors.toList()));
 
 
-        LOG.info("Commit -  Certs: +" + indexC.size() + ",-" + consumeC.size() + "," + cRepo.count() + //
-                "  Membship: +" + indexM.size() + ",-" + consumeM.size() + "," + mRepo.count() + //
-                "  Idty: +" + indexI.size() + ",-" + consumeI.size() + "," + iRepo.count() + //
-                "  localS: +" + indexS.size() + ",-" + consumeS.size() + "," + sRepo.count() + //
-                "  IndexB: " + bRepo.count() +", "+ indexB );
+        if(indexB != null ){
+            bRepo.save(modelMapper.map(indexB, juniter.repository.jpa.index.BINDEX.class));
+
+            LOG.info("Commit -  Certs: +" + indexC.size() + ",-" + consumeC.size() + "," + cRepo.count() + //
+                    "  Membship: +" + indexM.size() + ",-" + consumeM.size() + "," + mRepo.count() + //
+                    "  Idty: +" + indexI.size() + ",-" + consumeI.size() + "," + iRepo.count() + //
+                    "  localS: +" + indexS.size() + ",-" + consumeS.size() + "," + sRepo.count() + //
+                    "  IndexB: " + bRepo.count() + ", " + indexB.number);
+        }
+
 
         return true;
     }
@@ -149,7 +154,7 @@ public class Index implements GlobalValid, Serializable {
 
     @Override
     public Stream<IINDEX> indexIGlobal() {
-        return iRepo.findAll().stream().map(c -> modelMapper.map(c, IINDEX.class));//.collect(Collectors.toList()).stream();
+        return iRepo.findAll().stream().map(c -> modelMapper.map(c, IINDEX.class));
     }
 
     @Override
@@ -165,6 +170,14 @@ public class Index implements GlobalValid, Serializable {
         return Stream.empty();
     }
 
+
+    @Autowired
+    AccountRepository accountRepo;
+    @Override
+    public Stream<Account> lowAccounts() {
+        return accountRepo.lowAccounts();
+    }
+
     @Override
     public Stream<MINDEX> reduceM(String pub) {
         return mRepo.member(pub).map(c -> modelMapper.map(c, MINDEX.class));
@@ -172,7 +185,7 @@ public class Index implements GlobalValid, Serializable {
 
     @Transactional(readOnly = true)
     @Override
-    public Stream<IINDEX> reduceI(String pub) {
+    public Stream<IINDEX> idtyByPubkey(String pub) {
         return iRepo.idtyByPubkey(pub).map(c -> modelMapper.map(c, IINDEX.class));
     }
 
@@ -182,18 +195,17 @@ public class Index implements GlobalValid, Serializable {
     }
 
     @Override
-    public Stream<SINDEX> reduceS(String conditions) {
+    public Stream<SINDEX> sourcesByConditions(String conditions) {
         return sRepo.sourcesByConditions(conditions)
-                .map(c -> modelMapper.map(c, SINDEX.class))
-                .peek(s->System.out.println("mapped cond" + s))
+                .map(s -> modelMapper.map(s, SINDEX.class))
                 ;
     }
 
     @Override
-    public Stream<SINDEX> reduceS(String identifier, Integer pos) {
+    public Stream<SINDEX> sourcesByConditions(String identifier, Integer pos) {
         return sRepo.sourcesByIdentifierAndPos(identifier, pos)
                 .map(c -> modelMapper.map(c, SINDEX.class))
-                .peek(s->System.out.println("mapped i p " + s))
+                .peek(s -> System.out.println("mapped i p " + s))
                 ;
     }
 
@@ -206,13 +218,21 @@ public class Index implements GlobalValid, Serializable {
     public Stream<SINDEX> indexSGlobal() {
         return sRepo.sourceNotConsumed()
                 .map(c -> modelMapper.map(c, SINDEX.class))
-                .peek(s-> System.out.println("mapped all " + s));
+                .peek(s -> System.out.println("mapped all " + s));
     }
 
+    @Timed
     @Override
-    public Long trimIndexes() {
-       Long bIndexSize = GlobalValid.super.trimIndexes();
-       bRepo.trim(bIndexSize);
-       return bIndexSize;
+    public int trimIndexes(BINDEX head) {
+        int bIndexSize = GlobalValid.super.trimIndexes(head);
+        int bellow = Math.max(0, head.number - bIndexSize);
+
+        LOG.info("Trimming " + bIndexSize + " at " + head.number);
+        bRepo.trim(bIndexSize);
+        sRepo.trim(bellow);
+        iRepo.trim(bellow);
+        //mRepo.trim(head.medianTime);
+        cRepo.trim(bellow);
+        return bIndexSize;
     }
 }

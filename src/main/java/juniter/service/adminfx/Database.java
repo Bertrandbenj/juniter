@@ -141,6 +141,8 @@ public class Database extends AbstractJuniterFX implements Initializable {
     @FXML
     private TableColumn sWrittenOn;
     @FXML
+    private TableColumn sCreatedOn;
+    @FXML
     private TableColumn sIdentifierCol;
     @FXML
     private TableColumn sBaseCol;
@@ -227,6 +229,9 @@ public class Database extends AbstractJuniterFX implements Initializable {
         if (Bus.isIndexing.get())
             return;
 
+        Bus.currentBindex.setValue(-1);
+
+
         int until;
         try {
             until = Integer.parseInt(indexTil.getText());
@@ -235,7 +240,8 @@ public class Database extends AbstractJuniterFX implements Initializable {
         }
 
         Bus.maxBindex.setValue(until);
-        indexer.indexUntil(until);
+
+        indexer.indexUntil(until, false);
     }
 
     @FXML
@@ -251,8 +257,8 @@ public class Database extends AbstractJuniterFX implements Initializable {
             return;
 
 
-        indexer.indexUntil(Bus.currentBindex.intValue() + 1);
-        Bus.indexLogMessage.setValue("Validated " + Bus.currentBindex.intValue());
+        indexer.indexUntil(Bus.currentBindex.intValue() + 1, true);
+        //Bus.indexLogMessage.setValue("Validated " + Bus.currentBindex.intValue());
 
     }
 
@@ -262,8 +268,6 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
         bRepo.head().ifPresent(h -> {
             bRepo.delete(h);
-            Bus.currentBindex.setValue(h.number - 1);
-            Bus.indexLogMessage.setValue("Reverted " + Bus.currentBindex.intValue());
 
             iRepo.deleteAll(
                     iRepo.writtenOn(h.number + "-" + h.hash)
@@ -278,8 +282,12 @@ public class Database extends AbstractJuniterFX implements Initializable {
                     sRepo.writtenOn(h.number + "-" + h.hash)
             );
 
-            indexer.index.init(false);
+
+            Bus.currentBindex.setValue(h.number - 1);
+            Bus.indexLogMessage.setValue("Reverted " + Bus.currentBindex.intValue());
+
         });
+        indexer.index.init(false);
 
     }
 
@@ -303,6 +311,26 @@ public class Database extends AbstractJuniterFX implements Initializable {
         tableM.setItems(mindex);
         tableC.setItems(cindex);
         tableS.setItems(sindex);
+
+//        TableColumn<SINDEX, Integer> indexColumn = new TableColumn<>();
+//        indexColumn.setCellFactory(col -> {
+//            TableCell<SINDEX, Integer> indexCell = new TableCell<>();
+//            ReadOnlyObjectProperty<TableRow<SINDEX>> rowProperty = indexCell.tableRowProperty();
+//            ObjectBinding<String> rowBinding = Bindings.createObjectBinding(() -> {
+//                TableRow<SINDEX> row = rowProperty.get();
+//                if (row != null) {
+//                    int rowIndex = row.getIndex();
+//                    if (rowIndex < row.getTableView().getItems().size()) {
+//                        return Integer.toString(rowIndex);
+//                    }
+//                }
+//                return null;
+//            }, rowProperty);
+//            indexCell.textProperty().bind(rowBinding);
+//            return indexCell;
+//        });
+
+        //tableS.getColumns().add(0,indexColumn);
 
         bNumberCol.setCellValueFactory(new PropertyValueFactory<>("number"));
         bHashCol.setCellValueFactory(new PropertyValueFactory<>("hash"));
@@ -359,6 +387,8 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
 
         sWrittenOn.setCellValueFactory(new PropertyValueFactory<>("written_on"));
+        sWrittenTime.setCellValueFactory(new PropertyValueFactory<>("written_time"));
+        sCreatedOn.setCellValueFactory(new PropertyValueFactory<>("created_on"));
         sAmountCol.setCellValueFactory(new PropertyValueFactory<>("amount"));
         sBaseCol.setCellValueFactory(new PropertyValueFactory<>("base"));
         sConsumedCol.setCellValueFactory(new PropertyValueFactory<>("consumed"));
@@ -394,7 +424,6 @@ public class Database extends AbstractJuniterFX implements Initializable {
             if (newSelection != null) {
                 LOG.info("onSelect  " + newSelection.number + "-" + newSelection.hash + "   " + newSelection);
 
-
                 iindex.clear();
                 iindex.addAll(iRepo.writtenOn(newSelection.number + "-" + newSelection.hash));
 
@@ -409,31 +438,6 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
             }
         });
-    }
-
-
-    @FXML
-    public void onSelectBINDEX() {
-        Platform.runLater(() -> {
-            var selected = tableB.getSelectionModel().getSelectedItem();
-            if (selected == null)
-                return;
-            LOG.info("onSelect  " + selected);
-            var fromDB = iRepo.writtenOn(selected.number + "-" + selected.hash);
-            // .collect(Collectors.toList());
-
-            if (fromDB.size() <= 0)
-                return;
-
-            LOG.info("clearing and adding   " + fromDB.size());
-
-
-            iindex.clear();
-            //tableI.getSelectionModel().setSelectionMode();
-            iindex.addAll(fromDB);
-
-        });
-
     }
 
 

@@ -11,8 +11,10 @@ import javafx.scene.layout.VBox;
 import juniter.core.crypto.SecretBox;
 import juniter.core.model.net.EndPoint;
 import juniter.core.model.net.Peer;
+import juniter.core.validation.BlockLocalValid;
 import juniter.repository.jpa.BlockRepository;
 import juniter.service.bma.NetworkService;
+import juniter.service.bma.loader.PeerLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,7 @@ import java.net.URL;
 import java.util.Random;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @ConditionalOnExpression("${juniter.useJavaFX:false}")
 @Component
@@ -82,6 +85,8 @@ public class PeerPanel implements Initializable {
     private String selectedEPType = "";
 
 
+
+
     @FXML
     public void addEndPoint() {
 
@@ -102,15 +107,15 @@ public class PeerPanel implements Initializable {
     private void refresh() {
         endpointsContainer.getChildren().clear();
         endpointsContainer.getChildren().addAll(
-                peer.getEndpoints().stream()
+                peer.endpoints().stream().map(Object::toString)
                         .map(ep -> {
-                            var b = new Button("-");
-                            b.setOnAction(x -> {
+                            var remove = new Button("-");
+                            remove.setOnAction(x -> {
                                 LOG.info(" at ep x " + peer.endpoints().removeIf(ep1 -> ep1.getEndpoint().equals(ep)));
                                 peer.endpoints().removeIf(ep1 -> ep1.getEndpoint().equals(ep));
                                 refresh();
                             });
-                            return new HBox(new Label(ep), b);
+                            return new HBox(10,remove, new Label(ep) );
                         })
                         .collect(Collectors.toList())
         );

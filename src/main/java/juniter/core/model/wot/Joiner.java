@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.lang.NonNull;
 
 import javax.persistence.Embeddable;
 import java.io.Serializable;
@@ -45,7 +46,7 @@ public class Joiner implements Serializable, Comparable<Joiner> {
 
 
 	@Override
-	public int compareTo(Joiner o) {
+	public int compareTo(@NonNull Joiner o) {
 		return pubkey.compareTo(o.pubkey);
 	}
 

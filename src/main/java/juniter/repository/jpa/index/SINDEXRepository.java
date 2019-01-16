@@ -1,8 +1,10 @@
 package juniter.repository.jpa.index;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -38,9 +40,39 @@ public interface SINDEXRepository extends JpaRepository<SINDEX, Long> {
     @Query("SELECT sindex from SINDEX sindex WHERE written_on = ?1")
     List<SINDEX> writtenOn(String s);
 
-
     @Query("SELECT s from SINDEX s WHERE identifier LIKE CONCAT('%',?1,'%')")
     List<SINDEX> search(String search);
+
+
+
+    @Query("SELECT sindex FROM SINDEX sindex WHERE consumed = true AND writtenOn < ?1")
+    List<SINDEX>  getForTrim(Integer trimBelow);
+
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM SINDEX sindex WHERE identifier = ?1 AND pos = ?2 AND amount = ?3 AND base = ?4")
+    void trimCreate(String identifier, Integer pos, Integer amount, Integer base);
+
+    @Transactional
+    @Modifying
+    default void trim(Integer trimBelow){
+        for (SINDEX s : getForTrim(trimBelow)) {
+            trimCreate(s.getIdentifier(), s.getPos(), s.getAmount(), s.getBase());
+        }
+
+    }
+
+
+
+//    @Query("SELECT conditions, SUM ( case WHEN consumed THEN ( 0 - s.amount ) ELSE s.amount end )   " +
+//            "  FROM SINDEX s " +
+//           // " -- where consumed = false  " +
+//            " GROUP BY conditions " +
+//            " HAVING  SUM ( case WHEN s.consumed THEN ( 0 - amount ) ELSE s.amount end ) < 100 " +
+//            " ORDER BY conditions ")
+//    Stream<Account> lowAccounts();
+
+
 }
 
 	

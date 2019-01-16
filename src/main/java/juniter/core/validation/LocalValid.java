@@ -93,10 +93,10 @@ public interface LocalValid {
 		return res.stream();
 	}
 
-
-
 	default boolean verifySignature(String unSignedDoc, String signature, String pk) {
 		return Crypto.verify(unSignedDoc, signature, pk);
 	}
+
+
 
 }

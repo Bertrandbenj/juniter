@@ -9,7 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import juniter.core.crypto.DigestUtils;
-import juniter.core.model.Block;
+import juniter.core.model.DBBlock;
 import juniter.core.utils.Constants;
 
 public class NetValid {
@@ -44,7 +44,7 @@ public class NetValid {
 	 * @param b
 	 * @return
 	 */
-	public static String hash(Block b) {
+	public static String hash(DBBlock b) {
 		final var res = "";
 		final String sha256hex = DigestUtils.sha1Hex(b.toDUP());
 		return res;

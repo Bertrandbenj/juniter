@@ -11,8 +11,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import juniter.core.crypto.SecretBox;
-import juniter.core.model.Pubkey;
-import juniter.core.model.Signature;
 import juniter.core.model.tx.*;
 import juniter.repository.jpa.BlockRepository;
 import juniter.repository.jpa.index.SINDEXRepository;
@@ -23,7 +21,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 /**
@@ -120,7 +121,7 @@ public class TxPanel implements Initializable {
                     "",
                     b.bStamp(),
                     b.getTime().intValue(),
-                    issuersInputs.keySet().stream().map(SecretBox::getPublicKey).map(Pubkey::new).collect(Collectors.toList()),
+                    issuersInputs.keySet().stream().map(SecretBox::getPublicKey).collect(Collectors.toList()),
                     inputs,
                     outputs,
                     unlocks,
@@ -130,7 +131,6 @@ public class TxPanel implements Initializable {
 
             tx.setSignatures(issuersInputs.entrySet().stream()
                     .map(sb -> sb.getKey().sign(tx.toDUPdoc(false)))
-                    .map(Signature::new)
                     .collect(Collectors.toList()));
         });
 

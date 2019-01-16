@@ -1,9 +1,11 @@
 package juniter.service.bma.loader;
 
-import juniter.core.model.Block;
+import javafx.application.Platform;
+import juniter.core.model.DBBlock;
 import juniter.core.utils.TimeUtils;
 import juniter.core.validation.BlockLocalValid;
 import juniter.repository.jpa.BlockRepository;
+import juniter.service.adminfx.include.Bus;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +36,7 @@ import java.util.stream.IntStream;
 @ConditionalOnExpression("${juniter.useDefaultLoader:true}") // Must be up for dependencies
 @Component
 @Order(1)
-public class BlockLoader implements  BlockLocalValid {
+public class BlockLoader implements BlockLocalValid {
 
     private static final Logger LOG = LogManager.getLogger();
 
@@ -65,7 +67,7 @@ public class BlockLoader implements  BlockLocalValid {
 
     private boolean bulkLoadOn = false;
 
-    public boolean bulkLoadOn(){
+    public boolean bulkLoadOn() {
         return bulkLoadOn;
     }
 
@@ -90,14 +92,17 @@ public class BlockLoader implements  BlockLocalValid {
 
         IntStream.range(0, nbPackage)// get nbPackage Integers
                 .map(nbb -> (nbb * bulkSize)) // with an offset of bulkSize
-                .boxed() //
-                .sorted() //
-                .parallel() // parallel stream if needed
+                .boxed()
+                .sorted()
+                .parallel() // if needed
                 .map(i -> fetchBlocks(bulkSize, i)) // remote list of blocks
                 .flatMap(Collection::stream) // blocks individually
-                .forEach(b -> blockRepo//
-                        .localSave(b) //
-                        .ifPresent(bl -> ai.incrementAndGet()));
+                .forEach(b -> blockRepo
+                        .localSave(b)
+                        .ifPresent(bl ->
+                                Platform.runLater(() ->
+                                        Bus.maxDBBlock.setValue(
+                                                ai.incrementAndGet()))));
 
         final var elapsed = Long.divideUnsigned(System.nanoTime() - start, 1000000);
 
@@ -110,7 +115,7 @@ public class BlockLoader implements  BlockLocalValid {
      * @param number
      * @return
      */
-    public Block fetchAndSaveBlock(Integer number) {
+    public DBBlock fetchAndSaveBlock(Integer number) {
         return fetchAndSaveBlock("block/" + number);
     }
 
@@ -120,7 +125,7 @@ public class BlockLoader implements  BlockLocalValid {
      * @param id the block id
      */
     @Transactional
-    public Block fetchAndSaveBlock(String id) {
+    public DBBlock fetchAndSaveBlock(String id) {
         var block = fetchBlock(id);
         LOG.info("  Saving ... : " + block.getNumber());
         return blockRepo.localSave(block).orElse(block);
@@ -134,9 +139,9 @@ public class BlockLoader implements  BlockLocalValid {
      * @param id the block id
      */
     @Transactional
-    Block fetchBlock(String id) {
+    DBBlock fetchBlock(String id) {
         String url = null;
-        Block block = null;
+        DBBlock block = null;
         final var attempts = 0;
 
         while (block == null) {
@@ -146,7 +151,7 @@ public class BlockLoader implements  BlockLocalValid {
             if (host.isPresent()) {
                 try {
                     url = host.get() + "blockchain/" + id;
-                    block = restTemplate.getForObject(url, Block.class);
+                    block = restTemplate.getForObject(url, DBBlock.class);
                     block = blockRepo.block(block.getNumber()).orElse(block);
 
                     LOG.info("  Fetched ... : " + id);
@@ -173,8 +178,8 @@ public class BlockLoader implements  BlockLocalValid {
      * @return .
      */
     @Transactional
-    List<Block> fetchBlocks(int bulkSize, int i) {
-        List<Block> body = null;
+    List<DBBlock> fetchBlocks(int bulkSize, int i) {
+        List<DBBlock> body = null;
         final var blacklistHosts = new ArrayList<String>();
         String url = null;
         final var attempts = 0;
@@ -182,18 +187,20 @@ public class BlockLoader implements  BlockLocalValid {
         while (blacklistHosts.size() < configuredNodes.size() && body == null) {
             // Fetch & parse the blocks
 
+
+
             final var host = anyNotIn(blacklistHosts).get();
             blacklistHosts.add(host);
             try {
                 url = host + "blockchain/blocks/" + bulkSize + "/" + i;
                 final var responseEntity = restTemplate.exchange(url, HttpMethod.GET, null,
-                        new ParameterizedTypeReference<List<Block>>() {
+                        new ParameterizedTypeReference<List<DBBlock>>() {
                         });
 
                 body = responseEntity.getBody();
 
                 assert body != null;
-                if(body.size()!=bulkSize) {
+                if (body.size() != bulkSize) {
                     throw new Exception();
                 }
 
@@ -201,7 +208,7 @@ public class BlockLoader implements  BlockLocalValid {
                 final var statusCode = responseEntity.getStatusCode().getReasonPhrase();
 
 
-                body.removeIf(block -> !checkBlockisLocalValid(block));
+                body.removeIf(block -> !checkBlockIsLocalValid(block));
 
                 LOG.info(attempts + " " + body.size() + " Fetched: " + url + "... Status: " + statusCode
                         + " ContentType: " + contentType);
@@ -221,7 +228,7 @@ public class BlockLoader implements  BlockLocalValid {
         return new ArrayList<>();
     }
 
-    public Optional<Block> fetchOrRetry(String id) {
+    public Optional<DBBlock> fetchOrRetry(String id) {
         final List<String> triedNodes = new ArrayList<>();
 
         Optional<String> attempt;
@@ -240,10 +247,9 @@ public class BlockLoader implements  BlockLocalValid {
     }
 
 
-
     @Transactional
     private void resetBlockinDB() {
-        LOG.info(" === Reseting DB "+ blockRepo.findAll().size());
+        LOG.info(" === Reseting DB " + blockRepo.findAll().size());
         blockRepo.deleteAllInBatch();
         blockRepo.findAll().forEach(b -> {
             blockRepo.delete(b);

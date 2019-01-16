@@ -1,6 +1,6 @@
 package juniter.service.web;
 
-import juniter.core.model.Block;
+import juniter.core.model.DBBlock;
 import juniter.core.model.tx.*;
 import juniter.repository.jpa.BlockRepository;
 import juniter.repository.jpa.CertsRepository;
@@ -132,7 +132,7 @@ public class GraphvizService {
         final Integer RANGE = extraParams.containsKey("range") ? Integer.valueOf(extraParams.get("range")[0]) : 2;
 
         final var blocks = blockRepo.streamBlocksFromTo(blockNumber - RANGE, blockNumber + RANGE + 1)
-                .sorted(Comparator.comparing(Block::getNumber))//
+                .sorted(Comparator.comparing(DBBlock::getNumber))//
                 .collect(toList());
 
         String res = "digraph{\n\t" //
@@ -212,7 +212,7 @@ public class GraphvizService {
             }
 
             if (b.getIdentities().size() > 0) {
-                sub.append("\t\t").append(prefix).append("reduceI [label=\"Idty: ").append(b.getIdentities().size()).append("\", shape=octagon];\n");
+                sub.append("\t\t").append(prefix).append("idtyByPubkey [label=\"Idty: ").append(b.getIdentities().size()).append("\", shape=octagon];\n");
             }
 
             if (b.getExcluded().size() > 0) {

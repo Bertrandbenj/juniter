@@ -1,7 +1,9 @@
 package juniter.repository.jpa.index;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,12 +24,13 @@ public interface BINDEXRepository extends JpaRepository<BINDEX, Long> {
     }
 
 
-
-    default void trim(Long bIndexSize){
+    @Transactional
+    @Modifying
+    default void trim(int bIndexSize){
         var top1 = head().map(b-> b.number).orElseThrow();
 
         findAll().stream()
-                .filter(b-> b.number <= top1-bIndexSize)
+                .filter(b-> b.number < top1-bIndexSize)
                 .forEach(trim-> {
                     delete(trim);
 

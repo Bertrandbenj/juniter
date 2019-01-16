@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.canvas.*?>
 <?import java.lang.*?>
 <?import javafx.scene.text.*?>
 <?import javafx.geometry.*?>
@@ -9,114 +10,36 @@
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.service.adminfx.FrontPage">
     <center>
-        <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+        <VBox alignment="CENTER" focusTraversable="true" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
             <children>
-                <HBox spacing="10.0">
-                    <padding>
-                        <Insets bottom="2.0" left="10.0" right="10.0" top="2.0" />
-                    </padding>
-                    <VBox.margin>
-                        <Insets />
-                    </VBox.margin>
-                </HBox>
-            <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="10.0">
-               <children>
                   <HBox alignment="CENTER" prefHeight="54.0" prefWidth="1060.0" spacing="10.0">
-                     <padding>
-                        <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
-                     </padding>
-                     <children>
-                        <Label text="Download..." />
-                        <ProgressBar fx:id="loadBar" prefHeight="20.0" prefWidth="880.0" progress="0.0" HBox.hgrow="ALWAYS" />
-                     </children>
+                      <padding>
+                          <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                      </padding>
+                      <children>
+                          <ProgressBar fx:id="loadBar" maxWidth="1.7976931348623157E308" progress="0.0" HBox.hgrow="ALWAYS" />
+                          <Button mnemonicParsing="false" onAction="#bulkLoad" text="Download Ğ1" />
+                          <Button mnemonicParsing="false" onAction="#loadMissing" text="MissinĞ blocks" />
+                      </children>
                   </HBox>
-                  <HBox alignment="CENTER" spacing="10.0" VBox.vgrow="NEVER">
-                     <children>
-                        <Button mnemonicParsing="false" onAction="#bulkLoad" text="Download Ğ1 Blockchain" />
-                        <Button mnemonicParsing="false" onAction="#loadMissing" text="Find missinĞ blocks" />
-                     </children>
-                  </HBox>
-               </children>
-               <padding>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-               </padding>
-            </VBox>
-            <VBox prefHeight="226.0" prefWidth="1060.0" VBox.vgrow="NEVER">
-               <children>
-                  <fx:include source="include/LoginBox.fxml" />
-               </children>
-            </VBox>
-
-            <VBox alignment="CENTER" prefHeight="28.0" prefWidth="1080.0" VBox.vgrow="ALWAYS">
-               <children>
-                  <Label text="Tools">
-                     <font>
-                        <Font size="24.0" />
-                     </font>
-                     <padding>
-                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                     </padding>
-                  </Label>
-               </children>
-            </VBox>
-            <VBox prefHeight="200.0" prefWidth="100.0" VBox.vgrow="ALWAYS">
-               <children>
-                  <GridPane prefHeight="355.0" prefWidth="625.0" VBox.vgrow="ALWAYS">
-                    <columnConstraints>
-                      <ColumnConstraints halignment="RIGHT" hgrow="ALWAYS" maxWidth="375.0" minWidth="10.0" prefWidth="331.0" />
-                      <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" maxWidth="278.0" minWidth="10.0" prefWidth="30.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="815.0" minWidth="10.0" prefWidth="699.0" />
-                    </columnConstraints>
-                    <rowConstraints>
-                      <RowConstraints maxHeight="38.0" minHeight="10.0" prefHeight="38.0" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="44.0" minHeight="10.0" prefHeight="13.0" vgrow="SOMETIMES" />
-                        <RowConstraints maxHeight="53.0" minHeight="10.0" prefHeight="26.0" vgrow="SOMETIMES" />
-                        <RowConstraints maxHeight="43.0" minHeight="10.0" prefHeight="17.0" vgrow="SOMETIMES" />
-                        <RowConstraints maxHeight="60.0" minHeight="10.0" prefHeight="32.0" vgrow="SOMETIMES" />
-                    </rowConstraints>
-                     <children>
-                        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="20.0" GridPane.columnIndex="2" GridPane.rowIndex="4">
-                           <children>
-                              <Button mnemonicParsing="false" onAction="#peerCheck" text="peerCheck" />
-                              <Button mnemonicParsing="false" onAction="#pairing" text="Pairing" />
-                           </children>
-                        </HBox>
-                        <Label text="NETWORK commands " GridPane.rowIndex="4" />
-                        <HBox prefHeight="100.0" prefWidth="200.0" spacing="15.0" GridPane.columnIndex="2" GridPane.rowIndex="2">
-                           <children>
-                              <TextField fx:id="tstSome" prefHeight="25.0" prefWidth="370.0" promptText="ex .. 15144,31202,85448,87566,90830,109327" />
-                              <Button mnemonicParsing="false" onAction="#testSome" text="is / are valid ? " />
-                           </children>
-                        </HBox>
-                        <Label text="TEST" GridPane.rowIndex="2" />
-                        <HBox prefHeight="100.0" prefWidth="200.0" spacing="15.0" GridPane.columnIndex="2">
-                           <children>
-                                    <TextField fx:id="delSome" prefHeight="25.0" prefWidth="370.0" promptText="ex .. 15144,31202,85448,87566,90830,109327" />
-                                    <Button mnemonicParsing="false" onAction="#deleteSome" text="delete ! " />
-                           </children>
-                        </HBox>
-                        <Label text="DELETE" />
-                     </children>
-                  </GridPane>
-               </children>
-            </VBox>
-            <Region prefHeight="97.0" prefWidth="1060.0" VBox.vgrow="NEVER" />
+                    <fx:include source="include/LoginBox.fxml" />
+                <fx:include source="game/Game.fxml" />
 
             </children>
-         <padding>
-            <Insets left="20.0" right="20.0" />
-         </padding>
+            <padding>
+                <Insets left="20.0" right="20.0" top="20.0" />
+            </padding>
         </VBox>
     </center>
-   <right>
-       <VBox alignment="CENTER" BorderPane.alignment="CENTER">
-           <children>
-               <fx:include fx:id="menu" source="include/Menu.fxml" />
-           </children>
-       </VBox>
-   </right>
-   <bottom>
-       <fx:include source="include/Footer.fxml" />
-   </bottom>
+    <right>
+        <VBox alignment="CENTER" BorderPane.alignment="CENTER">
+            <children>
+                <fx:include fx:id="menu" source="include/Menu.fxml" />
+            </children>
+        </VBox>
+    </right>
+    <bottom>
+        <fx:include source="include/Footer.fxml" />
+    </bottom>
 
 </BorderPane>

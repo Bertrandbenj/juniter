@@ -11,8 +11,5 @@ public enum TxType {
 		this.TX_TYPE = transactionType;
 	}
 
-	public String getEndPointType() {
-		return this.TX_TYPE;
-	}
 
 }

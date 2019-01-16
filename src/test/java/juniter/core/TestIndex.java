@@ -2,7 +2,7 @@ package juniter.core;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import juniter.core.model.Block;
+import juniter.core.model.DBBlock;
 import juniter.repository.jpa.index.Index;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,8 +20,8 @@ public class TestIndex {
 	private Index idx_duniter = new Index();
 	private Index idx_g1 = new Index();
 
-	private List<Block> blockchain;
-	private List<Block> blockchaing1;
+	private List<DBBlock> blockchain;
+	private List<DBBlock> blockchaing1;
 
 	@Before
 	public void init() {
@@ -34,11 +34,11 @@ public class TestIndex {
 
 		try {
 			blockchain = jsonReader.readValue(cl.getResourceAsStream("blocks/blockchain.json"),
-					new TypeReference<List<Block>>() {
+					new TypeReference<List<DBBlock>>() {
 			});
 
 			blockchaing1 = jsonReader.copy().readValue(cl.getResourceAsStream("blocks/g1_0_99.json"),
-					new TypeReference<List<Block>>() {
+					new TypeReference<List<DBBlock>>() {
 			});
 
 
@@ -52,7 +52,7 @@ public class TestIndex {
 
 		assertTrue("blockchain not parsed " + blockchain.size(), blockchain.size() == 12);
 
-		for (final Block b : blockchain) {
+		for (final DBBlock b : blockchain) {
 			assertTrue("NOT Valid \n" + b.toDUP(), idx_duniter.validate(b, false));
 		}
 
@@ -63,7 +63,7 @@ public class TestIndex {
 
 		assertTrue("blockchain not parsed " + blockchaing1.size(), blockchaing1.size() == 100);
 
-		for (final Block b : blockchaing1) {
+		for (final DBBlock b : blockchaing1) {
 			assertTrue("NOT Valid \n" + b.toDUP(), idx_g1.validate(b, false));
 		}
 

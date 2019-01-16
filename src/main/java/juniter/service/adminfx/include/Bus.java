@@ -4,6 +4,8 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 
+import java.util.ArrayList;
+
 public interface Bus {
 
 
@@ -22,5 +24,7 @@ public interface Bus {
     SimpleStringProperty sparkLogMessage = new SimpleStringProperty(" ... ");
     SimpleStringProperty docPoolLogMessage = new SimpleStringProperty(" ... ");
 
+
+    ArrayList<String> input = new ArrayList<>();
 
 }

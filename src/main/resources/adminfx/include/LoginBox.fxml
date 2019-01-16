@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.text.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 
-    <HBox xmlns="http://javafx.com/javafx"
-          xmlns:fx="http://javafx.com/fxml"
-          fx:controller="juniter.service.adminfx.include.LoginBox"
-          prefHeight="400.0" prefWidth="600.0">
+<HBox prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.service.adminfx.include.LoginBox">
         <children>
             <Region prefHeight="130.0" prefWidth="446.0" HBox.hgrow="ALWAYS" />
             <VBox alignment="CENTER" prefHeight="188.0" prefWidth="449.0" spacing="5.0" styleClass="loginBox">
@@ -18,19 +18,19 @@
                             <Font size="24.0" />
                         </font>
                     </Label>
-                    <PasswordField fx:id="salt" onKeyTyped="#login" prefHeight="25.0" prefWidth="485.0" promptText="salt - secret key ">
+                    <PasswordField fx:id="salt" focusTraversable="false" onKeyTyped="#login" prefHeight="25.0" prefWidth="485.0" promptText="salt - secret key ">
                         <font>
                             <Font size="10.0" />
                         </font>
                     </PasswordField>
-                    <PasswordField fx:id="password" onKeyTyped="#login" prefHeight="25.0" prefWidth="660.0" promptText="password - secret password">
+                    <PasswordField fx:id="password" focusTraversable="false" onKeyTyped="#login" prefHeight="25.0" prefWidth="660.0" promptText="password - secret password">
                         <font>
                             <Font size="10.0" />
                         </font>
                     </PasswordField>
                     <HBox spacing="10.0">
                         <children>
-                            <Button fx:id="login" mnemonicParsing="false" onAction="#login" prefHeight="25.0" prefWidth="77.0" text="connect " />
+                            <Button fx:id="login" focusTraversable="false" mnemonicParsing="false" onAction="#login" prefHeight="25.0" prefWidth="77.0" text="connect " />
                             <Region HBox.hgrow="ALWAYS" />
                             <Label fx:id="pubkey" text="Public Key">
                                 <font>
