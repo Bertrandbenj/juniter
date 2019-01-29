@@ -133,7 +133,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <hr>
 <pre>@RestController
-@ConditionalOnExpression("${juniter.bma.enabled:false}")
+@ConditionalOnExpression("${juniter.useBMA:false}")
 @RequestMapping("/tx")
 public class <span class="typeNameLabel">TxService</span>
 extends java.lang.Object</pre>
@@ -177,7 +177,7 @@ extends java.lang.Object</pre>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="../../../juniter/service/bma/dto/TxHistory.html" title="class in juniter.service.bma.dto">TxHistory</a></code></td>
+<td class="colFirst"><code><a href="../../../juniter/service/bma/dto/TxHistory.html" title="class in juniter.core.model.dto">TxHistory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../juniter/service/bma/TxService.html#history-java.lang.String-">history</a></span>&#8203;(java.lang.String&nbsp;pubkey)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -196,7 +196,7 @@ extends java.lang.Object</pre>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code><a href="../../../juniter/service/bma/dto/TxHistory.html" title="class in juniter.service.bma.dto">TxHistory</a></code></td>
+<td class="colFirst"><code><a href="../../../juniter/service/bma/dto/TxHistory.html" title="class in juniter.core.model.dto">TxHistory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../juniter/service/bma/TxService.html#pendingHistory-java.lang.String-">pendingHistory</a></span>&#8203;(java.lang.String&nbsp;pubkey)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -253,7 +253,7 @@ extends java.lang.Object</pre>
 <pre>@Transactional(readOnly=true)
 @RequestMapping(value="/history/{pubkey}",
                 method=GET)
-public&nbsp;<a href="../../../juniter/service/bma/dto/TxHistory.html" title="class in juniter.service.bma.dto">TxHistory</a>&nbsp;history&#8203;(@PathVariable("pubkey")
+public&nbsp;<a href="../../../juniter/service/bma/dto/TxHistory.html" title="class in juniter.core.model.dto">TxHistory</a>&nbsp;history&#8203;(@PathVariable("pubkey")
                          java.lang.String&nbsp;pubkey)</pre>
 </li>
 </ul>
@@ -266,7 +266,7 @@ public&nbsp;<a href="../../../juniter/service/bma/dto/TxHistory.html" title="cla
 <pre>@Transactional(readOnly=true)
 @RequestMapping(value="/history/{pubkey}/pending",
                 method=GET)
-public&nbsp;<a href="../../../juniter/service/bma/dto/TxHistory.html" title="class in juniter.service.bma.dto">TxHistory</a>&nbsp;pendingHistory&#8203;(@PathVariable("pubkey")
+public&nbsp;<a href="../../../juniter/service/bma/dto/TxHistory.html" title="class in juniter.core.model.dto">TxHistory</a>&nbsp;pendingHistory&#8203;(@PathVariable("pubkey")
                                 java.lang.String&nbsp;pubkey)</pre>
 </li>
 </ul>

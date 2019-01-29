@@ -19,7 +19,7 @@ juniter.service
 juniter.service.adminfx
 juniter.service.adminfx.include
 juniter.service.bma
-juniter.service.bma.dto
+juniter.core.model.dto
 juniter.service.bma.loader
 juniter.service.gva
 juniter.service.gva.tx

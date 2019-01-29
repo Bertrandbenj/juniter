@@ -1,15 +1,15 @@
 package juniter.core.model.tx;
 
 public enum TxType {
-	D("D"), // Dividend
-	T("T"), // Transaction
-;
+    D("D"),
+    T("T"),
+    ;
 
-	private final String TX_TYPE;
+    private final String TX_TYPE;
 
-	TxType(String transactionType) {
-		this.TX_TYPE = transactionType;
-	}
+    TxType(String transactionType) {
+        this.TX_TYPE = transactionType;
+    }
 
 
 }

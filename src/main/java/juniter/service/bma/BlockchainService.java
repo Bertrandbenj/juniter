@@ -1,11 +1,12 @@
 package juniter.service.bma;
 
+import juniter.core.model.ChainParameters;
 import juniter.core.model.DBBlock;
+import juniter.core.model.dto.*;
+import juniter.core.model.index.MINDEX;
 import juniter.repository.jpa.BlockRepository;
+import juniter.repository.jpa.index.MINDEXRepository;
 import juniter.service.bma.loader.BlockLoader;
-import juniter.service.bma.dto.Block;
-import juniter.service.bma.dto.MembershipDTO;
-import juniter.service.bma.dto.WithDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
@@ -34,7 +35,6 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
 /**
- *
  * Blockchain sub-root of the HTTP API
  *
  * <pre>
@@ -59,195 +59,217 @@ import static java.util.stream.Collectors.toList;
  * </pre>
  *
  * @author ben
- *
  */
 @RestController
-@ConditionalOnExpression("${juniter.bma.enabled:false}")
+@ConditionalOnExpression("${juniter.useBMA:false}")
 @RequestMapping("/blockchain")
 public class BlockchainService {
 
-	private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger();
 
-	@Autowired
-	private BlockRepository blockRepo;
-
-	@Autowired
-	private BlockLoader defaultLoader;
-
-	@Autowired
-	private ModelMapper modelMapper;
-
-	@Transactional(readOnly = true)
-	@RequestMapping(value = "/all", method = RequestMethod.GET)
-	public List<DBBlock> all() {
-
-		LOG.info("Entering /blockchain/all");
-
-		try (Stream<DBBlock> items = blockRepo.findTop10ByOrderByNumberDesc()) {
-			return items.collect(toList());
-		} catch (final Exception e) {
-			LOG.error(e);
-			return null;
-		}
-	}
-
-	@RequestMapping(value = "/block/{id}", method = RequestMethod.GET)
-	public Block block(@PathVariable("id") Integer id) {
-
-		LOG.info("Entering /blockchain/block/{number=" + id + "}");
-		final var block = blockRepo
-				.findTop1ByNumber(id)
-				.orElseGet(() -> defaultLoader.fetchAndSaveBlock(id));
-
-		return modelMapper.map(block, Block.class);
-	}
-
-	@Transactional
-	@RequestMapping(value = "/blocks/{count}/{from}", method = RequestMethod.GET)
-	public List<Block> block(@PathVariable("count") Integer count, @PathVariable("from") Integer from) {
-
-		LOG.info("Entering /blockchain/blocks/{count=" + count + "}/{from=" + from + "}");
-
-		final List<Integer> blocksToFind = IntStream.range(from, from + count).boxed().collect(toList());
-		LOG.debug("---blocksToFind: " + blocksToFind);
-
-		final List<DBBlock> knownBlocks = blockRepo.findByNumberIn(blocksToFind).collect(toList());
-		LOG.debug("---known blocks: " + knownBlocks.stream().map(b -> b.getNumber()).collect(toList()));
-
-		final List<DBBlock> blocksToSave = blocksToFind.stream()
-				.filter(b -> knownBlocks.stream().noneMatch(kb -> kb.getNumber().equals(b)))
-				.map(lg -> defaultLoader.fetchAndSaveBlock(lg)).collect(toList());
-
-		LOG.debug("---fetch blocks: " + Stream.concat(blocksToSave.stream(), knownBlocks.stream())
-		.map(b -> b.getNumber().toString()).collect(joining(",")));
-
-		blockRepo.saveAll(blocksToSave);
-
-		return Stream.concat(blocksToSave.stream(), knownBlocks.stream()) //
-				.map(b -> modelMapper.map(b, Block.class)) //
-				.collect(toList());
-	}
+    @Autowired
+    private BlockRepository blockRepo;
 
 
-	@Transactional
-	@RequestMapping(value = "/current", method = RequestMethod.GET)
-	public Block current() {
-		LOG.info("Entering /blockchain/current");
-		final var b = blockRepo.findTop1ByOrderByNumberDesc()//
-				.orElse(defaultLoader.fetchAndSaveBlock("current"));
+    @Autowired
+    private MINDEXRepository mRepo;
 
-		return modelMapper.map(b, Block.class);
-	}
+    @Autowired
+    private BlockLoader defaultLoader;
 
-	@RequestMapping(value = "/deleteBlock/{id}", method = RequestMethod.GET)
-	public Block deleteBlock(@PathVariable("id") Integer id) {
-		LOG.warn("Entering /blockchain/deleteBlock/{id=" + id + "}");
+    @Autowired
+    private ModelMapper modelMapper;
 
-		blockRepo.block(id).ifPresent(block -> {
-			blockRepo.delete(block);
-		});
+    @Transactional(readOnly = true)
+    @RequestMapping(value = "/all", method = RequestMethod.GET)
+    public List<DBBlock> all() {
 
-		return modelMapper.map(defaultLoader.fetchAndSaveBlock(id), Block.class);
-	}
+        LOG.info("Entering /blockchain/all");
 
-	@RequestMapping(value = "/", method = RequestMethod.GET)
-	void handle(HttpServletResponse response) throws IOException {
-		response.sendRedirect("/html/");
-	}
+        try (Stream<DBBlock> items = blockRepo.findTop10ByOrderByNumberDesc()) {
+            return items.collect(toList());
+        } catch (final Exception e) {
+            LOG.error(e);
+            return null;
+        }
+    }
 
-	/**
-	 * /blockchain/with/{what=[newcomers,certs,actives,leavers,excluded,ud,tx]}
-	 *
-	 * <p>
-	 * Filters according to 'what' you desire
-	 * </p>
-	 * <p>
-	 * Sort by number
-	 * </p>
-	 *
-	 * @param what
-	 * @return A Wrapped List of Blocks
-	 */
-	@RequestMapping(value = "/with/{what}", method = RequestMethod.GET)
-	@Transactional(readOnly = true)
-	public WithDTO with(@PathVariable("what") String what) {
+    @RequestMapping(value = "/block/{id}", method = RequestMethod.GET)
+    public Block block(@PathVariable("id") Integer id) {
 
-		LOG.info("Entering /blockchain/with/{newcomers,certs,actives,leavers,excluded,ud,tx}");
-		Stream<DBBlock> st;
-		switch (what) {
-		case "newcomers":
-			st = blockRepo.with(block -> !block.getJoiners().isEmpty());
-			break;
-		case "certs":
-			st = blockRepo.with(block -> !block.getCertifications().isEmpty());
-			break;
-		case "actives":
-			st = blockRepo.with(block -> !block.getRenewed().isEmpty());
-			break;
-		case "leavers":
-			st = blockRepo.with(block -> !block.getLeavers().isEmpty());
-			break;
-		case "excluded":
-			st = blockRepo.with(block -> !block.getExcluded().isEmpty());
-			break;
-		case "ud":
-			st = blockRepo.with(block -> block.getDividend() != null);
-			break;
-		case "tx":
-		default:
-			st = blockRepo.with(block -> !block.getTransactions().isEmpty());
-		}
+        LOG.info("Entering /blockchain/block/{number=" + id + "}");
+        final var block = blockRepo
+                .findTop1ByNumber(id)
+                .orElseGet(() -> defaultLoader.fetchAndSaveBlock(id));
 
-		try (Stream<Integer> items = st.map(b -> b.getNumber())) {
-			return new WithDTO(items.collect(toList()));
-		} catch (final Exception e) {
-			LOG.error(e);
-			return null;
-		}
+        return modelMapper.map(block, Block.class);
+    }
 
-	}
+    @Transactional
+    @RequestMapping(value = "/blocks/{count}/{from}", method = RequestMethod.GET)
+    public List<Block> blocks(@PathVariable("count") Integer count, @PathVariable("from") Integer from) {
+
+        LOG.info("Entering /blockchain/blocks/{count=" + count + "}/{from=" + from + "}");
+
+        final List<Integer> blocksToFind = IntStream.range(from, from + count).boxed().collect(toList());
+        LOG.debug("---blocksToFind: " + blocksToFind);
+
+        final List<DBBlock> knownBlocks = blockRepo.findByNumberIn(blocksToFind).collect(toList());
+        LOG.debug("---known blocks: " + knownBlocks.stream().map(DBBlock::getNumber).collect(toList()));
+
+        final List<DBBlock> blocksToSave = blocksToFind.stream()
+                .filter(b -> knownBlocks.stream().noneMatch(kb -> kb.getNumber().equals(b)))
+                .map(lg -> defaultLoader.fetchAndSaveBlock(lg)).collect(toList());
+
+        LOG.debug("---fetchTrimmed blocks: " + Stream.concat(blocksToSave.stream(), knownBlocks.stream())
+                .map(b -> b.getNumber().toString()).collect(joining(",")));
+
+        blockRepo.saveAll(blocksToSave);
+
+        return Stream.concat(blocksToSave.stream(), knownBlocks.stream()) //
+                .map(b -> modelMapper.map(b, Block.class)) //
+                .collect(toList());
+    }
+
+
+    @Transactional
+    @RequestMapping(value = "/current", method = RequestMethod.GET)
+    public Block current() {
+        LOG.info("Entering /blockchain/current");
+        final var b = blockRepo.findTop1ByOrderByNumberDesc()//
+                .orElse(defaultLoader.fetchAndSaveBlock("current"));
+
+        return modelMapper.map(b, Block.class);
+    }
+
+
+    @RequestMapping(value = "/", method = RequestMethod.GET)
+    void handle(HttpServletResponse response) throws IOException {
+        response.sendRedirect("/html/");
+    }
+
+    /**
+     * /blockchain/with/{what=[newcomers,certs,actives,leavers,excluded,ud,tx]}
+     *
+     * <p>
+     * Filters according to 'what' you desire
+     * </p>
+     * <p>
+     * Sort by number
+     * </p>
+     *
+     * @param what
+     * @return A Wrapped List of Blocks
+     */
+    @RequestMapping(value = "/with/{what}", method = RequestMethod.GET)
+    @Transactional(readOnly = true)
+    public WithDTO with(@PathVariable("what") String what) {
+
+        LOG.info("Entering /blockchain/with/{newcomers,certs,actives,leavers,excluded,ud,tx}");
+        Stream<DBBlock> st;
+        switch (what) {
+            case "newcomers":
+                st = blockRepo.with(block -> !block.getJoiners().isEmpty());
+                break;
+            case "certs":
+                st = blockRepo.with(block -> !block.getCertifications().isEmpty());
+                break;
+            case "actives":
+                st = blockRepo.with(block -> !block.getRenewed().isEmpty());
+                break;
+            case "leavers":
+                st = blockRepo.with(block -> !block.getLeavers().isEmpty());
+                break;
+            case "excluded":
+                st = blockRepo.with(block -> !block.getExcluded().isEmpty());
+                break;
+            case "ud":
+                st = blockRepo.with(block -> block.getDividend() != null);
+                break;
+            case "tx":
+            default:
+                st = blockRepo.with(block -> !block.getTransactions().isEmpty());
+        }
+
+        try (Stream<Integer> items = st.map(DBBlock::getNumber)) {
+            return new WithDTO(items.collect(toList()));
+        } catch (final Exception e) {
+            LOG.error(e);
+            return null;
+        }
+
+    }
+
+    // ======= POST =======
 
     @RequestMapping(value = "/membership", method = RequestMethod.POST)
-    ResponseEntity<MembershipDTO> membership (HttpServletRequest request, HttpServletResponse response) {
+    ResponseEntity<MembershipDTO> membership(HttpServletRequest request, HttpServletResponse response) {
 
         LOG.info("POSTING /blockchain/membership ..." + request.getRemoteHost());
 
+        try {
+            BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
+            LOG.info(in.lines().collect(Collectors.joining("\n")));
+        } catch (Exception e) {
+            LOG.error("error reading blockchain/membership inputStream ", e);
+        }
 
-		try{
-			BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
-			LOG.info(in.lines().collect(Collectors.joining("\n")));
-		}catch (Exception e ){
-			LOG.error("error reading blockchain/membership inputStream ", e);
-		}
-
-
-		MembershipDTO membership = new MembershipDTO();
+        MembershipDTO membership = new MembershipDTO();
         final var headers = new HttpHeaders();
 
+        return new ResponseEntity<>(membership, headers, HttpStatus.OK);
+    }
 
-        return  new ResponseEntity<>(membership, headers, HttpStatus.OK);
+
+    @Transactional(readOnly = true)
+    @RequestMapping(value = "/memberships/{search}", method = RequestMethod.GET)
+    Stream<MINDEX> memberships(@PathVariable("search") String search) {
+        return mRepo.search(search);
     }
 
 
     @RequestMapping(value = "/block", method = RequestMethod.POST)
-    ResponseEntity<DBBlock> block (HttpServletRequest request, HttpServletResponse response) {
+    ResponseEntity<DBBlock> block(HttpServletRequest request, HttpServletResponse response) {
 
         LOG.info("POSTING /blockchain/block ..." + request.getRemoteHost());
 
 
-		try{
-			BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
-			LOG.info(in.lines().collect(Collectors.joining("\n")));
-		}catch (Exception e ){
-			LOG.error("error reading blockchain/block inputStream ", e);
-		}
+        try {
+            BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
+            LOG.info(in.lines().collect(Collectors.joining("\n")));
+        } catch (Exception e) {
+            LOG.error("error reading blockchain/block inputStream ", e);
+        }
 
 
-		DBBlock block = new DBBlock();
+        DBBlock block = new DBBlock();
         final var headers = new HttpHeaders();
 
+        return new ResponseEntity<>(block, headers, HttpStatus.OK);
+    }
 
-        return  new ResponseEntity<>(block, headers, HttpStatus.OK);
+
+    @RequestMapping(value = "/parameters", method = RequestMethod.GET)
+    ChainParameters parameters() {
+        return new ChainParameters();
+    }
+
+    @Transactional(readOnly = true)
+    @RequestMapping(value = "/difficulties", method = RequestMethod.GET)
+    DifficultiesDTO difficulties() {
+        return new DifficultiesDTO(blockRepo.currentBlockNumber(), List.of(new Difficulty("", 999999)));
+    }
+
+    @Transactional(readOnly = true)
+    @RequestMapping(value = "/hardship", method = RequestMethod.GET)
+    HardshipDTO hardship() {
+        return new HardshipDTO(blockRepo.currentBlockNumber(), 999999);
+    }
+
+
+    @RequestMapping(value = "/branches", method = RequestMethod.GET)
+    List<Block> branches() {
+        return List.of();
     }
 
 }

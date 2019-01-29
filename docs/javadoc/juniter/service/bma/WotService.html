@@ -133,7 +133,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <hr>
 <pre>@RestController
-@ConditionalOnExpression("${juniter.bma.enabled:false}")
+@ConditionalOnExpression("${juniter.useBMA:false}")
 @RequestMapping("/wot")
 public class <span class="typeNameLabel">WotService</span>
 extends java.lang.Object</pre>

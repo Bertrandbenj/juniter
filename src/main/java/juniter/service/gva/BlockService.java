@@ -4,7 +4,7 @@ import io.leangen.graphql.annotations.GraphQLArgument;
 import io.leangen.graphql.annotations.GraphQLNonNull;
 import io.leangen.graphql.annotations.GraphQLQuery;
 import juniter.repository.jpa.BlockRepository;
-import juniter.service.bma.dto.Block;
+import juniter.core.model.dto.Block;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
@@ -46,7 +46,7 @@ public class BlockService {
 	public List<Block> blocks(@GraphQLArgument(name = "number") Integer number,
 								 @GraphQLArgument(name = "batchSize") Integer batchSize) {
 		try (var bl = blockRepository.streamBlocksFromTo(number, number + batchSize)) {
-			return bl.map(b -> modelMapper.map(b, Block.class))//
+			return bl.map(b -> modelMapper.map(b, Block.class))
 					.collect(Collectors.toList());
 		} catch (final Exception e) {
 			LOG.error("blocks ", e);

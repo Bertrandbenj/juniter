@@ -45,7 +45,7 @@
                   <Insets left="5.0" right="5.0" />
                </padding>
             </Label>
-            <Label fx:id="sparkLog" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Label" VBox.vgrow="ALWAYS">
+            <Label fx:id="memoryLog" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Label" VBox.vgrow="ALWAYS">
                <font>
                   <Font name="FreeMono Bold" size="12.0" />
                </font>

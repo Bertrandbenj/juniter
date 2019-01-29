@@ -41,7 +41,7 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
 @Controller
-@ConditionalOnExpression("${juniter.graphviz.enabled:false} && ${juniter.bma.enabled:false}")
+@ConditionalOnExpression("${juniter.useGraphViz:false} && ${juniter.useBMA:false}")
 @RequestMapping("/graphviz")
 public class GraphvizService {
 
@@ -219,7 +219,7 @@ public class GraphvizService {
                 sub.append("\t\t").append(prefix).append("exc [label=\"Excluded: ").append(b.getExcluded().size()).append("\", shape=octagon];\n");
             }
 
-            if (b.getRenewed().size() > 0) {
+            if (b.getActives().size() > 0) {
                 sub.append("\t\t").append(prefix).append("act [label=\"Actives: ").append(b.getRenewed().size()).append("\", shape=octagon];\n");
             }
 
@@ -311,7 +311,7 @@ public class GraphvizService {
 
         // print node
         res += certified.stream().map(c -> {
-            final var pubk = c.certified();
+            final var pubk = c.getCertified();
             return "_" + pubk + " [label=\"" + mini(pubk) + "\", URL=\"/graphviz/svg/certs/" + pubk + "\"];";
         }).collect(joining("\n\t\t"));
 
@@ -325,7 +325,7 @@ public class GraphvizService {
 
         // print node
         res += certifier.stream().map(c -> {
-            final var pubk = c.certifier();
+            final var pubk = c.getCertifier();
             return "__" + pubk + " [label=\"" + mini(pubk) + "\", URL=\"/graphviz/svg/certs/" + pubk + "\"];";
         }).collect(joining("\n\t\t"));
 
@@ -333,7 +333,7 @@ public class GraphvizService {
 
         // print edges
         final var allNodes = Stream.concat(certified.stream(), certifier.stream());
-        res += allNodes.map(cert -> "_" + cert.certified() + " -> " + "__" + cert.certifier()
+        res += allNodes.map(cert -> "_" + cert.getCertified() + " -> " + "__" + cert.getCertifier()
                 + " [URL=\"/graphviz/svg/block/" + cert.getBlockNumber() + "\"]").collect(joining(";\n\t"));
 
         return res + "\n}";

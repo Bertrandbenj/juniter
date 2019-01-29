@@ -17,6 +17,9 @@ public interface EndPointsRepository extends JpaRepository<EndPoint, Long> {
 	@Query("select ep from EndPoint ep where api = 'BMAS' ")
 	Stream<EndPoint> endpointsBMAS();
 
+	@Query("select ep from EndPoint ep where api = 'BMAS' ")
+	List<EndPoint> endpointssBMAS();
+
 
 	@Query("select ep from EndPoint ep where api = 'WS2P'  ")
 	Stream<EndPoint> endpointsWS2P();

@@ -51,17 +51,11 @@ public class TxUnlock implements Serializable, Comparable<TxUnlock>, DUPComponen
 	}
 
 
-	public String getFctParam() {
-		return fctParam;
-	}
 
 	public String getFunction() {
-		return fct.toString() + "(" + fctParam + ")";
+		return fct + "(" + fctParam + ")";
 	}
 
-	public Integer getInputRef() {
-		return inputRef;
-	}
 
 	@Override
 	public String toDUP() {
@@ -87,6 +81,5 @@ public class TxUnlock implements Serializable, Comparable<TxUnlock>, DUPComponen
 		public String toString() {
 			return FCT_UNLOCK;
 		}
-
 	}
 }

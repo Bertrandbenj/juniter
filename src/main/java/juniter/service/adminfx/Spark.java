@@ -11,7 +11,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-import juniter.repository.spark.SparkService;
+import juniter.service.SparkService;
 import juniter.service.UtilsService;
 import juniter.service.adminfx.include.AbstractJuniterFX;
 import org.apache.logging.log4j.LogManager;

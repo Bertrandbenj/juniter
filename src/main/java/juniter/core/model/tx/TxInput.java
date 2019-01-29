@@ -82,34 +82,6 @@ public class TxInput implements Serializable, Comparable<TxInput>, DUPComponent 
 	}
 
 
-	public Integer getAmount() {
-		return amount;
-	}
-
-	public Integer getBase() {
-		return base;
-	}
-
-	public Integer getDBlockID() {
-		return dBlockID;
-	}
-
-	public String getDsource() {
-		return dsource;
-	}
-
-	public String getTHash() {
-		return tHash;
-	}
-
-	public Integer getTIndex() {
-		return tIndex;
-	}
-
-	public TxType getType() {
-		return type;
-	}
-
 	@Override
 	public String toString() {
 		return toDUP();

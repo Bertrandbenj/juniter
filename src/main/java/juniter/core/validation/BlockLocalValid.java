@@ -3,6 +3,7 @@ package juniter.core.validation;
 import juniter.core.crypto.Crypto;
 import juniter.core.model.DBBlock;
 import juniter.core.model.tx.Transaction;
+import juniter.core.model.wot.Identity;
 
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -16,7 +17,7 @@ public interface BlockLocalValid extends LocalValid {
     /**
      * Exception safe validation to use as boolean
      *
-     * @param block to validate
+     * @param block to completeGlobalScope
      * @return true if the block is valid
      */
     default boolean checkBlockIsLocalValid(DBBlock block) {
@@ -25,7 +26,7 @@ public interface BlockLocalValid extends LocalValid {
             assertBlockLocalValid(block, true);
             return true;
         } catch (final AssertionError ea) {
-            System.out.println("checkBlockIsLocalValid At block " + block.getNumber() + ea.getMessage());
+            System.out.println("checkBlockIsLocalValid At block " + block.getNumber() +" - "+ ea.getMessage());
         }
 
         return false;
@@ -104,17 +105,24 @@ public interface BlockLocalValid extends LocalValid {
 
     }
 
-    // TODO complete Business local validation
-    private void checkParameters(DBBlock block) {
+     private void checkParameters(DBBlock block) {
+        if(block.getNumber()==0 ){
+            assert  block.getParameters() != null : "Chain Parameters MUST be present on block 0 ";
+        }else{
+            assert  block.getParameters() == null : "Chain Parameters MUST be null when block > 0 ";
+        }
     }
 
     private void checkProofOfWork(DBBlock block) {
     }
 
     private void checkPreviousHash(DBBlock block) {
+        matchHash(block.getPreviousHash());
+
     }
 
     private void checkPreviousIssuer(DBBlock block) {
+        matchPubkey(block.getPreviousIssuer());
     }
 
     private void checkUnitBase(DBBlock block) {
@@ -122,27 +130,40 @@ public interface BlockLocalValid extends LocalValid {
     }
 
     private void checkBlockSignature(DBBlock block) {
+        matchSignature(block.getSignature());
     }
 
     private void checkBlockTimes(DBBlock block) {
+
     }
 
     private void checkIdentitiesSignature(DBBlock block) {
+        block.getIdentities().forEach(i ->{
+
+        });
+
     }
 
     private void checkIdentitiesUserIDConflict(DBBlock block) {
+        assert block.getIdentities().stream().map(Identity::getUid).distinct().count() == block.getIdentities().size()
+                :" Block must not contain twice same identity uid ";
     }
 
     private void checkIdentitiesPubkeyConflict(DBBlock block) {
+        assert block.getIdentities().stream().map(Identity::getPubkey).distinct().count() == block.getIdentities().size()
+                :" Block must not contain twice same identity pubkey ";
     }
 
     private void checkIdentitiesMatchJoin(DBBlock block) {
+
     }
 
     private void checkMembershipUnicity(DBBlock block) {
+
     }
 
     private void checkRevokedUnicity(DBBlock block) {
+
     }
 
     private void checkRevokedAreExcluded(DBBlock block) {

@@ -2,7 +2,7 @@ package juniter.service.bma.loader;
 
 import juniter.core.utils.TimeUtils;
 import juniter.repository.jpa.BlockRepository;
-import juniter.service.bma.dto.WithDTO;
+import juniter.core.model.dto.WithDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,7 @@ import static java.util.stream.Collectors.toList;
  * @author ben
  *
  */
-@ConditionalOnExpression("${juniter.usefulloader.enabled:false}")
+@ConditionalOnExpression("${juniter.loader.useUseful:false}")
 @Component
 @Order(4)
 public class UsefulBlocksLoader implements CommandLineRunner {

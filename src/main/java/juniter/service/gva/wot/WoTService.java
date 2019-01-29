@@ -40,6 +40,7 @@ public class WoTService {
 	public List<@GraphQLNonNull PendingIdentity> pendingIdentities(@GraphQLNonNull @GraphQLArgument(name = "search") String search) {
 		LOG.info(" GVA - pendingIdentities");
 		return iRepo.byUidOrPubkey(search, search)
+				.stream()
 					.map(x-> modelMapper.map(x, PendingIdentity.class))
 					.collect(Collectors.toList());
 	}

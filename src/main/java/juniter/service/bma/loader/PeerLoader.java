@@ -11,8 +11,8 @@ import juniter.repository.jpa.EndPointsRepository;
 import juniter.repository.jpa.PeersRepository;
 import juniter.service.adminfx.include.Bus;
 import juniter.service.bma.NetworkService;
-import juniter.service.bma.dto.PeerBMA;
-import juniter.service.bma.dto.PeersDTO;
+import juniter.core.model.dto.PeerBMA;
+import juniter.core.model.dto.PeersDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +38,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 
-@ConditionalOnExpression("${juniter.useDefaultLoader:true}") // Must be up for dependencies
+@ConditionalOnExpression("${juniter.loader.useDefault:true}") // Must be up for dependencies
 @Component
 @Order(10)
 public class PeerLoader {
@@ -157,7 +157,7 @@ public class PeerLoader {
         LOG.info("=== Found max block " + max);
 
         var peer = netService.endPointPeer(max.getNumber() -1 );
-        var asBMA = new PeerBMA(peer);
+        var asBMA = new PeerBMA(peer.toDUP(true));
 
         peerRepo.peerWithBlock(max.toString())
                 .flatMap(b -> b.endpoints().stream())
@@ -189,7 +189,7 @@ public class PeerLoader {
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
             restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 
-            LOG.info("technicalPost : " + peerBMA.peer);
+            LOG.info("technicalPost : " + peerBMA.getPeer());
 
 
             HttpEntity<PeerBMA> request = new HttpEntity<>(peerBMA, headers);
@@ -268,7 +268,7 @@ public class PeerLoader {
                 .forEach(p -> {
                     peerRepo.saveAndFlush(p); // save the peer object
                     p.endpoints().stream() // iterate endpoints
-                            .map(ep -> endPointRepo.findByPeerAndEndpoint(p, ep.getEndpoint()).orElse(ep.linkPeer(p))) // fetch
+                            .map(ep -> endPointRepo.findByPeerAndEndpoint(p, ep.getEndpoint()).orElse(ep.linkPeer(p))) // fetchTrimmed
                             // existing
                             .forEach(ep -> endPointRepo.saveAndFlush(ep)); // save individual endpoints
                 });

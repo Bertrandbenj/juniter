@@ -6,7 +6,7 @@ import io.leangen.graphql.annotations.GraphQLMutation;
 import io.leangen.graphql.annotations.GraphQLNonNull;
 import io.leangen.graphql.annotations.GraphQLQuery;
 import juniter.repository.jpa.TxRepository;
-import juniter.repository.jpa.index.SINDEX;
+import juniter.core.model.index.SINDEX;
 import juniter.repository.jpa.index.SINDEXRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

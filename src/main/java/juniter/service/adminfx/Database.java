@@ -1,19 +1,24 @@
 package juniter.service.adminfx;
 
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import juniter.core.model.index.*;
 import juniter.repository.jpa.BlockRepository;
 import juniter.repository.jpa.index.*;
-import juniter.service.Indexer;
+import juniter.service.Index;
 import juniter.service.adminfx.include.AbstractJuniterFX;
 import juniter.service.adminfx.include.Bus;
 import org.apache.logging.log4j.LogManager;
@@ -23,6 +28,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.ResourceBundle;
 
 @ConditionalOnExpression("${juniter.useJavaFX:false}")
@@ -36,6 +43,20 @@ public class Database extends AbstractJuniterFX implements Initializable {
     private static ObservableList<CINDEX> cindex = FXCollections.observableArrayList();
     private static ObservableList<MINDEX> mindex = FXCollections.observableArrayList();
     private static ObservableList<SINDEX> sindex = FXCollections.observableArrayList();
+    @FXML
+    private Button indexUntilButton;
+    @FXML
+    private TableColumn cWritten_on;
+
+    @FXML
+    private CheckBox ckMember, ckIOP, ckMOP, ckCOP, ckSOP, ckLeaving, ckKick, ckConsumed, ckWasMember;
+    @FXML
+    private TextField tfHash;
+    @FXML
+    private TableColumn mWritten_on;
+
+    @FXML
+    private TableColumn iWritten_on;
     @FXML
     private TabPane tabPane;
     @FXML
@@ -57,6 +78,8 @@ public class Database extends AbstractJuniterFX implements Initializable {
     @FXML
     private TableColumn iCreatedOnCol;
     @FXML
+    private TableColumn iSigCol;
+    @FXML
     private TableColumn iHashCol;
     @FXML
     private TableColumn iMemberCol;
@@ -71,7 +94,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
     @FXML
     private TableColumn mCreatedOn;
     @FXML
-    private TableColumn mexpiresOn;
+    private TableColumn mExpiresOn;
     @FXML
     private TableColumn mExpiredOn;
     @FXML
@@ -212,7 +235,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
     SINDEXRepository sRepo;
 
     @Autowired
-    private Indexer indexer;
+    private Index indexer;
 
     @FXML
     private TextField indexTil;
@@ -226,10 +249,14 @@ public class Database extends AbstractJuniterFX implements Initializable {
     @FXML
     public void indexUntil() {
 
-        if (Bus.isIndexing.get())
-            return;
-
+        Bus.isIndexing.setValue(!Bus.isIndexing.get());
         Bus.currentBindex.setValue(-1);
+
+        if (Bus.isIndexing.get()) {
+            indexUntilButton.setText("||");
+        } else {
+            indexUntilButton.setText(">>");
+        }
 
 
         int until;
@@ -246,18 +273,17 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
     @FXML
     public void indexReset() {
-        indexer.init();
+        indexer.reset(true);
         Bus.currentBindex.setValue(0);
     }
 
 
-    public void index1(ActionEvent actionEvent) {
+    public void index1() {
 
-        if (Bus.isIndexing.get())
-            return;
+        Bus.isIndexing.setValue(!Bus.isIndexing.get());
 
 
-        indexer.indexUntil(Bus.currentBindex.intValue() + 1, true);
+        indexer.indexUntil(Bus.currentBindex.intValue() + 1, false);
         //Bus.indexLogMessage.setValue("Validated " + Bus.currentBindex.intValue());
 
     }
@@ -284,13 +310,38 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
 
             Bus.currentBindex.setValue(h.number - 1);
-            Bus.indexLogMessage.setValue("Reverted " + Bus.currentBindex.intValue());
+            Bus.indexLogMessage.setValue("Reverted to " + Bus.currentBindex.intValue() + " from " + h);
 
+            indexer.reset(false);
         });
-        indexer.index.init(false);
 
     }
 
+    private TextFieldTableCell medianTimeColumnFormat() {
+
+        return new TextFieldTableCell<String, Long>() {
+
+
+            @Override
+            public void updateItem(Long item, boolean empty) {
+                super.updateItem(item, empty);
+
+                if (item != null) {
+                    long unixSeconds = item;
+                    Date date = new java.util.Date(unixSeconds * 1000L);
+                    SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
+                    sdf.setTimeZone(java.util.TimeZone.getTimeZone("GMT+1"));
+                    String formattedDate = sdf.format(date);
+                    setText(item + "");
+                    setTooltip(new Tooltip("" + formattedDate));
+
+
+                    //setStyle("-fx-background-color: #" + hsvGradient(ratio) + ";");
+                }
+            }
+
+        };
+    }
 
     @Override
     public void start(Stage primaryStage) {
@@ -300,125 +351,175 @@ public class Database extends AbstractJuniterFX implements Initializable {
         primaryStage.show();
     }
 
+    private void mapColumn(TableColumn col, String name) {
+        col.setCellValueFactory(new PropertyValueFactory<>(name));
+    }
+
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         indexBar.progressProperty().bind(Bus.currentBindex.divide(Bus.maxBindex));
 
 
-        tableB.setItems(bindex);
-        tableI.setItems(iindex);
-        tableM.setItems(mindex);
-        tableC.setItems(cindex);
-        tableS.setItems(sindex);
+        // ===================   MAP  COLUMNS =================
+        mapColumn(bNumberCol, "number");
+        mapColumn(bHashCol, "hash");
+        mapColumn(bDividendCol, "dividend");
+        mapColumn(bIssuerCol, "issuer");
+        mapColumn(bMembersCountCol, "membersCount");
+        mapColumn(bSizeCol, "size");
+        mapColumn(bTimeCol, "time");
+        mapColumn(bmedianTimeCol, "medianTime");
+        mapColumn(bMonetaryMassCol, "mass");
+        mapColumn(bAvgSizeCol, "avgBlockSize");
+        mapColumn(bIssuerFrameVarCol, "issuersFrameVar");
+        mapColumn(bIssuersCountCol, "issuersCount");
+        mapColumn(bIssuersFrameCol, "issuersFrame");
+        mapColumn(bPowMinCol, "powMin");
 
-//        TableColumn<SINDEX, Integer> indexColumn = new TableColumn<>();
-//        indexColumn.setCellFactory(col -> {
-//            TableCell<SINDEX, Integer> indexCell = new TableCell<>();
-//            ReadOnlyObjectProperty<TableRow<SINDEX>> rowProperty = indexCell.tableRowProperty();
-//            ObjectBinding<String> rowBinding = Bindings.createObjectBinding(() -> {
-//                TableRow<SINDEX> row = rowProperty.get();
-//                if (row != null) {
-//                    int rowIndex = row.getIndex();
-//                    if (rowIndex < row.getTableView().getItems().size()) {
-//                        return Integer.toString(rowIndex);
-//                    }
-//                }
-//                return null;
-//            }, rowProperty);
-//            indexCell.textProperty().bind(rowBinding);
-//            return indexCell;
-//        });
+        mapColumn(iOpCol, "op");
+        mapColumn(iPubCol, "pub");
+        mapColumn(iUidCol, "uid");
+        mapColumn(iWritten_on, "written_on");
+        mapColumn(iWrittenOn, "writtenOn");
+        mapColumn(iSigCol, "sig");
+        mapColumn(iCreatedOnCol, "created_on");
+        mapColumn(iHashCol, "hash");
+        mapColumn(iKickCol, "kick");
+        mapColumn(iMemberCol, "member");
+        mapColumn(iWasMemberCol, "wasMember");
+        mapColumn(iWotbidCol, "wotbid");
 
-        //tableS.getColumns().add(0,indexColumn);
+        mapColumn(cIssuerCol, "issuer");
+        mapColumn(cReceiverCol, "receiver");
+        mapColumn(cCreatedOn, "createdOn");
+        mapColumn(cWritten_on, "written_on");
+        mapColumn(cWrittenOn, "writtenOn");
+        mapColumn(cChainableOn, "chainable_on");
+        mapColumn(cExpiredOn, "expired_on");
+        mapColumn(cExpiresOn, "expires_on");
+        mapColumn(cFromWid, "from_wid");
+        mapColumn(ctoWid, "to_wid");
+        mapColumn(cSig, "sig");
+        mapColumn(cOp, "op");
 
-        bNumberCol.setCellValueFactory(new PropertyValueFactory<>("number"));
-        bHashCol.setCellValueFactory(new PropertyValueFactory<>("hash"));
-        bDividendCol.setCellValueFactory(new PropertyValueFactory<>("dividend"));
-        bIssuerCol.setCellValueFactory(new PropertyValueFactory<>("issuer"));
-        bMembersCountCol.setCellValueFactory(new PropertyValueFactory<>("membersCount"));
-        bSizeCol.setCellValueFactory(new PropertyValueFactory<>("size"));
-        bTimeCol.setCellValueFactory(new PropertyValueFactory<>("time"));
-        bmedianTimeCol.setCellValueFactory(new PropertyValueFactory<>("medianTime"));
-        bMonetaryMassCol.setCellValueFactory(new PropertyValueFactory<>("mass"));
-        bAvgSizeCol.setCellValueFactory(new PropertyValueFactory<>("avgBlockSize"));
-        bIssuerFrameVarCol.setCellValueFactory(new PropertyValueFactory<>("issuersFrameVar"));
-        bIssuersCountCol.setCellValueFactory(new PropertyValueFactory<>("issuersCount"));
-        bIssuersFrameCol.setCellValueFactory(new PropertyValueFactory<>("issuersFrame"));
-        bPowMinCol.setCellValueFactory(new PropertyValueFactory<>("powMin"));
+        mapColumn(mPubCol, "pub");
+        mapColumn(mStatus, "type");
+        mapColumn(mWritten_on, "written_on");
+        mapColumn(mWrittenOn, "writtenOn");
 
+        mapColumn(mChainableOn, "chainable_on");
+        mapColumn(mCreatedOn, "created_on");
+        mapColumn(mRevokedOn, "revoked_on");
+        mapColumn(mExpiresOn, "expires_on");
+        mapColumn(mRevokesOn, "revokes_on");
+        mapColumn(mLeaving, "leaving");
+        mapColumn(mExpiredOn, "expired_on");
+        mapColumn(mRevocationSig, "revocation");
+        mapColumn(mOpCol, "op");
 
-        iOpCol.setCellValueFactory(new PropertyValueFactory<>("op"));
-        iPubCol.setCellValueFactory(new PropertyValueFactory<>("pub"));
-        iUidCol.setCellValueFactory(new PropertyValueFactory<>("uid"));
-        iWrittenOn.setCellValueFactory(new PropertyValueFactory<>("written_on"));
-        iCreatedOnCol.setCellValueFactory(new PropertyValueFactory<>("created_on"));
-        iHashCol.setCellValueFactory(new PropertyValueFactory<>("hash"));
-        iKickCol.setCellValueFactory(new PropertyValueFactory<>("kick"));
-        iMemberCol.setCellValueFactory(new PropertyValueFactory<>("member"));
-        iWasMemberCol.setCellValueFactory(new PropertyValueFactory<>("wasMember"));
-        iWotbidCol.setCellValueFactory(new PropertyValueFactory<>("wotbid"));
-
-
-        cIssuerCol.setCellValueFactory(new PropertyValueFactory<>("issuer"));
-        cReceiverCol.setCellValueFactory(new PropertyValueFactory<>("receiver"));
-        cCreatedOn.setCellValueFactory(new PropertyValueFactory<>("createdOn"));
-        cWrittenOn.setCellValueFactory(new PropertyValueFactory<>("written_on"));
-        cChainableOn.setCellValueFactory(new PropertyValueFactory<>("chainable_on"));
-        cExpiredOn.setCellValueFactory(new PropertyValueFactory<>("expired_on"));
-        cFromWid.setCellValueFactory(new PropertyValueFactory<>("from_wid"));
-        ctoWid.setCellValueFactory(new PropertyValueFactory<>("to_wid"));
-        cSig.setCellValueFactory(new PropertyValueFactory<>("sig"));
-        cOp.setCellValueFactory(new PropertyValueFactory<>("op"));
-
-
-        mPubCol.setCellValueFactory(new PropertyValueFactory<>("pub"));
-        mStatus.setCellValueFactory(new PropertyValueFactory<>("type"));
-        mWrittenOn.setCellValueFactory(new PropertyValueFactory<>("written_on"));
-        mChainableOn.setCellValueFactory(new PropertyValueFactory<>("chainable_on"));
-        mCreatedOn.setCellValueFactory(new PropertyValueFactory<>("created_on"));
-        mRevokedOn.setCellValueFactory(new PropertyValueFactory<>("revoked_on"));
-        mexpiresOn.setCellValueFactory(new PropertyValueFactory<>("expires_on"));
-        mRevokesOn.setCellValueFactory(new PropertyValueFactory<>("revokes_on"));
-        mLeaving.setCellValueFactory(new PropertyValueFactory<>("leaving"));
-        mExpiredOn.setCellValueFactory(new PropertyValueFactory<>("expired_on"));
-        mRevocationSig.setCellValueFactory(new PropertyValueFactory<>("revocation"));
-        mOpCol.setCellValueFactory(new PropertyValueFactory<>("op"));
+        mapColumn(sWrittenOn, "written_on");
+        mapColumn(sWrittenTime, "written_time");
+        mapColumn(sCreatedOn, "created_on");
+        mapColumn(sAmountCol, "amount");
+        mapColumn(sBaseCol, "base");
+        mapColumn(sConsumedCol, "consumed");
+        mapColumn(sIdentifierCol, "identifier");
+        mapColumn(sOpCol, "op");
+        mapColumn(sConditions, "conditions");
+        mapColumn(sLocktime, "locktime");
+        mapColumn(sPos, "pos");
+        mapColumn(sTx, "tx");
 
 
-        sWrittenOn.setCellValueFactory(new PropertyValueFactory<>("written_on"));
-        sWrittenTime.setCellValueFactory(new PropertyValueFactory<>("written_time"));
-        sCreatedOn.setCellValueFactory(new PropertyValueFactory<>("created_on"));
-        sAmountCol.setCellValueFactory(new PropertyValueFactory<>("amount"));
-        sBaseCol.setCellValueFactory(new PropertyValueFactory<>("base"));
-        sConsumedCol.setCellValueFactory(new PropertyValueFactory<>("consumed"));
-        sIdentifierCol.setCellValueFactory(new PropertyValueFactory<>("identifier"));
-        sOpCol.setCellValueFactory(new PropertyValueFactory<>("op"));
-        sConditions.setCellValueFactory(new PropertyValueFactory<>("conditions"));
-        sLocktime.setCellValueFactory(new PropertyValueFactory<>("locktime"));
-        sPos.setCellValueFactory(new PropertyValueFactory<>("pos"));
-        sTx.setCellValueFactory(new PropertyValueFactory<>("tx"));
+        // ===================   FILTER  COLUMNS INDEX =================
+
+        var filteredI = new FilteredList<>(iindex);
+        ChangeListener listenerI = (observable, oldValue, newValue) ->
+                filteredI.setPredicate(this::matchesFilterI);
+
+        filterI.onActionProperty().addListener(listenerI);
+        ckIOP.selectedProperty().addListener(listenerI);
+        ckMember.selectedProperty().addListener(listenerI);
+        ckWasMember.selectedProperty().addListener(listenerI);
+        ckKick.selectedProperty().addListener(listenerI);
+        tfHash.onActionProperty().addListener(listenerI);
+
+        SortedList<IINDEX> sortedData = new SortedList<>(filteredI);
+        sortedData.comparatorProperty().bind(tableI.comparatorProperty());
+
+        // ===================   FILTER  COLUMNS MINDEX =================
+
+        var filteredM = new FilteredList<>(mindex);
+        ChangeListener listenerM = (observable, oldValue, newValue) ->
+                filteredM.setPredicate(this::matchesFilterM);
+
+        filterM.onActionProperty().addListener(listenerM);
+        ckLeaving.onActionProperty().addListener(listenerM);
+        ckMOP.onActionProperty().addListener(listenerM);
+
+        SortedList<MINDEX> sortedM = new SortedList<>(filteredM);
+        sortedM.comparatorProperty().bind(tableM.comparatorProperty());
 
 
-        filterI.setOnAction(event -> {
-            iindex.clear();
-            iindex.addAll(iRepo.search(filterI.getText()));
+        // ===================   FILTER  COLUMNS CINDEX =================
+
+        var filteredC = new FilteredList<>(cindex);
+        ChangeListener listenerC = (observable, oldValue, newValue) ->
+                filteredC.setPredicate(this::matchesFilterC);
+
+        filterC.onActionProperty().addListener(listenerC);
+        ckCOP.selectedProperty().addListener(listenerC);
+
+        SortedList<CINDEX> sortedC = new SortedList<>(filteredC);
+        sortedC.comparatorProperty().bind(tableC.comparatorProperty());
+
+
+        // ===================   FILTER  COLUMNS SINDEX =================
+
+        var filteredS = new FilteredList<>(sindex);
+        ChangeListener listenerS = (observable, oldValue, newValue) ->
+                filteredS.setPredicate(this::matchesFilterS);
+
+        filterS.setOnAction(e -> filteredS.setPredicate(this::matchesFilterS));
+        ckSOP.selectedProperty().addListener(listenerS);
+        ckConsumed.selectedProperty().addListener(listenerS);
+
+        SortedList<SINDEX> sortedS = new SortedList<>(filteredS);
+        sortedS.comparatorProperty().bind(tableS.comparatorProperty());
+
+
+        // ===================   FANCY COLORS  =================
+        final var headTime = bRepo.head().map(BINDEX::getNumber);
+        final var bindexsize = bRepo.count();
+        bNumberCol.setCellFactory(t -> new TextFieldTableCell<String, Integer>() {
+
+
+            @Override
+            public void updateItem(Integer item, boolean empty) {
+                super.updateItem(item, empty);
+
+                if (item != null && headTime.isPresent()) {
+                    var ratio = (headTime.get() - item) * 1. / bindexsize;
+                    setStyle("-fx-background-color: #" + hsvGradient(ratio) + ";");
+                }
+            }
+
+
         });
 
-        filterM.setOnAction(event -> {
-            mindex.clear();
-            mindex.addAll(mRepo.search(filterM.getText()));
-        });
+        //  ===================   SET MEDIAN-TIME HUMAN FORMAT   =================
+        bmedianTimeCol.setCellFactory(t -> medianTimeColumnFormat());
+        bTimeCol.setCellFactory(t -> medianTimeColumnFormat());
+        sWrittenTime.setCellFactory(t -> medianTimeColumnFormat());
+        mChainableOn.setCellFactory(t -> medianTimeColumnFormat());
+        cChainableOn.setCellFactory(t -> medianTimeColumnFormat());
+        cExpiresOn.setCellFactory(t -> medianTimeColumnFormat());
+        mExpiresOn.setCellFactory(t -> medianTimeColumnFormat());
+        mExpiredOn.setCellFactory(t -> medianTimeColumnFormat());
+        mRevokesOn.setCellFactory(t -> medianTimeColumnFormat());
 
-        filterC.setOnAction(event -> {
-            cindex.clear();
-            cindex.addAll(cRepo.search(filterC.getText()));
-        });
-
-        filterS.setOnAction(event -> {
-            sindex.clear();
-            sindex.addAll(sRepo.search(filterS.getText()));
-        });
+        // ===================   BINDEX FILTER  =================
 
         tableB.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
@@ -438,12 +539,94 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
             }
         });
+
+
+        tableB.setItems(bindex);
+        tableI.setItems(sortedData);
+        tableM.setItems(mindex);
+        tableC.setItems(cindex);
+        tableS.setItems(sindex);
+    }
+
+    private String hsvGradient(double ratio) {
+        var hsvRed = ratio >= .5 ? 255 : Math.round(ratio * 2 * 255);
+        var hsvGreen = ratio >= .5 ? Math.round((1 - ratio) * 2 * 255) : 255;
+        // TODO: do this clean
+        hsvGreen = Math.min(Math.max(hsvGreen, 0), 255);
+        hsvRed = Math.min(Math.max(hsvRed, 0), 255);
+        return String.format("%02x%02x00", hsvRed, hsvGreen);
+    }
+
+    private String rgbGradient(double ratio) {
+        var redLevel = Math.round(ratio * 256);
+        return String.format("%02x%02x00", redLevel, 256 - redLevel);
     }
 
 
+    private boolean matchesFilterS(SINDEX s) {
+        boolean res = true;
+
+        var expectOP = ckSOP.isSelected() ? "CREATE" : "UPDATE";
+        res &= ckSOP.isIndeterminate() || s.getOp().equals(expectOP);
+
+        return res;
+    }
+
+    private boolean matchesFilterC(CINDEX c) {
+        boolean res = true;
+
+        var expectOP = ckCOP.isSelected() ? "CREATE" : "UPDATE";
+        res &= ckCOP.isIndeterminate() || c.getOp().equals(expectOP);
+
+        return res;
+    }
+
+    private boolean matchesFilterM(MINDEX m) {
+        boolean res = true;
+
+        var expectOP = ckMOP.isSelected() ? "CREATE" : "UPDATE";
+        res &= ckMOP.isIndeterminate() || m.getOp().equals(expectOP);
+
+
+        if (filterM.getText() != null && !filterM.getText().equals("")) {
+            res &= m.getPub().toLowerCase().contains(filterM.getText().toLowerCase());
+        }
+
+
+        return res;
+    }
+
+    private boolean matchesFilterI(IINDEX i) {
+
+        boolean res = true;
+
+        var expectOP = ckIOP.isSelected() ? "CREATE" : "UPDATE";
+        res &= ckIOP.isIndeterminate() || i.getOp().equals(expectOP);
+
+
+        res &= ckMember.isIndeterminate() || i.getMember() == ckMember.isSelected();
+
+
+        res &= ckWasMember.isIndeterminate() || i.getWasMember() == null || i.getWasMember() == ckWasMember.isSelected();
+
+
+        res &= ckKick.isIndeterminate() || i.getKick() == ckLeaving.isSelected();
+
+
+        if (filterI.getText() != null && !filterI.getText().equals("")) {
+            res &= (i.getUid() != null && i.getUid().equals(filterI.getText())
+                    || i.getPub().equals(filterI.getText()));
+        }
+
+        if (tfHash.getText() != null && !tfHash.getText().equals("")) {
+            res &= tfHash.getText().equals(i.getHash());
+        }
+
+        return res; // Does not match
+    }
+
     public void show(Integer blockNumber) {
         LOG.info("showing block at " + blockNumber);
-
     }
 
     @FXML
@@ -452,13 +635,13 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
             var blocks = bRepo.findAll();//.stream().map(b -> modelMapper.map(b, GlobalValid.BINDEX.class)).collect(Collectors.toList());
 
-            // draw the button list
+            // draw the button list // TODO decide what to do of the flow layout, if anything
             flowPanel.getChildren().clear();
             blocks.forEach(block -> {
                 var button = new Button(block.number + "");
                 button.setFont(new Font(9));
                 button.setOnAction(event -> show(block.number));
-                flowPanel.getChildren().add(button);
+                //flowPanel.getChildren().add(button);
             });
 
 

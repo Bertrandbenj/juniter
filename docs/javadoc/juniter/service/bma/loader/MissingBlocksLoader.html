@@ -132,7 +132,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>@ConditionalOnExpression("${juniter.missingloader.enabled:false}")
+<pre>@ConditionalOnExpression("${juniter.loader.useMissing:false}")
 @Component
 @Order(10)
 public class <span class="typeNameLabel">MissingBlocksLoader</span>

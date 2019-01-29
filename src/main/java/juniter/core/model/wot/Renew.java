@@ -1,6 +1,7 @@
 package juniter.core.model.wot;
 
 import juniter.core.model.BStamp;
+import juniter.core.model.DUPComponent;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,7 +16,7 @@ import java.io.Serializable;
 @Setter
 @NoArgsConstructor
 @Embeddable
-public class Renew implements Serializable, Comparable<Renew> {
+public class Renew implements DUPComponent, Serializable, Comparable<Renew> {
 
 	private static final long serialVersionUID = -5880074424437322665L;
 
@@ -27,9 +28,9 @@ public class Renew implements Serializable, Comparable<Renew> {
 
 	private String createdOn;
 
-	private String buid2;
+	private String i_block_uid;
 
-	private String pseudo;
+	private String uid;
 
 	public Renew(String active) {
 		LOG.debug("Parsing Renew... " + active);
@@ -37,12 +38,8 @@ public class Renew implements Serializable, Comparable<Renew> {
 		pubkey = vals[0];
 		signature = vals[1];
 		createdOn = vals[2];
-		buid2 = vals[3];
-		pseudo = vals[4];
-	}
-
-	public String activepk() {
-		return pubkey;
+		i_block_uid = vals[3];
+		uid = vals[4];
 	}
 
 	@Override
@@ -54,12 +51,8 @@ public class Renew implements Serializable, Comparable<Renew> {
 		return new BStamp(createdOn);
 	}
 
-	public String signature(){
-		return signature;
-	}
-
 	public String toDUP() {
-		return pubkey + ":" + signature + ":" + createdOn + ":" + buid2 + ":" + pseudo;
+		return pubkey + ":" + signature + ":" + createdOn + ":" + i_block_uid + ":" + uid;
 	}
 
 	@Override

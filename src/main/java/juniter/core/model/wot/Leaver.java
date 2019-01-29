@@ -1,6 +1,7 @@
 package juniter.core.model.wot;
 
 import juniter.core.model.BStamp;
+import juniter.core.model.DUPComponent;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,12 +15,11 @@ import java.io.Serializable;
 @Setter
 @NoArgsConstructor
 @Embeddable
-public class Leaver implements Serializable, Comparable<Leaver> {
+public class Leaver implements DUPComponent, Serializable, Comparable<Leaver> {
 
 	private static final long serialVersionUID = -4288798570176707871L;
 
 	private static final Logger LOG = LogManager.getLogger();
-
 
 	private String pubkey ;
 
@@ -27,20 +27,19 @@ public class Leaver implements Serializable, Comparable<Leaver> {
 
 	private String createdOn;
 
-	private String buid2;
+	private String i_block_uid;
 
-	private String pseudo;
+	private String uid;
 
 
 	public Leaver(String leaver) {
 		LOG.debug("Parsing Leaver... " + leaver);
 		final var vals = leaver.split(":");
-
 		pubkey = vals[0];
 		signature = vals[1];
 		createdOn = vals[2];
-		buid2 = vals[3];
-		pseudo = vals[4];
+		i_block_uid = vals[3];
+		uid = vals[4];
 	}
 
 	@Override
@@ -48,12 +47,8 @@ public class Leaver implements Serializable, Comparable<Leaver> {
 		return toDUP().compareTo(o.toDUP());
 	}
 
-	public String leaver() {
-		return pubkey;
-	}
-
 	public String toDUP() {
-		return pubkey + ":" + signature + ":" + createdOn + ":" + buid2 + ":" + pseudo;
+		return pubkey + ":" + signature + ":" + createdOn + ":" + i_block_uid + ":" + uid;
 	}
 
 	@Override

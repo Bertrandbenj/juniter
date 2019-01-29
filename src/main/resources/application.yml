@@ -7,19 +7,20 @@ juniter:
     trusted: https://g1.bertrandbenjamin.com/,https://g1.duniter.org/,https://duniter.g1.1000i100.fr/,https://duniter.nayya.org/,http://g1-monit.librelois.fr:10901/,http://jardin.foyerruralct.fr:10902/,http://g1.ambau.ovh:10901/,http://81.57.152.178:57586/,https://duniter.normandie-libre.fr/
     bulkSize: 500
     webSocketPoolSize: 5
-  simpleloader.enabled: false
-  usefulloader.enabled: false
-  missingloader.enabled: true
-  graphviz.enabled: true
+  loader:
+    useUseful: false
+    useDefault: true
+    useMissing: true
+  useGraphViz: true
   useGVA: true      # FIXME:  dependencies ?
-  bma.enabled: true
+  useBMA: true
   useWS2P: false
   utils.enabled: false
   useJavaFX: true
   useSpark: true
   indexer: true
-  useDefaultLoader: true
-  ##  init: true     # default false
+
+  ##  reset: true     # default false
   dataPath: /home/ben/ws/juniter/_data/
 
 spark:
@@ -29,10 +30,10 @@ spark:
 
 
 ##
-## =========================== Spring Confs ===========================
+## =========================== Spring Configs ===========================
 ##
 spring:
-  output.ansi.enabled: DETECT # Colored logs : DETECT|ALWAYS|NEVER 
+  output.ansi.enabled: ALWAYS # Colored logs : DETECT|ALWAYS|NEVER
   session.store-type: none # jdbc|mongo|none|redis|hazelcast
 
   datasource:
@@ -49,6 +50,10 @@ spring:
     hibernate.ddl-auto: create-drop
     properties.hibernate.jdbc:
       lob.non_contextual_creation: true # disable an ugly exception at start
+
+    properties:
+      hibernate:
+        format_sql : true
   #  mvc.view:
   #      prefix: /WEB-INF/view/
   #      suffix: .jsp
@@ -62,7 +67,7 @@ spring:
     #    bootstrap-servers: kafka:9092
     consumer:
       group-id: juniter
-      #      auto-offset-init: earliest
+      #      auto-offset-reset: earliest
 
 
   boot.admin.url: http://localhost:8080

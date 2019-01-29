@@ -19,7 +19,7 @@ public class MetricsConf extends MetricsConfigurerAdapter {
         registerReporter(ConsoleReporter
                 .forRegistry(metricRegistry)
                 .build())
-                .start(1, TimeUnit.MINUTES);
+                .start(30, TimeUnit.MINUTES);
     }
 
 }

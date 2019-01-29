@@ -133,7 +133,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <hr>
 <pre>@RestController
-@ConditionalOnExpression("${juniter.bma.enabled:false}")
+@ConditionalOnExpression("${juniter.useBMA:false}")
 public class <span class="typeNameLabel">NodeService</span>
 extends java.lang.Object</pre>
 </li>
@@ -175,7 +175,7 @@ extends java.lang.Object</pre>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="../../../juniter/service/bma/dto/SandBoxesDTO.html" title="class in juniter.service.bma.dto">SandBoxesDTO</a></code></td>
+<td class="colFirst"><code><a href="../../../juniter/service/bma/dto/SandBoxesDTO.html" title="class in juniter.core.model.dto">SandBoxesDTO</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../juniter/service/bma/NodeService.html#sandboxes--">sandboxes</a></span>()</code></th>
 <td class="colLast">
 <div class="block">node/sandboxes
@@ -185,7 +185,7 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="../../../juniter/service/bma/dto/NodeSummaryDTO.html" title="class in juniter.service.bma.dto">NodeSummaryDTO</a></code></td>
+<td class="colFirst"><code><a href="../../../juniter/service/bma/dto/NodeSummaryDTO.html" title="class in juniter.core.model.dto">NodeSummaryDTO</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../juniter/service/bma/NodeService.html#summary--">summary</a></span>()</code></th>
 <td class="colLast">
 <div class="block">node/summary
@@ -241,7 +241,7 @@ extends java.lang.Object</pre>
 <h4>summary</h4>
 <pre>@RequestMapping(value={"","/","/node/summary"},
                 method=GET)
-public&nbsp;<a href="../../../juniter/service/bma/dto/NodeSummaryDTO.html" title="class in juniter.service.bma.dto">NodeSummaryDTO</a>&nbsp;summary()</pre>
+public&nbsp;<a href="../../../juniter/service/bma/dto/NodeSummaryDTO.html" title="class in juniter.core.model.dto">NodeSummaryDTO</a>&nbsp;summary()</pre>
 <div class="block">node/summary
 
  Goal
@@ -269,7 +269,7 @@ public&nbsp;<a href="../../../juniter/service/bma/dto/NodeSummaryDTO.html" title
 <h4>sandboxes</h4>
 <pre>@RequestMapping(value="/node/sandboxes",
                 method=GET)
-public&nbsp;<a href="../../../juniter/service/bma/dto/SandBoxesDTO.html" title="class in juniter.service.bma.dto">SandBoxesDTO</a>&nbsp;sandboxes()</pre>
+public&nbsp;<a href="../../../juniter/service/bma/dto/SandBoxesDTO.html" title="class in juniter.core.model.dto">SandBoxesDTO</a>&nbsp;sandboxes()</pre>
 <div class="block">node/sandboxes
 
  Goal

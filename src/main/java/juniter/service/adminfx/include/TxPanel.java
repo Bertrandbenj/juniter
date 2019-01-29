@@ -114,7 +114,7 @@ public class TxPanel implements Initializable {
 
         blockRepo.current().ifPresent(b -> {
 
-            tx = new Transaction(
+            tx = new Transaction(null,
                     Integer.parseInt(fieldVersion.getText()),
                     fieldCurrency.getText(),
                     Integer.parseInt(fieldLocktime.getText()),

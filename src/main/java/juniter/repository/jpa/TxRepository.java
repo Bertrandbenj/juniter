@@ -17,7 +17,7 @@ public interface TxRepository extends JpaRepository<Transaction, Long> {
 //	@Override
 //	Optional<TransactionDTO> findById(Long id);
 
-	@Query("select t from Transaction t where thash = ?1")
+	@Query("SELECT t FROM Transaction t WHERE thash = ?1")
 	List<Transaction> findByTHash(String hash);
 
 	default Stream<Transaction> findTxOneAndSameIssuerAndDest() {
@@ -32,7 +32,7 @@ public interface TxRepository extends JpaRepository<Transaction, Long> {
 				});
 	}
 
-	@Query("select t from Transaction t where comment IS NOT NULL AND comment <> ''")
+	@Query("SELECT t FROM Transaction t WHERE comment IS NOT NULL AND comment <> ''")
 	Stream<Transaction> findTxsHavingComment();
 
     default Stream<Transaction> findTxsHavingTxInput() {
@@ -57,22 +57,37 @@ public interface TxRepository extends JpaRepository<Transaction, Long> {
 				.filter(t -> t.getOutputs().stream().anyMatch(i -> !i.getOutputCondition().startsWith("SIG")));
 	}
 
-    @Query("select t from Transaction t")
+    @Query("SELECT t FROM Transaction t")
 	Stream<Transaction> streamAll();
 
-	@Query("select t from Transaction t where consumed = false ")
+
+
+	@Query("SELECT t FROM Transaction t WHERE pub = ?1 AND blockstampTime >= ?2 AND blockstampTime <= ?3")
+	Stream<Transaction> transactionsOfIssuerWindowedByTime(String pubkey, String start, String end);
+
+	@Query("SELECT t FROM Transaction t WHERE pub = ?1 AND blockstampTime >= ?2 AND blockstampTime <= ?3")
+	Stream<Transaction> transactionsOfReceiverWindowedByTime(String pubkey, String start, String end);
+
+
+
+	@Query("SELECT t FROM Transaction t WHERE pub = ?1   ")
+	Stream<Transaction> transactionsOfIssuerWindowedByBlock(String pubkey, String start, String end);
+
+	@Query("SELECT t FROM Transaction t WHERE pub = ?1  ")
+	Stream<Transaction> transactionsOfReceiverWindowedByBlock(String pubkey, String start, String end);
+
+
+
+
+	//@Query("SELECT t FROM Transaction t WHERE consumed = false ")
 	default Stream<Transaction> transactionsOfReceiver(String pubkey) {
 		return streamAll().filter(t -> t.txReceivedBy(pubkey));
 	}
 
-    /**
-	 * Sent by transactions
-	 *
-	 * @param pubkey as String or PubKey
-	 * @return
-	 */
 	default Stream<Transaction> transactionsOfIssuer(Object pubkey) {
 		return streamAll().filter(t -> t.txSentBy(pubkey));
 	}
+
+
 
 }

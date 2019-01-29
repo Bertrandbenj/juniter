@@ -1,5 +1,6 @@
 package juniter.service.adminfx.include;
 
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -24,7 +25,7 @@ public class Footer implements Initializable {
     @FXML private ProgressIndicator indexIndic;
     @FXML private Label indexLog;
     @FXML private Label peerLog;
-    @FXML private Label sparkLog;
+    @FXML private Label memoryLog;
     @FXML private Label docPoolLog;
 
 
@@ -33,19 +34,23 @@ public class Footer implements Initializable {
         LOG.debug("initialize Footer.fxml");
         // bind indicators
         indexIndic.progressProperty().bind(Bus.currentBindex.divide(Bus.maxBindex));
-        loadIndic.progressProperty().bind(Bus.maxDBBlock.divide(Bus.maxPeerBlock));
+        loadIndic.progressProperty().bind(Bus.currentDBBlock.divide(Bus.maxPeerBlock));
 
         // bind logger
+
+
         indexLog.textProperty().bind(new SimpleStringProperty("Index : ")
-                .concat("Bidx: ").concat(Bus.currentBindex)
-                .concat(" - DB: ").concat(Bus.maxDBBlock)
+                .concat(Bindings.format("%,.2f",Bus.currentBindex.multiply(100).divide(Bus.currentDBBlock)))
+                .concat("% - HEAD: ").concat(Bus.currentBindex)
+                .concat(" - DB: ").concat(Bus.currentDBBlock)
                 .concat(" - ").concat(Bus.indexLogMessage));
         peerLog.textProperty().bind(new SimpleStringProperty("Peers : ")
-                .concat("max : ").concat(Bus.maxPeerBlock)
+                .concat(Bus.maxPeerBlock)
                 .concat(" - ").concat(Bus.peerLogMessage));
-        sparkLog.textProperty().bind(new SimpleStringProperty("Spark : ")
-                .concat(" - ").concat(Bus.sparkLogMessage));
+        memoryLog.textProperty().bind(new SimpleStringProperty("Memory : ")
+                .concat(Bus.memoryLogMessage).concat(" - "));
         docPoolLog.textProperty().bind(new SimpleStringProperty("Pools : ")
                 .concat(" - ").concat(Bus.docPoolLogMessage));
     }
+
 }

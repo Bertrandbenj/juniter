@@ -1,11 +1,12 @@
 package juniter.service.bma;
 
+import juniter.core.model.dto.Source;
+import juniter.core.model.dto.TransactionDTO;
+import juniter.core.model.dto.TxHistory;
+import juniter.core.model.index.SINDEX;
 import juniter.core.model.tx.Transaction;
 import juniter.repository.jpa.TxRepository;
-import juniter.repository.jpa.index.SINDEX;
 import juniter.repository.jpa.index.SINDEXRepository;
-import juniter.service.bma.dto.TxHistory;
-import juniter.service.bma.dto.Source;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -38,7 +39,7 @@ import java.util.stream.Collectors;
  * @author ben
  */
 @RestController
-@ConditionalOnExpression("${juniter.bma.enabled:false}")
+@ConditionalOnExpression("${juniter.useBMA:false}")
 @RequestMapping("/tx")
 public class TxService {
 
@@ -47,7 +48,8 @@ public class TxService {
     @Autowired
     private TxRepository repository;
 
-    @Autowired private SINDEXRepository sRepo;
+    @Autowired
+    private SINDEXRepository sRepo;
 
 
     @Autowired
@@ -61,20 +63,20 @@ public class TxService {
     @RequestMapping(value = "/history/{pubkey}", method = RequestMethod.GET)
     public TxHistory history(@PathVariable("pubkey") String pubkey) {
         // TODO: COMPLETE the history and tidy the result if need be to match the duniter api exactly
-        var sent = new ArrayList<Transaction>();
-        var received = new ArrayList<Transaction>();
-        var receiving = new ArrayList<Transaction>();
-        var sending = new ArrayList<Transaction>();
-        var pending = new ArrayList<Transaction>();
+        var sent = new ArrayList<TransactionDTO>();
+        var received = new ArrayList<TransactionDTO>();
+        var receiving = new ArrayList<TransactionDTO>();
+        var sending = new ArrayList<TransactionDTO>();
+        var pending = new ArrayList<TransactionDTO>();
 
         try (var s = repository.transactionsOfIssuer(pubkey)) {
-            sent.addAll(s.collect(Collectors.toList()));
+            sent.addAll(s.map(tx -> modelMapper.map(tx, TransactionDTO.class)).collect(Collectors.toList()));
         } catch (Exception e) {
             LOG.error("tx/history TransactionSentBy ", e);
         }
 
         try (var s = repository.transactionsOfReceiver(pubkey)) {
-            received.addAll(s.collect(Collectors.toList()));
+            received.addAll(s.map(tx -> modelMapper.map(tx, TransactionDTO.class)).collect(Collectors.toList()));
         } catch (Exception e) {
             LOG.error("tx/history TransactionReceivedBy ", e);
         }
@@ -85,8 +87,75 @@ public class TxService {
     @Transactional(readOnly = true)
     @RequestMapping(value = "/history/{pubkey}/pending", method = RequestMethod.GET)
     public TxHistory pendingHistory(@PathVariable("pubkey") String pubkey) {
-        return null;
+        LOG.info("Entering /history/{pubkey}/pending " + pubkey  );
+
+        var sent = new ArrayList<TransactionDTO>();
+        var received = new ArrayList<TransactionDTO>();
+        var receiving = new ArrayList<TransactionDTO>();
+        var sending = new ArrayList<TransactionDTO>();
+        var pending = new ArrayList<TransactionDTO>();
+
+        //TODO fill from sandboxes AND / OR branch size
+
+        return new TxHistory(pubkey, sent, received, receiving, sending, pending);
     }
+
+    @Transactional(readOnly = true)
+    @RequestMapping(value = "/history/{pubkey}/blocks/{from}/{to}", method = RequestMethod.GET)
+    public TxHistory historyFilterByBlockRange(@PathVariable("pubkey") String pubkey,
+                                            @PathVariable("pubkey") String from,
+                                            @PathVariable("pubkey") String to) {
+        LOG.info("Entering /history/{pubkey}/blocks/{from}/{to}.. " + pubkey + " " + from + "->" + to);
+
+        var sent = new ArrayList<TransactionDTO>();
+        var received = new ArrayList<TransactionDTO>();
+        var receiving = new ArrayList<TransactionDTO>();
+        var sending = new ArrayList<TransactionDTO>();
+        var pending = new ArrayList<TransactionDTO>();
+
+        try (var s = repository.transactionsOfIssuerWindowedByBlock(pubkey, from, to)) {
+            sent.addAll(s.map(tx -> modelMapper.map(tx, TransactionDTO.class)).collect(Collectors.toList()));
+        } catch (Exception e) {
+            LOG.error("tx/history TransactionSentBy ", e);
+        }
+
+        try (var s = repository.transactionsOfReceiverWindowedByBlock(pubkey, from, to)) {
+            received.addAll(s.map(tx -> modelMapper.map(tx, TransactionDTO.class)).collect(Collectors.toList()));
+        } catch (Exception e) {
+            LOG.error("tx/history TransactionReceivedBy ", e);
+        }
+
+        return new TxHistory(pubkey, sent, received, receiving, sending, pending);
+    }
+
+
+    @Transactional(readOnly = true)
+    @RequestMapping(value = "/history/{pubkey}/times/{from}/{to}", method = RequestMethod.GET)
+    public TxHistory historyFilterByTimeRange(@PathVariable("pubkey") String pubkey, @PathVariable("pubkey") String from,
+                                           @PathVariable("pubkey") String to) {
+        LOG.info("Entering /history/{pubkey}/times/{from}/{to}.. " + pubkey + " " + from + "->" + to);
+
+        var sent = new ArrayList<TransactionDTO>();
+        var received = new ArrayList<TransactionDTO>();
+        var receiving = new ArrayList<TransactionDTO>();
+        var sending = new ArrayList<TransactionDTO>();
+        var pending = new ArrayList<TransactionDTO>();
+
+        try (var s = repository.transactionsOfIssuerWindowedByTime(pubkey, from, to)) {
+            sent.addAll(s.map(tx -> modelMapper.map(tx, TransactionDTO.class)).collect(Collectors.toList()));
+        } catch (Exception e) {
+            LOG.error("tx/history TransactionSentBy ", e);
+        }
+
+        try (var s = repository.transactionsOfReceiverWindowedByTime(pubkey, from, to)) {
+            received.addAll(s.map(tx -> modelMapper.map(tx, TransactionDTO.class)).collect(Collectors.toList()));
+        } catch (Exception e) {
+            LOG.error("tx/history TransactionReceivedBy ", e);
+        }
+
+        return new TxHistory(pubkey, sent, received, receiving, sending, pending);
+    }
+
 
     @Transactional(readOnly = true)
     @RequestMapping(value = "/sources/{pubkey}", method = RequestMethod.GET)
@@ -99,6 +168,7 @@ public class TxService {
 
     }
 
+
     @Getter
     @Setter
     @NoArgsConstructor
@@ -106,29 +176,15 @@ public class TxService {
 
         private static final long serialVersionUID = 7842838617478484444L;
 
-        String currency =  "g1";
-        String pubkey ;
+        String currency = "g1";
+        String pubkey;
         List<Source> sources = new ArrayList<>();
 
         Wrapper(String pubkey, List<Source> sources) {
             this.pubkey = pubkey;
             this.sources = sources;
         }
-    }
 
-    @RequestMapping(value = "/history/{pubkey}/blocks/{from}/{to}", method = RequestMethod.GET)
-    public String historyFilterByBlockRange(@PathVariable("pubkey") String pubkey,
-                                            @PathVariable("pubkey") String from,
-                                            @PathVariable("pubkey") String to) {
-        LOG.info("Entering /history/{pubkey}/blocks/{from}/{to}.. " + pubkey + " " + from + "->" + to);
-        return "not implemented yet";
-    }
-
-    @RequestMapping(value = "/history/{pubkey}/times/{from}/{to}", method = RequestMethod.GET)
-    public String historyFilterByTimeRange(@PathVariable("pubkey") String pubkey, @PathVariable("pubkey") String from,
-                                           @PathVariable("pubkey") String to) {
-        LOG.info("Entering /history/{pubkey}/times/{from}/{to}.. " + pubkey + " " + from + "->" + to);
-        return "not implemented yet";
     }
 
 

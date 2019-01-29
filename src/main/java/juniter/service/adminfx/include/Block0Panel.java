@@ -12,7 +12,7 @@ import juniter.core.crypto.SecretBox;
 import juniter.core.model.DBBlock;
 import juniter.core.model.wot.Certification;
 import juniter.core.model.wot.Identity;
-import juniter.core.model.wot.Joiner;
+import juniter.core.model.wot.Join;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 
@@ -222,7 +222,7 @@ public class Block0Panel implements Initializable {
         block.getJoiners().addAll(
                 members.entrySet().stream()
                         .map(ent ->
-                                new Joiner(ent.getValue().getPublicKey()
+                                new Join(ent.getValue().getPublicKey()
                                         + ":" + "==" // signature
                                         + ":" + "0-XXX"// bstamp TODO complete
                                         + ":" + "0-XXX"// bstamp duplicate on block 0

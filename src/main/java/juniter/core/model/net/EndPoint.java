@@ -38,19 +38,10 @@ public class EndPoint implements Serializable {
 	@ManyToOne(cascade = CascadeType.REMOVE, fetch=FetchType.EAGER)
 	@JoinColumn(name = "peer", referencedColumnName = "pubkey")
 	private Peer peer;
-	
-	EndPointType getApi() {
-		return api;
-	}
 
 	@Enumerated(EnumType.STRING)
 	@Column(length=32)
 	private EndPointType api;
-
-
-	public EndPointType api() {
-		return api;
-	}
 
 	@Size(min=7, max=15)
 	@Pattern(regexp=Constants.Regex.IP4)
@@ -68,45 +59,6 @@ public class EndPoint implements Serializable {
 	private String other;
 	private String tree;
 	private String endpoint;
-
-
-
-	public String url() {
-		
-		String res = "";
-		switch(api){
-			case BMAS:
-			case WS2PS:
-				res+="https://";
-
-		}
-		
-		if(domain != null) {
-			res += domain ;
-		}else if(ip6 != null) {
-			res += "["+ ip6 +"]";
-		}else if(ip4 != null) {
-			res += ip4;
-		}
-
-		res+= ":"+port;
-		
-		if(!res.endsWith("/"))
-			res+="/";
-		LOG.debug("url: " +res);
-		return res;
-	}
-	
-	public String getDomain() {
-		return domain;
-	}
-
-
-	public EndPoint linkPeer(Peer peer) {
-		this.peer = peer;
-		return this;
-	}
-
 
 	public EndPoint(String endPT) {
 		this.endpoint = endPT;
@@ -134,28 +86,45 @@ public class EndPoint implements Serializable {
 		}
 	}
 
-	public String getEndpoint() {
-		return endpoint;
+	public EndPointType api() {
+		return api;
+	}
+
+	public String url() {
+		
+		String res = "";
+		switch(api){
+			case BMAS:
+			case WS2PS:
+				res+="https://";
+
+		}
+		
+		if(domain != null) {
+			res += domain ;
+		}else if(ip6 != null) {
+			res += "["+ ip6 +"]";
+		}else if(ip4 != null) {
+			res += ip4;
+		}
+
+		res+= ":"+port;
+		
+		if(!res.endsWith("/"))
+			res+="/";
+		LOG.debug("url: " +res);
+		return res;
+	}
+	
+
+
+	public EndPoint linkPeer(Peer peer) {
+		this.peer = peer;
+		return this;
 	}
 
 
 
-	public void setApi(EndPointType api) {
-		this.api = api;
-	}
-
-
-	public String getPort() {
-		return port;
-	}
-
-	public String getOther() {
-		return other;
-	}
-
-	public String getTree() {
-		return tree;
-	}
 
 
 }

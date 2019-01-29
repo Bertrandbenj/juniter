@@ -1,7 +1,7 @@
 package juniter.core.model;
 
 import juniter.core.utils.Constants;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -16,66 +16,51 @@ import java.io.Serializable;
  * ex : [ "BASIC_MERKLED_API metab.ucoin.io 88.174.120.187 9201" ]
  *
  * @author ben
- *
  */
-//@Entity
+@Setter
+@Getter
+@NoArgsConstructor
 @EqualsAndHashCode
+@AllArgsConstructor
 @Embeddable
-public class BStamp implements Serializable {
+public class BStamp implements Serializable, Comparable<BStamp> {
 
-	private static final long serialVersionUID = -165962007943111454L;
-	private static final Logger LOG = LogManager.getLogger();
+    private static final long serialVersionUID = -165962007943111454L;
+    private static final Logger LOG = LogManager.getLogger();
 
-	@Min(0)
-	@Column(name = "number")
-	private Integer number;
+    @Min(0)
+    @Column(name = "number")
+    private Integer number;
 
-	@Pattern(regexp = Constants.Regex.HASH)
-	@Column(length = 64)
-	@Size(max = 64)
-	private String hash;
-
-	public BStamp() {
-	}
-
-	public BStamp(Integer number, String hash) {
-		this.number = number;
-		this.hash = hash;
-	}
-
-	public BStamp(String string) {
-		parse(string);
-	}
-
-	public String getHash() {
-		return hash;
-	}
-
-	public Integer getNumber() {
-		return number;
-	}
+    @Pattern(regexp = Constants.Regex.HASH)
+    @Column(length = 64)
+    @Size(max = 64)
+    private String hash;
 
 
-	public void parse(String string) {
-		try{
-			final String[] pat = string.split("-");
-			number = Integer.valueOf(pat[0]);
-			hash = pat[1];
-		}catch(Exception e){
-			//LOG.error( "Error parsing " + string, e );
-		}
-	}
+    public BStamp(String string) {
+        parse(string);
+    }
 
-	public void setHash(String blockHash) {
-		hash = blockHash;
-	}
 
-	public void setNumber(Integer blockNumber) {
-		number = blockNumber;
-	}
+    public void parse(String string) {
 
-	@Override
-	public String toString() {
-		return number + "-" + hash;
-	}
+        final String[] pat = string.split("-");
+        number = Integer.valueOf(pat[0]);
+        hash = pat[1];
+
+    }
+
+
+    @Override
+    public String toString() {
+        return number + "-" + hash;
+    }
+
+
+    @Override
+    public int compareTo(BStamp o) {
+        var cmpNum = number.compareTo(o.number);
+        return cmpNum == 0 ? hash.compareTo(o.hash) : cmpNum;
+    }
 }

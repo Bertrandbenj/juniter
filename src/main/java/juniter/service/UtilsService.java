@@ -1,10 +1,12 @@
 package juniter.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import javafx.application.Platform;
+import juniter.core.model.dto.Block;
 import juniter.core.utils.MemoryUtils;
 import juniter.repository.jpa.BlockRepository;
+import juniter.service.adminfx.include.Bus;
 import juniter.service.bma.BlockchainService;
-import juniter.service.bma.dto.Block;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
@@ -87,9 +89,12 @@ public class UtilsService {
     }
 
 
-    @Scheduled(fixedRate = 5 * 60 * 1000)
+    @Scheduled(fixedRate = 5 * 60 * 1000, initialDelay = 60 * 1000)
     public void checkMemory() {
-        LOG.info(MemoryUtils.memInfo());
+        var log = MemoryUtils.memInfo();
+
+        Platform.runLater(()->Bus.memoryLogMessage.setValue(log));
+        LOG.info(log);
     }
 
 

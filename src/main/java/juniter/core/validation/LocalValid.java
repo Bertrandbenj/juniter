@@ -42,9 +42,11 @@ public interface LocalValid {
 		if (x == null)
 			return false;
 		if (x instanceof String)
-			return "10".equals(x);
-		if (x instanceof Integer || x instanceof Short)
-			return (Integer) x == 10;
+			return Integer.valueOf((String)x) >= 10;
+		if (x instanceof Integer)
+			return (Integer) x >= 10;
+		if (x instanceof Short)
+			return (Short) x >= 10;
 		return false;
 	}
 

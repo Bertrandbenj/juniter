@@ -2,7 +2,7 @@ package juniter.repository;
 
 import juniter.core.utils.TimeUtils;
 import juniter.repository.jpa.BlockRepository;
-import juniter.repository.jpa.index.Index;
+import juniter.service.Index;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Test;
@@ -41,7 +41,7 @@ public class TestRepoBlockchain {
 
 			final var block = blockRepo.block(i).get();
 
-			if (idx.validate(block, false)) {
+			if (idx.completeGlobalScope(block, true)) {
 				LOG.info("Validated " + block);
 			} else {
 				LOG.warn("NOT Valid " + block.toDUP());

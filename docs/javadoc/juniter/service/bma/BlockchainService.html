@@ -133,7 +133,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <hr>
 <pre>@RestController
-@ConditionalOnExpression("${juniter.bma.enabled:false}")
+@ConditionalOnExpression("${juniter.useBMA:false}")
 @RequestMapping("/blockchain")
 public class <span class="typeNameLabel">BlockchainService</span>
 extends java.lang.Object</pre>
@@ -203,28 +203,28 @@ extends java.lang.Object</pre>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="../../../juniter/service/bma/dto/Block.html" title="class in juniter.service.bma.dto">Block</a></code></td>
+<td class="colFirst"><code><a href="../../../juniter/service/bma/dto/Block.html" title="class in juniter.core.model.dto">Block</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../juniter/service/bma/BlockchainService.html#block-java.lang.Integer-">block</a></span>&#8203;(java.lang.Integer&nbsp;id)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>java.util.List&lt;<a href="../../../juniter/service/bma/dto/Block.html" title="class in juniter.service.bma.dto">Block</a>&gt;</code></td>
+<td class="colFirst"><code>java.util.List&lt;<a href="../../../juniter/service/bma/dto/Block.html" title="class in juniter.core.model.dto">Block</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../juniter/service/bma/BlockchainService.html#block-java.lang.Integer-java.lang.Integer-">block</a></span>&#8203;(java.lang.Integer&nbsp;count,
      java.lang.Integer&nbsp;from)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code><a href="../../../juniter/service/bma/dto/Block.html" title="class in juniter.service.bma.dto">Block</a></code></td>
+<td class="colFirst"><code><a href="../../../juniter/service/bma/dto/Block.html" title="class in juniter.core.model.dto">Block</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../juniter/service/bma/BlockchainService.html#current--">current</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code><a href="../../../juniter/service/bma/dto/Block.html" title="class in juniter.service.bma.dto">Block</a></code></td>
+<td class="colFirst"><code><a href="../../../juniter/service/bma/dto/Block.html" title="class in juniter.core.model.dto">Block</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../juniter/service/bma/BlockchainService.html#deleteBlock-java.lang.Integer-">deleteBlock</a></span>&#8203;(java.lang.Integer&nbsp;id)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i5" class="rowColor">
-<td class="colFirst"><code><a href="../../../juniter/service/bma/dto/WithDTO.html" title="class in juniter.service.bma.dto">WithDTO</a></code></td>
+<td class="colFirst"><code><a href="../../../juniter/service/bma/dto/WithDTO.html" title="class in juniter.core.model.dto">WithDTO</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../juniter/service/bma/BlockchainService.html#with-java.lang.String-">with</a></span>&#8203;(java.lang.String&nbsp;what)</code></th>
 <td class="colLast">
 <div class="block">/blockchain/with/{what=[newcomers,certs,actives,leavers,excluded,ud,tx]}</div>
@@ -289,7 +289,7 @@ public&nbsp;java.util.List&lt;<a href="../../../juniter/core/model/Block.html" t
 <h4>block</h4>
 <pre>@RequestMapping(value="/block/{id}",
                 method=GET)
-public&nbsp;<a href="../../../juniter/service/bma/dto/Block.html" title="class in juniter.service.bma.dto">Block</a>&nbsp;block&#8203;(@PathVariable("id")
+public&nbsp;<a href="../../../juniter/service/bma/dto/Block.html" title="class in juniter.core.model.dto">Block</a>&nbsp;block&#8203;(@PathVariable("id")
                    java.lang.Integer&nbsp;id)</pre>
 </li>
 </ul>
@@ -302,7 +302,7 @@ public&nbsp;<a href="../../../juniter/service/bma/dto/Block.html" title="class i
 <pre>@Transactional
 @RequestMapping(value="/blocks/{count}/{from}",
                 method=GET)
-public&nbsp;java.util.List&lt;<a href="../../../juniter/service/bma/dto/Block.html" title="class in juniter.service.bma.dto">Block</a>&gt;&nbsp;block&#8203;(@PathVariable("count")
+public&nbsp;java.util.List&lt;<a href="../../../juniter/service/bma/dto/Block.html" title="class in juniter.core.model.dto">Block</a>&gt;&nbsp;block&#8203;(@PathVariable("count")
                                    java.lang.Integer&nbsp;count,
                                    @PathVariable("from")
                                    java.lang.Integer&nbsp;from)</pre>
@@ -317,7 +317,7 @@ public&nbsp;java.util.List&lt;<a href="../../../juniter/service/bma/dto/Block.ht
 <pre>@Transactional
 @RequestMapping(value="/current",
                 method=GET)
-public&nbsp;<a href="../../../juniter/service/bma/dto/Block.html" title="class in juniter.service.bma.dto">Block</a>&nbsp;current()</pre>
+public&nbsp;<a href="../../../juniter/service/bma/dto/Block.html" title="class in juniter.core.model.dto">Block</a>&nbsp;current()</pre>
 </li>
 </ul>
 <a name="deleteBlock-java.lang.Integer-">
@@ -328,7 +328,7 @@ public&nbsp;<a href="../../../juniter/service/bma/dto/Block.html" title="class i
 <h4>deleteBlock</h4>
 <pre>@RequestMapping(value="/deleteBlock/{id}",
                 method=GET)
-public&nbsp;<a href="../../../juniter/service/bma/dto/Block.html" title="class in juniter.service.bma.dto">Block</a>&nbsp;deleteBlock&#8203;(@PathVariable("id")
+public&nbsp;<a href="../../../juniter/service/bma/dto/Block.html" title="class in juniter.core.model.dto">Block</a>&nbsp;deleteBlock&#8203;(@PathVariable("id")
                          java.lang.Integer&nbsp;id)</pre>
 </li>
 </ul>
@@ -341,7 +341,7 @@ public&nbsp;<a href="../../../juniter/service/bma/dto/Block.html" title="class i
 <pre>@RequestMapping(value="/with/{what}",
                 method=GET)
 @Transactional(readOnly=true)
-public&nbsp;<a href="../../../juniter/service/bma/dto/WithDTO.html" title="class in juniter.service.bma.dto">WithDTO</a>&nbsp;with&#8203;(@PathVariable("what")
+public&nbsp;<a href="../../../juniter/service/bma/dto/WithDTO.html" title="class in juniter.core.model.dto">WithDTO</a>&nbsp;with&#8203;(@PathVariable("what")
                     java.lang.String&nbsp;what)</pre>
 <div class="block">/blockchain/with/{what=[newcomers,certs,actives,leavers,excluded,ud,tx]}
 

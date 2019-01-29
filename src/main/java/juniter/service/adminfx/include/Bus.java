@@ -12,7 +12,9 @@ public interface Bus {
     // updatable value from the outside
     SimpleDoubleProperty currentBindex = new SimpleDoubleProperty(.0);
     SimpleDoubleProperty maxBindex = new SimpleDoubleProperty(42.);
+    SimpleDoubleProperty currentDBBlock = new SimpleDoubleProperty(42.);
     SimpleDoubleProperty maxDBBlock = new SimpleDoubleProperty(42.);
+
     SimpleDoubleProperty maxPeerBlock = new SimpleDoubleProperty(42.);
 
     SimpleBooleanProperty isIndexing = new SimpleBooleanProperty(false);
@@ -21,7 +23,7 @@ public interface Bus {
 
     SimpleStringProperty indexLogMessage = new SimpleStringProperty(" ... ");
     SimpleStringProperty peerLogMessage = new SimpleStringProperty(" ... ");
-    SimpleStringProperty sparkLogMessage = new SimpleStringProperty(" ... ");
+    SimpleStringProperty memoryLogMessage = new SimpleStringProperty(" ... ");
     SimpleStringProperty docPoolLogMessage = new SimpleStringProperty(" ... ");
 
 

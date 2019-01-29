@@ -1,106 +1,140 @@
 package juniter.core.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import javax.persistence.*;
+import java.io.Serializable;
 
 /**
  * DUP ChainParameters initialized using ğ1 variable
  *
  * @see <a href="https://git.duniter.org/nodes/typescript/duniter/blob/dev/doc/Protocol.md#protocol-parameters"></a>
  */
-@Getter
 @Setter
+@Entity
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChainParameters {
+@Table(name = "chainParams", schema = "public") // , indexes = @Index(columnList = "number,hash"))
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class ChainParameters implements DUPComponent, Serializable {
+
+    private static final long serialVersionUID = -197387756259876543L;
+
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id  ;
 
     /**
      * The %growth of the UD every [dt] period
      */
-    public double c = 0.0488; // growth rate
+    private double c = 0.0488; // growth rate
+
     /**
      * Time period between two UD.
      */
-    public long dt = 86400; // 1 day
+    private long dt = 86400; // 1 day
+
     /**
      * UD(0), i.e. initial Universal Dividend
      */
-    public long ud0 = 1000; // 10.00 g1
+    private long ud0 = 1000; // 10.00 g1
+
     /**
      * Minimum delay between 2 certifications of a same issuer, in seconds. Must be positive or zero.
      */
-    public long sigPeriod = 432000; // 5 days
+    private long sigPeriod = 432000; // 5 days
+
     /**
      * Maximum quantity of active certifications made by member.
      */
-    public long sigStock = 100;
+    private long sigStock = 100;
+
     /**
      * Maximum delay a certification can wait before being expired for non-writing.
      */
-    public long sigWindow = 5259600; // 60 days, 21 hours
+    private long sigWindow = 5259600; // 60 days, 21 hours
+
     /**
      * Maximum age of an active signature (in seconds)
      */
-    public long sigValidity = 63115200; // 730 days, 12 hours,
+    private long sigValidity = 63115200; // 730 days, 12 hours,
+
     /**
      * Minimum quantity of signatures to be part of the WoT
      */
-    public long sigQty = 5;
+    private long sigQty = 5;
+
     /**
      * Maximum delay an identity can wait before being expired for non-writing.
      */
-    public long idtyWindow = 5259600; // 60 days, 21 hours
+    private long idtyWindow = 5259600; // 60 days, 21 hours
+
     /**
      * Maximum delay a membership can wait before being expired for non-writing.
      */
-    public long msWindow = 5259600; // 60 days, 21 hours
+    private long msWindow = 5259600; // 60 days, 21 hours
+
     /**
      * Minimum percent of sentries to reach to match the distance rule
      */
-    public double xpercent = 0.8;
+    private double xpercent = 0.8;
+
     /**
      * Maximum age of an active membership (in seconds)
      */
-    public long msValidity = 31557600; // 365 days, 6 hours,
+    private long msValidity = 31557600; // 365 days, 6 hours,
+
     /**
      * Maximum distance between each WoT member and a newcomer
      */
-    public long stepMax = 5;
+    private long stepMax = 5;
+
     /**
      * Number of blocks used for calculating median time.
      */
-    public long medianTimeBlocks = 24;
+    private long medianTimeBlocks = 24;
+
     /**
      * The average time for writing 1 block (wished time)
      */
-    public long avgGenTime = 300;
+    private long avgGenTime = 300;
+
     /**
      * The number of blocks required to evaluate again PoWMin value
      */
-    public long dtDiffEval = 12;
+    private long dtDiffEval = 12;
+
     /**
      * The percent of previous issuers to reach for personalized difficulty
      */
-    public double percentRot = 0.67;
+    private double percentRot = 0.67;
+
     /**
      * Time of first UD.
      */
-    public long udTime0 = 1488970800; // GMT: Wednesday, March 8, 2017 11:00:00 AM
+    private long udTime0 = 1488970800; // GMT: Wednesday, March 8, 2017 11:00:00 AM
+
     /**
      * Time of first reevaluation of the UD.
      */
-    public long udReevalTime0 = 1490094000; // GMT: Tuesday, March 21, 2017 11:00:00 AM ??
+    private long udReevalTime0 = 1490094000; // GMT: Tuesday, March 21, 2017 11:00:00 AM ??
+
     /**
      * Time period between two re-evaluation of the UD.
      */
-    public long dtReeval = 15778800; // 182 days, 15 hours
+    private long dtReeval = 15778800; // 182 days, 15 hours
 
 
     /**
      * Minimum delay between 2 memberships of a same issuer, in seconds. Must be positive or zero.
+     *
      * @apiNote New parameter
      */
     public long msPeriod = msWindow;
@@ -108,6 +142,7 @@ public class ChainParameters {
 
     /**
      * Minimum delay between 2 certifications of a same issuer to a same receiver, in seconds. Equals to msPeriod.Minimum delay between 2 certifications of a same issuer to a same receiver, in seconds. Equals to msPeriod.
+     *
      * @apiNote New parameter
      */
     public long sigReplay = msWindow;
@@ -145,11 +180,16 @@ public class ChainParameters {
         dtReeval = Long.parseLong(params[19]);
 
         // New parameter
-        if(params.length>20){
+        if (params.length > 20) {
             msPeriod = Long.parseLong(params[20]);
             sigReplay = Long.parseLong(params[21]);
         }
 
+    }
+
+    @Override
+    public String toDUP(){
+        return  c+":"+dt+":"+ud0+":"+sigPeriod+":"+sigStock+":"+sigWindow+":"+sigValidity+":"+sigQty+":"+idtyWindow+":"+msWindow+":"+xpercent+":"+msValidity+":"+stepMax+":"+medianTimeBlocks+":"+avgGenTime+":"+dtDiffEval+":"+percentRot+":"+udTime0+":"+udReevalTime0+":"+dtReeval;
     }
 
     public double maxAcceleration() {

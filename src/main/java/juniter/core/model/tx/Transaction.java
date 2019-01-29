@@ -7,7 +7,9 @@ import juniter.core.crypto.Crypto;
 import juniter.core.model.BStamp;
 import juniter.core.model.DUPComponent;
 import juniter.core.utils.Constants;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,6 +29,8 @@ import java.util.stream.Collectors;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "transaction", schema = "public")
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -41,16 +45,13 @@ public class Transaction implements Serializable, DUPComponent {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    //	@JsonIgnoreProperties()
-    @Min(0) @Max(15)
+    @Min(10) @Max(100)
     private Integer version;
 
     @Size(max = 42)
     @Pattern(regexp = Constants.Regex.G1)
     private String currency;
 
-
-    //	@JsonView(TxHistory.Summary.class)
     private Integer locktime;
 
     @Valid
@@ -101,133 +102,12 @@ public class Transaction implements Serializable, DUPComponent {
     private String comment;
 
 
-    public Transaction(){
 
-    }
-
-
-    public Transaction(Integer version, @Pattern(regexp = Constants.Regex.G1) String currency, Integer locktime, String thash, @Valid BStamp blockstamp, Integer blockstampTime, List<String> issuers, @Valid List<TxInput> inputs, @Valid List<TxOutput> outputs, @Valid List<TxUnlock> unlocks, List<String> signatures, @Size(max = 255) String comment) {
-        this.version = version;
-        this.currency = currency;
-        this.locktime = locktime;
-        this.thash = thash;
-        this.blockstamp = blockstamp;
-        this.blockstampTime = blockstampTime;
-        this.issuers = issuers;
-        this.inputs = inputs;
-        this.outputs = outputs;
-        this.unlocks = unlocks;
-        this.signatures = signatures;
-        this.comment = comment;
-    }
-
-    /**
-     * @return the blockstamp
-     */
-    public @Valid BStamp getBlockstamp() {
-        return blockstamp; // .getBuid();
-    }
-
-    /**
-     * @return the blockstampTime
-     */
-    public Integer getBlockstampTime() {
-        return blockstampTime;
-    }
-
-    /**
-     * @return the comment
-     */
-    public String getComment() {
-        return comment;
-    }
-
-    /**
-     * @return the currency
-     */
-    public String getCurrency() {
-        return currency;
-    }
-
-    /**
-     * @return the inputs
-     */
-    public List<TxInput> getInputs() {
-        return inputs;// .stream().map(TxInput::getInput).collect(Collectors.toList());
-    }
-
-    /**
-     * @return the issuers
-     */
-    //public List<Pubkey> getIssuers() {
-    //	return issuers;// .stream().map(Pubkey::getPubkey).collect(Collectors.toList());
-    //}
-    public List<String> getIssuers() {
-        return issuers;
-    }
-
-    /**
-     * @return the locktime
-     */
-    public Integer getLocktime() {
-        return locktime;
-    }
-
-    public List<TxOutput> getOutputs() {
-        return outputs;
-    }
-
-    // /**
-    //	 * @return the outputs
-    //	 */
-    //	public List<String> getOutputs() {
-    //		return outputs.stream().map(TxOutput::getOutput).collect(Collectors.toList());
-    //	}
-    //
-
-    /**
-     * @return the signatures
-     */
-    public List<String> getSignatures() {
-
-        return signatures;
-    }
-
-    public void setSignatures(List<String> signatures) {
-        this.signatures = signatures;
-    }
-
-
-    /**
-     * @return the hash
-     */
     public String getThash() {
         if(thash == null || "".equals(thash)){
             thash = Crypto.hash(toDUPdoc(true));
         }
         return thash;
-    }
-
-
-
-
-    public  void setThash(String hash) {
-        thash = hash;
-    }
-
-    public List<TxUnlock> getUnlocks() {
-        return unlocks;
-    }
-
-    /**
-     * @return the version
-     */
-    public Integer getVersion() {
-        return version;
-    }
-
-    public boolean isValid() {
-        return true;
     }
 
     @Override
@@ -290,7 +170,7 @@ public class Transaction implements Serializable, DUPComponent {
      * EP9BhAMIbDSy9nfplSmmvp7yI6t79kO0/7/bdecGjayH+hrZxT2R4xkpEVyV3qo6Ztc1TwK+F2Hf2big5pVrCA==
      * </pre>
      */
-    public String toDUPshort(boolean signed) {
+    public String toDUPshort() {
 
         final var hasComment = comment != null && !comment.equals("");
 
@@ -301,7 +181,7 @@ public class Transaction implements Serializable, DUPComponent {
                 + unlocks.stream().map(TxUnlock::toDUP).collect(Collectors.joining("\n")) + "\n"
                 + outputs.stream().map(TxOutput::toDUP).collect(Collectors.joining("\n")) + "\n"
                 + (hasComment ? comment + "\n" : "")
-                + (signed ? String.join("\n", signatures) + "\n" : "");
+                + String.join("\n", signatures);
     }
 
     public boolean txReceivedBy(Object pubkey) {

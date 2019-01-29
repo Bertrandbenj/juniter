@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import juniter.core.utils.Constants;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,7 +18,8 @@ import java.io.Serializable;
 @Setter
 @Entity
 @AllArgsConstructor
-@Table(name = "certification", schema = "public")
+@NoArgsConstructor
+@Table(name = "wot_certification", schema = "public")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Certification implements Serializable, Comparable<Certification> {
 
@@ -43,9 +45,6 @@ public class Certification implements Serializable, Comparable<Certification> {
 	private String signature;
 
 
-
-	public Certification(){}
-
 	public Certification(String certif) {
 		LOG.debug("Parsing certif ... " + certif);
 
@@ -70,26 +69,5 @@ public class Certification implements Serializable, Comparable<Certification> {
 		return toDUP();
 	}
 
-	public String certifier() {
-		return certifier;
-	}
 
-	public String certified() {
-		return certified;
-	}
-
-	public String signature() {
-		return signature;
-	}
-
-	public Integer getBlockNumber() { return blockNumber; }
-
-	public String getSignature() {
-		return signature;
-	}
-
-
-    public void setSignature(String signature) {
-        this.signature = signature;
-    }
 }

@@ -26,7 +26,7 @@ import java.util.stream.IntStream;
  *
  * @author ben
  */
-@ConditionalOnExpression("${juniter.missingloader.enabled:false}")
+@ConditionalOnExpression("${juniter.loader.useMissing:false}")
 @Component
 @Order(10)
 public class MissingBlocksLoader {
@@ -93,7 +93,7 @@ public class MissingBlocksLoader {
             if (bulkStart == -1) {
                 bulkStart = miss;
                 cntI++;
-            } else if (cntI >= 500 || missing.indexOf(miss) == missing.size()-1) {
+            } else if (cntI >= 50 || missing.indexOf(miss) == missing.size()-1) {
                 map.put(bulkStart, cntI);
                 bulkStart = miss;
                 cntI = 0;
@@ -109,16 +109,20 @@ public class MissingBlocksLoader {
 
         }
 
-        map.entrySet().parallelStream()
-                .forEach(entry -> {
-                    defaultLoader.fetchBlocks(entry.getValue(), entry.getKey())
-                            .forEach(b -> blockRepo//
-                                    .localSave(b) //
-                                    .ifPresent(bl -> LOG.debug("saved missing block " + bl)));
-                });
+        map.entrySet().forEach(entry -> {
+            try {
+                LOG.info(defaultLoader );
+                defaultLoader.getBlockingQueue().put("blockchain/blocks/"+entry.getValue()+"/"+entry.getKey());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
 
 //		missing.forEach(n -> {
-//
+//defaultLoader.fetchBlocks(entry.getValue(), entry.getKey())
+//                            .forEach(b -> blockRepo//
+//                                    .localSave(b) //
+//                                    .ifPresent(bl -> LOG.debug("saved missing block " + bl))
 //			if(!blackList.contains(n)){
 //				LOG.info("  - doFetch for : " + n);
 //				defaultLoader.fetchAndSaveBlock(n);

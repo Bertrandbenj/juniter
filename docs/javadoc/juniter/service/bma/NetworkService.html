@@ -133,7 +133,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <hr>
 <pre>@RestController
-@ConditionalOnExpression("${juniter.bma.enabled:false}")
+@ConditionalOnExpression("${juniter.useBMA:false}")
 @RequestMapping("/network")
 @Order(100)
 public class <span class="typeNameLabel">NetworkService</span>
@@ -215,18 +215,18 @@ extends java.lang.Object</pre>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code>org.springframework.http.ResponseEntity&lt;<a href="../../../juniter/service/bma/dto/PeeringPeersDTO.html" title="class in juniter.service.bma.dto">PeeringPeersDTO</a>&gt;</code></td>
+<td class="colFirst"><code>org.springframework.http.ResponseEntity&lt;<a href="../../../juniter/service/bma/dto/PeeringPeersDTO.html" title="class in juniter.core.model.dto">PeeringPeersDTO</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../juniter/service/bma/NetworkService.html#peeringPeersGet-javax.servlet.http.HttpServletRequest-javax.servlet.http.HttpServletResponse-">peeringPeersGet</a></span>&#8203;(javax.servlet.http.HttpServletRequest&nbsp;request,
                javax.servlet.http.HttpServletResponse&nbsp;response)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>org.springframework.http.ResponseEntity&lt;<a href="../../../juniter/core/model/net/Peer.html" title="class in juniter.core.model.net">Peer</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../juniter/service/bma/NetworkService.html#peeringPeersPost-juniter.service.bma.dto.PeerBMA-">peeringPeersPost</a></span>&#8203;(<a href="../../../juniter/service/bma/dto/PeerBMA.html" title="class in juniter.service.bma.dto">PeerBMA</a>&nbsp;input)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../juniter/service/bma/NetworkService.html#peeringPeersPost-juniter.core.model.dto.PeerBMA-">peeringPeersPost</a></span>&#8203;(<a href="../../../juniter/service/bma/dto/PeerBMA.html" title="class in juniter.core.model.dto">PeerBMA</a>&nbsp;input)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i5" class="rowColor">
-<td class="colFirst"><code><a href="../../../juniter/service/bma/dto/PeersDTO.html" title="class in juniter.service.bma.dto">PeersDTO</a></code></td>
+<td class="colFirst"><code><a href="../../../juniter/service/bma/dto/PeersDTO.html" title="class in juniter.core.model.dto">PeersDTO</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../juniter/service/bma/NetworkService.html#peers--">peers</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -306,7 +306,7 @@ public&nbsp;java.util.List&lt;java.lang.String&gt;&nbsp;index()</pre>
 <pre>@Transactional(readOnly=true)
 @RequestMapping(value="/peers",
                 method=GET)
-public&nbsp;<a href="../../../juniter/service/bma/dto/PeersDTO.html" title="class in juniter.service.bma.dto">PeersDTO</a>&nbsp;peers()</pre>
+public&nbsp;<a href="../../../juniter/service/bma/dto/PeersDTO.html" title="class in juniter.core.model.dto">PeersDTO</a>&nbsp;peers()</pre>
 </li>
 </ul>
 <a name="peering-javax.servlet.http.HttpServletRequest-javax.servlet.http.HttpServletResponse-">
@@ -331,7 +331,7 @@ public&nbsp;<a href="../../../juniter/core/model/net/Peer.html" title="class in 
 <pre>public&nbsp;<a href="../../../juniter/core/model/net/Peer.html" title="class in juniter.core.model.net">Peer</a>&nbsp;endPointPeer&#8203;(java.lang.Integer&nbsp;number)</pre>
 </li>
 </ul>
-<a name="peeringPeersPost-juniter.service.bma.dto.PeerBMA-">
+<a name="peeringPeersPost-juniter.core.model.dto.PeerBMA-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -341,7 +341,7 @@ public&nbsp;<a href="../../../juniter/core/model/net/Peer.html" title="class in 
                 method=POST)
 @ResponseBody
 public&nbsp;org.springframework.http.ResponseEntity&lt;<a href="../../../juniter/core/model/net/Peer.html" title="class in juniter.core.model.net">Peer</a>&gt;&nbsp;peeringPeersPost&#8203;(@RequestBody
-                                                                      <a href="../../../juniter/service/bma/dto/PeerBMA.html" title="class in juniter.service.bma.dto">PeerBMA</a>&nbsp;input)</pre>
+                                                                      <a href="../../../juniter/service/bma/dto/PeerBMA.html" title="class in juniter.core.model.dto">PeerBMA</a>&nbsp;input)</pre>
 </li>
 </ul>
 <a name="peeringPeersGet-javax.servlet.http.HttpServletRequest-javax.servlet.http.HttpServletResponse-">
@@ -354,7 +354,7 @@ public&nbsp;org.springframework.http.ResponseEntity&lt;<a href="../../../juniter
 @RequestMapping(value="/peering/peers",
                 method=GET)
 @ResponseBody
-public&nbsp;org.springframework.http.ResponseEntity&lt;<a href="../../../juniter/service/bma/dto/PeeringPeersDTO.html" title="class in juniter.service.bma.dto">PeeringPeersDTO</a>&gt;&nbsp;peeringPeersGet&#8203;(javax.servlet.http.HttpServletRequest&nbsp;request,
+public&nbsp;org.springframework.http.ResponseEntity&lt;<a href="../../../juniter/service/bma/dto/PeeringPeersDTO.html" title="class in juniter.core.model.dto">PeeringPeersDTO</a>&gt;&nbsp;peeringPeersGet&#8203;(javax.servlet.http.HttpServletRequest&nbsp;request,
                                                                                 javax.servlet.http.HttpServletResponse&nbsp;response)</pre>
 </li>
 </ul>

@@ -7,10 +7,10 @@ import juniter.core.model.net.Peer;
 import juniter.repository.jpa.BlockRepository;
 import juniter.repository.jpa.EndPointsRepository;
 import juniter.repository.jpa.PeersRepository;
-import juniter.service.bma.dto.LeafDTO;
-import juniter.service.bma.dto.PeerBMA;
-import juniter.service.bma.dto.PeeringPeersDTO;
-import juniter.service.bma.dto.PeersDTO;
+import juniter.core.model.dto.LeafDTO;
+import juniter.core.model.dto.PeerBMA;
+import juniter.core.model.dto.PeeringPeersDTO;
+import juniter.core.model.dto.PeersDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  * @author ben
  */
 @RestController
-@ConditionalOnExpression("${juniter.bma.enabled:false}")
+@ConditionalOnExpression("${juniter.useBMA:false}")
 @RequestMapping("/network")
 @Order(100)
 public class NetworkService {
@@ -50,7 +50,6 @@ public class NetworkService {
 
     @Value("${server.name:juniter.bnimajneb.online}")
     String serverName;
-
 
 
     public static final Logger LOG = LogManager.getLogger();
@@ -65,10 +64,7 @@ public class NetworkService {
     private BlockRepository blockRepo;
 
 
-
-
     private SecretBox secretBox = new SecretBox("salt", "password");
-
 
 
     @Transactional
@@ -131,10 +127,7 @@ public class NetworkService {
 
         //peer.endpoints().add(new EndPoint("BASIC_MERKLED_API " + serverName + " " + " " + port));
 
-
         peer.setSignature(secretBox.sign(peer.toDUP(false)));
-
-
 
         return peer;
     }
@@ -143,7 +136,7 @@ public class NetworkService {
     @ResponseBody
     public ResponseEntity<Peer> peeringPeersPost(@RequestBody PeerBMA input) {
 
-        LOG.info("POSTING /network/peering/peers ..." + input.peer);
+        LOG.info("POSTING /network/peering/peers ..." + input.getPeer());
 
 
         Peer peer = new Peer();

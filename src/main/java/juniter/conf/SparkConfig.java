@@ -8,6 +8,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
+import java.util.Optional;
+
 /**
  * @author BnimajneB
  */
@@ -30,8 +32,15 @@ public class SparkConfig {
     private String masterUri;
 
     @Bean
-    public JavaSparkContext javaSparkContext() {
-        return new JavaSparkContext(sparkConf());
+    public Optional<JavaSparkContext> javaSparkContext() {
+        try{
+            var res =new JavaSparkContext(sparkConf());
+            return Optional.of(res);
+        }
+        catch(Exception e){
+            return Optional.empty();
+        }
+
     }
 
     @Bean
@@ -51,9 +60,13 @@ public class SparkConfig {
 
     @Bean
     public SparkSession sparkSession() {
+
+        var jsc = javaSparkContext().get().sc();
+
+
         return SparkSession
                 .builder()
-                .sparkContext(javaSparkContext().sc())
+                .sparkContext(jsc)
                 .appName("Java Spark SQL basic example")
                 .getOrCreate();
     }

@@ -1,7 +1,9 @@
 package juniter.core.model.tx;
 
 import juniter.core.model.DUPComponent;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,7 +31,8 @@ import java.io.Serializable;
 @Embeddable
 @Getter
 @Setter
-
+@NoArgsConstructor
+@AllArgsConstructor
 public class TxOutput implements Serializable, Comparable<TxOutput>, DUPComponent {
 
 	private static final long serialVersionUID = 2208036347838232516L;
@@ -43,11 +46,7 @@ public class TxOutput implements Serializable, Comparable<TxOutput>, DUPComponen
 	@Size(max = 255)
 	private String condition;
 
-
-	public TxOutput() {
-	}
-
-	public TxOutput(String output) {
+	TxOutput(String output) {
 		final var vals = output.split(":");
 		amount = Integer.valueOf(vals[0]);
 		base = Integer.valueOf(vals[1]);
@@ -63,39 +62,15 @@ public class TxOutput implements Serializable, Comparable<TxOutput>, DUPComponen
 		return toDUP().compareTo(o.toDUP());
 	}
 
-	public Integer getAmount() {
-		return amount;
-	}
-
-	public Integer getBase() {
-		return base;
-	}
-
-	public String getOutput() {
-		return toDUP();
-	}
 
 	public String getOutputCondition() {
 		return condition;
 	}
 
-	public void setCondition(String condition) {
-		this.condition = condition;
-	}
-
-	public void setAmount(Integer amount) {
-		this.amount = amount;
-	}
-
-	public void setBase(Integer base) {
-		this.base = base;
-	}
-
-
 
 	@Override
 	public String toDUP() {
-		return amount + ":" + base + ":" + getOutputCondition();
+		return amount + ":" + base + ":" + condition;
 	}
 
 	@Override

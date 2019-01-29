@@ -33,18 +33,16 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
     private static final Logger LOG = LogManager.getLogger();
 
 
-
-
     //                                  LOADING  SECTION
-    @FXML private ProgressBar loadBar ;
-
+    @FXML
+    private ProgressBar loadBar;
 
 
     @Autowired
-    private BlockLoader blockLoader ;
+    private BlockLoader blockLoader;
 
     @Autowired
-    private MissingBlocksLoader mBlockLoader ;
+    private MissingBlocksLoader mBlockLoader;
 
     @Autowired
     private BINDEXRepository bRepo;
@@ -54,23 +52,22 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
 
 
 
-    public FrontPage() { }
-
-
-
-    @FXML
-    public void bulkLoad(){
-
-        if(Bus.isDownloading.getValue()){
-            return;
-        }
-        blockLoader.bulkLoad();
+    public FrontPage() {
     }
 
 
+    @FXML
+    public void bulkLoad() {
+
+        if (Bus.isDownloading.getValue()) {
+            return;
+        }
+        blockLoader.bulkLoad2();
+    }
+
 
     @FXML
-    public void loadMissing(){
+    public void loadMissing() {
         mBlockLoader.checkMissingBlocks();
     }
 
@@ -94,23 +91,22 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
         primaryStage.show();
         primaryStage.setOnHidden(e -> Platform.exit());
 
+
+
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
 
-
-
-        loadBar.progressProperty().bind(Bus.maxDBBlock.divide(Bus.maxPeerBlock));
+        loadBar.progressProperty().bind(Bus.currentDBBlock.divide(Bus.maxPeerBlock));
         Bus.maxBindex.setValue(blockRepo.currentBlockNumber());
-        Bus.maxDBBlock.setValue(blockRepo.currentBlockNumber());
+        Bus.currentDBBlock.setValue(blockRepo.count());
         Bus.currentBindex.setValue(bRepo.head().map(b -> b.number).orElse(0));
-
+        Bus.maxDBBlock.setValue(blockRepo.currentBlockNumber());
 
 
     }
-
 
 
 }

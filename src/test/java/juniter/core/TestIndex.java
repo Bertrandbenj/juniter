@@ -3,7 +3,7 @@ package juniter.core;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import juniter.core.model.DBBlock;
-import juniter.repository.jpa.index.Index;
+import juniter.service.Index;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Before;
@@ -53,7 +53,7 @@ public class TestIndex {
 		assertTrue("blockchain not parsed " + blockchain.size(), blockchain.size() == 12);
 
 		for (final DBBlock b : blockchain) {
-			assertTrue("NOT Valid \n" + b.toDUP(), idx_duniter.validate(b, false));
+			assertTrue("NOT Valid \n" + b.toDUP(), idx_duniter.completeGlobalScope(b, true));
 		}
 
 	}
@@ -64,7 +64,7 @@ public class TestIndex {
 		assertTrue("blockchain not parsed " + blockchaing1.size(), blockchaing1.size() == 100);
 
 		for (final DBBlock b : blockchaing1) {
-			assertTrue("NOT Valid \n" + b.toDUP(), idx_g1.validate(b, false));
+			assertTrue("NOT Valid \n" + b.toDUP(), idx_g1.completeGlobalScope(b, true));
 		}
 
 

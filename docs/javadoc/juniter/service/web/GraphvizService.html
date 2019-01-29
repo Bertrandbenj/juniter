@@ -133,7 +133,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <hr>
 <pre>@Controller
-@ConditionalOnExpression("${juniter.graphviz.enabled:false} &amp;&amp; ${juniter.bma.enabled:false}")
+@ConditionalOnExpression("${juniter.useGraphViz:false} &amp;&amp; ${juniter.useBMA:false}")
 @RequestMapping("/graphviz")
 public class <span class="typeNameLabel">GraphvizService</span>
 extends java.lang.Object</pre>

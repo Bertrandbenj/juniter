@@ -1,8 +1,9 @@
 package juniter.core.model.wot;
 
-import juniter.core.model.BStamp;
+import juniter.core.model.DUPComponent;
 import juniter.core.utils.Constants;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,8 +16,9 @@ import java.io.Serializable;
 
 @Getter
 @Setter
+@NoArgsConstructor
 @Embeddable
-public class Revoked implements Serializable, Comparable<Revoked> {
+public class Revoked implements DUPComponent, Serializable, Comparable<Revoked> {
 
 	private static final long serialVersionUID = 2875594811917743111L;
 
@@ -28,11 +30,12 @@ public class Revoked implements Serializable, Comparable<Revoked> {
 
 	private String signature;
 
-	public Revoked() {
-	}
 
-	public Revoked(String joiner) {
-		setRevoked(joiner);
+	public Revoked(String rev) {
+		final var vals = rev.split(":");
+		revoked = vals[0] ;
+		signature = vals[1];
+		LOG.debug("Parsed Revoked... " + rev);
 	}
 
 	@Override
@@ -40,21 +43,6 @@ public class Revoked implements Serializable, Comparable<Revoked> {
 		return toDUP().compareTo(o.toDUP());
 	}
 
-
-	public String revoked() {
-		return revoked;
-	}
-
-	public void setRevoked(String rev) {
-		final var vals = rev.split(":");
-		revoked = vals[0] ;
-		signature = vals[1];
-		LOG.debug("Parsed Revoked... " + rev);
-	}
-
-	public String signature(){
-		return signature;
-	}
 
 	public String toDUP() {
 		return revoked + ":" + signature;
@@ -65,7 +53,4 @@ public class Revoked implements Serializable, Comparable<Revoked> {
 		return toDUP();
 	}
 
-	public BStamp createdOn() {
-		return new BStamp("1234-REVOKED");
-	}
 }

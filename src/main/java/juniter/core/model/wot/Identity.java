@@ -2,8 +2,10 @@ package juniter.core.model.wot;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import juniter.core.model.BStamp;
+import juniter.core.model.DUPComponent;
 import juniter.core.utils.Constants;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,16 +18,17 @@ import javax.validation.constraints.Size;
 import java.io.Serializable;
 
 /**
- * Pubkey : signature : buid : buid : pseudo;
+ * Pubkey : signature : buid : buid : uid;
  *
  * @author ben
  */
 @Entity
 @Getter
 @Setter
-@Table(name = "identity", schema = "public")
+@NoArgsConstructor
+@Table(name = "wot_identity", schema = "public")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Identity implements Serializable, Comparable<Identity> {
+public class Identity implements DUPComponent,Serializable, Comparable<Identity> {
     private static final Logger LOG = LogManager.getLogger();
 
     private static final long serialVersionUID = -9160916061297193207L;
@@ -37,7 +40,7 @@ public class Identity implements Serializable, Comparable<Identity> {
     @Size(max = 45)
     @NonNull
     @Pattern(regexp = Constants.Regex.PUBKEY)
-    private String newidentity;
+    private String pubkey;
 
     @Valid
     @Size(max = 88)
@@ -48,45 +51,26 @@ public class Identity implements Serializable, Comparable<Identity> {
     @AttributeOverride(name = "buid", column = @Column(name = "createdOn"))
     private BStamp createdOn = new BStamp();
 
-    private String pseudo;
+    private String uid;
 
-    public Identity() {
-
-    }
 
     public Identity(String identity) {
         LOG.debug("Parsing Identity... " + identity);
         final var vals = identity.split(":");
-        newidentity = vals[0];
+        pubkey = vals[0];
         signature = vals[1];
         createdOn.parse(vals[2]);
-        pseudo = vals[3];
+        uid = vals[3];
     }
 
     @Override
     public int compareTo(@NonNull Identity o) {
-        return newidentity.compareTo(o.newidentity);
+        return pubkey.compareTo(o.pubkey);
     }
 
-    public BStamp createdOn() {
-        return createdOn;
-    }
-
-    public String pseudo() {
-        return pseudo;
-    }
-
-    public String signature() {
-        return signature;
-    }
-
-
-    public String pub() {
-        return newidentity;
-    }
 
     public String toDUP() {
-        return newidentity + ":" + signature + ":" + createdOn + ":" + pseudo;
+        return pubkey + ":" + signature + ":" + createdOn + ":" + uid;
     }
 
     @Override

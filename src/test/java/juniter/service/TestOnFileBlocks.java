@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import juniter.core.crypto.Crypto;
 import juniter.core.model.DBBlock;
 import juniter.core.validation.BlockLocalValid;
-import juniter.repository.jpa.index.Index;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Before;
@@ -65,7 +64,7 @@ public class TestOnFileBlocks implements BlockLocalValid {
 
 	@Before
 	public void init() {
-		LOG.info("Entering FileBlocksService.init  ");
+		LOG.info("Entering FileBlocksService.reset  ");
 
 		final ClassLoader cl = this.getClass().getClassLoader();
 		final ObjectMapper jsonMapper = new ObjectMapper();
@@ -237,8 +236,8 @@ public class TestOnFileBlocks implements BlockLocalValid {
 
 	@Test
 	public void testIndexing() {
-		idx.validate(_0, false);
-		idx.validate(_1, false);
+		idx.completeGlobalScope(_0, true);
+		idx.completeGlobalScope(_1, true);
 	}
 
 	@Test
