@@ -1,0 +1,8 @@
+//rootProject.name = 'all'
+
+
+include 'core'
+include 'cli'
+include 'gui'
+
+//includeBuild 'spark'

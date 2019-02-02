@@ -1,0 +1,57 @@
+
+buildscript {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+        maven { url "https://plugins.gradle.org/m2/" }
+        maven { url 'http://repo.spring.io/plugins-release' }
+        jcenter()
+    }
+
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:2.0.2.RELEASE")
+
+        //classpath 'me.champeau.gradle:antlr4-gradle-plugin:0.1'
+        //classpath 'org.hidetake:gradle-ssh-plugin:2.9.0'
+        classpath 'org.openjfx:javafx-plugin:0.0.7'
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'org.openjfx.javafxplugin' 
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+//https://openjfx.io/openjfx-docs/#gradle
+javafx {
+    modules = ['javafx.controls', 'javafx.fxml', 'javafx.web', 'javafx.media']
+    // version = "11.0.2"
+}
+
+
+dependencies {
+    compile project(":core")
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compileOnly 'org.projectlombok:lombok:1.18.4'
+   // compile 'org.openjfx:javafx-plugin:0.0.7'
+    //compile("org.apache.logging.log4j:log4j-core")
+    compile("org.apache.logging.log4j:log4j-api:2.10.0")
+}
+
+springBoot {
+
+}
+
+bootJar {
+    mainClassName = 'juniter.GUIApplication'
+    enabled = true
+}
+
+jar {
+    enabled = false
+}
+
+bootRun {
+    enableAssertions = true // !!  BR_G[0-108] assertion
+    //jvmArgs = ["-agentlib:jdwp=transport=dt_socket,server=y,address=5005,suspend=y"]
+}

@@ -1,0 +1,209 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        // mavenLocal()
+        // maven { url "https://plugins.gradle.org/m2/" }
+        // maven { url 'http://repo.spring.io/plugins-release' }
+        // jcenter()
+    }
+
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:2.0.2.RELEASE")
+    }
+
+}
+apply plugin: "java"
+apply plugin: 'antlr'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+
+javadoc {
+    source = sourceSets.main.allJava
+    classpath = configurations.compile
+    destinationDir = new File("docs/javadoc") // inside of build 
+}
+
+
+
+//springBoot {
+//    mainClassName = 'juniter.Application'
+//}
+//
+//bootRun {
+//    enableAssertions = true // !!  BR_G[0-108] assertion
+//    //jvmArgs = ["-agentlib:jdwp=transport=dt_socket,server=y,address=5005,suspend=y"]
+//}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    jcenter()
+
+}
+
+configurations {
+    all*.exclude group: "org.springframework.boot", module: "spring-boot-starter-logging"
+    all*.exclude group: "ch.qos.logback"
+    all*.exclude group: "org.slf4j", module: "log4j-over-slf4j" // allow using log4j 2.x
+    all*.exclude group: "org.slf4j", module: "slf4j-simple"     // log4j is the configured backend
+}
+
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+
+    compile("org.springframework.boot:spring-boot-starter-web") {
+        exclude module: "spring-boot-starter-tomcat"
+        exclude module: "spring-boot-starter-logging"
+        exclude module: "logback-classic"
+    }
+    compile("org.springframework.boot:spring-boot-starter-actuator") {
+        exclude module: "logback-classic"
+    }
+
+    //compile("org.springframework.boot:spring-boot-starter-web")	
+    compile("org.springframework.boot:spring-boot-starter-data-jpa")
+    compile("org.springframework.boot:spring-boot-configuration-processor")
+    compile("org.springframework.boot:spring-boot-starter-freemarker")
+    compile("org.springframework.boot:spring-boot-starter-websocket")
+
+    compile group: 'com.graphql-java', name: 'graphql-spring-boot-starter', version: '5.0.2'
+    compile group: 'com.graphql-java', name: 'graphql-java', version: '8.0'
+    compile group: 'com.graphql-java', name: 'graphql-spring-boot-autoconfigure', version: '5.0.2'
+    compile group: 'com.graphql-java', name: 'graphql-java-servlet', version: '6.1.3'
+    compile("com.graphql-java:graphiql-spring-boot-starter:3.6.0")
+    compile("io.leangen.graphql:spqr:0.9.7")
+    compile 'org.springframework.boot:spring-boot-starter-mail:2.0.1.RELEASE'
+
+    //compile 'com.graphql-java-kickstart:graphql-spring-boot-starter:5.3.1'
+
+    // to embed GraphiQL tool
+    //compile 'com.graphql-java-kickstart:graphiql-spring-boot-starter:5.3.1'
+
+    // to embed Voyager tool
+    //compile 'com.graphql-java-kickstart:voyager-spring-boot-starter:5.3.1'
+
+    // testing facilities
+    //testCompile 'com.graphql-java-kickstart:graphql-spring-boot-starter-test:5.3.1'
+
+
+    compile "org.java-websocket:Java-WebSocket:1.3.9"
+
+    compile("org.springframework:spring-web")
+    compile("org.springframework:spring-webmvc")
+    compile("org.springframework:spring-context-support")
+
+    // Server stuff 
+    compile("org.apache.httpcomponents:httpcore")
+    compile "javax.servlet:javax.servlet-api"
+    compile("commons-codec:commons-codec")
+    compile("org.antlr:antlr4-runtime:4.7.1")
+    compile("org.apache.logging.log4j:log4j-core")
+    compile("org.postgresql:postgresql")
+    compile("io.reactivex.rxjava2:rxjava")
+
+    compile("javax.xml.bind:jaxb-api")
+    compile("org.modelmapper:modelmapper:2.1.0")
+
+    // front dependencies 
+    compile("de.neuland-bfi:spring-jade4j:1.2.5")
+    compile("com.github.instaweb:spring-boot-jade:0.9.0-SNAPSHOT")
+    compile("org.freemarker:freemarker")
+    compile("javax.servlet:jstl")
+    compile("org.webjars:bootstrap:3.3.7")
+    compile("org.webjars:stomp-websocket:2.3.3")
+    compile("org.webjars:webjars-locator-core")
+    compile("org.webjars:sockjs-client:1.0.2")
+    compile("org.webjars:jquery:3.1.0")
+    compile("com.lambdaworks:scrypt:1.4.0")
+    compile("com.github.jnr:jnr-ffi:2.1.0")
+
+    compile files(projectDir.toString() + "/../lib/kalium-0.5.0_blavenie.jar".toString()) //, 'libs/gson-2.2.4.jar')
+
+
+    // TESTS
+    testCompile("junit:junit")
+    testCompile("com.h2database:h2")
+    testCompile("org.apache.httpcomponents:httpclient")
+    testCompile("org.springframework.boot:spring-boot-starter-test")
+
+
+    // PRE COMPILE
+    compileOnly 'org.projectlombok:lombok:1.18.4'
+    antlr "org.antlr:antlr4:4.7.1"
+
+
+    // MONITORING MEASUREMENT
+    compile 'org.springframework.boot:spring-boot-starter-actuator'
+    compile 'io.micrometer:micrometer-core'
+    compile 'io.micrometer:micrometer-registry-prometheus'
+    compile 'de.codecentric:spring-boot-admin-starter-client:2.1.1'
+    compile 'org.springframework.boot:spring-boot-starter-security'
+    compile 'com.ryantenney.metrics:metrics-spring:3.1.3'
+
+
+
+    //compile "org.xerial:sqlite-jdbc:3.23.1"
+
+
+    //compile 'org.openjfx:javafx-fxml:11'
+    //compile 'org.openjfx:javafx-controls:11'
+
+    compile 'org.javassist:javassist:3.23.1-GA'  // https://stackoverflow.com/questions/18125587/hibernate-mapping-exception-could-not-get-constructor-for-org-hibernate-entity
+}
+
+
+configurations {
+    provided
+
+    // add antlr4 to classpath
+    //compileJava.dependsOn generateGrammarSource
+    //compileJava.dependsOn compileScala
+    //compileScala.dependsOn.remove("compileJava")
+    compile.extendsFrom = extendsFrom.findAll { it != configurations.antlr }
+    //compile.extendsFrom antlr4
+
+
+}
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+}
+
+
+generateGrammarSource {
+    arguments << "-visitor" << "-lib" << "src/main/antlr"
+    outputDirectory = new File(projectDir.toString() + "/src/main/java/antlr/generated".toString())
+
+    maxHeapSize = "64m"
+
+
+    // Keep a copy of generated sources
+    //doLast {
+    //    println "Copying generated grammar lexer/parser files to main directory."
+    //    copy {
+    //        from "${buildDir}/generated-src/antlr/main"
+    //        into "src/main/java/antlr/main"
+    //    }
+    //}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
