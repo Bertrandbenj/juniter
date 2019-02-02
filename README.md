@@ -20,7 +20,7 @@ It is not yet a calculating node of the network
  - Challenging WS2P 
  - GraphQL - Broken since gradle  
  - Graphviz graphs - Clickable graphs of the chain. [Ex.](https://juniter.bnimajneb.online:8443/graphviz/svg/block/127128)
- - Grammar - [readme](grammar/README.md) [antlr](juniter/src/main/antlr/JuniterGrammar.p4) [perl6](scripts/grammar.pl6)
+ - Grammar - [readme](grammar/README.md) [antlr](juniter/src/main/antlr/JuniterGrammar.p4) [perl6](grammar/grammar.pl6)
     - Grammar helps me define the parsing in the process of **Local Validation** 
  - **Global Validation** is the process of indexing the blockchain and keeping the global state it is reprensetend by 108 business rules BR_G01-108 
     - [GlobalValid](src/main/java/juniter/core/validation/GlobalValid.java) 

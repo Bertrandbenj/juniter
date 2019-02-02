@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.*?>
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane fx:id="content" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Spark">
+    <right>
+        <fx:include source="../../../../src/main/resources/juniter.service.adminfx/include/Menu.fxml" />
+    </right>
+    <bottom>
+        <fx:include source="../../../../src/main/resources/juniter.service.adminfx/include/Footer.fxml" />
+    </bottom>
+    <center>
+        <SplitPane dividerPositions="0.7063829787234043" orientation="VERTICAL" BorderPane.alignment="CENTER">
+            <items>
+                <VBox>
+                    <children>
+                        <HBox VBox.vgrow="ALWAYS">
+                            <children>
+                                <VBox prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Transactions">
+                                            <font>
+                                                <Font size="22.0" />
+                                            </font>
+                                        </Label>
+                                        <VBox fx:id="txList" spacing="5.0" VBox.vgrow="ALWAYS" />
+                                        <Label alignment="CENTER" graphicTextGap="6.0" maxWidth="1.7976931348623157E308" text="WOT">
+                                            <font>
+                                                <Font size="22.0" />
+                                            </font>
+                                        </Label>
+                                        <VBox fx:id="wotList" spacing="5.0" VBox.vgrow="ALWAYS" />
+                                    </children>
+                                </VBox>
+                                <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Decomposed" VBox.vgrow="ALWAYS">
+                                            <font>
+                                                <Font size="22.0" />
+                                            </font>
+                                        </Label>
+                                        <VBox fx:id="workingList" prefHeight="200.0" prefWidth="100.0" VBox.vgrow="ALWAYS" />
+                                    </children>
+                                </VBox>
+                                <VBox prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Index">
+                                            <font>
+                                                <Font size="22.0" />
+                                            </font>
+                                        </Label>
+                                        <VBox fx:id="indexList" spacing="5.0" VBox.vgrow="ALWAYS" />
+                                    </children>
+                                </VBox>
+                                <Accordion HBox.hgrow="NEVER">
+                                    <panes>
+                                        <TitledPane expanded="false" text="Extract">
+                                            <content>
+                                                <VBox spacing="10.0">
+                                                    <children>
+                                                        <Button mnemonicParsing="false" onAction="#duniterToParquet" text="duniterToParquet" />
+                                                        <Button mnemonicParsing="false" onAction="#dumpIndexes" text="dumpIndexes" />
+                                                        <Button mnemonicParsing="false" onAction="#dumpJsonRows" text="dumpJsonRows" />
+                                                    </children>
+                                                </VBox>
+                                            </content>
+                                        </TitledPane>
+                                        <TitledPane fx:id="transformPane" text="Transform ">
+                                            <content>
+                                                <VBox spacing="10.0">
+                                                    <children>
+                                                        <Button mnemonicParsing="false" onAction="#jsonToParquet" text="jsonToParquet" />
+                                                        <Button mnemonicParsing="false" onAction="#computeAsOf" text="compute AsOf" />
+                                                        <Button mnemonicParsing="false" onAction="#parseBlockchain" text="parseBlockchain" />
+                                                    </children>
+                                                </VBox>
+                                            </content>
+                                            <cursor>
+                                                <Cursor fx:constant="DEFAULT" />
+                                            </cursor>
+                                        </TitledPane>
+                                        <TitledPane expanded="false" text="Load">
+                                            <content>
+                                                <VBox spacing="10.0">
+                                                    <children>
+                                                        <Button mnemonicParsing="false" onAction="#compare" text="compare" />
+                                                    </children>
+                                                </VBox>
+                                            </content>
+                                        </TitledPane>
+                                    </panes>
+                                    <padding>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                    </padding>
+                                    <HBox.margin>
+                                        <Insets />
+                                    </HBox.margin>
+                                </Accordion>
+                            </children>
+                        </HBox>
+                    </children>
+                    <padding>
+                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                    </padding>
+                </VBox>
+                <VBox alignment="CENTER" fillWidth="false">
+                    <children>
+                        <TextArea fx:id="show" prefWidth="1300.0" promptText="qsdqsdqsdqsdqsd" VBox.vgrow="ALWAYS">
+                            <font>
+                                <Font name="Bitstream Vera Sans Mono Bold Oblique" size="12.0" />
+                            </font>
+                        </TextArea>
+                    </children>
+                </VBox>
+            </items>
+            <padding>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+            </padding>
+        </SplitPane>
+    </center>
+</BorderPane>

@@ -16,8 +16,8 @@ juniter.repository.jpa
 juniter.repository.jpa.index
 juniter.repository.memory
 juniter.service
-juniter.service.adminfx
-juniter.service.adminfx.include
+juniter.service.juniter.service.adminfx
+juniter.service.juniter.service.adminfx.include
 juniter.service.bma
 juniter.core.model.dto
 juniter.service.bma.loader
