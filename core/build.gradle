@@ -143,6 +143,8 @@ dependencies {
     compile 'com.ryantenney.metrics:metrics-spring:3.1.3'
 
 
+    // CACHING 
+    compile  'com.github.ben-manes.caffeine:caffeine:2.5.5'
 
     //compile "org.xerial:sqlite-jdbc:3.23.1"
 

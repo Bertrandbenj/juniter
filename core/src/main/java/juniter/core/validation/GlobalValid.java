@@ -3,11 +3,11 @@ package juniter.core.validation;
 import com.codahale.metrics.annotation.Counted;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import juniter.core.crypto.Crypto;
-import juniter.core.model.BStamp;
-import juniter.core.model.ChainParameters;
+import juniter.core.model.business.BStamp;
+import juniter.core.model.business.ChainParameters;
 import juniter.core.model.DBBlock;
 import juniter.core.model.index.Account;
-import juniter.core.model.tx.TxType;
+import juniter.core.model.business.tx.TxType;
 import lombok.*;
 import org.springframework.lang.NonNull;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +16,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -269,6 +270,38 @@ public interface GlobalValid {
     @Getter
             //@JsonIgnoreProperties(ignoreUnknown = true)
     class IINDEX implements Comparable<IINDEX> {
+
+        public static final BinaryOperator<IINDEX> reducer =(i1, i2) -> {
+
+            IINDEX bot, top;
+            if (i1.writtenOn < i2.writtenOn) {
+                top = i1;
+                bot = i2;
+            } else {
+                top = i2;
+                bot = i1;
+            }
+
+            if (top.getCreated_on() == null)
+                top.setCreated_on(bot.getCreated_on());
+            if (top.getHash() == null)
+                top.setHash(bot.getHash());
+            if (top.getSig() == null)
+                top.setSig(bot.getSig());
+            if (top.getMember() == null)
+                top.setMember(bot.getMember());
+            if (top.getWasMember() == null)
+                top.setWasMember(bot.getWasMember());
+            if (top.getKick() == null)
+                top.setKick(bot.getKick());
+            if (top.getWotbid() == null)
+                top.setWotbid(bot.getWotbid());
+            if (top.getUid() == null)
+                top.setUid(bot.getUid());
+
+
+            return top;
+        };
 
         String op;
         String uid;
@@ -2199,9 +2232,9 @@ public interface GlobalValid {
      * IssuersFrameVar = HEAD.issuersFrameVar
      * </pre>
      */
-    private boolean BR_G56_ruleIssuersFrameVar(BINDEX testHead, DBBlock block) {
-        assert testHead.issuersFrameVar.equals(block.getIssuersFrameVar()) : "BR_G56_ruleIssuersFrameVar - " + testHead.issuersFrameVar + " ==? " + block.getIssuersFrameVar();
-        return testHead.issuersFrameVar.equals(block.getIssuersFrameVar());
+    private boolean BR_G56_ruleIssuersFrameVar(BINDEX head, DBBlock block) {
+        assert head.issuersFrameVar.equals(block.getIssuersFrameVar()) : "BR_G56_ruleIssuersFrameVar - " + head.issuersFrameVar + " ==? " + block.getIssuersFrameVar();
+        return head.issuersFrameVar.equals(block.getIssuersFrameVar());
     }
 
     /**
@@ -3598,37 +3631,7 @@ public interface GlobalValid {
 
 
     default Optional<IINDEX> reduceI_(String pub) {
-        return idtyByPubkey(pub).reduce((i1, i2) -> {
-
-            IINDEX bot, top;
-            if (i1.writtenOn < i2.writtenOn) {
-                top = i1;
-                bot = i2;
-            } else {
-                top = i2;
-                bot = i1;
-            }
-
-            if (top.getCreated_on() == null)
-                top.setCreated_on(bot.getCreated_on());
-            if (top.getHash() == null)
-                top.setHash(bot.getHash());
-            if (top.getSig() == null)
-                top.setSig(bot.getSig());
-            if (top.getMember() == null)
-                top.setMember(bot.getMember());
-            if (top.getWasMember() == null)
-                top.setWasMember(bot.getWasMember());
-            if (top.getKick() == null)
-                top.setKick(bot.getKick());
-            if (top.getWotbid() == null)
-                top.setWotbid(bot.getWotbid());
-            if (top.getUid() == null)
-                top.setUid(bot.getUid());
-
-
-            return top;
-        });
+        return idtyByPubkey(pub).reduce(IINDEX.reducer);
     }
 
 
@@ -3694,7 +3697,7 @@ public interface GlobalValid {
         if (inputEntries.size() == 0) {
             inputEntries = sourcesByConditions(entry.identifier, entry.pos)
                     //.peek(consumedS::add)
-                    .peek(s -> System.out.println("huhu " + s))
+                    .peek(s -> System.out.println("pings " + s))
                     .collect(Collectors.toList());
         }
         return inputEntries;

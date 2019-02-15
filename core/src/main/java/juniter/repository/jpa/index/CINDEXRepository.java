@@ -39,7 +39,7 @@ public interface CINDEXRepository extends JpaRepository<CINDEX, Long> {
 
     @Transactional
     @Modifying
-    @Query("DELETE from CINDEX c WHERE op = 'huhu'")
+    @Query("DELETE from CINDEX c WHERE op = 'pings'")
     void trim(int bIndexSize);
 }
 

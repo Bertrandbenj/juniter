@@ -1,12 +1,12 @@
 package juniter.service.bma.loader;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import juniter.core.CoreEventBus;
-import juniter.core.model.BStamp;
+import juniter.core.event.CoreEventBus;
+import juniter.core.model.business.BStamp;
 import juniter.core.model.dto.PeerBMA;
 import juniter.core.model.dto.PeersDTO;
-import juniter.core.model.net.EndPointType;
-import juniter.core.model.net.Peer;
+import juniter.core.model.business.net.EndPointType;
+import juniter.core.model.business.net.Peer;
 import juniter.core.utils.TimeUtils;
 import juniter.repository.jpa.BlockRepository;
 import juniter.repository.jpa.EndPointsRepository;
@@ -40,8 +40,10 @@ import java.util.*;
 @ConditionalOnExpression("${juniter.loader.useDefault:true}") // Must be up for dependencies
 @Component
 @Order(10)
-public class PeerLoader implements CoreEventBus {
+public class PeerLoader  {
 
+    @Autowired
+    private CoreEventBus coreEventBus;
     public static final Logger LOG = LogManager.getLogger();
 
     @Autowired
@@ -109,13 +111,13 @@ public class PeerLoader implements CoreEventBus {
 
                     var maxBlockDB = blockRepo.currentBlockNumber();
 
-                    sendEventSetMaxDBBlock(maxBlockDB);
+                    coreEventBus.sendEventSetMaxDBBlock(maxBlockDB);
 
-                    sendEventPeerLogMessage(host.orElse(""));
+                    coreEventBus.sendEventPeerLogMessage(host.orElse(""));
 
 
                     if(maxBlockPeer.isPresent())
-                        sendEventSetMaxPeerBlock(maxBlockPeer.getAsLong());
+                        coreEventBus.sendEventSetMaxPeerBlock(maxBlockPeer.getAsLong());
 
                     final var elapsed = Long.divideUnsigned(System.nanoTime() - start, 1000000);
                     LOG.info("Max block found peers:" + maxBlockPeer +

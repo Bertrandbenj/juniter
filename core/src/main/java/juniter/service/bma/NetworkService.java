@@ -2,15 +2,12 @@ package juniter.service.bma;
 
 import juniter.core.crypto.SecretBox;
 import juniter.core.model.DBBlock;
-import juniter.core.model.net.EndPoint;
-import juniter.core.model.net.Peer;
+import juniter.core.model.business.net.EndPoint;
+import juniter.core.model.business.net.Peer;
+import juniter.core.model.dto.*;
 import juniter.repository.jpa.BlockRepository;
 import juniter.repository.jpa.EndPointsRepository;
 import juniter.repository.jpa.PeersRepository;
-import juniter.core.model.dto.LeafDTO;
-import juniter.core.model.dto.PeerBMA;
-import juniter.core.model.dto.PeeringPeersDTO;
-import juniter.core.model.dto.PeersDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,6 +71,7 @@ public class NetworkService {
         return endPointRepo.enpointsURL();
     }
 
+    @CrossOrigin(origins = "*")
     @Transactional(readOnly = true)
     @RequestMapping(value = "/peers", method = RequestMethod.GET)
     public PeersDTO peers() {
@@ -90,6 +88,27 @@ public class NetworkService {
     }
 
 
+    @CrossOrigin(origins = "*")
+    @Transactional(readOnly = true)
+    @RequestMapping(value = "/ws2p/heads", method = RequestMethod.GET)
+    public WS2PHeads wsHeads() {
+
+        LOG.info("Entering /ws2p/heads ...");
+
+        var res =  WS2PHeads.builder()
+
+                .heads(List.of(Head.builder()
+                        .message("message")
+                        .sig("====")
+                        .messageV2("message")
+                        .sigV2("====")
+                        .build())
+                ).build();
+
+        return res;
+    }
+
+
     @Transactional(readOnly = true)
     @RequestMapping(value = "/peering", method = RequestMethod.GET)
     public Peer peering(HttpServletRequest request, HttpServletResponse response) {
@@ -97,19 +116,20 @@ public class NetworkService {
 
         LOG.info("Entering /network/peering ... " + remote);
 
-        return endPointPeer(171667);
+        return endPointPeer(blockRepo.currentBlockNumber());
 
     }
 
     /**
      * Create the peer card of this node
+     *
      * @param number the block number we declare the node
      * @return the Peer object
      */
-    public Peer endPointPeer(Integer number){
+    public Peer endPointPeer(Integer number) {
         LOG.info("endPointPeer " + number);
 
-        DBBlock current = blockRepo.block(number ).orElseThrow();
+        DBBlock current = blockRepo.block(number).orElseThrow();
         var peer = new Peer();
         peer.setVersion(10);
         peer.setBlock(current.bstamp());
@@ -121,8 +141,8 @@ public class NetworkService {
         //peer.endpoints().add(new EndPoint("WS2P " + serverName + " " + port));
 
         whatsMyIp().ifPresent(ip -> {
-            peer.endpoints().add(new EndPoint("BMAS "  + ip + " " + port));
-            peer.endpoints().add(new EndPoint("BASIC_MERKLED_API "  + ip + " " + port));
+            peer.endpoints().add(new EndPoint("BMAS " + ip + " " + port));
+            peer.endpoints().add(new EndPoint("BASIC_MERKLED_API " + ip + " " + port));
         });
 
         //peer.endpoints().add(new EndPoint("BASIC_MERKLED_API " + serverName + " " + " " + port));
@@ -145,8 +165,6 @@ public class NetworkService {
 
         return new ResponseEntity<>(peer, headers, HttpStatus.OK);
     }
-
-
 
 
     @Transactional(readOnly = true)

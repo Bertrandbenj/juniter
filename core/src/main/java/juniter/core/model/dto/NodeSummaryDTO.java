@@ -17,7 +17,7 @@ public class NodeSummaryDTO implements Serializable {
     private static final long serialVersionUID = -6400285527778830671L;
 
     public NodeSummaryDTO() {
-        duniter = new Card("juniter", "0.1.0", 66);
+        duniter = new Card("juniter", "1.1.0", 66);
     }
 
     @Getter

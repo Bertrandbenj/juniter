@@ -1,2 +1,0 @@
-include ":juniter"
-project(":juniter").projectDir = file("../juniter")

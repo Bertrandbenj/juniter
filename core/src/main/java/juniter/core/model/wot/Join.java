@@ -16,4 +16,5 @@ public class Join extends Member {
         i_block_uid = vals[3];
         uid = vals[4];
     }
+
 }

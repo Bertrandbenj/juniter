@@ -2,7 +2,7 @@ package juniter.core.validation;
 
 import juniter.core.crypto.Crypto;
 import juniter.core.model.DBBlock;
-import juniter.core.model.tx.Transaction;
+import juniter.core.model.business.tx.Transaction;
 import juniter.core.model.wot.Identity;
 
 import java.util.function.Function;

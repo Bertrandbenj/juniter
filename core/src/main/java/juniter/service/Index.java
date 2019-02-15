@@ -2,8 +2,8 @@ package juniter.service;
 
 import com.codahale.metrics.annotation.Counted;
 import io.micrometer.core.annotation.Timed;
-import juniter.core.CoreEventBus;
-import juniter.core.model.BStamp;
+import juniter.core.event.CoreEventBus;
+import juniter.core.model.business.BStamp;
 import juniter.core.model.DBBlock;
 import juniter.core.model.index.Account;
 import juniter.core.utils.TimeUtils;
@@ -17,10 +17,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
 import java.io.Serializable;
 import java.util.Optional;
 import java.util.Set;
@@ -34,12 +34,15 @@ import java.util.stream.Stream;
  * @author BnimajneB
  */
 @Service
-public class Index implements GlobalValid, Serializable, CoreEventBus {
+public class Index implements GlobalValid, Serializable {
 
 
     private static final long serialVersionUID = 1321654987;
 
     private static final Logger LOG = LogManager.getLogger();
+
+    @Autowired
+    private CoreEventBus coreEventBus;
 
     @Autowired
     private CINDEXRepository cRepo;
@@ -66,16 +69,13 @@ public class Index implements GlobalValid, Serializable, CoreEventBus {
     private BlockRepository blockRepo;
 
 
-    @Autowired
-    private BlockLoader blockLoader;
-
-    @Value("${index:false}")
-    private Boolean index;
+    @Value("${juniter.startIndex:false}")
+    private Boolean startIndex;
 
 
-    @PostConstruct
+    @Scheduled(initialDelay = 1000*10, fixedRate = 1000 * 60 *5)
     void launchIndexing() {
-        if (index) {
+        if (startIndex) {
             indexUntil(blockRepo.currentBlockNumber(), false);
         }
     }
@@ -107,7 +107,7 @@ public class Index implements GlobalValid, Serializable, CoreEventBus {
 //            resetDividend(head().get());
 //        }
 
-        LOG.info("Initialized index B: " + IndexB.size() + " ");
+        LOG.info("Initialized BINDEX[" + IndexB.size() + "] at " + head().map(BINDEX::getNumber) + "");
 
     }
 
@@ -117,8 +117,9 @@ public class Index implements GlobalValid, Serializable, CoreEventBus {
     public Optional<DBBlock> createdOnBlock(BStamp bstamp) {
 
         if (bstamp.getNumber().equals(0))
-            return blockRepo.block(0);
-        return Optional.of(blockRepo.cachedBlock(bstamp)).or(() -> Optional.of(blockLoader.fetchBlock("block/" + bstamp.getNumber())));
+            return  blockRepo.block(0);
+        return Optional.of(blockRepo.block(bstamp.getNumber())
+                .orElseGet(() -> blockLoader.fetchAndSaveBlock(bstamp.getNumber())));
     }
 
     @Override
@@ -268,7 +269,8 @@ public class Index implements GlobalValid, Serializable, CoreEventBus {
 
     }
 
-
+    @Autowired
+    private BlockLoader blockLoader;
     /**
      * mostly technical function to error handle, parametrized, log the validation function
      *
@@ -289,19 +291,20 @@ public class Index implements GlobalValid, Serializable, CoreEventBus {
             final int finali = i;
 
 
-            final var block = blockRepo.block(i).orElseGet(() -> blockLoader.fetchAndSaveBlock(finali));
+            final var block = blockRepo.block(i).orElseGet(()->blockLoader.fetchAndSaveBlock(finali));
 
             try {
                 if (completeGlobalScope(block, !quick)) {
                     LOG.debug("Validated " + block);
-                    sendEventCurrentBindex(finali);
+                    coreEventBus.sendEventCurrentBindex(finali);
                 } else {
-                    sendEventIndexLogMessage("NOT Validated " + block);
+                    coreEventBus.sendEventIndexLogMessage("NOT Validated " + block);
 
                     break;
                 }
             } catch (AssertionError | Exception e) {
-                sendEventIndexLogMessage("ERROR Validating " + block + " - " + e.getMessage());
+                coreEventBus.sendEventIndexLogMessage("ERROR Validating " + block + " - " + e.getMessage() );
+                LOG.error("ERROR Validating " + block + " - " + e.getMessage(), e);
 
                 break;
             }
@@ -316,14 +319,14 @@ public class Index implements GlobalValid, Serializable, CoreEventBus {
                 var log = "Validation : elapsed time " + TimeUtils.format(baseDelta) + " which is " + perBlock
                         + " ms per block, estimating: " + TimeUtils.format(estimate) + "left";
 
-                sendEventIndexLogMessage(log);
+                coreEventBus.sendEventIndexLogMessage(log);
                 time = newTime;
             }
         }
 
         delta = System.currentTimeMillis() - time;
         LOG.info("Finished validation, took :  " + TimeUtils.format(delta));
-        sendEventIsIndexing(false);
+        coreEventBus.sendEventIsIndexing(false);
 
     }
 

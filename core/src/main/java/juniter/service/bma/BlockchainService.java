@@ -1,7 +1,8 @@
 package juniter.service.bma;
 
-import juniter.core.model.ChainParameters;
 import juniter.core.model.DBBlock;
+import juniter.core.model.business.ChainParameters;
+import juniter.core.model.business.ChainParametersDTO;
 import juniter.core.model.dto.*;
 import juniter.core.model.index.MINDEX;
 import juniter.repository.jpa.BlockRepository;
@@ -16,10 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -94,6 +92,7 @@ public class BlockchainService {
         }
     }
 
+    @CrossOrigin(origins = "*")
     @RequestMapping(value = "/block/{id}", method = RequestMethod.GET)
     public Block block(@PathVariable("id") Integer id) {
 
@@ -105,6 +104,7 @@ public class BlockchainService {
         return modelMapper.map(block, Block.class);
     }
 
+    @CrossOrigin(origins = "*")
     @Transactional
     @RequestMapping(value = "/blocks/{count}/{from}", method = RequestMethod.GET)
     public List<Block> blocks(@PathVariable("count") Integer count, @PathVariable("from") Integer from) {
@@ -132,6 +132,7 @@ public class BlockchainService {
     }
 
 
+    @CrossOrigin(origins = "*")
     @Transactional
     @RequestMapping(value = "/current", method = RequestMethod.GET)
     public Block current() {
@@ -161,6 +162,7 @@ public class BlockchainService {
      * @param what
      * @return A Wrapped List of Blocks
      */
+    @CrossOrigin(origins = "*")
     @RequestMapping(value = "/with/{what}", method = RequestMethod.GET)
     @Transactional(readOnly = true)
     public WithDTO with(@PathVariable("what") String what) {
@@ -169,24 +171,21 @@ public class BlockchainService {
         Stream<DBBlock> st;
         switch (what) {
             case "newcomers":
-                st = blockRepo.with(block -> !block.getJoiners().isEmpty());
-                break;
+                return new WithDTO(blockRepo.withNewCommers());
             case "certs":
-                st = blockRepo.with(block -> !block.getCertifications().isEmpty());
-                break;
+                return new WithDTO(blockRepo.withCertifications());
             case "actives":
-                st = blockRepo.with(block -> !block.getRenewed().isEmpty());
-                break;
+            case "renewed":
+                return new WithDTO(blockRepo.withRenewed());
             case "leavers":
-                st = blockRepo.with(block -> !block.getLeavers().isEmpty());
-                break;
+                return new WithDTO(blockRepo.withLeavers());
             case "excluded":
-                st = blockRepo.with(block -> !block.getExcluded().isEmpty());
-                break;
+                return new WithDTO(blockRepo.withExcluded());
             case "ud":
-                st = blockRepo.with(block -> block.getDividend() != null);
-                break;
+                return new WithDTO(blockRepo.withUD());
             case "tx":
+                return new WithDTO(blockRepo.withTx());
+
             default:
                 st = blockRepo.with(block -> !block.getTransactions().isEmpty());
         }
@@ -249,21 +248,24 @@ public class BlockchainService {
     }
 
 
+    @CrossOrigin(origins = "*")
     @RequestMapping(value = "/parameters", method = RequestMethod.GET)
-    ChainParameters parameters() {
-        return new ChainParameters();
+    ChainParametersDTO parameters() {
+        return modelMapper.map(new ChainParameters(), ChainParametersDTO.class);
     }
 
+    @CrossOrigin(origins = "*")
     @Transactional(readOnly = true)
     @RequestMapping(value = "/difficulties", method = RequestMethod.GET)
     DifficultiesDTO difficulties() {
-        return new DifficultiesDTO(blockRepo.currentBlockNumber(), List.of(new Difficulty("", 999999)));
+        return new DifficultiesDTO(blockRepo.currentBlockNumber(), List.of(new Difficulty("", 99)));
     }
 
+    @CrossOrigin(origins = "*")
     @Transactional(readOnly = true)
     @RequestMapping(value = "/hardship", method = RequestMethod.GET)
     HardshipDTO hardship() {
-        return new HardshipDTO(blockRepo.currentBlockNumber(), 999999);
+        return new HardshipDTO(blockRepo.currentBlockNumber(), 99);
     }
 
 

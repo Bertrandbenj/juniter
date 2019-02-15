@@ -58,12 +58,6 @@ public class ConnectionPool {
 
         }
 
-
-        //		final var client2 = new WS2PClient(new URI("wss://80.118.154.251:20900/"));
-
-        //		client1.connect();
-
-
     }
 
 

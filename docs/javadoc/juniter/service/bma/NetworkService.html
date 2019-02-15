@@ -199,7 +199,7 @@ extends java.lang.Object</pre>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="../../../juniter/core/model/net/Peer.html" title="class in juniter.core.model.net">Peer</a></code></td>
+<td class="colFirst"><code><a href="../../../juniter/core/model/net/Peer.html" title="class in juniter.core.model.business.net">Peer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../juniter/service/bma/NetworkService.html#endPointPeer-java.lang.Integer-">endPointPeer</a></span>&#8203;(java.lang.Integer&nbsp;number)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -209,7 +209,7 @@ extends java.lang.Object</pre>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code><a href="../../../juniter/core/model/net/Peer.html" title="class in juniter.core.model.net">Peer</a></code></td>
+<td class="colFirst"><code><a href="../../../juniter/core/model/net/Peer.html" title="class in juniter.core.model.business.net">Peer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../juniter/service/bma/NetworkService.html#peering-javax.servlet.http.HttpServletRequest-javax.servlet.http.HttpServletResponse-">peering</a></span>&#8203;(javax.servlet.http.HttpServletRequest&nbsp;request,
        javax.servlet.http.HttpServletResponse&nbsp;response)</code></th>
 <td class="colLast">&nbsp;</td>
@@ -221,7 +221,7 @@ extends java.lang.Object</pre>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code>org.springframework.http.ResponseEntity&lt;<a href="../../../juniter/core/model/net/Peer.html" title="class in juniter.core.model.net">Peer</a>&gt;</code></td>
+<td class="colFirst"><code>org.springframework.http.ResponseEntity&lt;<a href="../../../juniter/core/model/net/Peer.html" title="class in juniter.core.model.business.net">Peer</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../juniter/service/bma/NetworkService.html#peeringPeersPost-juniter.core.model.dto.PeerBMA-">peeringPeersPost</a></span>&#8203;(<a href="../../../juniter/service/bma/dto/PeerBMA.html" title="class in juniter.core.model.dto">PeerBMA</a>&nbsp;input)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -318,7 +318,7 @@ public&nbsp;<a href="../../../juniter/service/bma/dto/PeersDTO.html" title="clas
 <pre>@Transactional(readOnly=true)
 @RequestMapping(value="/peering",
                 method=GET)
-public&nbsp;<a href="../../../juniter/core/model/net/Peer.html" title="class in juniter.core.model.net">Peer</a>&nbsp;peering&#8203;(javax.servlet.http.HttpServletRequest&nbsp;request,
+public&nbsp;<a href="../../../juniter/core/model/net/Peer.html" title="class in juniter.core.model.business.net">Peer</a>&nbsp;peering&#8203;(javax.servlet.http.HttpServletRequest&nbsp;request,
                     javax.servlet.http.HttpServletResponse&nbsp;response)</pre>
 </li>
 </ul>
@@ -328,7 +328,7 @@ public&nbsp;<a href="../../../juniter/core/model/net/Peer.html" title="class in 
 <ul class="blockList">
 <li class="blockList">
 <h4>endPointPeer</h4>
-<pre>public&nbsp;<a href="../../../juniter/core/model/net/Peer.html" title="class in juniter.core.model.net">Peer</a>&nbsp;endPointPeer&#8203;(java.lang.Integer&nbsp;number)</pre>
+<pre>public&nbsp;<a href="../../../juniter/core/model/net/Peer.html" title="class in juniter.core.model.business.net">Peer</a>&nbsp;endPointPeer&#8203;(java.lang.Integer&nbsp;number)</pre>
 </li>
 </ul>
 <a name="peeringPeersPost-juniter.core.model.dto.PeerBMA-">
@@ -340,7 +340,7 @@ public&nbsp;<a href="../../../juniter/core/model/net/Peer.html" title="class in 
 <pre>@RequestMapping(value="/peering/peers",
                 method=POST)
 @ResponseBody
-public&nbsp;org.springframework.http.ResponseEntity&lt;<a href="../../../juniter/core/model/net/Peer.html" title="class in juniter.core.model.net">Peer</a>&gt;&nbsp;peeringPeersPost&#8203;(@RequestBody
+public&nbsp;org.springframework.http.ResponseEntity&lt;<a href="../../../juniter/core/model/net/Peer.html" title="class in juniter.core.model.business.net">Peer</a>&gt;&nbsp;peeringPeersPost&#8203;(@RequestBody
                                                                       <a href="../../../juniter/service/bma/dto/PeerBMA.html" title="class in juniter.core.model.dto">PeerBMA</a>&nbsp;input)</pre>
 </li>
 </ul>

@@ -1,5 +1,6 @@
 package juniter.repository.jpa.index;
 
+import juniter.core.model.dto.MemberVO;
 import juniter.core.model.index.IINDEX;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -18,6 +19,11 @@ public interface IINDEXRepository extends JpaRepository<IINDEX, Long> {
     @Override
     List<IINDEX> findAll();
 
+
+
+    @Query(value = "SELECT new juniter.core.model.dto.MemberVO(pub, uid) FROM IINDEX i WHERE i.member IS NOT NULL AND i.member IS TRUE")
+    List<MemberVO> members();
+
     @Override
     long count();
 
@@ -28,10 +34,16 @@ public interface IINDEXRepository extends JpaRepository<IINDEX, Long> {
     List<IINDEX> pendingIdentityByHash(String hash);
 
     @Query(value = "SELECT iindex from IINDEX iindex WHERE  uid = ?1 OR pub = ?2 ")
-    List<IINDEX> byUidOrPubkey(String uid, String pubkey);
+    List<IINDEX> byUidOrPubkey(String uid, String pub);
 
     @Query(value = "SELECT iindex from IINDEX iindex WHERE  uid LIKE CONCAT('%',?1,'%') OR pub LIKE CONCAT('%',?1,'%') ")
     List<IINDEX> search(String search);
+
+//    @Query(value = "SELECT iindex from IINDEX iindex WHERE 'member' = TRUE AND uid = ?1 ")
+//    List<IINDEX> memberByUID(String uid);
+//
+//    @Query(value = "SELECT iindex from IINDEX iindex WHERE member IS TRUE AND pub = ?1 ")
+//    List<IINDEX> memberByPUB(String pub);
 
 
     @Query(value = "SELECT iindex from IINDEX iindex WHERE  uid = ?1 ")
@@ -50,7 +62,7 @@ public interface IINDEXRepository extends JpaRepository<IINDEX, Long> {
     <S extends IINDEX> S save(S entity);
 
     default Boolean idtyIsMember(String pubkey) {
-        return findFirstByPubLike(pubkey).map(i -> i.member).orElse(false);
+        return findFirstByPubLike(pubkey).map(IINDEX::getMember).orElse(false);
     }
 
     @Transactional

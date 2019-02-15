@@ -1,7 +1,7 @@
 package juniter.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import juniter.core.CoreEventBus;
+import juniter.core.event.CoreEventBus;
 import juniter.core.model.dto.Block;
 import juniter.core.utils.MemoryUtils;
 import juniter.repository.jpa.BlockRepository;
@@ -17,10 +17,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.*;
+import java.net.InetAddress;
+import java.util.GregorianCalendar;
 import java.util.stream.IntStream;
 
 @Service
-public class UtilsService implements CoreEventBus {
+public class UtilsService {
 
     private static final Logger LOG = LogManager.getLogger();
 
@@ -29,6 +31,9 @@ public class UtilsService implements CoreEventBus {
 
     @Autowired
     BlockchainService blockService;
+
+    @Autowired
+    private CoreEventBus coreEventBus;
 
     @Autowired
     BlockRepository blockRepo;
@@ -92,8 +97,29 @@ public class UtilsService implements CoreEventBus {
     public void checkMemory() {
         var log = MemoryUtils.memInfo();
 
-        sendEventMemoryLog(log);
+        coreEventBus.sendEventMemoryLog(log);
 
+    }
+
+
+    public void pingRTT(String ipAddress){
+        try {
+            InetAddress inet = InetAddress.getByName(ipAddress);
+
+            System.out.println("Sending Ping Request to " + ipAddress);
+
+            long finish = 0;
+            long start = new GregorianCalendar().getTimeInMillis();
+
+            if (inet.isReachable(5000)){
+                finish = new GregorianCalendar().getTimeInMillis();
+                LOG.info("Ping RTT: " + (finish - start + "ms"));
+            } else {
+                LOG.info(ipAddress + " NOT reachable.");
+            }
+        } catch ( Exception e ) {
+            LOG.info("Exception:" + e.getMessage());
+        }
     }
 
 

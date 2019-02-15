@@ -1,8 +1,8 @@
 package juniter.core.model.wot;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import juniter.core.model.BStamp;
-import juniter.core.model.DUPComponent;
+import juniter.core.model.business.BStamp;
+import juniter.core.model.business.DUPComponent;
 import juniter.core.utils.Constants;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -49,7 +49,7 @@ public class Identity implements DUPComponent,Serializable, Comparable<Identity>
 
     @Valid
     @AttributeOverride(name = "buid", column = @Column(name = "createdOn"))
-    private BStamp createdOn = new BStamp();
+    private BStamp createdOn  ;
 
     private String uid;
 
@@ -59,7 +59,7 @@ public class Identity implements DUPComponent,Serializable, Comparable<Identity>
         final var vals = identity.split(":");
         pubkey = vals[0];
         signature = vals[1];
-        createdOn.parse(vals[2]);
+        createdOn = new BStamp(vals[2]);
         uid = vals[3];
     }
 

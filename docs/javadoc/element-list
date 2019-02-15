@@ -4,8 +4,8 @@ juniter.conf
 juniter.core.crypto
 juniter.core.exception
 juniter.core.model
-juniter.core.model.net
-juniter.core.model.tx
+juniter.core.model.business.net
+juniter.core.model.business.tx
 juniter.core.model.wot
 juniter.core.utils
 juniter.core.validation

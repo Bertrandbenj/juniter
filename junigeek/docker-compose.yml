@@ -1,0 +1,33 @@
+#https://stackoverflow.com/questions/48781110/deploy-of-spring-boot-postgresql-project-with-gradle-and-docker
+
+
+version: '3'
+services:
+  web:
+    image: mobilebackend
+    ports:
+      - 8088:8080
+    depends_on:
+      - db
+    links:
+      - db
+  db:
+    container_name: transneft_db
+    image: postgres
+    restart: always
+    volumes:
+      - transneft_db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=junipass
+      - POSTGRES_USER=testuser
+      - POSTGRES_DB=db
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    ports:
+      - 54320:5432
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8082:8080
+volumes:
+  transneft_db: {}

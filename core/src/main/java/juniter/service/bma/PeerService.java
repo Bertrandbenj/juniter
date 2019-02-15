@@ -1,6 +1,6 @@
 package juniter.service.bma;
 
-import juniter.core.CoreEventBus;
+import juniter.core.event.CoreEventBus;
 import juniter.core.model.dto.NodeSummaryDTO;
 import juniter.repository.jpa.BlockRepository;
 import juniter.repository.jpa.EndPointsRepository;
@@ -30,9 +30,12 @@ import java.util.stream.IntStream;
 @ConditionalOnExpression("${juniter.loader.useDefault:true}") // Must be up for dependencies
 @Service
 @Order(10)
-public class PeerService implements CoreEventBus {
+public class PeerService {
 
     public static final Logger LOG = LogManager.getLogger();
+
+    @Autowired
+    private CoreEventBus coreEventBus;
 
     @Autowired
     private EndPointsRepository endPointRepo;
@@ -73,9 +76,8 @@ public class PeerService implements CoreEventBus {
     }
 
 
-    @PostConstruct
-    //@Scheduled(fixedRate = 1000 * 10)
-    public void huhu() {
+    @Scheduled(initialDelay = 60 * 1000, fixedDelay = 1000 * 60 * 60)
+    public void pings() {
 
         while (!nextHost().isPresent()) {
             try {
@@ -158,7 +160,7 @@ public class PeerService implements CoreEventBus {
     }
 
     @Transactional
-    @Scheduled(fixedRate = 1000 * 10)
+    @Scheduled(fixedRate = 1000 * 10, initialDelay = 60 * 1000)
     public void renormalize() {
         synchronized (hosts) {
             var sum = hosts.values().stream().mapToDouble(NetStats::score).sum();
@@ -172,9 +174,9 @@ public class PeerService implements CoreEventBus {
                     .map(NetStats::getHost)
                     .collect(Collectors.joining(",")));
 
-            sendEventRenormalizedPeer(hosts.values().stream()
+            coreEventBus.sendEventRenormalizedPeer(hosts.values().stream()
                     .sorted(Comparator.reverseOrder())
-                    .filter(ns->ns.lastNormalizedScore>0.001 && ns.success.get()>1)
+                    .filter(ns -> ns.lastNormalizedScore > 0.001 && ns.success.get() > 1)
                     .collect(Collectors.toList()));
 
             for (Map.Entry<String, NetStats> h : hosts.entrySet()) {

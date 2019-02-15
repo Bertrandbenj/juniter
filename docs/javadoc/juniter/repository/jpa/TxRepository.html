@@ -125,11 +125,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Superinterfaces:</dt>
-<dd><code>org.springframework.data.repository.CrudRepository&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.tx">Transaction</a>,java.lang.Long&gt;</code>, <code>org.springframework.data.jpa.repository.JpaRepository&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.tx">Transaction</a>,java.lang.Long&gt;</code>, <code>org.springframework.data.repository.PagingAndSortingRepository&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.tx">Transaction</a>,java.lang.Long&gt;</code>, <code>org.springframework.data.repository.query.QueryByExampleExecutor&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.tx">Transaction</a>&gt;</code>, <code>org.springframework.data.repository.Repository&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.tx">Transaction</a>,java.lang.Long&gt;</code></dd>
+<dd><code>org.springframework.data.repository.CrudRepository&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.business.tx">Transaction</a>,java.lang.Long&gt;</code>, <code>org.springframework.data.jpa.repository.JpaRepository&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.business.tx">Transaction</a>,java.lang.Long&gt;</code>, <code>org.springframework.data.repository.PagingAndSortingRepository&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.business.tx">Transaction</a>,java.lang.Long&gt;</code>, <code>org.springframework.data.repository.query.QueryByExampleExecutor&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.business.tx">Transaction</a>&gt;</code>, <code>org.springframework.data.repository.Repository&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.business.tx">Transaction</a>,java.lang.Long&gt;</code></dd>
 </dl>
 <hr>
 <pre>public interface <span class="typeNameLabel">TxRepository</span>
-extends org.springframework.data.jpa.repository.JpaRepository&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.tx">Transaction</a>,java.lang.Long&gt;</pre>
+extends org.springframework.data.jpa.repository.JpaRepository&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.business.tx">Transaction</a>,java.lang.Long&gt;</pre>
 </li>
 </ul>
 </div>
@@ -171,54 +171,54 @@ extends org.springframework.data.jpa.repository.JpaRepository&lt;<a href="../../
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>java.util.List&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.tx">Transaction</a>&gt;</code></td>
+<td class="colFirst"><code>java.util.List&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.business.tx">Transaction</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../juniter/repository/jpa/TxRepository.html#findByTHash-java.lang.String-">findByTHash</a></span>&#8203;(java.lang.String&nbsp;hash)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>default java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.tx">Transaction</a>&gt;</code></td>
+<td class="colFirst"><code>default java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.business.tx">Transaction</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../juniter/repository/jpa/TxRepository.html#findTxOneAndSameIssuerAndDest--">findTxOneAndSameIssuerAndDest</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.tx">Transaction</a>&gt;</code></td>
+<td class="colFirst"><code>java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.business.tx">Transaction</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../juniter/repository/jpa/TxRepository.html#findTxsHavingComment--">findTxsHavingComment</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code>default java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.tx">Transaction</a>&gt;</code></td>
+<td class="colFirst"><code>default java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.business.tx">Transaction</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../juniter/repository/jpa/TxRepository.html#findTxsHavingTxInput--">findTxsHavingTxInput</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code>default java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.tx">Transaction</a>&gt;</code></td>
+<td class="colFirst"><code>default java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.business.tx">Transaction</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../juniter/repository/jpa/TxRepository.html#findTxsWithMultipleOutputs--">findTxsWithMultipleOutputs</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i5" class="rowColor">
-<td class="colFirst"><code>default java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.tx">Transaction</a>&gt;</code></td>
+<td class="colFirst"><code>default java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.business.tx">Transaction</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../juniter/repository/jpa/TxRepository.html#findTxWithMultipleIssuers--">findTxWithMultipleIssuers</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i6" class="altColor">
-<td class="colFirst"><code>default java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.tx">Transaction</a>&gt;</code></td>
+<td class="colFirst"><code>default java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.business.tx">Transaction</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../juniter/repository/jpa/TxRepository.html#findTxWithOtherThanSig--">findTxWithOtherThanSig</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i7" class="rowColor">
-<td class="colFirst"><code>java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.tx">Transaction</a>&gt;</code></td>
+<td class="colFirst"><code>java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.business.tx">Transaction</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../juniter/repository/jpa/TxRepository.html#streamAll--">streamAll</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i8" class="altColor">
-<td class="colFirst"><code>default java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.tx">Transaction</a>&gt;</code></td>
+<td class="colFirst"><code>default java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.business.tx">Transaction</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../juniter/repository/jpa/TxRepository.html#streamTransactionReceivedBy-java.lang.Object-">streamTransactionReceivedBy</a></span>&#8203;(java.lang.Object&nbsp;pubkey)</code></th>
 <td class="colLast">
 <div class="block">Received by transactions</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
-<td class="colFirst"><code>default java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.tx">Transaction</a>&gt;</code></td>
+<td class="colFirst"><code>default java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.business.tx">Transaction</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../juniter/repository/jpa/TxRepository.html#streamTransactionSentBy-java.lang.Object-">streamTransactionSentBy</a></span>&#8203;(java.lang.Object&nbsp;pubkey)</code></th>
 <td class="colLast">
 <div class="block">Sent by transactions</div>
@@ -291,7 +291,7 @@ extends org.springframework.data.jpa.repository.JpaRepository&lt;<a href="../../
 <li class="blockList">
 <h4>findByTHash</h4>
 <pre>@Query("select t from Transaction t where thash = ?1")
-java.util.List&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.tx">Transaction</a>&gt;&nbsp;findByTHash&#8203;(java.lang.String&nbsp;hash)</pre>
+java.util.List&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.business.tx">Transaction</a>&gt;&nbsp;findByTHash&#8203;(java.lang.String&nbsp;hash)</pre>
 </li>
 </ul>
 <a name="findTxOneAndSameIssuerAndDest--">
@@ -300,7 +300,7 @@ java.util.List&lt;<a href="../../../juniter/core/model/tx/Transaction.html" titl
 <ul class="blockList">
 <li class="blockList">
 <h4>findTxOneAndSameIssuerAndDest</h4>
-<pre>default&nbsp;java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.tx">Transaction</a>&gt;&nbsp;findTxOneAndSameIssuerAndDest()</pre>
+<pre>default&nbsp;java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.business.tx">Transaction</a>&gt;&nbsp;findTxOneAndSameIssuerAndDest()</pre>
 </li>
 </ul>
 <a name="findTxsHavingComment--">
@@ -310,7 +310,7 @@ java.util.List&lt;<a href="../../../juniter/core/model/tx/Transaction.html" titl
 <li class="blockList">
 <h4>findTxsHavingComment</h4>
 <pre>@Query("select t from Transaction t where comment IS NOT NULL AND comment &lt;&gt; \'\'")
-java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.tx">Transaction</a>&gt;&nbsp;findTxsHavingComment()</pre>
+java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.business.tx">Transaction</a>&gt;&nbsp;findTxsHavingComment()</pre>
 </li>
 </ul>
 <a name="findTxsHavingTxInput--">
@@ -319,7 +319,7 @@ java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.h
 <ul class="blockList">
 <li class="blockList">
 <h4>findTxsHavingTxInput</h4>
-<pre>default&nbsp;java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.tx">Transaction</a>&gt;&nbsp;findTxsHavingTxInput()</pre>
+<pre>default&nbsp;java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.business.tx">Transaction</a>&gt;&nbsp;findTxsHavingTxInput()</pre>
 </li>
 </ul>
 <a name="findTxsWithMultipleOutputs--">
@@ -328,7 +328,7 @@ java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.h
 <ul class="blockList">
 <li class="blockList">
 <h4>findTxsWithMultipleOutputs</h4>
-<pre>default&nbsp;java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.tx">Transaction</a>&gt;&nbsp;findTxsWithMultipleOutputs()</pre>
+<pre>default&nbsp;java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.business.tx">Transaction</a>&gt;&nbsp;findTxsWithMultipleOutputs()</pre>
 </li>
 </ul>
 <a name="findTxWithMultipleIssuers--">
@@ -337,7 +337,7 @@ java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.h
 <ul class="blockList">
 <li class="blockList">
 <h4>findTxWithMultipleIssuers</h4>
-<pre>default&nbsp;java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.tx">Transaction</a>&gt;&nbsp;findTxWithMultipleIssuers()</pre>
+<pre>default&nbsp;java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.business.tx">Transaction</a>&gt;&nbsp;findTxWithMultipleIssuers()</pre>
 </li>
 </ul>
 <a name="findTxWithOtherThanSig--">
@@ -346,7 +346,7 @@ java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.h
 <ul class="blockList">
 <li class="blockList">
 <h4>findTxWithOtherThanSig</h4>
-<pre>default&nbsp;java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.tx">Transaction</a>&gt;&nbsp;findTxWithOtherThanSig()</pre>
+<pre>default&nbsp;java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.business.tx">Transaction</a>&gt;&nbsp;findTxWithOtherThanSig()</pre>
 </li>
 </ul>
 <a name="streamAll--">
@@ -356,7 +356,7 @@ java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.h
 <li class="blockList">
 <h4>streamAll</h4>
 <pre>@Query("select t from Transaction t")
-java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.tx">Transaction</a>&gt;&nbsp;streamAll()</pre>
+java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.business.tx">Transaction</a>&gt;&nbsp;streamAll()</pre>
 </li>
 </ul>
 <a name="streamTransactionReceivedBy-java.lang.Object-">
@@ -365,7 +365,7 @@ java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.h
 <ul class="blockList">
 <li class="blockList">
 <h4>streamTransactionReceivedBy</h4>
-<pre>default&nbsp;java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.tx">Transaction</a>&gt;&nbsp;streamTransactionReceivedBy&#8203;(java.lang.Object&nbsp;pubkey)</pre>
+<pre>default&nbsp;java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.business.tx">Transaction</a>&gt;&nbsp;streamTransactionReceivedBy&#8203;(java.lang.Object&nbsp;pubkey)</pre>
 <div class="block">Received by transactions</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -380,7 +380,7 @@ java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.h
 <ul class="blockListLast">
 <li class="blockList">
 <h4>streamTransactionSentBy</h4>
-<pre>default&nbsp;java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.tx">Transaction</a>&gt;&nbsp;streamTransactionSentBy&#8203;(java.lang.Object&nbsp;pubkey)</pre>
+<pre>default&nbsp;java.util.stream.Stream&lt;<a href="../../../juniter/core/model/tx/Transaction.html" title="class in juniter.core.model.business.tx">Transaction</a>&gt;&nbsp;streamTransactionSentBy&#8203;(java.lang.Object&nbsp;pubkey)</pre>
 <div class="block">Sent by transactions</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

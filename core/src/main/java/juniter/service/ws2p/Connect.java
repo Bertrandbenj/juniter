@@ -3,149 +3,100 @@ package juniter.service.ws2p;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import juniter.core.crypto.Crypto;
 import juniter.core.crypto.SecretBox;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.Serializable;
 import java.util.UUID;
 
+@Data
+@NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Connect implements Serializable {
 
-	public class ACK {
 
-		String pub;
-		String sig;
+    private static final long serialVersionUID = 1443849093806421432L;
 
-		private ACK(String pub) {
-			this.pub = secretBox.getPublicKey();
-			sig = secretBox.sign(toRaw());
-		}
+    private static final SecretBox secretBox = new SecretBox("salt", "password");
 
-		String toRaw() {
+    private static final Logger LOG = LogManager.getLogger();
 
-			return "WS2P:ACK:g1:" + secretBox.getPublicKey() + ":";
-		}
 
-		@Override
-		public String toString() {
-			return "{" + "\"auth\":\"ACK\",\"pub\":\"" + pub + "\",\"sig\":\"" + sig + "\"}";
-		}
-	}
+    private String auth;
 
-	private static final long serialVersionUID = 1443849093806421432L;
+    private String pub;
 
-	final static SecretBox secretBox = new SecretBox("salt", "password");
+    private String challenge;
 
-	private static final Logger LOG = LogManager.getLogger();
+    private String sig;
 
-	static Connect make() {
-		final var res = new Connect();
 
-		res.setAuth("CONNECT");
-		final String challenge = UUID.randomUUID().toString();
-		res.setChallenge(challenge);
-		res.setPub(secretBox.getPublicKey());
-		res.setSig(secretBox.sign(res.toRaw()));
-		return res;
-	}
+    static Connect make() {
+        final var res = new Connect();
 
-	String auth;
+        res.setAuth("CONNECT");
+        final String challenge = UUID.randomUUID().toString();
+        res.setChallenge(challenge);
+        res.setPub(secretBox.getPublicKey());
+        res.setSig(secretBox.sign(res.toRaw()));
+        return res;
+    }
 
-	String pub;
 
-	String challenge;
+    String ackJson() {
+        return "{\"auth\":\"ACK\",\"pub\":\"" + secretBox.getPublicKey() + "\",\"sig\":\"" + secretBox.sign(ackRaw())
+                + "\"}";
+    }
 
-	String sig;
+    String ackRaw() {
+        return "WS2P:ACK:g1:" + secretBox.getPublicKey() + ":" + challenge;
+    }
 
-	public Connect() {
+    /**
+     * @return the json Connect string
+     */
+    public String connectJson() {
+        return "{\"auth\":\"" + "CONNECT" + //
+                "\",\"pub\":\"" + pub + //
+                "\",\"challenge\":\"" + challenge + //
+                "\",\"sig\":\"" + sig + "\"}";
+    }
 
-	}
 
-	public String ackJson() {
-		return "{\"auth\":\"ACK\",\"pub\":\"" + secretBox.getPublicKey() + "\",\"sig\":\"" + secretBox.sign(ackRaw())
-				+ "\"}";
-	}
+    boolean isACK() {
+        return "ACK".equals(auth);
+    }
 
-	public String ackRaw() {
-		return "WS2P:ACK:g1:" + secretBox.getPublicKey() + ":" + challenge;
-	}
+    boolean isConnect() {
+        return "CONNECT".equals(auth);
+    }
 
-	/**
-	 *
-	 * @return the json Connect string
-	 */
-	public String connectJson() {
-		return "{\"auth\":\"" + "CONNECT" + //
-				"\",\"pub\":\"" + pub + //
-				"\",\"challenge\":\"" + challenge + //
-				"\",\"sig\":\"" + sig + "\"}";
-	}
+    boolean isOK() {
+        return "OK".equals(auth);
+    }
 
-	public String getAuth() {
-		return auth;
-	}
+    String okJson() {
+        return "{" + "\"auth\":" + "OK" + "\",sig\":\"" + secretBox.sign(okRaw()) + "\"}";
+    }
 
-	public String getChallenge() {
-		return challenge;
-	}
+    private String okRaw() {
+        return "WS2P:OK:g1:" + pub + ":" + challenge;
+    }
 
-	public String getPub() {
-		return pub;
-	}
+    String toRaw() {
+        return "WS2P:CONNECT:g1:" + pub + ":" + challenge;
+    }
 
-	public String getSig() {
-		return sig;
-	}
+    @Override
+    public String toString() {
+        return auth + ":" + pub + ":" + challenge + ":" + sig;
+    }
 
-	public boolean isACK() {
-		return "ACK".equals(auth);
-	}
-
-	public boolean isConnect() {
-		return "CONNECT".equals(auth);
-	}
-
-	public boolean isOK() {
-		return "OK".equals(auth);
-	}
-
-	public String okJson() {
-		return "{" + "\"auth\":" + "OK" + "\",sig\":\"" + secretBox.sign(okRaw()) + "\"}";
-	}
-
-	private String okRaw() {
-		return "WS2P:OK:g1:" + pub + ":" + challenge;
-	}
-
-	public void setAuth(String auth) {
-		this.auth = auth;
-	}
-
-	public void setChallenge(String challenge) {
-		this.challenge = challenge;
-	}
-
-	public void setPub(String pub) {
-		this.pub = pub;
-	}
-
-	public void setSig(String sig) {
-		this.sig = sig;
-	}
-
-	String toRaw() {
-		return "WS2P:CONNECT:g1:" + pub + ":" + challenge;
-	}
-
-	@Override
-	public String toString() {
-		return auth + ":" + pub + ":" + challenge + ":" + sig;
-	}
-
-	public boolean verify() {
-		LOG.info("connect? " + "CONNECT".equals(auth) + "  crypto? " + Crypto.verify(challenge, sig, pub));
-		return "CONNECT".equals(auth) && Crypto.verify(challenge, sig, pub);
-	}
+    public boolean verify() {
+        LOG.info("connect? " + "CONNECT".equals(auth) + "  crypto? " + Crypto.verify(challenge, sig, pub));
+        return "CONNECT".equals(auth) && Crypto.verify(challenge, sig, pub);
+    }
 
 }

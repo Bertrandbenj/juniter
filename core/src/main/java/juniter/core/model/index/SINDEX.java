@@ -1,6 +1,7 @@
 package juniter.core.model.index;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import juniter.service.gva.Source;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -40,8 +41,8 @@ public class SINDEX implements Serializable {
     private String conditions;
     private Integer writtenOn;
 
-    public juniter.service.gva.tx.Source asSourceGVA(){
-        return new juniter.service.gva.tx.Source(
+    public Source asSourceGVA(){
+        return new Source(
                 tx == null ? "D":"T",
                 pos,
                 identifier,

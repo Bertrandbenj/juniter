@@ -1,6 +1,6 @@
 package juniter.service.bma.loader;
 
-import juniter.core.model.net.Peer;
+import juniter.core.model.business.net.Peer;
 import juniter.core.utils.TimeUtils;
 import juniter.repository.jpa.BlockRepository;
 import juniter.repository.jpa.PeersRepository;
@@ -109,14 +109,8 @@ public class MissingBlocksLoader {
 
         }
 
-        map.entrySet().forEach(entry -> {
-            try {
-                LOG.info(defaultLoader );
-                defaultLoader.getBlockingQueue().put("blockchain/blocks/"+entry.getValue()+"/"+entry.getKey());
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
+        map.entrySet().forEach(entry ->
+                defaultLoader.put("blockchain/blocks/"+entry.getValue()+"/"+entry.getKey()));
 
 //		missing.forEach(n -> {
 //defaultLoader.fetchBlocks(entry.getValue(), entry.getKey())

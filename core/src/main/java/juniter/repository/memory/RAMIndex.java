@@ -1,7 +1,7 @@
 package juniter.repository.memory;
 
 import com.google.common.collect.Lists;
-import juniter.core.model.BStamp;
+import juniter.core.model.business.BStamp;
 import juniter.core.model.DBBlock;
 import juniter.core.validation.GlobalValid;
 import juniter.repository.jpa.BlockRepository;
@@ -45,7 +45,7 @@ public class RAMIndex implements GlobalValid, Serializable {
     @Transactional(readOnly = true)
     @Override
     public Optional<DBBlock> createdOnBlock(BStamp bstamp) {
-        return Optional .of(blockRepo.cachedBlock(bstamp));
+        return blockRepo.block(bstamp.getNumber());
     }
 
     @Override

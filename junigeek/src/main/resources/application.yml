@@ -1,0 +1,149 @@
+##
+## =========================== Juniter Configs ===========================
+##
+
+juniter:
+  network:
+    trusted: https://g1.bertrandbenjamin.com/,https://g1.duniter.org/,https://duniter.g1.1000i100.fr/,https://duniter.nayya.org/,http://g1-monit.librelois.fr:10901/,http://jardin.foyerruralct.fr:10902/,http://g1.ambau.ovh:10901/,http://81.57.152.178:57586/,https://duniter.normandie-libre.fr/
+    bulkSize: 500
+    webSocketPoolSize: 5
+  loader:
+    useUseful: false
+    useDefault: true
+    useMissing: true
+  useGraphViz: true
+  useGVA: true      # FIXME:  dependencies ?
+  useBMA: true
+  useWS2P: false
+  utils.enabled: false
+  #useJavaFX: false
+  #useSpark: false
+  indexer: true
+  startIndex: true
+
+  ##  reset: true     # default false
+  dataPath: /tmp/juniter/
+
+spark:
+  master: spark://ben:7077
+  app.name: juniter
+  home: /home/ben/spark-2.4.0-bin-hadoop2.7/
+
+
+##
+## =========================== Spring Configs ===========================
+##
+spring:
+  output.ansi.enabled: ALWAYS # Colored logs : DETECT|ALWAYS|NEVER
+  session.store-type: none # jdbc|mongo|none|redis|hazelcast
+
+  datasource:
+    url: jdbc:postgresql://localhost/testdb
+    username: testuser
+    password: junipass
+    driverClassName: org.postgresql.Driver
+    jdbcUrl: jdbc:postgresql://localhost/testdb
+
+  jpa:
+    database: default
+    generate-ddl: true
+    show-sql: false
+    hibernate.ddl-auto: create-drop
+    properties.hibernate.jdbc:
+      lob.non_contextual_creation: true # disable an ugly exception at start
+
+    properties:
+      hibernate:
+        format_sql : true
+  #  mvc.view:
+  #      prefix: /WEB-INF/view/
+  #      suffix: .jsp
+  #  autoconfigure.exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+
+
+  ##
+  ## =========================== Web Server Configs ===========================
+  ## https://kafka.apache.org/quickstart
+  kafka:
+    #    bootstrap-servers: kafka:9092
+    consumer:
+      group-id: juniter
+      #      auto-offset-reset: earliest
+
+
+  boot.admin.url: http://localhost:8080
+
+##
+## =========================== Web Server Configs ===========================
+##
+server:
+  port: 8443
+  ssl:
+    key-store: ../core/keystore.p12
+    key-store-password: ouvresToi
+    keyStoreType: PKCS12
+    keyAlias: juniter2
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/xml,text/plain,application/javascript,text/css,image/svg+xml
+
+
+##
+## =========================== GraphQL ===========================
+##
+
+graphql:
+  servlet:
+    mapping: /graphql
+    enabled: true
+    corsEnabled: true
+    exception-handlers-enabled: true  # if you want to @ExceptionHandler annotation for custom GraphQLErrors
+
+graphiql:
+  mapping: /graphiql
+  endpoint:
+    graphql: /graphql
+    subscriptions: /subscriptions
+  static:
+    basePath: /
+  enabled: true
+  pageTitle: GraphiQL
+  cdn:
+    enabled: false
+    version: 0.11.11
+  props:
+    resources:
+      query: query.graphql
+      defaultQuery: defaultQuery.graphql
+      variables: variables.graphql
+    variables:
+      editorTheme: "solarized light"
+  headers:
+    Authorization: "Bearer <your-token>"
+
+
+
+##
+## =========================== Logging Configs ===========================
+##
+
+
+    #logging:
+    #  path: /var/log/juniter
+    ##  file: juniter.log
+    #  level:
+    #    root: info
+    #    org.springframework.web: info
+    #    org.hibernate.SQL: warn
+    #    juniter: info
+    #hibernate.show_sql: false
+
+management.endpoint.metrics.enabled: true
+
+management.endpoints.web.exposure.include: '*'
+
+management.endpoint.prometheus.enabled: true
+
+management.metrics.export.prometheus.enabled: true
+    
+

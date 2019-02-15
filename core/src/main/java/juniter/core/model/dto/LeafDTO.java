@@ -1,6 +1,6 @@
 package juniter.core.model.dto;
 
-import juniter.core.model.net.Peer;
+import juniter.core.model.business.net.Peer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -1,6 +1,6 @@
 package juniter.service.bma.loader;
 
-import juniter.core.CoreEventBus;
+import juniter.core.event.CoreEventBus;
 import juniter.core.model.DBBlock;
 import juniter.core.utils.TimeUtils;
 import juniter.core.validation.BlockLocalValid;
@@ -39,7 +39,7 @@ import java.util.stream.IntStream;
 @ConditionalOnExpression("${juniter.loader.useDefault:true}") // Must be up for dependencies
 @Component
 @Order(1)
-public class BlockLoader implements BlockLocalValid, CoreEventBus {
+public class BlockLoader implements BlockLocalValid {
 
     private static final Logger LOG = LogManager.getLogger();
 
@@ -47,22 +47,24 @@ public class BlockLoader implements BlockLocalValid, CoreEventBus {
     @Value("${bulkLoad:false}")
     private Boolean bulkLoad;
 
-    @Value("${juniter.network.bulkSize:50}")
+    @Value("${juniter.network.bulkSize:200}")
     private Integer bulkSize;
 
     @Value("${juniter.reset:false}")
     private Boolean reset;
 
-    BlockingQueue<String> blockingQueue = new LinkedBlockingDeque<>(200);
+    private BlockingQueue<String> blockingQueue = new LinkedBlockingDeque<>(200);
 
-    public BlockingQueue<String> getBlockingQueue() {
-        return blockingQueue;
-    }
 
     private AtomicInteger rotator = new AtomicInteger();
 
     @Autowired
     private RestTemplate restTemplate;
+
+
+    @Autowired
+    private CoreEventBus coreEventBus;
+
 
     @Autowired
     private BlockRepository blockRepo;
@@ -76,7 +78,7 @@ public class BlockLoader implements BlockLocalValid, CoreEventBus {
     @PostConstruct
     public void initConsumers() {
 
-         Runnable cons = () -> {
+        Runnable cons = () -> {
             while (true) {
 
                 getBlocks().forEach(b -> blockRepo.localSave(b));
@@ -88,7 +90,7 @@ public class BlockLoader implements BlockLocalValid, CoreEventBus {
             new Thread(cons, "consumer" + i).start();
         }
 
-        if(bulkLoad){
+        if (bulkLoad) {
             bulkLoad2();
         }
 
@@ -100,7 +102,7 @@ public class BlockLoader implements BlockLocalValid, CoreEventBus {
         resetBlockinDB();
         final var currentNumber = fetchAndSaveBlock("current").getNumber();
 
-        sendEventCurrentAndMax(blockRepo.count(), currentNumber);
+        coreEventBus.sendEventCurrentAndMax(blockRepo.count(), currentNumber);
 
         final var nbPackage = Integer.divideUnsigned(currentNumber, bulkSize);
 
@@ -147,7 +149,7 @@ public class BlockLoader implements BlockLocalValid, CoreEventBus {
 
 
             LOG.info(" records" + body.size() + " from: " + url + "... Status: " + statusCode + " : " + contentType);
-            peerService.reportSuccess(url);
+            peerService.reportSuccess(host);
             return body;
 
         } catch (final RestClientException e) {
@@ -162,12 +164,7 @@ public class BlockLoader implements BlockLocalValid, CoreEventBus {
     }
 
 
-    public Optional<String> anyNotIn(final List<String> triedURL) {
-        Collections.shuffle(configuredNodes);
-        return configuredNodes.stream()
-                .filter(node -> triedURL == null || !triedURL.contains(node))
-                .findAny();
-    }
+
 
     private boolean bulkLoadOn = false;
 
@@ -230,7 +227,6 @@ public class BlockLoader implements BlockLocalValid, CoreEventBus {
         return blockRepo.localSave(block).orElse(block);
     }
 
-    private ArrayList<String> blacklistHosts = new ArrayList<>();
 
     /**
      * Fetch a block and save it synchronously
@@ -245,26 +241,22 @@ public class BlockLoader implements BlockLocalValid, CoreEventBus {
 
         while (block == null) {
 
-
-            final var host = anyNotIn(blacklistHosts);
+            final var host = peerService.nextHost().map(h->h.getHost()) ;
             if (host.isPresent()) {
                 try {
                     url = host.get() + "blockchain/" + id;
-                    block = restTemplate.getForObject(url, DBBlock.class);
-                    block = blockRepo.block(block.getNumber()).orElse(block);
 
-                    LOG.info("  Fetched ... : " + id);
+                    block =  restTemplate.getForObject(url, DBBlock.class );
+
+                    LOG.info("  Fetched ... : " + id + " => " + block.getHash());
 
                 } catch (Exception e) {
-                    blacklistHosts.add(host.get());
-
-                    LOG.error("Retrying : Net error accessing node " + url + " " + e.getMessage());
+                    LOG.warn("Exception accessing node " + url + " " + e.getMessage());
                 }
+            }else{
+                LOG.error("Please, connect to the internet and provide BMA configuredNodes ");
             }
-
-
-            assert blacklistHosts.size() <= configuredNodes.size() : "Please, connect to the internet and provide BMA configuredNodes ";
-        }
+         }
 
         return block;
     }
@@ -325,23 +317,6 @@ public class BlockLoader implements BlockLocalValid, CoreEventBus {
         return new ArrayList<>();
     }
 
-    public Optional<DBBlock> fetchOrRetry(String id) {
-        final List<String> triedNodes = new ArrayList<>();
-
-        Optional<String> attempt;
-        while (configuredNodes.size() > triedNodes.size()) {
-            attempt = anyNotIn(triedNodes);
-            if (attempt.isPresent())
-                return Optional.ofNullable(fetchAndSaveBlock(id));
-        }
-        return Optional.empty();
-    }
-
-    public String rotating() {
-        final var ai = rotator.incrementAndGet() % configuredNodes.size();
-
-        return configuredNodes.get(ai);
-    }
 
 
     @Transactional
@@ -353,11 +328,18 @@ public class BlockLoader implements BlockLocalValid, CoreEventBus {
         blockRepo.findAll().forEach(b -> {
             blockRepo.delete(b);
             //LOG.info("deleted " + b.getNumber());
-            sendEventDecrementCurrentBlock();
+            coreEventBus.sendEventDecrementCurrentBlock();
         });
 
         LOG.info(" === Reseting DB - DONE ");
 
     }
 
+    public void put(String s) {
+        try {
+            blockingQueue.put(s);
+        } catch (InterruptedException e) {
+            LOG.error(e);
+        }
+    }
 }

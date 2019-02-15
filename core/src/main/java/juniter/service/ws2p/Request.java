@@ -1,41 +1,25 @@
 package juniter.service.ws2p;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import juniter.core.model.wso.Body;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Request implements Serializable {
 
-	class Body {
-		String name;
-		Map<String, Object> params = new HashMap<String, Object>();
 
-		public Body(String string) {
-			name = string;
-		}
-
-		public String getName() {
-			return name;
-		}
-
-		public Map<String, Object> getParams() {
-			return params;
-		}
-	}
 
 	private static final long serialVersionUID = 3608504972771759206L;
 
 	private static final Logger LOG = LogManager.getLogger();
 
-	String reqId;
+	private String reqId;
 
-	Body body;
+	private Body body;
 
 	/**
 	 * https://git.duniter.org/nodes/common/doc/blob/master/rfc/0004_ws2p_v1.md#getblock
@@ -48,7 +32,7 @@ public class Request implements Serializable {
 		final var res = new Request();
 		res.reqId = randomReqId();
 		res.body = new Body("BLOCK_BY_NUMBER");
-		res.body.params.put("number", number);
+		res.body.getParams().put("number", number);
 
 		return res;
 	}
@@ -63,8 +47,8 @@ public class Request implements Serializable {
 		final var res = new Request();
 		res.reqId = randomReqId();
 		res.body = new Body("BLOCKS_CHUNK");
-		res.body.params.put("count", count);
-		res.body.params.put("fromNumber", from);
+		res.body.getParams().put("count", count);
+		res.body.getParams().put("fromNumber", from);
 		return res;
 	}
 
@@ -100,7 +84,7 @@ public class Request implements Serializable {
 		final var res = new Request();
 		res.reqId = randomReqId();
 		res.body = new Body("WOT_REQUIREMENTS_OF_PENDING");
-		res.body.params.put("minCert", minCert);
+		res.body.getParams().put("minCert", minCert);
 		return res;
 	}
 

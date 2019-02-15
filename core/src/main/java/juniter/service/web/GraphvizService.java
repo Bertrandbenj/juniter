@@ -1,7 +1,7 @@
 package juniter.service.web;
 
 import juniter.core.model.DBBlock;
-import juniter.core.model.tx.*;
+import juniter.core.model.business.tx.*;
 import juniter.repository.jpa.BlockRepository;
 import juniter.repository.jpa.CertsRepository;
 import juniter.repository.jpa.TxRepository;
@@ -33,6 +33,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -81,9 +82,9 @@ public class GraphvizService {
     @Value("${juniter.dataPath:/tmp/juniter/data/}")
     private String dataPath;
 
-    private final String svgFile = "%s/dot/%s.svg";
+    private final String svgFile = "%sdot/%s.svg";
 
-    private final String dotFile = "%s/dot/%s.dot";
+    private final String dotFile = "%sdot/%s.dot";
 
 
     @Autowired
@@ -127,13 +128,26 @@ public class GraphvizService {
     }
 
 
-    public String blockGraph(Integer blockNumber, Map<String, String[]> extraParams) {
+    private String errorSVG(String message) {
+        return "digraph { \n" +
+                "\tgraph [rankdir=LR ]\n"+
+                "\terror ->  \"" + message + "\"\n " +
+                "}";
+    }
+
+    private String blockGraph(Integer blockNumber, Map<String, String[]> extraParams) {
 
         final Integer RANGE = extraParams.containsKey("range") ? Integer.valueOf(extraParams.get("range")[0]) : 2;
 
-        final var blocks = blockRepo.streamBlocksFromTo(blockNumber - RANGE, blockNumber + RANGE + 1)
-                .sorted(Comparator.comparing(DBBlock::getNumber))//
-                .collect(toList());
+        List<DBBlock> blocks = null;
+
+        try (var bl = blockRepo.streamBlocksFromTo(blockNumber - RANGE, blockNumber + RANGE + 1)) {
+            blocks = bl.sorted(Comparator.comparing(DBBlock::getNumber))
+                    .collect(toList());
+        } catch (final Exception e) {
+            LOG.error("blockGraph : fetching blocs ", e);
+            return errorSVG(e.getMessage());
+        }
 
         String res = "digraph{\n\t" //
                 + "graph [rankdir=LR ]\n\n\t";
@@ -170,9 +184,9 @@ public class GraphvizService {
 
             var deltaTime = "N/A";
             if (b.getNumber() > 0) {
-                final var delta =  - blockRepo
+                final var delta = -blockRepo
                         .block(b.getNumber() - 1)
-                        .map(bb->b.getMedianTime() - bb.getMedianTime())
+                        .map(bb -> b.getMedianTime() - bb.getMedianTime())
                         .orElse(0L);
                 deltaTime = Long.divideUnsigned(delta, 60) + "m " + delta % 60 + "s";
             }

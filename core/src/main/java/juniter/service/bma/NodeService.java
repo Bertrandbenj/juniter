@@ -4,6 +4,7 @@ import juniter.core.model.dto.NodeSummaryDTO;
 import juniter.core.model.dto.SandBoxesDTO;
 import juniter.core.model.dto.UnitDTO;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,6 +31,7 @@ public class NodeService {
      * }
      * }
      */
+    @CrossOrigin(origins = "*") // https://localhost:8443/node/summary
     @RequestMapping(value = {"", "/", "/node/summary"}, method = RequestMethod.GET)
     public NodeSummaryDTO summary() {
         return new NodeSummaryDTO();

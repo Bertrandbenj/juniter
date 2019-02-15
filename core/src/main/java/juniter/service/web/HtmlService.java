@@ -57,7 +57,7 @@ public class HtmlService {
 		model.put("time", new Date());
 		model.put("message", "Welcome");
 		model.put("title", "Welcome");
-		return "huhu";
+		return "pings";
 	}
 
 }

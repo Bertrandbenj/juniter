@@ -1,12 +1,11 @@
 package juniter.core.model.wot;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import juniter.core.model.BStamp;
-import juniter.core.model.DUPComponent;
+import juniter.core.model.business.BStamp;
+import juniter.core.model.business.DUPComponent;
 import juniter.core.utils.Constants;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.lang.NonNull;
@@ -16,8 +15,7 @@ import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 
 @Entity
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @Embeddable
 @Table(name = "wot_member", schema = "public")

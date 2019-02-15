@@ -1,0 +1,95 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+        maven { url "https://plugins.gradle.org/m2/" }
+        maven { url 'http://repo.spring.io/plugins-release' }
+        jcenter()
+    }
+
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:2.0.2.RELEASE")
+        classpath 'org.hidetake:gradle-ssh-plugin:2.9.0'
+        classpath('se.transmode.gradle:gradle-docker:1.2')
+       // classpath("com.github.honourednihilist:gradle-postgresql-embedded:0.4.0")
+    }
+
+}
+
+//plugins {
+//    id 'com.bmuschko.docker-spring-boot-application' version '4.4.1'
+//    id "com.github.honourednihilist.gradle-postgresql-embedded" version "0.4.0"
+//}
+
+apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+//apply plugin: 'com.github.honourednihilist.gradle-postgresql-embedded'
+apply plugin: 'application'
+apply plugin: 'docker'
+//apply plugin: 'docker-spring-boot-application'
+
+dependencies {
+    compile project(":core")
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+
+    runtime('org.springframework.boot:spring-boot-devtools')
+    //postgresql
+    runtime('org.postgresql:postgresql')
+}
+
+
+//task buildAll(type: GradleBuild) {
+//    tasks = [ 'build' ]
+//}
+
+springBoot {
+
+}
+
+bootJar {
+    mainClassName = 'juniter.Application'
+    enabled = true
+}
+
+
+
+jar {
+    baseName = "junigeek"
+    group    = "org.duniter"
+    version  = "0.0.1-SNAPSHOT"
+    mainClassName = group + '.juniter.Application'
+
+    //manifest { attributes "Main-Class": group + ".juniter.Application" }
+}
+
+docker {
+    //baseImage "frolvlad/alpine-openjdk11:stretch"
+    baseImage "adoptopenjdk/openjdk-11:alpine-slim"
+    maintainer 'BnimajneB "bnimajneb@duniter.org"'
+}
+
+task nginxDocker(type: Docker) {
+    applicationName = "nginx"
+    runCommand 'echo "deb http://archive.ubuntu.com/ubuntu precise main universe" > /etc/apt/sources.list'
+    runCommand "apt-get update"
+    runCommand "apt-get install -y inotify-tools nginx apache2 openssh-server"
+}
+
+
+bootRun {
+    enableAssertions = true // !!  BR_G[0-108] assertion
+    //jvmArgs = ["-agentlib:jdwp=transport=dt_socket,server=y,address=5005,suspend=y"]
+}
+
+//postgresEmbedded {
+//    version = "V10"
+//    host = "localhost"
+//    port = 0 // zero value means a random port
+//    dbName = "embedded"
+//    username = "testuser"
+//    password = "junipass"
+//    artifactStorePath = "~/.embedpostgresql" // where PostgreSQL distributions are stored after downloading, inside home directory by default
+//    stopWhenBuildFinished = true
+//    timeoutMillisBeforeStop = 0
+//}

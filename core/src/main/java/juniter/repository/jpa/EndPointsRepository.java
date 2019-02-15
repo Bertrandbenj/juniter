@@ -1,7 +1,7 @@
 package juniter.repository.jpa;
 
-import juniter.core.model.net.EndPoint;
-import juniter.core.model.net.Peer;
+import juniter.core.model.business.net.EndPoint;
+import juniter.core.model.business.net.Peer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

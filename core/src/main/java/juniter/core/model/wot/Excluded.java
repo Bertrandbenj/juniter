@@ -1,6 +1,6 @@
 package juniter.core.model.wot;
 
-import juniter.core.model.DUPComponent;
+import juniter.core.model.business.DUPComponent;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

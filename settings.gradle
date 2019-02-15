@@ -2,7 +2,7 @@
 
 
 include 'core'
-include 'cli'
-include 'gui'
-
-//includeBuild 'spark'
+include 'junigeek'
+include 'juniterriens'
+//include 'spark'
+//include 'junikot'

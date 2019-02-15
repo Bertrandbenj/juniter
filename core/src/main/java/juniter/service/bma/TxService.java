@@ -4,7 +4,7 @@ import juniter.core.model.dto.Source;
 import juniter.core.model.dto.TransactionDTO;
 import juniter.core.model.dto.TxHistory;
 import juniter.core.model.index.SINDEX;
-import juniter.core.model.tx.Transaction;
+import juniter.core.model.business.tx.Transaction;
 import juniter.repository.jpa.TxRepository;
 import juniter.repository.jpa.index.SINDEXRepository;
 import lombok.Getter;

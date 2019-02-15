@@ -6,6 +6,9 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import juniter.core.model.wso.ResponseBlock;
+import juniter.core.model.wso.ResponseBlocks;
+import juniter.core.model.wso.ResponseWotPending;
 import juniter.grammar.JuniterGrammar;
 import org.antlr.v4.runtime.*;
 import org.apache.logging.log4j.LogManager;
@@ -119,24 +122,24 @@ public class WS2PClient extends WebSocketClient {
 			final var resid = message.substring(10, 18);
 
 			final var req = sentRequests.remove(resid);
-			final var params = req.body.params;
+			final var params = req.getBody().getParams();
 
-			switch (req.body.name) {
+			switch (req.getBody().getName()) {
 			case "BLOCK_BY_NUMBER":
 				final var block = jsonMapper.readValue(message, ResponseBlock.class);
-				LOG.info("BLOCK_BY_NUMBER " + block.body);
+				LOG.info("BLOCK_BY_NUMBER " + block.getBody());
 				break;
 			case "BLOCKS_CHUNK":
 				final var blocks = jsonMapper.readValue(message, ResponseBlocks.class);
-				LOG.info("BLOCKS_CHUNK " + blocks.body);
+				LOG.info("BLOCKS_CHUNK " + blocks.getBody());
 				break;
 			case "CURRENT":
 				final var current = jsonMapper.readValue(message, ResponseBlock.class);
-				LOG.info("CURRENT " + current.body);
+				LOG.info("CURRENT " + current.getBody());
 				break;
 			case "WOT_REQUIREMENTS_OF_PENDING":
 				final var wot = jsonMapper.readValue(message, ResponseWotPending.class);
-				LOG.info("WOT_REQUIREMENTS_OF_PENDING " + wot.body);
+				LOG.info("WOT_REQUIREMENTS_OF_PENDING " + wot.getBody());
 
 				break;
 			}
@@ -217,7 +220,7 @@ public class WS2PClient extends WebSocketClient {
 
 	void send(Request req) {
 		try {
-			sentRequests.put(req.reqId, req); // save for reuse
+			sentRequests.put(req.getReqId(), req); // save for reuse
 			send(jsonMapper.writeValueAsString(req));
 		} catch (NotYetConnectedException | JsonProcessingException e) {
 			e.printStackTrace();

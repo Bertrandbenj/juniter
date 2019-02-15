@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.canvas.*?>
+<?import javafx.scene.image.*?>
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.canvas.Canvas?>
+
+<VBox focusTraversable="true" maxWidth="1.7976931348623157E308" prefHeight="440" prefWidth="800"
+      xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="juniter.juniterriens.juniterriens.Game">
+   <children>
+       <TextField fx:id="erg" alignment="CENTER" editable="false" prefWidth="0.0" text="Wanna play game ? click here to begin, UP - DOWN - LEFT - RIGHT  to direct " VBox.vgrow="NEVER" />
+   
+       <Canvas fx:id="canvas" focusTraversable="true" height="440" width="1100" VBox.vgrow="ALWAYS" />
+   </children>
+</VBox>

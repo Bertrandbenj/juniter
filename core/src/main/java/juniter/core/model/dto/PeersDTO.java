@@ -1,7 +1,7 @@
 package juniter.core.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import juniter.core.model.net.Peer;
+import juniter.core.model.business.net.Peer;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
