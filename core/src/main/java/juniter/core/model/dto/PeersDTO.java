@@ -1,30 +1,20 @@
 package juniter.core.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import juniter.core.model.business.net.Peer;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-import java.io.Serializable;
 import java.util.List;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PeersDTO implements Serializable{
-	
-	private static final long serialVersionUID = 1618741167475514278L;
+public class PeersDTO  {
+
+	private List<PeerDTO> peers;
 
 
-	private List<Peer> peers;
-	
-	public transient String url;
-	public transient long timeMillis;
-
-	
-	public PeersDTO(List<Peer> peers) {
+	public PeersDTO(List<PeerDTO> peers) {
 		super();
 		this.peers = peers;
 	}

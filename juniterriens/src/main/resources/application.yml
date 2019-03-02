@@ -14,7 +14,7 @@ juniter:
   useGraphViz: true
   useGVA: true      # FIXME:  dependencies ?
   useBMA: true
-  useWS2P: false
+  useWS2P: true
   utils.enabled: false
   useJavaFX: true
   useSpark: true
@@ -74,7 +74,7 @@ spring:
       #      auto-offset-reset: earliest
 
 
-  boot.admin.url: http://localhost:8080
+  #boot.admin.url: http://localhost:8080
 
 ##
 ## =========================== Web Server Configs ===========================
@@ -89,6 +89,7 @@ server:
   compression:
     enabled: true
     mime-types: application/json,application/xml,text/html,text/xml,text/plain,application/javascript,text/css,image/svg+xml
+  #context-path: /html
 
 
 ##
@@ -106,7 +107,7 @@ graphiql:
   mapping: /graphiql
   endpoint:
     graphql: /graphql
-    subscriptions: /subscriptions
+    #subscriptions: /graphql/websocket,/ws/peer,/ws/block
   static:
     basePath: /
   enabled: true

@@ -1,0 +1,112 @@
+query testAll ($pub:String!, $bnum:Int, $hash:String!) {
+  currency
+
+  block(number:$bnum){
+    version
+    number
+    inner_hash
+    medianTime
+    unitbase
+    powMin
+    monetaryMass
+  	membersCount
+
+    hash
+    issuer
+
+    previousHash
+    previousIssuer
+    parameters
+
+    dividend
+    issuersCount
+    issuersFrame
+    issuersFrameVar
+
+    certifications
+    identities
+    actives
+    joiners
+    leavers
+    revoked
+
+    transactions{
+      blockstamp
+      blockstampTime
+      thash
+
+      issuers
+      inputs
+      unlocks
+      outputs
+      locktime
+      version
+
+      comment
+
+      signatures
+    }
+
+    signature
+    raw
+  }
+
+  member(pubkey:$pub ){
+    pubkey
+    uid
+    signature
+    createdOn {
+      hash
+      number
+    }
+  }
+
+  transactionsOfIssuer(issuer: $pub){
+
+    blockstamp
+    blockstampTime
+    locktime
+    issuers
+    inputs
+    unlocks
+    outputs
+
+    comment
+    signatures
+
+  }
+
+  transactionsOfReceiver(receiver:$pub){
+    blockstamp
+    blockstampTime
+    locktime
+    issuers
+    inputs
+    unlocks
+    outputs
+
+    comment
+    signatures
+  }
+
+  sourcesOfPubkey(pub: $pub){
+    amount
+    base
+    conditions
+    consumed
+    identifier
+    noffset
+    type
+  }
+
+  transactionByHash(hash: $hash){
+    block_number
+    blockstamp
+
+    inputs
+    outputs
+    locktime
+    comment
+  }
+
+}

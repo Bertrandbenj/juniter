@@ -3,10 +3,10 @@ package juniter.service.bma.loader;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import juniter.core.event.CoreEventBus;
 import juniter.core.model.business.BStamp;
-import juniter.core.model.dto.PeerBMA;
-import juniter.core.model.dto.PeersDTO;
 import juniter.core.model.business.net.EndPointType;
 import juniter.core.model.business.net.Peer;
+import juniter.core.model.dto.PeerBMA;
+import juniter.core.model.dto.PeersDTO;
 import juniter.core.utils.TimeUtils;
 import juniter.repository.jpa.BlockRepository;
 import juniter.repository.jpa.EndPointsRepository;
@@ -14,6 +14,7 @@ import juniter.repository.jpa.PeersRepository;
 import juniter.service.bma.NetworkService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -69,6 +70,11 @@ public class PeerLoader  {
     private EndPointsRepository endPointRepo;
 
 
+    @Autowired
+    private ModelMapper modelMapper;
+
+
+
     private Optional<String> anyNotIn(final List<String> triedURL) {
         Collections.shuffle(configuredNodes);
         return configuredNodes.stream()
@@ -88,7 +94,7 @@ public class PeerLoader  {
     }
 
 
-    @Scheduled(fixedDelay = 10 * 60 * 1000)
+    @Scheduled(fixedDelay = 10 * 60 * 1000, initialDelay = 10 * 60 * 1000)
     public void runPeerCheck() {
 
         LOG.info("@Scheduled runPeerCheck ");
@@ -107,7 +113,10 @@ public class PeerLoader  {
                     peersDTO = fetchPeers(host.get());
                     LOG.info("fetched " + peersDTO.getPeers().size() + " peers from " + host);
 
-                    var maxBlockPeer = peersDTO.getPeers().stream().map(Peer::getBlock).map(b-> b.split("-")[0]).mapToLong(Long::parseLong).max();
+                    var maxBlockPeer = peersDTO.getPeers().stream()
+                            .map(pdto -> modelMapper.map(pdto, Peer.class))
+                            .map(Peer::getBlock)
+                            .map(b-> b.split("-")[0]).mapToLong(Long::parseLong).max();
 
                     var maxBlockDB = blockRepo.currentBlockNumber();
 
@@ -267,6 +276,7 @@ public class PeerLoader  {
 
     private void save(PeersDTO peers) {
         peers.getPeers().stream() // parsed peers
+                .map(pdto -> modelMapper.map(pdto, Peer.class))
                 .forEach(p -> {
                     peerRepo.saveAndFlush(p); // save the peer object
                     p.endpoints().stream() // iterate endpoints

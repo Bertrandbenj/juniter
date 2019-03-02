@@ -1,16 +1,21 @@
 package juniter.core.model.dto;
 
-import lombok.Builder;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.List;
 
-@Builder
+//@Builder
 @Data
+@NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class WS2PHeads implements Serializable {
 
-    private List<Head> heads;
+    private static final long serialVersionUID = -4464417074568456696L;
+
+    private List<HeadDTO> heads;
 
 
 }

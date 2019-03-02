@@ -2,18 +2,15 @@ package juniter.service.ws2p;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import juniter.core.model.wso.Body;
+import lombok.Data;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.Serializable;
 import java.util.Random;
 
+@Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Request implements Serializable {
-
-
-
-	private static final long serialVersionUID = 3608504972771759206L;
+public class Request {
 
 	private static final Logger LOG = LogManager.getLogger();
 
@@ -52,10 +49,6 @@ public class Request implements Serializable {
 		return res;
 	}
 
-	public Body getBody() {
-		return body;
-	}
-
 	/**
 	 * https://git.duniter.org/nodes/common/doc/blob/master/rfc/0004_ws2p_v1.md#getcurrent
 	 *
@@ -68,10 +61,6 @@ public class Request implements Serializable {
 		res.body = new Body("CURRENT");
 
 		return res;
-	}
-
-	public String getReqId() {
-		return reqId;
 	}
 
 	/**

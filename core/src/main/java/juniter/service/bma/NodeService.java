@@ -26,7 +26,7 @@ public class NodeService {
      * {
      * "duniter": {
      * "software": "duniter",
-     * "version": "0.10.3",
+     * "version": "0.10.3",   require > 1.1.0
      * "forkWindowSize": 10
      * }
      * }

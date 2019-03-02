@@ -1,16 +1,15 @@
 package juniter.core.model.index;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.function.BinaryOperator;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @Entity
 @ToString
@@ -26,20 +25,64 @@ public class MINDEX implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     protected Long id;
 
-    String op;
-    String type;
-    String pub;
-    String created_on;
-    String written_on;
-    Long expires_on;
-    Long expired_on;
-    Long revokes_on;
-    String revoked_on;
-    Boolean leaving;
-    String revocation;
-    Long chainable_on;
-    Integer writtenOn;
-    Long renewal;
-    Long expiry;
+    private String op;
+    private String type;
+    private String pub;
+    private String created_on;
+    private String written_on;
+    private Long expires_on;
+    private Long expired_on;
+    private Long revokes_on;
+    private String revoked_on;
+    private Boolean leaving;
+    private String revocation;
+    private Long chainable_on;
+    private Integer writtenOn;
+    private Long renewal;
+    private Long expiry;
+
+    public static final BinaryOperator<MINDEX> reducer = (m1, m2) -> {
+
+        // var top = m1.written_on.compareTo(m2.written_on) > 0 ? m2 : m1;
+        //System.out.println("Reducing" + m1 + "\n" + m2);
+        MINDEX bot, top;
+        if (m1.writtenOn < m2.writtenOn) {
+            top = m1;
+            bot = m2;
+        } else {
+            top = m2;
+            bot = m1;
+        }
+
+        if (top.getCreated_on() == null)
+            top.setCreated_on(bot.getCreated_on().toString());
+
+
+        if (top.getLeaving() == null)
+            top.setLeaving(bot.getLeaving());
+
+
+        if (top.getCreated_on() == null)
+            top.setCreated_on(bot.getCreated_on().toString());
+
+        if (top.getRevoked_on() == null)
+            top.setRevoked_on(bot.getRevoked_on());
+        if (top.getRevokes_on() == null)
+            top.setRevokes_on(bot.getRevokes_on());
+        if (top.getRevocation() == null)
+            top.setRevocation(bot.getRevocation());
+
+        if (top.getExpired_on() == null)
+            top.setExpired_on(bot.getExpired_on());
+        if (top.getExpires_on() == null)
+            top.setExpires_on(bot.getExpires_on());
+
+
+        return top;
+
+
+        //return reduceM(pub).sorted((m1, m2) -> m1.written_on.compareTo(m2.written_on)).findFirst().get();
+    };
+
 
 }

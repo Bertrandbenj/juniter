@@ -1,6 +1,7 @@
 package juniter.service.bma;
 
 import juniter.core.event.CoreEventBus;
+import juniter.core.model.business.net.EndPoint;
 import juniter.core.model.dto.NodeSummaryDTO;
 import juniter.repository.jpa.BlockRepository;
 import juniter.repository.jpa.EndPointsRepository;
@@ -119,8 +120,17 @@ public class PeerService {
     public void load() {
         synchronized (hosts) {
             var urls = endPointRepo.endpointssBMAS().stream()
-                    .filter(ep -> Integer.parseInt(ep.getPeer().getBlock().split("-")[0]) < blockRepo.currentBlockNumber() - 100)
-                    .map(ep -> ep.url())
+                    .filter(ep -> {
+                        try{
+                            var split = ep.getPeer().getBlock().split("-");
+                            var parse = Integer.parseInt(split[0]);
+                            return parse < blockRepo.currentBlockNumber() - 100;
+                        }catch(Exception e ){
+                            return false;
+                        }
+
+                    })
+                    .map(EndPoint::url)
                     .collect(Collectors.toList());
             urls.addAll(configuredNodes);
             urls.forEach(url -> {

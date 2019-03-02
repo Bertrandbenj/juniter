@@ -137,7 +137,7 @@ public class BlockchainService {
     @RequestMapping(value = "/current", method = RequestMethod.GET)
     public Block current() {
         LOG.info("Entering /blockchain/current");
-        final var b = blockRepo.findTop1ByOrderByNumberDesc()//
+        final var b = blockRepo.current()
                 .orElse(defaultLoader.fetchAndSaveBlock("current"));
 
         return modelMapper.map(b, Block.class);

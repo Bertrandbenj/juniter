@@ -93,7 +93,6 @@ public class BlockLoader implements BlockLocalValid {
         if (bulkLoad) {
             bulkLoad2();
         }
-
     }
 
     @Async

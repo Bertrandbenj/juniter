@@ -10,6 +10,7 @@ import juniter.repository.jpa.EndPointsRepository;
 import juniter.repository.jpa.PeersRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -20,11 +21,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,10 +46,10 @@ import java.util.stream.Collectors;
 public class NetworkService {
 
     @Value("${server.port:8443}")
-    Integer port;
+    private Integer port;
 
-    @Value("${server.name:juniter.bnimajneb.online}")
-    String serverName;
+    @Value("${server.name:localhost}")
+    private String serverName;
 
 
     public static final Logger LOG = LogManager.getLogger();
@@ -61,6 +64,10 @@ public class NetworkService {
     private BlockRepository blockRepo;
 
 
+    @Autowired
+    private ModelMapper modelMapper;
+
+
     private SecretBox secretBox = new SecretBox("salt", "password");
 
 
@@ -68,7 +75,10 @@ public class NetworkService {
     @RequestMapping("/")
     public List<String> index() {
         LOG.info("Entering /network/ ... ");
-        return endPointRepo.enpointsURL();
+        return peerRepo.streamAllPeers()
+                .flatMap(p-> p.getUris().stream())
+                .map(URI::toString)
+                .collect(Collectors.toList());
     }
 
     @CrossOrigin(origins = "*")
@@ -79,13 +89,16 @@ public class NetworkService {
         LOG.info("Entering /network/peers ...");
 
         try (var peers = peerRepo.streamAllPeers()) {
-            final var peerL = peers.collect(Collectors.toList());
+            final var peerL = peers.map(p-> modelMapper.map(p, PeerDTO.class)).collect(Collectors.toList());
             return new PeersDTO(peerL);
         } catch (final Exception e) {
             LOG.error("NetworkService.peers() peerRepo.streamAllPeers ->  ", e);
         }
-        return null;
+        return new PeersDTO();
     }
+
+    @Autowired
+    private RestTemplate restTemplate;
 
 
     @CrossOrigin(origins = "*")
@@ -94,18 +107,23 @@ public class NetworkService {
     public WS2PHeads wsHeads() {
 
         LOG.info("Entering /ws2p/heads ...");
+       // peerRepo.streamAllPeers().flatMap(p-> p.endpoints().stream())
+        var response = restTemplate.getForObject("https://g1.duniter.fr/network/ws2p/heads",WS2PHeads.class);
 
-        var res =  WS2PHeads.builder()
 
-                .heads(List.of(Head.builder()
-                        .message("message")
-                        .sig("====")
-                        .messageV2("message")
-                        .sigV2("====")
-                        .build())
-                ).build();
-
-        return res;
+        //LOG.info("  ..." + response );
+return response ;
+//        var res =  WS2PHeads.builder()
+//                .heads(List.of(HeadDTO.builder()
+//                        .message("message")
+//                        .sig("====")
+//                        .messageV2("message")
+//                        .sigV2("====")
+//                        .step(1)
+//                        .build())
+//                ).build();
+//
+//        return res;
     }
 
 
@@ -158,10 +176,8 @@ public class NetworkService {
 
         LOG.info("POSTING /network/peering/peers ..." + input.getPeer());
 
-
         Peer peer = new Peer();
         final var headers = new HttpHeaders();
-
 
         return new ResponseEntity<>(peer, headers, HttpStatus.OK);
     }

@@ -71,7 +71,7 @@ spring:
       #      auto-offset-reset: earliest
 
 
-  boot.admin.url: http://localhost:8080
+  #boot.admin.url: http://localhost:8080
 
 ##
 ## =========================== Web Server Configs ===========================
@@ -86,7 +86,7 @@ server:
   compression:
     enabled: true
     mime-types: application/json,application/xml,text/html,text/xml,text/plain,application/javascript,text/css,image/svg+xml
-
+  #context-path: /html
 
 ##
 ## =========================== GraphQL ===========================
@@ -103,7 +103,7 @@ graphiql:
   mapping: /graphiql
   endpoint:
     graphql: /graphql
-    subscriptions: /subscriptions
+   # subscriptions: /websocket
   static:
     basePath: /
   enabled: true

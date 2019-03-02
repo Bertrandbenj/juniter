@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<!--
+  #%L
+  SUMARiS:: Server
+  %%
+  Copyright (C) 2018 SUMARiS Consortium
+  %%
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+  
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+  
+  You should have received a copy of the GNU General Public
+  License along with this program.  If not, see
+  <http://www.gnu.org/licenses/gpl-3.0.html>.
+  #L%
+  -->
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Juniter - GraphQL subscription Test</title>
+
+    <link rel="stylesheet" href="/core/css/bootstrap.min.css" />
+
+    <script language="javascript" type="text/javascript">
+
+        var websocket;
+        var wsPath = "/graphql/websocket";
+        var wsUri = "ws://localhost:8443" + wsPath;
+        var output;
+        var buttonConnect;
+        var inputUri;
+        var inputContent;
+
+        var requests_examples = {
+            connection_init: {type: "connection_init", "payload": {}},
+            account_changes: {
+                "id":1,
+                "type":"start",
+                "payload": {
+                    "variables":{
+                        "pubkey":"4weakHxDBMJG9NShULG1g786eeGh7wwntMeLZBDhJFni","interval":10},
+                        "extensions":{},
+                        "operationName":"updateAccount",
+                        "query":"subscription updateAccount($pubkey: String, $interval: Int) {
+                            updateAccount(pubkey: $pubkey, interval: $interval) {
+                                created_on
+                                hash
+                                id
+                                member
+                                op
+                                kick
+                                pub
+                                sig
+                                writtenOn
+                                written_on
+                                wotbid
+                                wasMember
+                               }}"
+                     }
+                },
+            trip_changes: {  }
+        };
+
+        function init()
+        {
+            if (window.location && window.location.origin) {
+                wsUri = window.location.origin.replace('http', 'ws') + wsPath;
+            }
+
+            inputUri = document.getElementById("wsUri");
+            buttonConnect = document.getElementById("buttonConnect");
+            inputUri.value = wsUri;
+            inputContent = document.getElementById("content");
+            output = document.getElementById("output");
+
+            // Open the socket
+            websocket = createWebSocket();
+        }
+
+        function createWebSocket()
+        {
+            wsUri = (inputUri.value) || wsUri;
+            var res = new WebSocket(wsUri);
+            res.onopen = function(evt) { onOpen(evt) };
+            res.onclose = function(evt) { onClose(evt) };
+            res.onmessage = function(evt) { onMessage(evt) };
+            res.onerror = function(evt) { onError(evt) };
+            return res;
+        }
+
+        function onOpen(evt)
+        {
+            log("CONNECTED", "text-muted");
+
+            // Init connection
+            doSend(requests_examples.connection_init);
+
+            buttonConnect.innerHTML = "Disconnect";
+        }
+
+        function doOpenOrClose()
+        {
+            if (websocket) {
+                websocket.close();
+                websocket = undefined;
+            }
+            else {
+                websocket = createWebSocket();
+            }
+        }
+
+        function onClose(evt)
+        {
+            if (evt && evt.reason) {
+                log("DISCONNECTED - Reason: " + evt.reason, "text-warning");
+            }
+            else {
+                log("DISCONNECTED", "text-warning");
+            }
+
+            // Change connection button label
+            buttonConnect.innerHTML = "Connect";
+
+            websocket = undefined;
+        }
+
+        function onMessage(evt)
+        {
+            var message = evt.data;
+            if (message.indexOf("\"type\":\"error\"") != -1) {
+                log('RESPONSE: ' + evt.data, 'text-warning');
+            }
+            else {
+                log('RESPONSE: ' + evt.data, 'text-info');
+            }
+        }
+
+        function onError(evt)
+        {
+            log('ERROR: ' + evt.data, 'text-error');
+        }
+
+        function doSend(message)
+        {
+            if (!websocket) {
+                websocket = createWebSocket();
+            }
+            try {
+                // If string, convert twice (to make sure the syntax is correct)
+                if (typeof message === "string") {
+                    message = JSON.stringify(JSON.parse(message));
+                }
+                // If object, convert to string
+                else if (typeof message === "object") {
+                    message = JSON.stringify(message);
+                }
+
+                log("SENT: " + message, "text-muted");
+                websocket.send(message);
+            }
+            catch(error) {
+                console.error(error);
+                onError({data: (error && error.message || error)});
+            }
+        }
+
+        function doSendContent() {
+            doSend(inputContent.value);
+        }
+
+        function log(message, classAttribute)
+        {
+            var pre = document.createElement("p");
+            if (classAttribute) {
+                var classes = classAttribute.split(" ");
+                for (var i=0; i< classes.length; i++) {
+                    pre.classList.add(classes[i]);
+                }
+            }
+            pre.style.wordWrap = "break-word";
+            pre.innerHTML = message;
+            output.appendChild(pre);
+        }
+
+        function clearScreen()
+        {
+            output.innerHTML = "";
+        }
+
+        function showExample(name) {
+            if (requests_examples[name]) {
+                inputContent.value = JSON.stringify(requests_examples[name]);
+            }
+        }
+
+
+        window.addEventListener("load", init, false);
+
+    </script>
+</head>
+<body>
+    <div class="container">
+
+        <h1>GraphQL subscription test</h1>
+
+        <div class="form-group">
+            <label for="wsUri">WS URI</label>
+            <div class="form-inline">
+                <input type="text" name="wsUri" id="wsUri" class="form-control" placeholder="ws://server/path" style="width: 80%;">
+                <button id="buttonConnect" type="button" onclick="doOpenOrClose()" class="btn btn-primary" tabindex="-1" style="width: 15%; min-width: 150px;">Disconnect</button>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="content">Content</label>
+            <textarea name="content" id="content" rows="10" class="form-control" placeholder="Content to sent"></textarea><br/>
+            <div class="form-inline">
+                Examples:
+                <a href="#" onclick="showExample('connection_init');">connection</a> |
+                <a href="#" onclick="showExample('account_changes');">account changes</a> |
+                <a href="#" onclick="showExample('trip_changes');">trip changes</a>
+            </div>
+        </div>
+
+        <div class="form-group form-inline text-center">
+            <button type="button" onclick="clearScreen()" class="btn btn-lg">Clear output</button>
+            <button type="button" onclick="doSendContent()" class="btn btn-primary btn-lg">Send</button>
+        </div>
+
+        <!-- output message -->
+        <h2>Output:</h2>
+        <div id="output" style="padding-left: 15px;"></div>
+
+        <script src="/core/js/jquery.slim.min.js"></script>
+        <script src="/core/js/bootstrap.min.js"></script>
+    </div>
+</body>

@@ -1,16 +1,21 @@
 package juniter.service.bma;
 
+import juniter.core.model.business.BStamp;
 import juniter.core.model.dto.MemberVO;
-import juniter.core.model.dto.naughtylookup.SignedSection;
-import juniter.core.model.dto.naughtylookup.UserID;
-import juniter.core.model.dto.naughtylookup.WotLookup;
-import juniter.core.model.dto.naughtylookup.WotLookupResult;
+import juniter.core.model.dto.naughtylookup.*;
+import juniter.core.model.dto.requirements.IdtyCerts;
+import juniter.core.model.dto.requirements.ReqDTO;
+import juniter.core.model.dto.requirements.ReqIdtyDTO;
+import juniter.core.model.index.MINDEX;
 import juniter.core.model.wot.Certification;
 import juniter.core.model.wot.Identity;
 import juniter.core.model.wot.Revoked;
 import juniter.repository.jpa.CertsRepository;
 import juniter.repository.jpa.index.CINDEXRepository;
 import juniter.repository.jpa.index.IINDEXRepository;
+import juniter.repository.jpa.index.MINDEXRepository;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +46,12 @@ public class WotService {
     @Autowired
     private CINDEXRepository cRepo;
 
+    @Autowired
+    MINDEXRepository mRepo;
+
+    @Autowired
+    IINDEXRepository iRepo;
+
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     void handle(HttpServletResponse response) throws IOException {
@@ -48,9 +59,23 @@ public class WotService {
     }
 
     @RequestMapping(value = "/requirements/{pubkey}", method = RequestMethod.GET)
-    public String requirements(@PathVariable("pubkey") String pubkeyOrUid) {
+    public ReqDTO requirements(@PathVariable("pubkey") String pubkeyOrUid) {
         LOG.info("Entering /wot/requirements/{pubkey= " + pubkeyOrUid + "}");
-        return "not implemented yet";
+        return ReqDTO.builder()
+                .identities(iRepo.search(pubkeyOrUid).stream()
+                        .map(i -> {
+
+                            var certs = cRepo.receivedBy(i.getPub()).stream()
+                                    .map(c-> IdtyCerts.builder()
+
+                                            .build())
+                                    .collect(Collectors.toList());
+                            return ReqIdtyDTO.builder()
+                                    .certifications(certs)
+                                    .build();
+                        })
+                        .collect(Collectors.toList()))
+                .build();
     }
 
     @Transactional(readOnly = true)
@@ -77,13 +102,44 @@ public class WotService {
     @CrossOrigin(origins = "*")
     @RequestMapping(value = "/lookup/{pubkeyOrUid}", method = RequestMethod.GET)
     public WotLookup lookup(@PathVariable("pubkeyOrUid") String pubkeyOrUid) {
+
         LOG.info("Entering /wot/lookup/{pubkeyOrUid= " + pubkeyOrUid + "}");
+
+
+        var ids = iRepo.search(pubkeyOrUid).stream().map(i -> {
+            var m = mRepo.member(i.getPub()).stream().reduce(MINDEX.reducer);
+            var c = cRepo.receivedBy(i.getPub()).stream()
+                    .map(cert -> OtherLookup.builder()
+                            .isMember(true)
+                            .meta(MetaLookup.builder()
+                                    .timestamp(new BStamp(cert.getWritten_on()))
+                                    .build())
+                            .pubkey(cert.getIssuer())
+                            .wasMember(true)
+                            .uids(List.of(""))
+                            .signature(cert.getSig())
+                            .build())
+                    .collect(Collectors.toList());
+
+            return UserID.builder()
+                    .meta(MetaLookup.builder()
+                            .timestamp(new BStamp(i.getWritten_on()))
+                            .build())
+                    .uid(i.getUid())
+                    .revoked(m.get().getRevoked_on() != null)
+                    .revocation_sig(m.get().getRevocation())
+                    .revoked_on(null)
+                    .others(c)
+                    .self("self")
+                    .build();
+        }).collect(Collectors.toList());
+
         var res = WotLookup.builder()
                 .partial(false)
                 .results(List.of(WotLookupResult.builder()
-                        .pubkey("XXX")
-                        .signed(List.of(SignedSection.builder().signature("=====").build()))
-                        .uids(List.of(UserID.builder().self("self").build()))
+                        .signed(null)
+                        .uids(ids)
+                        .pubkey(pubkeyOrUid)
                         .build()))
                 .build();
 
@@ -91,14 +147,17 @@ public class WotService {
     }
 
 
-    @Autowired
-    IINDEXRepository iRepo;
-
     @CrossOrigin(origins = "*")
     @RequestMapping(value = "/members", method = RequestMethod.GET)
-    public List<MemberVO> members() {
+    public MembersDTO members() {
         LOG.info("Entering /wot/members");
-        return iRepo.members();
+        return new MembersDTO (iRepo.members());
+    }
+
+    @Data
+    @AllArgsConstructor
+    public class MembersDTO{
+        List<MemberVO> results;
     }
 
 

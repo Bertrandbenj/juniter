@@ -1,9 +1,9 @@
 package juniter.service.gva;
 
-import io.leangen.graphql.annotations.GraphQLArgument;
-import io.leangen.graphql.annotations.GraphQLMutation;
-import io.leangen.graphql.annotations.GraphQLNonNull;
-import io.leangen.graphql.annotations.GraphQLQuery;
+import com.google.common.base.Preconditions;
+import io.leangen.graphql.annotations.*;
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Observable;
 import juniter.core.model.business.BStamp;
 import juniter.core.model.index.IINDEX;
 import juniter.core.model.wot.Identity;
@@ -11,11 +11,14 @@ import juniter.repository.jpa.index.IINDEXRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
+import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -95,5 +98,24 @@ public class WoTService {
         return new PendingIdentity();
     }
 
+
+    /*** SUBSCRIPTION **/
+
+
+
+    @GraphQLSubscription(name = "updateAccount", description = "Subscribe to an account update")
+    public Publisher<IINDEX> updateAccount(
+            @P("pubkey") @GraphQLArgument(name = "pubkey") final String pubkey,
+            @GraphQLArgument(name = "interval", defaultValue = "30", description = "Minimum interval to get changes, in seconds.") final Integer minIntervalInSecond) {
+
+        Preconditions.checkNotNull(pubkey, "Missing pubkey");
+        Preconditions.checkArgument(pubkey.length() > 6, "Invalid pubkey");
+
+        IINDEX person = iRepo.idtyByPubkey(pubkey).get(0);
+        return Observable.interval(minIntervalInSecond, TimeUnit.SECONDS)
+                .flatMap(n ->  Observable.fromArray( person))
+                .toFlowable(BackpressureStrategy.BUFFER);
+       // return changesPublisherService.getPublisher(Person.class, IINDEX.class, person.getId(), minIntervalInSecond, true);
+    }
 
 }

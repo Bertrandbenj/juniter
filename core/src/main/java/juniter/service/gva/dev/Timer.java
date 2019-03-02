@@ -12,6 +12,8 @@ public class Timer {
     public Timer(LocalDateTime localDateTime) {
         this.localDateTime = localDateTime;
     }
+
+
     @GraphQLQuery(name = "localDateTime")
     public LocalDateTime getLocalDateTime() {
         return localDateTime;

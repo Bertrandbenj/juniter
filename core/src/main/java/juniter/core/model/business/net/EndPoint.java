@@ -1,18 +1,16 @@
 package juniter.core.model.business.net;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import juniter.core.utils.Constants;
 import juniter.core.validation.NetValid;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import javax.persistence.*;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import java.io.Serializable;
 
 /**
  * ex : [ "BASIC_MERKLED_API metab.ucoin.io 88.174.120.187 9201" ]
@@ -26,15 +24,14 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Table(name = "endpoints", schema = "public")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class EndPoint implements Serializable {
+public class EndPoint   {
 
-	private static final long serialVersionUID = -165962007943111454L;
-	private static final Logger LOG = LogManager.getLogger();
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
-	
+
+	@JsonIgnore
 	@ManyToOne(cascade = CascadeType.REMOVE, fetch=FetchType.EAGER)
 	@JoinColumn(name = "peer", referencedColumnName = "pubkey")
 	private Peer peer;
@@ -95,8 +92,14 @@ public class EndPoint implements Serializable {
 		String res = "";
 		switch(api){
 			case BMAS:
-			case WS2PS:
 				res+="https://";
+				break;
+			case BMA:
+				res+="http://";
+				break;
+			case WS2P:
+				res+="wss://";
+				break;
 
 		}
 		
@@ -112,7 +115,7 @@ public class EndPoint implements Serializable {
 		
 		if(!res.endsWith("/"))
 			res+="/";
-		LOG.debug("url: " +res);
+		//LOG.debug("url: " +res);
 		return res;
 	}
 	

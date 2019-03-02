@@ -148,7 +148,7 @@ public class PeerPanel implements Initializable {
 
 
     void presetPeer() {
-        peer = netService.endPointPeer(Bindings.currentDBBlock.intValue());
+        peer = netService.endPointPeer(Bindings.currentBindex.intValue());
         sessid.setText(getRandomHexString(8));
         block.setText(peer.getBlock());
         pubkey.setText(peer.getPubkey());
