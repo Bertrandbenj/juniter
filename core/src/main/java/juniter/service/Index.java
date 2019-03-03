@@ -3,8 +3,8 @@ package juniter.service;
 import com.codahale.metrics.annotation.Counted;
 import io.micrometer.core.annotation.Timed;
 import juniter.core.event.CoreEventBus;
-import juniter.core.model.business.BStamp;
 import juniter.core.model.DBBlock;
+import juniter.core.model.business.BStamp;
 import juniter.core.model.index.Account;
 import juniter.core.utils.TimeUtils;
 import juniter.core.validation.GlobalValid;
@@ -70,10 +70,10 @@ public class Index implements GlobalValid, Serializable {
 
 
     @Value("${juniter.startIndex:false}")
-    private Boolean startIndex;
+    private boolean startIndex;
 
 
-    @Scheduled(initialDelay = 1000*10, fixedRate = 1000 * 60 *5)
+    @Scheduled(initialDelay = 1000*60, fixedRate = 1000 * 60 *5)
     void launchIndexing() {
         if (startIndex) {
             indexUntil(blockRepo.currentBlockNumber(), false);

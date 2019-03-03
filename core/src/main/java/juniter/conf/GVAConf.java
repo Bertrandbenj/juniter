@@ -17,8 +17,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
-import org.springframework.web.servlet.HandlerMapping;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
@@ -28,6 +26,7 @@ import org.springframework.web.socket.handler.PerConnectionWebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @EnableWebSocket
 @Configuration
@@ -66,32 +65,36 @@ public class GVAConf implements WebSocketConfigurer {
 //                    return true;
 //                })
                 .addInterceptors(new HandshakeInterceptor() {
-
+                    // whether to proceed with the handshake ({@code true}) or abort ({@code false})
                     @Override
                     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response,
                                                    WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
+                        LOG.info("before handshake " + request.getURI());
                         if (request.getURI().getPath().endsWith("/graphql")) {
-                            return false;
-                        } else {
-                            simpleWsDispatch(request, response, wsHandler);
+                            //new DefaultHandshakeHandler(new TomcatRequestUpgradeStrategy()).doHandshake()
                             return true;
+                        } else {
+
+                            return simpleWsDispatch(request, response, wsHandler);
                         }
                     }
 
                     @Override
                     public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Exception exception) {
+                        LOG.info("after handshake ");
 
                         simpleWsDispatch(request, response, wsHandler);
                     }
                 })
 
-        // .withSockJS()
+        //.withSockJS()
         ;
 
     }
 
-    public void simpleWsDispatch(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler) {
+    public boolean simpleWsDispatch(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler) {
         LOG.info("Simple dispatcher " + request.getURI().getPath() + " will use " + wsHandler.getClass().getCanonicalName());
+        AtomicBoolean res = new AtomicBoolean(false);
 
         if (request.getURI().getPath().endsWith("/ws/block") || request.getURI().getPath().endsWith("/block")) {
 
@@ -101,8 +104,9 @@ public class GVAConf implements WebSocketConfigurer {
 
                     response.getBody().write(objectMapper.writeValueAsBytes(block));
                     LOG.info("sending block " + block.getNumber() + " " + response.getBody());
+                    res.set(true);
                 } catch (Exception e) {
-                    LOG.error(e);
+                    LOG.error("simpleWsDispatch ERROR", e);
                 }
             });
 
@@ -114,26 +118,19 @@ public class GVAConf implements WebSocketConfigurer {
                 try {
                     var peer = objectMapper.writeValueAsString(netService.endPointPeer(bl));
                     response.getBody().write(new TextMessage(peer).asBytes());
-                    LOG.info("sending block " + peer.toString() + " " + response.getBody());
-
+                    LOG.info("sending peer " + peer.toString() + " " + response.getBody());
+                    res.set(true);
                 } catch (Exception e) {
-                    LOG.error(e);
+                    LOG.error("simpleWsDispatch ERROR: ", e);
                 }
             });
-
         }
+        return res.get();
     }
 
     @Bean
     public WebSocketHandler webSocketGraphQLHandler() {
         return new PerConnectionWebSocketHandler(GVASubscriptionHandler.class);
-    }
-
-    @Bean
-    public HandlerMapping requestMappingHandlerMapping() {
-        RequestMappingHandlerMapping mapping = new RequestMappingHandlerMapping();
-        mapping.setUseSuffixPatternMatch(false);
-        return mapping;
     }
 
 
@@ -144,7 +141,7 @@ public class GVAConf implements WebSocketConfigurer {
 
     @Bean
     public WebSocketHandler wsBlockHandler() {
-        return new PerConnectionWebSocketHandler(WSBlock.class);
+        return new WSBlock();
     }
 
 

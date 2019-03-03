@@ -24,17 +24,21 @@ public class SecurityPermitAllConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(WebSecurity web) {
-       // web.ignoring().requestMatchers(PUBLIC_URLS);
+       web.ignoring().requestMatchers(PUBLIC_URLS);
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         // use for at least graphiql
         http.authorizeRequests()
+                //.antMatchers(HttpMethod.GET, "/graphql").permitAll()
+                //.antMatchers(HttpMethod.POST, "/graphql").permitAll()
                 .anyRequest()
                 .permitAll()
                 .and().cors()
-                .and().csrf().disable()
+                .and().csrf()
+                //.ignoringAntMatchers("*.html", "/graphql")
+                .disable()
 
 
         .exceptionHandling()
@@ -72,12 +76,18 @@ public class SecurityPermitAllConfig extends WebSecurityConfigurerAdapter {
 
     private static final RequestMatcher PUBLIC_URLS = new OrRequestMatcher(
             new AntPathRequestMatcher("/"),
+            new AntPathRequestMatcher("*.html"),
+            new AntPathRequestMatcher("**.html"),
             new AntPathRequestMatcher("/favicon.ico"),
             new AntPathRequestMatcher("/core/**"),
             new AntPathRequestMatcher("/ws/**"),
             new AntPathRequestMatcher("/graphiql/**"),
             new AntPathRequestMatcher("/graphql/websocket/**"),
-            new AntPathRequestMatcher("/error")
+            new AntPathRequestMatcher("/graphql"),
+            new AntPathRequestMatcher("/jena"),
+            new AntPathRequestMatcher("/ws.html"),
+            new AntPathRequestMatcher("/gvasubs.html")
+            //new AntPathRequestMatcher("/error")
     );
     private static final RequestMatcher PROTECTED_URLS = new NegatedRequestMatcher(PUBLIC_URLS);
 

@@ -55,6 +55,9 @@ spring:
     properties:
       hibernate:
         format_sql : true
+
+  mvc.static-path-pattern: /resources/**
+
   #  mvc.view:
   #      prefix: /WEB-INF/view/
   #      suffix: .jsp

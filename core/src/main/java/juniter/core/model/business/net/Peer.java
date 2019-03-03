@@ -3,17 +3,18 @@ package juniter.core.model.business.net;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import juniter.core.utils.Constants;
 import lombok.Data;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.message.BasicNameValuePair;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import javax.persistence.*;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Entity
@@ -85,9 +86,10 @@ public class Peer  {
         if(!"UP".equals(status))
             return uriList;
 
-                    var builder = new URIBuilder();
+                    var builder = new DefaultUriBuilderFactory().builder();
 
-        List<NameValuePair> apis = endpoints.stream()
+
+        Map<String, String> apis = endpoints.stream()
                 .map(ep -> {
                     var x = "1";
                     if (ep.getApi().equals(EndPointType.WS2P))
@@ -98,7 +100,14 @@ public class Peer  {
                     return new BasicNameValuePair(ep.getApi().toString(), x); // + "=" + x;
                 })
                 .distinct()
-                .collect(Collectors.toList());
+                .collect(Collectors.toMap(bnvp-> bnvp.getName(), o -> o.getValue()));
+
+
+        MultiValueMap mvm = new LinkedMultiValueMap();
+        apis.forEach((k,v)->{
+            mvm.add(k,v);
+        });
+
 
         var domains = endpoints.stream()
                 .map(ep -> {
@@ -122,14 +131,14 @@ public class Peer  {
 
             try {
                 uriList.add(builder
-                        .setScheme("http" + (domain.endsWith("443")||apis.contains("BMAS")?"s":""))
+                        .scheme("http" + (domain.endsWith("443")|| apis.containsKey("BMAS")?"s":""))
                         //.setUserInfo(pubkey)//,signature)
-                        .setHost(domain)
-                        .setPath((domain.endsWith("/") ? "" : "/") + getStatus() + "/" + getBlock().replaceAll("-", "/"))
-                        .setParameters(apis)
+                        .host(domain)
+                        .path((domain.endsWith("/") ? "" : "/") + getStatus() + "/" + getBlock().replaceAll("-", "/"))
+                        .queryParams(mvm)
                         .build());
 
-            } catch (URISyntaxException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 

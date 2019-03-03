@@ -56,9 +56,9 @@ bootJar {
 
 jar {
     baseName = "junigeek"
-    group    = "org.duniter"
+    //group    = "juniter"
     version  = "0.0.1-SNAPSHOT"
-    mainClassName = group + '.juniter.Application'
+    mainClassName =  'juniter.Application'
 
     //manifest { attributes "Main-Class": group + ".juniter.Application" }
 }
