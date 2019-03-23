@@ -4,8 +4,6 @@ package juniter.core.model.business;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
-import java.io.Serializable;
-
 /**
  * DUP ChainParameters initialized using ğ1 variable
  *
@@ -14,9 +12,7 @@ import java.io.Serializable;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ChainParametersDTO implements DUPComponent, Serializable {
-
-    private static final long serialVersionUID = -197387756259876543L;
+public class ChainParametersDTO implements DUPComponent {
 
 
     private String currency = "g1";

@@ -7,15 +7,12 @@ import lombok.Setter;
 import org.springframework.lang.NonNull;
 
 import javax.persistence.Embeddable;
-import java.io.Serializable;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @Embeddable
-public class Excluded implements DUPComponent, Serializable, Comparable<Excluded> {
-
-	private static final long serialVersionUID = -8542771529353910205L;
+public class Excluded implements DUPComponent, Comparable<Excluded> {
 
 	private String pubkey;
 

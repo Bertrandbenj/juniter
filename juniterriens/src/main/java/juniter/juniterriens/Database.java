@@ -249,7 +249,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
     SINDEXRepository sRepo;
 
     @Autowired
-    private Index indexer;
+    private Index index;
 
     @FXML
     private TextField indexTil;
@@ -282,12 +282,13 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
         Bindings.maxBindex.setValue(until);
 
-        indexer.indexUntil(until, false);
+        index.indexUntil(until, false);
     }
 
     @FXML
     public void indexReset() {
-        indexer.reset(true);
+
+        index.reset(true);
         Bindings.currentBindex.setValue(0);
     }
 
@@ -297,7 +298,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
         Bindings.isIndexing.setValue(!Bindings.isIndexing.get());
 
 
-        indexer.indexUntil(Bindings.currentBindex.intValue() + 1, false);
+        index.indexUntil(Bindings.currentBindex.intValue() + 1, false);
         //Bindings.indexLogMessage.setValue("Validated " + Bindings.currentBindex.intValue());
 
     }
@@ -326,7 +327,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
             Bindings.currentBindex.setValue(h.number - 1);
             Bindings.indexLogMessage.setValue("Reverted to " + Bindings.currentBindex.intValue() + " from " + h);
 
-            indexer.reset(false);
+            index.reset(false);
         });
 
     }

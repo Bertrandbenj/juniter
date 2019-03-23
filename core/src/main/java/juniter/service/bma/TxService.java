@@ -19,10 +19,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -60,7 +57,7 @@ public class TxService {
 
 
     @Transactional(readOnly = true)
-    @RequestMapping(value = "/history/{pubkey}", method = RequestMethod.GET)
+    @GetMapping(value = "/history/{pubkey}")
     public TxHistory history(@PathVariable("pubkey") String pubkey) {
         // TODO: COMPLETE the history and tidy the result if need be to match the duniter api exactly
         var sent = new ArrayList<TransactionDTO>();
@@ -85,7 +82,7 @@ public class TxService {
     }
 
     @Transactional(readOnly = true)
-    @RequestMapping(value = "/history/{pubkey}/pending", method = RequestMethod.GET)
+    @GetMapping(value = "/history/{pubkey}/pending" )
     public TxHistory pendingHistory(@PathVariable("pubkey") String pubkey) {
         LOG.info("Entering /history/{pubkey}/pending " + pubkey  );
 
@@ -101,7 +98,7 @@ public class TxService {
     }
 
     @Transactional(readOnly = true)
-    @RequestMapping(value = "/history/{pubkey}/blocks/{from}/{to}", method = RequestMethod.GET)
+    @GetMapping(value = "/history/{pubkey}/blocks/{from}/{to}" )
     public TxHistory historyFilterByBlockRange(@PathVariable("pubkey") String pubkey,
                                             @PathVariable("pubkey") String from,
                                             @PathVariable("pubkey") String to) {
@@ -130,7 +127,7 @@ public class TxService {
 
 
     @Transactional(readOnly = true)
-    @RequestMapping(value = "/history/{pubkey}/times/{from}/{to}", method = RequestMethod.GET)
+    @GetMapping(value = "/history/{pubkey}/times/{from}/{to}" )
     public TxHistory historyFilterByTimeRange(@PathVariable("pubkey") String pubkey, @PathVariable("pubkey") String from,
                                            @PathVariable("pubkey") String to) {
         LOG.info("Entering /history/{pubkey}/times/{from}/{to}.. " + pubkey + " " + from + "->" + to);
@@ -158,7 +155,7 @@ public class TxService {
 
 
     @Transactional(readOnly = true)
-    @RequestMapping(value = "/sources/{pubkey}", method = RequestMethod.GET)
+    @GetMapping(value = "/sources/{pubkey}")
     public Wrapper sources(@PathVariable("pubkey") String pubkey) {
         LOG.info("Entering /sources/{pubkey= " + pubkey + "}");
         return new Wrapper(
@@ -188,7 +185,7 @@ public class TxService {
     }
 
 
-    @RequestMapping(value = "/process", method = RequestMethod.POST)
+    @PostMapping(value = "/process")
     ResponseEntity<Transaction> processTx(HttpServletRequest request, HttpServletResponse response) {
 
         LOG.info("POSTING /tx/process ..." + request.getRemoteHost());

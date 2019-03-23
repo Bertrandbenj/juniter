@@ -1,23 +1,25 @@
 package juniter.core.model.index;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import javax.persistence.*;
-import java.io.Serializable;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @Entity
-@Table(name = "CINDEX", schema = "public") // , indexes = @Index(columnList = "number,hash"))
+@Table(name = "CINDEX", schema = "public", indexes = {
+        @Index(name="ind_op", columnList = "op"),
+        @Index(name="ind_issuer", columnList = "issuer"),
+        @Index(name="ind_receiver", columnList = "receiver"),
+        @Index(name="ind_createdOn", columnList = "createdOn"),
+        @Index(name="ind_createdOn", columnList = "written_on")
+})
 @JsonIgnoreProperties(ignoreUnknown = true)
 //@IdClass(BStamp.class)
-public class CINDEX implements Serializable {
+public class CINDEX  {
 
-    private static final long serialVersionUID = -640021978930671L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

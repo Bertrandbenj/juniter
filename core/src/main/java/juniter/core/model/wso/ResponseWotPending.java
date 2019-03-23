@@ -9,13 +9,12 @@ import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ResponseWotPending implements Serializable {
+public class ResponseWotPending  {
 	@JsonIgnoreProperties(ignoreUnknown = true)
 
 	class Identities {

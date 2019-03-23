@@ -1,26 +1,19 @@
 package juniter.core.model.business.tx;
 
 import juniter.core.model.business.DUPComponent;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.lang.NonNull;
 
 import javax.persistence.Embeddable;
 import javax.validation.constraints.Size;
-import java.io.Serializable;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @Embeddable
-public class TxUnlock implements Serializable, Comparable<TxUnlock>, DUPComponent {
-
-
-
-	private static final long serialVersionUID = -2759081749575814229L;
+public class TxUnlock implements  Comparable<TxUnlock>, DUPComponent {
 
 	private static final Logger LOG = LogManager.getLogger();
 

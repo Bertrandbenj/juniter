@@ -2,24 +2,24 @@ package juniter.core.model.index;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import juniter.service.gva.Source;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 import lombok.ToString;
 
 import javax.persistence.*;
-import java.io.Serializable;
 
-@Getter
-@Setter
-@NoArgsConstructor
+@Data
 @ToString
 @Entity
-@Table(name = "SINDEX", schema = "public")//,uniqueConstraints={@UniqueConstraint(columnNames={"op","",""})}) // , indexes = @Index(columnList = "number,hash"))
+@Table(name = "SINDEX", schema = "public", indexes = {
+        @Index(name="ind_shash",columnList = "identifier"),
+        @Index(name="ind_sconsumed",columnList = "consumed"),
+        @Index(name="ind_sconditions",columnList = "conditions"),
+        @Index(name="ind_swritten_on",columnList = "written_on"),
+        @Index(name="ind_swrittenOn",columnList = "writtenOn"),
+})
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class SINDEX implements Serializable {
+public class SINDEX  {
 
-    private static final long serialVersionUID = -6400219827778830671L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

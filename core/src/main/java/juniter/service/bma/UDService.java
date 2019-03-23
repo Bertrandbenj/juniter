@@ -8,10 +8,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Handles publication of transaction documents
@@ -35,7 +32,7 @@ public class UDService {
 
 
     @Transactional(readOnly = true)
-    @RequestMapping(value = "/history/{pubkey}", method = RequestMethod.GET)
+    @GetMapping(value = "/history/{pubkey}")
     public TxHistory UDHistory(@PathVariable("pubkey") String pubkey) {
 
 

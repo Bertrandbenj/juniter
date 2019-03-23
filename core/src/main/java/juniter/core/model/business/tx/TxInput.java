@@ -3,9 +3,8 @@ package juniter.core.model.business.tx;
 import juniter.core.model.business.DUPComponent;
 import juniter.core.utils.Constants;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.springframework.lang.NonNull;
 
 import javax.persistence.Column;
@@ -16,17 +15,12 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import java.io.Serializable;
 
-//@JsonIgnoreProperties(ignoreUnknown = true)
-@Getter
-@Setter
-@NoArgsConstructor
+@Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Embeddable
-public class TxInput implements Serializable, Comparable<TxInput>, DUPComponent {
-
-	private static final long serialVersionUID = 860920319125591515L;
+public class TxInput implements  Comparable<TxInput>, DUPComponent {
 
 	@Min(1)
 	private Integer amount;

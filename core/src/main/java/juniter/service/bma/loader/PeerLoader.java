@@ -41,7 +41,7 @@ import java.util.*;
 @ConditionalOnExpression("${juniter.loader.useDefault:true}") // Must be up for dependencies
 @Component
 @Order(10)
-public class PeerLoader  {
+public class PeerLoader {
 
     @Autowired
     private CoreEventBus coreEventBus;
@@ -72,7 +72,8 @@ public class PeerLoader  {
 
     @Autowired
     private ModelMapper modelMapper;
-
+    @Value("${juniter.network.bulkSize:200}")
+    private Integer bulkSize;
 
 
     private Optional<String> anyNotIn(final List<String> triedURL) {
@@ -104,7 +105,7 @@ public class PeerLoader  {
         PeersDTO peersDTO = null;
         while (peersDTO == null) {
 
-           final var  host = anyNotIn(blacklistHosts);
+            final var host = anyNotIn(blacklistHosts);
 
             if (host.isPresent()) {
 
@@ -116,7 +117,9 @@ public class PeerLoader  {
                     var maxBlockPeer = peersDTO.getPeers().stream()
                             .map(pdto -> modelMapper.map(pdto, Peer.class))
                             .map(Peer::getBlock)
-                            .map(b-> b.split("-")[0]).mapToLong(Long::parseLong).max();
+                            .map(b -> b.split("-")[0])
+                            .mapToLong(Long::parseLong)
+                            .max();
 
                     var maxBlockDB = blockRepo.currentBlockNumber();
 
@@ -125,8 +128,15 @@ public class PeerLoader  {
                     coreEventBus.sendEventPeerLogMessage(host.orElse(""));
 
 
-                    if(maxBlockPeer.isPresent())
+                    if (maxBlockPeer.isPresent()) {
                         coreEventBus.sendEventSetMaxPeerBlock(maxBlockPeer.getAsLong());
+
+                        if (maxBlockDB < maxBlockPeer.getAsLong()) {
+                            blockLoader.fetchBlocks(bulkSize, (int) (maxBlockPeer.getAsLong() - bulkSize))
+                                    .forEach(b -> blockRepo.save(b));
+                        }
+                    }
+
 
                     final var elapsed = Long.divideUnsigned(System.nanoTime() - start, 1000000);
                     LOG.info("Max block found peers:" + maxBlockPeer +
@@ -148,7 +158,6 @@ public class PeerLoader  {
         }
 
 
-
     }
 
     @Transactional
@@ -162,12 +171,12 @@ public class PeerLoader  {
                 .map(bma -> fetchPeeringNumber(bma.url()))
                 .filter(Objects::nonNull)
                 .findAny()
-                //.sorted().max(Comparator.naturalOrder())
+                //.so+rted().max(Comparator.naturalOrder())
                 .orElseThrow();
 
         LOG.info("=== Found max block " + max);
 
-        var peer = netService.endPointPeer(max.getNumber() -1 );
+        var peer = netService.endPointPeer(max.getNumber() - 1);
         var asBMA = new PeerBMA(peer.toDUP(true));
 
         peerRepo.peerWithBlock(max.toString())
@@ -178,15 +187,17 @@ public class PeerLoader  {
                         var url = ep.url() + "network/peering/peers";
                         var res = technicalPost(url, asBMA);
 
-                        LOG.info("doPairing got response : "  + res);
+                        LOG.info("doPairing got response : " + res);
 
-                        if(res != null ){
+                        if (res != null) {
                             LOG.info(res.toDUP(true));
                         }
+
                     }
+
                 });
 
-        LOG.info("Finished doPairing " );
+        LOG.info("Finished doPairing ");
 
     }
 
@@ -239,7 +250,7 @@ public class PeerLoader  {
 
             var bstamp = new BStamp(peers.getBlock());
 
-            blockLoader.fetchBlocks(100, bstamp.getNumber()-100)
+            blockLoader.fetchBlocks(100, bstamp.getNumber() - 100)
                     //.flatMap(Collection::stream) // blocks individually
                     .forEach(b -> blockRepo//
                             .localSave(b) //

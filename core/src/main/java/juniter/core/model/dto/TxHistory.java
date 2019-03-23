@@ -1,22 +1,15 @@
 package juniter.core.model.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-import java.io.Serializable;
 import java.util.List;
 
-@Getter
-@Setter
-@NoArgsConstructor
-public class TxHistory  implements Serializable {
+@Data
+public class TxHistory   {
 	
 	public interface Summary {}
 
-	private static final long serialVersionUID = -2101815236308787106L;
-	
+
 	private String currency = "g1";
 	private String pubkey ; 
 	private Historizable history ;
@@ -38,13 +31,9 @@ public class TxHistory  implements Serializable {
 	}
 
 
-	@Getter
-	@Setter
+	@Data
 	@AllArgsConstructor
-	@NoArgsConstructor
-	public class History implements Serializable,  Historizable {
-
-		private static final long serialVersionUID = -5257941146057808644L;
+	public class History implements Historizable {
 
 
 		private List<TransactionDTO> sending;
@@ -59,14 +48,9 @@ public class TxHistory  implements Serializable {
 	public interface Historizable { }
 
 
-	@Getter
-	@Setter
+	@Data
 	@NoArgsConstructor
-	@AllArgsConstructor
-	public class UdDTO implements Serializable,  Historizable{
-
-
-		private static final long serialVersionUID = -5257941146057812345L;
+	public class UdDTO implements Historizable{
 
 		Long time ;
 		Integer block_number;

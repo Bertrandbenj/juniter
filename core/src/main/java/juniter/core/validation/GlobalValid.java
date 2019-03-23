@@ -1013,7 +1013,7 @@ public interface GlobalValid {
                 && "0-E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855".equals(entry.created_on + "")) {
             entry.age = 0;
         } else {
-            System.out.println("BR_G102_setSourceAge at " + entry.created_on + " - " + createdOnBlock(entry.created_on).isPresent());
+            //System.out.println("BR_G102_setSourceAge at " + entry.created_on + " - " + createdOnBlock(entry.created_on).isPresent());
             entry.age = createdOnBlock(entry.created_on)
                     .map(refBlock -> head_1().medianTime - refBlock.getMedianTime())
                     .orElse(Conf.txWindow + 1);
@@ -1587,6 +1587,10 @@ public interface GlobalValid {
         } else {
             entry.pubUnique = true;
         }
+
+    }
+
+    private void huhu(){
 
     }
 

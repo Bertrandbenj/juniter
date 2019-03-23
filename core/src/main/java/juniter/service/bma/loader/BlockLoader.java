@@ -83,6 +83,11 @@ public class BlockLoader implements BlockLocalValid {
 
                 getBlocks().forEach(b -> blockRepo.localSave(b));
 
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         };
 
@@ -122,47 +127,51 @@ public class BlockLoader implements BlockLocalValid {
 
     @Transactional
     private List<DBBlock> getBlocks() {
-        List<DBBlock> body = new ArrayList<>();
+        List<DBBlock> body = null;
         String url = null;
-
         try {
             String path = blockingQueue.take(); // blocking here
-            var host = peerService.nextHost().get().getHost();
-            url = host + path;
-            final var responseEntity = restTemplate.exchange(url, HttpMethod.GET, null,
-                    new ParameterizedTypeReference<List<DBBlock>>() {
-                    });
+            while (body == null || body.size() == 0) {
+                try {
 
-            body = responseEntity.getBody();
+                    var host = peerService.nextHost().get().getHost();
+                    url = host + path;
+                    final var responseEntity = restTemplate.exchange(url, HttpMethod.GET, null,
+                            new ParameterizedTypeReference<List<DBBlock>>() {
+                            });
 
-            assert body != null;
-            if (body.size() != bulkSize) {
-                LOG.info("Couldnt parse it all " + url);
+                    body = responseEntity.getBody();
+
+                    assert body != null;
+                    if (body.size() != bulkSize) {
+                        LOG.info("Couldnt parse it all " + url);
+                    }
+
+                    final var contentType = responseEntity.getHeaders().getContentType().toString();
+                    final var statusCode = responseEntity.getStatusCode().getReasonPhrase();
+
+
+                    body.removeIf(block -> !checkBlockIsLocalValid(block));
+
+
+                    LOG.info(" records" + body.size() + " from: " + url + "... Status: " + statusCode + " : " + contentType);
+                    peerService.reportSuccess(host);
+                    coreEventBus.sendEventSetMaxDBBlock(body.get(body.size()-1).getNumber());
+                    return body;
+
+                } catch (final RestClientException e) {
+                    LOG.error("fetchBlocks failed - RestClientException at " + url + " retrying .. ");
+
+                }
             }
-
-            final var contentType = responseEntity.getHeaders().getContentType().toString();
-            final var statusCode = responseEntity.getStatusCode().getReasonPhrase();
-
-
-            body.removeIf(block -> !checkBlockIsLocalValid(block));
-
-
-            LOG.info(" records" + body.size() + " from: " + url + "... Status: " + statusCode + " : " + contentType);
-            peerService.reportSuccess(host);
-            return body;
-
-        } catch (final RestClientException e) {
-            LOG.error("fetchBlocks failed - RestClientException at " + url + " retrying .. ");
-
         } catch (final Exception e) {
             LOG.error("fetchBlocks failed at " + url + " retrying .. ");
 
         }
 
+
         return body;
     }
-
-
 
 
     private boolean bulkLoadOn = false;
@@ -240,22 +249,22 @@ public class BlockLoader implements BlockLocalValid {
 
         while (block == null) {
 
-            final var host = peerService.nextHost().map(h->h.getHost()) ;
+            final var host = peerService.nextHost().map(h -> h.getHost());
             if (host.isPresent()) {
                 try {
                     url = host.get() + "blockchain/" + id;
 
-                    block =  restTemplate.getForObject(url, DBBlock.class );
+                    block = restTemplate.getForObject(url, DBBlock.class);
 
                     LOG.info("  Fetched ... : " + id + " => " + block.getHash());
 
                 } catch (Exception e) {
                     LOG.warn("Exception accessing node " + url + " " + e.getMessage());
                 }
-            }else{
+            } else {
                 LOG.error("Please, connect to the internet and provide BMA configuredNodes ");
             }
-         }
+        }
 
         return block;
     }
@@ -315,7 +324,6 @@ public class BlockLoader implements BlockLocalValid {
 
         return new ArrayList<>();
     }
-
 
 
     @Transactional

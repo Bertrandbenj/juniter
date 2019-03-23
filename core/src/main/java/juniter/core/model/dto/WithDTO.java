@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.io.Serializable;
 import java.util.List;
 
 @Setter
@@ -14,9 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class WithDTO implements Serializable {
-
-    private static final long serialVersionUID = -6551775706995959038L;
+public class WithDTO  {
 
     private Result result;
 
@@ -31,9 +28,8 @@ public class WithDTO implements Serializable {
     @NoArgsConstructor
     @AllArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public class Result implements Serializable {
+    public class Result  {
 
-        private static final long serialVersionUID = 8301420797082933436L;
 
         private List<Integer> blocks;
 

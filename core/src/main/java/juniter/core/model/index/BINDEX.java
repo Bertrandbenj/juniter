@@ -12,7 +12,11 @@ import java.io.Serializable;
 @ToString
 @EqualsAndHashCode
 @Entity
-@Table(name = "BINDEX", schema = "public") // , indexes = @Index(columnList = "number,hash"))
+@Table(name = "BINDEX", schema = "public", indexes = {
+        @Index(name = "ind_Bissuer", columnList = "issuer"),
+        @Index(name = "ind_time", columnList = "time"),
+        @Index(name = "ind_Bnum", columnList = "number")
+})
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BINDEX implements Serializable {
 
@@ -29,24 +33,24 @@ public class BINDEX implements Serializable {
     Long time;
     public Integer number;
     String currency;
-    String previousHash ;
-    String previousIssuer ;
-    Integer membersCount ;
+    String previousHash;
+    String previousIssuer;
+    Integer membersCount;
     Boolean issuerIsMember;
-    Integer issuersCount ;
-    Integer issuersFrame ;
-    Integer issuersFrameVar ;
-    Integer issuerDiff ;
-    Integer avgBlockSize ;
-    Long medianTime ;
-    Integer dividend ;
-    Long mass ;
-    Long massReeval ;
-    Integer unitBase ;
+    Integer issuersCount;
+    Integer issuersFrame;
+    Integer issuersFrameVar;
+    Integer issuerDiff;
+    Integer avgBlockSize;
+    Long medianTime;
+    Integer dividend;
+    Long mass;
+    Long massReeval;
+    Integer unitBase;
     Integer powMin;
 
     Long udTime;
-    Long diffTime ;
+    Long diffTime;
     Long speed;
 
     Integer new_dividend;

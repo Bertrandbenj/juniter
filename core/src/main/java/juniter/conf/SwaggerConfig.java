@@ -2,22 +2,16 @@ package juniter.conf;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.builders.ResponseMessageBuilder;
-import springfox.documentation.schema.ModelRef;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.Contact;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
-
-import java.util.List;
 
 import static juniter.conf.StaticHTMLConfig.CLASSPATH_RESOURCE_LOCATIONS;
 
@@ -36,7 +30,7 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
     @Bean
     public Docket actuator() {
         return new Docket(DocumentationType.SWAGGER_2)
-                .groupName("monitoring")
+                .groupName("Technical monitoring")
                 .select()
                 .apis(RequestHandlerSelectors.any())
                 .paths(PathSelectors.regex("/actuator.*"))
@@ -48,35 +42,33 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
     @Bean
     public Docket juniter() {
         return new Docket(DocumentationType.SWAGGER_2)
-                .groupName("juniter")
+                .groupName("Juniter' extras")
                 .select()
-                .apis(RequestHandlerSelectors.withClassAnnotation(RestController.class))
+                .apis(RequestHandlerSelectors.basePackage("juniter.service.rdf"))
                 .paths(PathSelectors.any())
                 .build()
                 .apiInfo(metaData())
-                .useDefaultResponseMessages(false)
-                .globalResponseMessage(RequestMethod.GET,
-                        List.of(new ResponseMessageBuilder().code(500)
-                                        .message("500 message")
-                                        .responseModel(new ModelRef("Error"))
-                                        .build(),
-                                new ResponseMessageBuilder().code(403)
-                                        .message("Forbidden!!!!!")
-                                        .build()))
-
+//                .useDefaultResponseMessages(false)
+//                .globalResponseMessage(RequestMethod.GET,
+//                        List.of(new ResponseMessageBuilder().code(500)
+//                                        .message("500 message")
+//                                        .responseModel(new ModelRef("Error"))
+//                                        .build(),
+//                                new ResponseMessageBuilder().code(403)
+//                                        .message("Forbidden!!!!!")
+//                                        .build()))
                 ;
     }
 
 
     @Bean
-    public Docket juniter2() {
-
+    public Docket duniterBMA() {
 
         return new Docket(DocumentationType.SWAGGER_2)
-                .groupName("juniter2")
+                .groupName("Duniter BMA")
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("juniter.service.bma"))
-                .paths(PathSelectors.regex("/blockchain.*"))
+                .paths(PathSelectors.any())
                 .build()
                 .apiInfo(metaData())
                 ;
@@ -85,7 +77,7 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
     private ApiInfo metaData() {
         return new ApiInfoBuilder()
                 .title("Juniter BMA API")
-                .description("REST API (BMA) for Juniter")
+                .description("REST API (BMA) for Juniter, for more developments tools, also visit https://localhost:8443/ws.html, https://localhost:8443/gvasubs.html, https://localhost:8443/graphiql ")
                 .version(getClass().getPackage().getSpecificationVersion())
                 .license("WTF PL")
                 .licenseUrl("http://www.wtfpl.net/")

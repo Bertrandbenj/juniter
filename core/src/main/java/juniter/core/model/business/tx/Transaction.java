@@ -21,7 +21,6 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,14 +29,15 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "transaction", schema = "public")
+@Table(name = "transaction", schema = "public", indexes = {
+        @Index(name="ind_thash", columnList = "hash"),
+        @Index(name="ind_comment", columnList = "comment")
+})
 @JsonIgnoreProperties(ignoreUnknown = true)
 @GraphQLType(description = "Core Transaction")
-public class Transaction implements Serializable, DUPComponent {
+public class Transaction implements  DUPComponent {
 
     private static final Logger LOG = LogManager.getLogger();
-
-    private static final long serialVersionUID = -1472028218837984061L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -59,7 +59,7 @@ public class Transaction implements Serializable, DUPComponent {
 
     @Valid
     @AttributeOverride(name = "buid", column = @Column(name = "blockstamp"))
-    private BStamp blockstamp  ;
+    private BStamp blockstamp ;
 
     private Integer blockstampTime;
 

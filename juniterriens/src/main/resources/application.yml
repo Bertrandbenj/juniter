@@ -4,7 +4,7 @@
 
 juniter:
   network:
-    trusted: https://g1.bertrandbenjamin.com/,https://g1.duniter.org/,https://duniter.g1.1000i100.fr/,https://duniter.nayya.org/,http://g1-monit.librelois.fr:10901/,http://jardin.foyerruralct.fr:10902/,http://g1.ambau.ovh:10901/,http://81.57.152.178:57586/,https://duniter.normandie-libre.fr/
+    trusted: https://g1.bertrandbenjamin.com/,https://g1.duniter.org/,https://duniter.g1.1000i100.fr/,https://duniter.nayya.org/,http://g1-monit.librelois.fr:10901/,http://jardin.foyerruralct.fr:10902/,http://g1.ambau.ovh:10901/,http://81.57.152.178:57586/,https://duniter.normandie-libre.fr/,https://g1.le-sou.org:443,https://g1.nordstrom.duniter.org/,https://g1.duniter.uras.ovh:443,https://g1.duniter.inso.ovh:443,https://duniter.fabwice.com:443
     bulkSize: 500
     webSocketPoolSize: 5
   loader:
@@ -34,6 +34,7 @@ spark:
 ## =========================== Spring Configs ===========================
 ##
 spring:
+  freemarker.checkTemplateLocation: false
   output.ansi.enabled: ALWAYS # Colored logs : DETECT|ALWAYS|NEVER
   session.store-type: none # jdbc|mongo|none|redis|hazelcast
 

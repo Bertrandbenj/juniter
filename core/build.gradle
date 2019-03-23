@@ -110,7 +110,7 @@ dependencies {
 
     // front dependencies 
     compile("de.neuland-bfi:spring-jade4j:1.2.5")
-    compile("com.github.instaweb:spring-boot-jade:0.9.0-SNAPSHOT")
+    //compile("com.github.instaweb:spring-boot-jade:0.9.0-SNAPSHOT")
     compile("org.freemarker:freemarker")
     compile("javax.servlet:jstl")
     compile("org.webjars:bootstrap:3.3.7")
@@ -146,10 +146,15 @@ dependencies {
 
 
     // Jena
-    compile group: 'org.apache.jena', name: 'jena-core', version: '3.10.0'
-    compile group: 'org.apache.jena', name: 'apache-jena-libs', version: '3.10.0'
-    compile group: 'org.apache.jena', name: 'jena-arq', version: '3.10.0'
+    //This will transitively resolve all the dependencies for you: jena-core, jena-arq, jena-tdb and jena-iri and their dependencies.
+    compile group: 'org.apache.jena', name: 'apache-jena-libs', version: '3.10.0' 
+    //compile group: 'org.apache.jena', name: 'jena-arq', version: '3.10.0'
+    //compile 'org.apache.jena:jena-fuseki-main:3.10.0'
+    compile 'org.apache.jena:jena-sdb:3.10.0'
+    //testCompile group: 'org.apache.jena', name: 'jena-fuseki-embedded', version: '3.8.0'
 
+    compile group: 'org.reflections', name: 'reflections', version: '0.9.11'
+    compile group: 'org.visualdataweb.vowl.owl2vowl', name: 'OWL2VOWL', version: '0.3.1'
 
     compile 'io.springfox:springfox-swagger2:2.9.2'
     compile 'io.springfox:springfox-swagger-ui:2.9.2'

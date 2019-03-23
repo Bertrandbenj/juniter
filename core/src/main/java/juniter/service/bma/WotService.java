@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -53,12 +52,7 @@ public class WotService {
     IINDEXRepository iRepo;
 
 
-    @RequestMapping(value = "/", method = RequestMethod.GET)
-    void handle(HttpServletResponse response) throws IOException {
-        response.sendRedirect("/html/");
-    }
-
-    @RequestMapping(value = "/requirements/{pubkey}", method = RequestMethod.GET)
+    @GetMapping(value = "/requirements/{pubkey}" )
     public ReqDTO requirements(@PathVariable("pubkey") String pubkeyOrUid) {
         LOG.info("Entering /wot/requirements/{pubkey= " + pubkeyOrUid + "}");
         return ReqDTO.builder()
@@ -79,7 +73,7 @@ public class WotService {
     }
 
     @Transactional(readOnly = true)
-    @RequestMapping(value = "/certifiers-of/{pubkeyOrUid}", method = RequestMethod.GET)
+    @GetMapping(value = "/certifiers-of/{pubkeyOrUid}" )
     public List<Certification> certifiersOf(@PathVariable("pubkeyOrUid") String pubkeyOrUid) {
         LOG.info("Entering /wot/certifiers-of/{pubkeyOrUid= " + pubkeyOrUid + "}");
 
@@ -87,20 +81,20 @@ public class WotService {
     }
 
     @Transactional(readOnly = true)
-    @RequestMapping(value = "/certified-by/{pubkeyOrUid}", method = RequestMethod.GET)
+    @GetMapping(value = "/certified-by/{pubkeyOrUid}" )
     public List<Certification> certifiedBy(@PathVariable("pubkeyOrUid") String pubkeyOrUid) {
         LOG.info("Entering /wot/certified-by/{pubkeyOrUid= " + pubkeyOrUid + "}");
         return certsRepo.streamCertifiedBy(pubkeyOrUid).collect(Collectors.toList());
     }
 
-    @RequestMapping(value = "/identity-of/{pubkeyOrUid}", method = RequestMethod.GET)
+    @GetMapping(value = "/identity-of/{pubkeyOrUid}" )
     public String identityOf(@PathVariable("pubkeyOrUid") String pubkeyOrUid) {
         LOG.info("Entering /wot/identity-of/{pubkeyOrUid= " + pubkeyOrUid + "}");
         return "not implemented yet";
     }
 
     @CrossOrigin(origins = "*")
-    @RequestMapping(value = "/lookup/{pubkeyOrUid}", method = RequestMethod.GET)
+    @GetMapping(value = "/lookup/{pubkeyOrUid}" )
     public WotLookup lookup(@PathVariable("pubkeyOrUid") String pubkeyOrUid) {
 
         LOG.info("Entering /wot/lookup/{pubkeyOrUid= " + pubkeyOrUid + "}");
@@ -148,7 +142,7 @@ public class WotService {
 
 
     @CrossOrigin(origins = "*")
-    @RequestMapping(value = "/members", method = RequestMethod.GET)
+    @GetMapping(value = "/members" )
     public MembersDTO members() {
         LOG.info("Entering /wot/members");
         return new MembersDTO (iRepo.members());
@@ -161,7 +155,7 @@ public class WotService {
     }
 
 
-    @RequestMapping(value = "/add", method = RequestMethod.POST)
+    @PostMapping(value = "/add" )
     ResponseEntity<Identity> add(HttpServletRequest request, HttpServletResponse response) {
 
         LOG.info("POSTING /wot/add ..." + request.getRemoteHost());
@@ -181,7 +175,7 @@ public class WotService {
         return new ResponseEntity<>(idty, headers, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/certify", method = RequestMethod.POST)
+    @PostMapping(value = "/certify")
     ResponseEntity<Certification> certify(HttpServletRequest request, HttpServletResponse response) {
 
         LOG.info("POSTING /wot/certify ...");
@@ -206,7 +200,7 @@ public class WotService {
     }
 
 
-    @RequestMapping(value = "/revoke", method = RequestMethod.POST)
+    @PostMapping(value = "/revoke")
     ResponseEntity<Revoked> revoke(HttpServletRequest request, HttpServletResponse response) {
 
         LOG.info("POSTING /wot/revoke ...");

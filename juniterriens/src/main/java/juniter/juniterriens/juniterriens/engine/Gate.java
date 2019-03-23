@@ -6,6 +6,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import juniter.juniterriens.juniterriens.screens.Room;
 
 
 public class Gate extends ImageView implements Obstacle {
@@ -16,16 +17,22 @@ public class Gate extends ImageView implements Obstacle {
     private double height;
     private Timeline timeline;
 
-    public Gate(String img, Timeline lbl, double x, double y) {
+
+
+    public Gate(Room room, double x, double y) {
+        image = new Image("/juniterriens/game/img/gate.png");
+    }
+
+
+    public Gate(String img, Timeline timeline, double x, double y) {
         setPosition(x, y);
         image = new Image(img);
-        timeline = lbl;
+        this.timeline = timeline;
         width = image.getWidth() / 7;
         height = image.getHeight() / 4;
 
 
         setImage(image);
-
     }
 
     public Timeline getTimeline() {

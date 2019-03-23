@@ -21,7 +21,6 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -47,10 +46,13 @@ import java.util.stream.Collectors;
 @Entity
 @Data
 @NoArgsConstructor
-@Table(name = "block", schema = "public") // , indexes = @Index(columnList = "number,hash"))
+@Table(name = "block", schema = "public", indexes = {
+        @Index(name="ind_number", columnList = "number"),
+        @Index(name="ind_dividend", columnList = "dividend")
+})
 @JsonIgnoreProperties(ignoreUnknown = true)
 @IdClass(BStamp.class)
-public class DBBlock implements Serializable, DUPComponent {
+public class DBBlock implements  DUPComponent {
 
     private static final long serialVersionUID = -4464417074968456696L;
 

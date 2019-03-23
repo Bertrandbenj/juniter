@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.util.function.BinaryOperator;
 
 @Data
@@ -13,9 +12,15 @@ import java.util.function.BinaryOperator;
 @EqualsAndHashCode
 @ToString
 @Entity
-@Table(name = "IINDEX", schema = "public")
+@Table(name = "IINDEX", schema = "public", indexes = {
+        @Index(name = "ind_iuid", columnList = "uid" ),
+        @Index(name = "ind_iop", columnList = "op" ),
+        @Index(name = "ind_ipub", columnList = "pub" ),
+        @Index(name = "ind_iwritten_on", columnList = "written_on" ),
+        @Index(name = "ind_iwrittenOn", columnList = "writtenOn" ),
+})
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class IINDEX implements Serializable {
+public class IINDEX   {
 
     public static final BinaryOperator<IINDEX> reducer =(i1, i2) -> {
 
@@ -50,7 +55,6 @@ public class IINDEX implements Serializable {
     };
 
 
-    private static final long serialVersionUID = -218627974830671L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

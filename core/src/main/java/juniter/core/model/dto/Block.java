@@ -4,16 +4,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
-public class Block implements Serializable {
+public class Block  {
 
-	private static final long serialVersionUID = -6400285529088830671L;
 
 	private Short version;
 

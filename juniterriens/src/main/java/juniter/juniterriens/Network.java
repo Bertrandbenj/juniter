@@ -37,12 +37,15 @@ import java.util.stream.Stream;
 public class Network extends AbstractJuniterFX implements Initializable {
 
     private static final Logger LOG = LogManager.getLogger();
+
     public BorderPane contentPane;
 
     @FXML
     private FlowPane peersList;
+
     @FXML
     private TextField delSome;
+
     @FXML
     private TextField tstSome;
 
@@ -80,7 +83,7 @@ public class Network extends AbstractJuniterFX implements Initializable {
                 .forEach(id -> {
                     LOG.info("deleting Blocks # " + id);
 
-                    blockRepo.block(id).ifPresent(block -> {
+                    blockRepo.block_(id).forEach(block -> {
                         blockRepo.delete(block);
                     });
                 });

@@ -26,6 +26,7 @@ import juniter.juniterriens.juniterriens.engine.Gate;
 import juniter.juniterriens.juniterriens.engine.Obstacle;
 import juniter.juniterriens.juniterriens.objects.Coins;
 import juniter.juniterriens.juniterriens.objects.Items;
+import juniter.juniterriens.juniterriens.screens.BARoom;
 import juniter.repository.jpa.index.MINDEXRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -55,7 +56,7 @@ public class Game implements Initializable {
     private static MediaPlayer backgroundMusic;
 
 
-    Timeline exercise1 = new Timeline();
+    private Timeline exercise1 = new Timeline();
 
 
     private final int speed = 150;
@@ -71,13 +72,17 @@ public class Game implements Initializable {
     private GraphicsContext gc;
 
     private ArrayList<Collectable> collectables = new ArrayList<>();
-    private Items boots;
 
 
     private ArrayList<Obstacle> obstacles = new ArrayList<>();
     private Curiosity duniter, puits, trm, trmPage;
 
     private Gate rt, technology;
+
+
+    @Autowired
+    MINDEXRepository mRepo;
+
 
     @EventListener
     public void handleContextStart(ContextStartedEvent cse) {
@@ -121,7 +126,7 @@ public class Game implements Initializable {
 
         // Init Gates objects
         rt = new Gate("/juniterriens/game/img/gate.png", roundTable(gc), 50, 180);
-        technology = new Gate("/juniterriens/game/img/gate.png", technos(gc), 1000, 180);
+        technology = new Gate( BARoom.get(), 1000, 180);
         obstacles.addAll(List.of(rt, technology));
 
 
@@ -139,7 +144,7 @@ public class Game implements Initializable {
 
 
         // Init collectable items
-        boots = new Items("Boots", "/juniterriens/game/img/gear_boots.png", 1, 15);
+        Items boots = new Items("Boots", "/juniterriens/game/img/gear_boots.png", 1, 15);
         boots.setPosition(900, 400);
         collectables.clear();
         collectables.add(boots);
@@ -286,28 +291,44 @@ public class Game implements Initializable {
     }
 
 
-    private Timeline technos(GraphicsContext gc) {
+    private Timeline room_2_1(GraphicsContext gc) {
         var anim = new Timeline();
 
-        var main = new Gate("/juniterriens/game/img/gate.png", null, canvas.getWidth() - 50, canvas.getHeight() / 2);
+        var main = new Gate("/juniterriens/game/img/gate.png", entry(), 50, canvas.getHeight() / 2);
+        var room_2_0 = new Gate("/juniterriens/game/img/gate.png", room_2_0(gc), canvas.getWidth() - 50, 50);
 
 
         anim.getKeyFrames().add(new KeyFrame(Duration.millis(16), event -> {
             gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
-            marcel.currentClip = 14;
-            marcel.setPosition(70, 70);
-            marcel.render(gc);
-            player.render(gc);
+             player.setPosition(80, 80);
+             player.render(gc);
 
-            main.render(gc);
         }));
         anim.setCycleCount(Animation.INDEFINITE);
         return anim;
     }
 
-    @Autowired
-    MINDEXRepository mRepo;
+
+    private Timeline room_2_0(GraphicsContext gc) {
+        var anim = new Timeline();
+
+        var main = new Gate("/juniterriens/game/img/gate.png", null, 50, canvas.getHeight() / 2);
+        var room2 = new Gate("/juniterriens/game/img/gate.png", null, canvas.getWidth() - 50, 50);
+
+
+        anim.getKeyFrames().add(new KeyFrame(Duration.millis(16), event -> {
+            gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+
+            player.setPosition(80, 80);
+            player.render(gc);
+
+        }));
+        anim.setCycleCount(Animation.INDEFINITE);
+        return anim;
+    }
+
+
 
 
     private Timeline roundTable(GraphicsContext gc) {

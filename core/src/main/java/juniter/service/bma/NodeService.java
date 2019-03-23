@@ -4,10 +4,7 @@ import juniter.core.model.dto.NodeSummaryDTO;
 import juniter.core.model.dto.SandBoxesDTO;
 import juniter.core.model.dto.UnitDTO;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @ConditionalOnExpression("${juniter.useBMA:false}")
@@ -32,7 +29,7 @@ public class NodeService {
      * }
      */
     @CrossOrigin(origins = "*") // https://localhost:8443/node/summary
-    @RequestMapping(value = {"", "/", "/node/summary"}, method = RequestMethod.GET)
+    @GetMapping(value = {"", "/", "/node/summary"})
     public NodeSummaryDTO summary() {
         return new NodeSummaryDTO();
     }
@@ -62,7 +59,7 @@ public class NodeService {
      * }
      * }
      */
-    @RequestMapping(value = "/node/sandboxes", method = RequestMethod.GET)
+    @GetMapping(value = "/node/sandboxes")
     public SandBoxesDTO sandboxes() {
         return new SandBoxesDTO(
                 new UnitDTO(5000, 5000),

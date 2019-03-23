@@ -5,16 +5,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.io.Serializable;
 import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PeeringPeersDTO implements Serializable {
+public class PeeringPeersDTO  {
 
-    private static final long serialVersionUID = -4464417074954356696L;
 
     private Integer depth;
 

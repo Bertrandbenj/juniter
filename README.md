@@ -4,7 +4,7 @@ It is not yet a calculating node of the network
 
 ## Try it 
 
- - [Test Service](https://juniter.bnimajneb.online:8443/html)
+ - [Test Service](https://juniter.bnimajneb.online:8443/)
  - [Report, Feedbacks](https://github.com/Bertrandbenj/juniter/issues/new)
  - [1st Presentation](http://bertrandbenjamin.com/juniter/presentation/)
  - [Javadoc](http://bertrandbenjamin.com/juniter/javadoc/index.html?overview-summary.html)
@@ -13,10 +13,9 @@ It is not yet a calculating node of the network
 ## Features (in progress )
  - Database: Postgresql  
  - @Annotation typing of the data model (basic type validation + storage semantic)
- - Simple html page templated with jade 
+ - Swagger (REST test)
  - JavaFX admin interface. 
- - GET /blockchain/... 
- - GET /tx/history/[pubkey]
+ - BMA
  - Challenging WS2P 
  - GraphQL - Broken since gradle  
  - Graphviz graphs - Clickable graphs of the chain. [Ex.](https://juniter.bnimajneb.online:8443/graphviz/svg/block/127128)
@@ -30,7 +29,7 @@ It is not yet a calculating node of the network
 ## Install 
 
 ```bash
-sudo apt-get install graphviz git maven postgresql libsodium-dev
+sudo apt-get install graphviz git maven postgresql libsodium-dev openjdk-11 openjfx
 git clone https://github.com/Bertrandbenj/juniter
 cd juniter 
 
@@ -38,14 +37,8 @@ cd juniter
 curl -s "https://get.sdkman.io" | bash
 sdk install gradle 4.10.2
 
-# build - boot 
-gradle generateGrammarSource 
 
-# screen - detach from the process and keep it running  
-gradle bootRun 
-gradle bootJar
-
-# you may need to do 
+# you may need to do things like
 mkdir /var/log/juniter
 chmod a+w /var/log/juniter
 
@@ -54,18 +47,22 @@ chmod a+w /var/log/juniter
 ```
 sudo -u postgres psql
 drop database testdb;
+CREATE USER testuser PASSWORD 'junipass';
+CREATE SCHEMA testdb;
+CREATE DATABASE testdb;
+GRANT ALL ON SCHEMA testdb TO testuser;
 \q to exit
 
-
-psql -U postgres -c "drop database testdb"
+#  Alternatively
 
 su - postgres
 psql
-
+psql -U postgres -c "drop database testdb"
 psql -U postgres -c "CREATE USER testuser PASSWORD 'junipass';"
 psql -U postgres -c "CREATE SCHEMA testdb;"
 psql -U postgres -c "CREATE DATABASE testdb;"
 psql -U postgres -c "GRANT ALL ON SCHEMA testdb TO testuser;"
+
 ```
 
 ## Configuration
@@ -74,28 +71,14 @@ Check [application.yml](src/main/resources/application.yml) and overwrite it or 
 juniter.useJavaFX=false
 ```
 
-Command line override
+Command line properties
 ```bash
--Djuniter.useJavaFX=false -D...
+-Djuniter.useJavaFX=false -Dproperties=value ...
 ```
 
 
-## Maybe useful commands
 
-https://stackoverflow.com/questions/49507160/how-to-install-jdk-10-under-ubuntu
-
-for javafx, jdk 10 needs to be oracle's 
-```
-sudo add-apt-repository ppa:linuxuprising/java
-sudo apt-get update
-sudo apt-get install oracle-java10-installer
-sudo apt-get install oracle-java10-set-default
-
-## Or simply, set java 10 
-export JAVA_HOME=/usr/lib/jvm/java-10-oracle
-```
-
-Certifications 
+SSL Certifications
 ```
 keytool -genkey -alias juniter -storetype PKCS12 -keyalg RSA -keysize 2048 -keystore keystore.p12 -validity 3650
 ```

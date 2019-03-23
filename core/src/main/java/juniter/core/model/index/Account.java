@@ -5,7 +5,6 @@ import lombok.*;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.io.Serializable;
 
 @Getter
 @Setter
@@ -14,8 +13,7 @@ import java.io.Serializable;
 @Table(name = "accounts", schema = "public")
 @AllArgsConstructor
 @NoArgsConstructor
-public class Account implements Serializable {
-    private static final long serialVersionUID = -640724971830671000L;
+public class Account {
 
     @Id
     public String conditions;

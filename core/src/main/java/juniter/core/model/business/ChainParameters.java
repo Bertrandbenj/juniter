@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.io.Serializable;
 
 /**
  * DUP ChainParameters initialized using ğ1 variable
@@ -21,9 +20,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Table(name = "chainParams", schema = "public") // , indexes = @Index(columnList = "number,hash"))
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ChainParameters implements DUPComponent, Serializable {
-
-    private static final long serialVersionUID = -197387756259876543L;
+public class ChainParameters implements DUPComponent {
 
 
     @Id

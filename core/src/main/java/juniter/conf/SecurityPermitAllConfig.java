@@ -24,7 +24,8 @@ public class SecurityPermitAllConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(WebSecurity web) {
-       web.ignoring().requestMatchers(PUBLIC_URLS);
+
+        web.ignoring().requestMatchers(PUBLIC_URLS);
     }
 
     @Override
@@ -76,15 +77,15 @@ public class SecurityPermitAllConfig extends WebSecurityConfigurerAdapter {
 
     private static final RequestMatcher PUBLIC_URLS = new OrRequestMatcher(
             new AntPathRequestMatcher("/"),
-            new AntPathRequestMatcher("*.html"),
-            new AntPathRequestMatcher("**.html"),
-            new AntPathRequestMatcher("/favicon.ico"),
+            new AntPathRequestMatcher("*favicon.ico"),
             new AntPathRequestMatcher("/core/**"),
             new AntPathRequestMatcher("/ws/**"),
             new AntPathRequestMatcher("/graphiql/**"),
             new AntPathRequestMatcher("/graphql/websocket/**"),
             new AntPathRequestMatcher("/graphql"),
-            new AntPathRequestMatcher("/jena"),
+            new AntPathRequestMatcher("/jena/**"),
+            new AntPathRequestMatcher("/ds/**"),
+            new AntPathRequestMatcher("/fuseki/**"),
             new AntPathRequestMatcher("/ws.html"),
             new AntPathRequestMatcher("/gvasubs.html")
             //new AntPathRequestMatcher("/error")

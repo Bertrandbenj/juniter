@@ -10,14 +10,11 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.lang.NonNull;
 
 import javax.persistence.Embeddable;
-import java.io.Serializable;
 @Getter
 @Setter
 @NoArgsConstructor
 @Embeddable
-public class Leaver implements DUPComponent, Serializable, Comparable<Leaver> {
-
-	private static final long serialVersionUID = -4288798570176707871L;
+public class Leaver implements DUPComponent, Comparable<Leaver> {
 
 	private static final Logger LOG = LogManager.getLogger();
 

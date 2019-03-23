@@ -1,17 +1,13 @@
 package juniter.core.model.business.tx;
 
 import juniter.core.model.business.DUPComponent;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.lang.NonNull;
 
 import javax.persistence.Embeddable;
 import javax.validation.constraints.Size;
-import java.io.Serializable;
 
 /**
  * It follows a machine-readable BNF grammar composed of <br>
@@ -29,13 +25,9 @@ import java.io.Serializable;
  *
  */
 @Embeddable
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
-@AllArgsConstructor
-public class TxOutput implements Serializable, Comparable<TxOutput>, DUPComponent {
-
-	private static final long serialVersionUID = 2208036347838232516L;
+public class TxOutput implements Comparable<TxOutput>, DUPComponent {
 
 	static final Logger LOG = LogManager.getLogger();
 

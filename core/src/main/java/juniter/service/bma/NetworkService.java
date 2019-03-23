@@ -72,7 +72,7 @@ public class NetworkService {
 
 
     @Transactional
-    @RequestMapping("/")
+    @GetMapping("/")
     public List<String> index() {
         LOG.info("Entering /network/ ... ");
         return peerRepo.streamAllPeers()
@@ -83,7 +83,7 @@ public class NetworkService {
 
     @CrossOrigin(origins = "*")
     @Transactional(readOnly = true)
-    @RequestMapping(value = "/peers", method = RequestMethod.GET)
+    @GetMapping(value = "/peers")
     public PeersDTO peers() {
 
         LOG.info("Entering /network/peers ...");
@@ -103,7 +103,7 @@ public class NetworkService {
 
     @CrossOrigin(origins = "*")
     @Transactional(readOnly = true)
-    @RequestMapping(value = "/ws2p/heads", method = RequestMethod.GET)
+    @GetMapping(value = "/ws2p/heads")
     public WS2PHeads wsHeads() {
 
         LOG.info("Entering /ws2p/heads ...");
@@ -128,7 +128,7 @@ return response ;
 
 
     @Transactional(readOnly = true)
-    @RequestMapping(value = "/peering", method = RequestMethod.GET)
+    @GetMapping(value = "/peering")
     public Peer peering(HttpServletRequest request, HttpServletResponse response) {
         String remote = request.getRemoteHost();
 
@@ -147,7 +147,7 @@ return response ;
     public Peer endPointPeer(Integer number) {
         LOG.info("endPointPeer " + number);
 
-        DBBlock current = blockRepo.block(number).orElseThrow();
+        DBBlock current = blockRepo.block(number).or (()->blockRepo.current()).orElseThrow();
         var peer = new Peer();
         peer.setVersion(10);
         peer.setBlock(current.bstamp());
@@ -170,7 +170,7 @@ return response ;
         return peer;
     }
 
-    @RequestMapping(value = "/peering/peers", method = RequestMethod.POST)
+    @PostMapping(value = "/peering/peers")
     @ResponseBody
     public ResponseEntity<Peer> peeringPeersPost(@RequestBody PeerBMA input) {
 
@@ -184,7 +184,7 @@ return response ;
 
 
     @Transactional(readOnly = true)
-    @RequestMapping(value = "/peering/peers", method = RequestMethod.GET)
+    @GetMapping(value = "/peering/peers")
     public @ResponseBody
     ResponseEntity<PeeringPeersDTO> peeringPeersGet(HttpServletRequest request, HttpServletResponse response) {
 

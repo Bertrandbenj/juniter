@@ -1,9 +1,9 @@
 package juniter.core.model.business;
 
 import juniter.core.utils.Constants;
-import lombok.*;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -21,10 +21,8 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @Embeddable
-public class BStamp implements Serializable, Comparable<BStamp> {
+public class BStamp implements  Serializable, Comparable<BStamp> {
 
-    private static final long serialVersionUID = -165962007943111454L;
-    private static final Logger LOG = LogManager.getLogger();
 
     @Min(0)
     @Column(name = "number")

@@ -31,9 +31,13 @@ public interface BlockRepository extends JpaRepository<DBBlock, Long>, BlockLoca
     @Query("SELECT b from DBBlock b WHERE number = ?1 ")
     Optional<DBBlock> block(Integer number);
 
+
+    @Query("SELECT b from DBBlock b WHERE number = ?1 ")
+    List<DBBlock> block_(Integer number);
+
+
     @Override
     List<DBBlock> findAll();
-
 
 
     @Cacheable(value = "blocks", key = "#number")
@@ -41,14 +45,15 @@ public interface BlockRepository extends JpaRepository<DBBlock, Long>, BlockLoca
     Optional<DBBlock> block(Integer number, String hash);
 
 
-
     @Transactional
     @Modifying
     @Query("DELETE FROM DBBlock b ")
     void truncate();
 
+
     @Query("SELECT number FROM DBBlock")
     List<Integer> blockNumbers();
+
 
     @Query("SELECT number FROM DBBlock WHERE number NOT IN :notIn")
     List<Integer> blockNumbers(List<Integer> notIn);
@@ -62,6 +67,7 @@ public interface BlockRepository extends JpaRepository<DBBlock, Long>, BlockLoca
         return findTop1ByOrderByNumberDesc();
     }
 
+
     default Integer currentBlockNumber() {
         return current().map(DBBlock::getNumber).orElse(-1);
     }
@@ -70,7 +76,9 @@ public interface BlockRepository extends JpaRepository<DBBlock, Long>, BlockLoca
     @Override
     long count();
 
+
     Stream<DBBlock> findByNumberIn(List<Integer> number);
+
 
     Stream<DBBlock> findTop10ByOrderByNumberDesc();
 
@@ -83,6 +91,7 @@ public interface BlockRepository extends JpaRepository<DBBlock, Long>, BlockLoca
      * @return Optional<DBBlock>
      */
     Optional<DBBlock> findTop1ByOrderByNumberDesc();
+
 
     default Optional<DBBlock> localSave(DBBlock block) throws AssertionError {
         //LOG.error("localsavng  "+block.getNumber());

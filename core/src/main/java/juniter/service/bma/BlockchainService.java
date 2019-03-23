@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -79,7 +78,7 @@ public class BlockchainService {
     private ModelMapper modelMapper;
 
     @Transactional(readOnly = true)
-    @RequestMapping(value = "/all", method = RequestMethod.GET)
+    @GetMapping(value = "/all")
     public List<DBBlock> all() {
 
         LOG.info("Entering /blockchain/all");
@@ -93,7 +92,7 @@ public class BlockchainService {
     }
 
     @CrossOrigin(origins = "*")
-    @RequestMapping(value = "/block/{id}", method = RequestMethod.GET)
+    @GetMapping(value = "/block/{id}")
     public Block block(@PathVariable("id") Integer id) {
 
         LOG.info("Entering /blockchain/block/{number=" + id + "}");
@@ -106,7 +105,7 @@ public class BlockchainService {
 
     @CrossOrigin(origins = "*")
     @Transactional
-    @RequestMapping(value = "/blocks/{count}/{from}", method = RequestMethod.GET)
+    @GetMapping(value = "/blocks/{count}/{from}")
     public List<Block> blocks(@PathVariable("count") Integer count, @PathVariable("from") Integer from) {
 
         LOG.info("Entering /blockchain/blocks/{count=" + count + "}/{from=" + from + "}");
@@ -134,7 +133,7 @@ public class BlockchainService {
 
     @CrossOrigin(origins = "*")
     @Transactional
-    @RequestMapping(value = "/current", method = RequestMethod.GET)
+    @GetMapping(value = "/current")
     public Block current() {
         LOG.info("Entering /blockchain/current");
         final var b = blockRepo.current()
@@ -143,11 +142,6 @@ public class BlockchainService {
         return modelMapper.map(b, Block.class);
     }
 
-
-    @RequestMapping(value = "/", method = RequestMethod.GET)
-    void handle(HttpServletResponse response) throws IOException {
-        response.sendRedirect("/html/");
-    }
 
     /**
      * /blockchain/with/{what=[newcomers,certs,actives,leavers,excluded,ud,tx]}
@@ -163,7 +157,7 @@ public class BlockchainService {
      * @return A Wrapped List of Blocks
      */
     @CrossOrigin(origins = "*")
-    @RequestMapping(value = "/with/{what}", method = RequestMethod.GET)
+    @GetMapping(value = "/with/{what}")
     @Transactional(readOnly = true)
     public WithDTO with(@PathVariable("what") String what) {
 
@@ -199,9 +193,43 @@ public class BlockchainService {
 
     }
 
+    @Transactional(readOnly = true)
+    @GetMapping(value = "/memberships/{search}")
+    Stream<MINDEX> memberships(@PathVariable("search") String search) {
+        return mRepo.search(search);
+    }
+
+
+    @CrossOrigin(origins = "*")
+    @GetMapping(value = "/parameters")
+    ChainParametersDTO parameters() {
+        return modelMapper.map(new ChainParameters(), ChainParametersDTO.class);
+    }
+
+    @CrossOrigin(origins = "*")
+    @Transactional(readOnly = true)
+    @GetMapping(value = "/difficulties")
+    DifficultiesDTO difficulties() {
+        return new DifficultiesDTO(blockRepo.currentBlockNumber(), List.of(new Difficulty("", 99)));
+    }
+
+    @CrossOrigin(origins = "*")
+    @Transactional(readOnly = true)
+    @GetMapping(value = "/hardship")
+    HardshipDTO hardship() {
+        return new HardshipDTO(blockRepo.currentBlockNumber(), 99);
+    }
+
+
+    @GetMapping(value = "/branches")
+    List<Block> branches() {
+        return List.of();
+    }
+
+
     // ======= POST =======
 
-    @RequestMapping(value = "/membership", method = RequestMethod.POST)
+    @PostMapping(value = "/membership")
     ResponseEntity<MembershipDTO> membership(HttpServletRequest request, HttpServletResponse response) {
 
         LOG.info("POSTING /blockchain/membership ..." + request.getRemoteHost());
@@ -220,14 +248,7 @@ public class BlockchainService {
     }
 
 
-    @Transactional(readOnly = true)
-    @RequestMapping(value = "/memberships/{search}", method = RequestMethod.GET)
-    Stream<MINDEX> memberships(@PathVariable("search") String search) {
-        return mRepo.search(search);
-    }
-
-
-    @RequestMapping(value = "/block", method = RequestMethod.POST)
+    @PostMapping(value = "/block")
     ResponseEntity<DBBlock> block(HttpServletRequest request, HttpServletResponse response) {
 
         LOG.info("POSTING /blockchain/block ..." + request.getRemoteHost());
@@ -247,31 +268,5 @@ public class BlockchainService {
         return new ResponseEntity<>(block, headers, HttpStatus.OK);
     }
 
-
-    @CrossOrigin(origins = "*")
-    @RequestMapping(value = "/parameters", method = RequestMethod.GET)
-    ChainParametersDTO parameters() {
-        return modelMapper.map(new ChainParameters(), ChainParametersDTO.class);
-    }
-
-    @CrossOrigin(origins = "*")
-    @Transactional(readOnly = true)
-    @RequestMapping(value = "/difficulties", method = RequestMethod.GET)
-    DifficultiesDTO difficulties() {
-        return new DifficultiesDTO(blockRepo.currentBlockNumber(), List.of(new Difficulty("", 99)));
-    }
-
-    @CrossOrigin(origins = "*")
-    @Transactional(readOnly = true)
-    @RequestMapping(value = "/hardship", method = RequestMethod.GET)
-    HardshipDTO hardship() {
-        return new HardshipDTO(blockRepo.currentBlockNumber(), 99);
-    }
-
-
-    @RequestMapping(value = "/branches", method = RequestMethod.GET)
-    List<Block> branches() {
-        return List.of();
-    }
 
 }

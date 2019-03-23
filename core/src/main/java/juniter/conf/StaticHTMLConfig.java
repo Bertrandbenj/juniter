@@ -13,6 +13,8 @@ public class StaticHTMLConfig implements WebMvcConfigurer {
 
     public static final String[] CLASSPATH_RESOURCE_LOCATIONS = {
             "classpath:/META-INF/resources/",
+            "classpath:/META-INF/resources/fuseki",
+            "classpath:/fuseki",
             "classpath:/resources/",
             "classpath:/static/",
             "classpath:/META-INF/resources/webjars/",

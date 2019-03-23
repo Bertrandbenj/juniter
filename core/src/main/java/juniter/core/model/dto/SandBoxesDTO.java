@@ -5,13 +5,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.io.Serializable;
-
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SandBoxesDTO implements Serializable {
+public class SandBoxesDTO  {
 
     private static final long serialVersionUID = -6400559996088830671L;
 

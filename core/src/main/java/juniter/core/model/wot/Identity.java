@@ -15,7 +15,6 @@ import javax.persistence.*;
 import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import java.io.Serializable;
 
 /**
  * Pubkey : signature : buid : buid : uid;
@@ -28,10 +27,8 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Table(name = "wot_identity", schema = "public")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Identity implements DUPComponent,Serializable, Comparable<Identity> {
+public class Identity implements DUPComponent,Comparable<Identity> {
     private static final Logger LOG = LogManager.getLogger();
-
-    private static final long serialVersionUID = -9160916061297193207L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

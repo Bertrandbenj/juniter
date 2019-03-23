@@ -6,19 +6,24 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.util.function.BinaryOperator;
 
 @Data
 @NoArgsConstructor
 @Entity
 @ToString
-@Table(name = "MINDEX", schema = "public") // , indexes = @Index(columnList = "number,hash"))
+@Table(name = "MINDEX", schema = "public", indexes = {
+        @Index(name = "ind_mop", columnList = "op"),
+        @Index(name = "ind_mpub", columnList = "pub"),
+        @Index(name = "ind_mwrittenOn", columnList = "writtenOn"),
+        @Index(name = "ind_mwritten_on", columnList = "written_on"),
+        @Index(name = "ind_mexpires_on", columnList = "expires_on"),
+        @Index(name = "ind_mrevoked_on", columnList = "revoked_on"),
+        @Index(name = "ind_mcreated_on", columnList = "created_on")
+})
 @JsonIgnoreProperties(ignoreUnknown = true)
 //@IdClass(BStamp.class)
-public class MINDEX implements Serializable {
-
-    private static final long serialVersionUID = -6400219827778830671L;
+public class MINDEX {
 
 
     @Id
