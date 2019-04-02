@@ -1,9 +1,9 @@
 package juniter.service.bma.loader;
 
-import juniter.core.model.business.net.Peer;
+import juniter.core.model.dbo.net.Peer;
 import juniter.core.utils.TimeUtils;
-import juniter.repository.jpa.BlockRepository;
-import juniter.repository.jpa.PeersRepository;
+import juniter.repository.jpa.block.BlockRepository;
+import juniter.repository.jpa.net.PeersRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

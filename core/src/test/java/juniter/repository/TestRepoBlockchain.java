@@ -1,7 +1,7 @@
 package juniter.repository;
 
 import juniter.core.utils.TimeUtils;
-import juniter.repository.jpa.BlockRepository;
+import juniter.repository.jpa.block.BlockRepository;
 import juniter.service.Index;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

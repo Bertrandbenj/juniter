@@ -1,13 +1,13 @@
 package juniter.service.bma;
 
 import juniter.core.crypto.SecretBox;
-import juniter.core.model.DBBlock;
-import juniter.core.model.business.net.EndPoint;
-import juniter.core.model.business.net.Peer;
+import juniter.core.model.dbo.DBBlock;
+import juniter.core.model.dbo.net.EndPoint;
+import juniter.core.model.dbo.net.Peer;
 import juniter.core.model.dto.*;
-import juniter.repository.jpa.BlockRepository;
-import juniter.repository.jpa.EndPointsRepository;
-import juniter.repository.jpa.PeersRepository;
+import juniter.repository.jpa.block.BlockRepository;
+import juniter.repository.jpa.net.EndPointsRepository;
+import juniter.repository.jpa.net.PeersRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;

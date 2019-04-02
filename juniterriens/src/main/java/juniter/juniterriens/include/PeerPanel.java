@@ -10,9 +10,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import juniter.core.crypto.SecretBox;
-import juniter.core.model.business.net.EndPoint;
-import juniter.core.model.business.net.Peer;
-import juniter.repository.jpa.BlockRepository;
+import juniter.core.model.dbo.net.EndPoint;
+import juniter.core.model.dbo.net.Peer;
+import juniter.repository.jpa.block.BlockRepository;
 import juniter.service.bma.NetworkService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -100,7 +100,11 @@ public class PeerPanel implements Initializable {
 
 
     private void refresh() {
+
+        presetPeer();
+
         endpointsContainer.getChildren().clear();
+
         endpointsContainer.getChildren().addAll(
                 peer.endpoints().stream().map(EndPoint::getEndpoint)
                         .map(ep -> {
@@ -122,8 +126,6 @@ public class PeerPanel implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-        Platform.runLater(this::presetPeer);
-
 
         typeCombo.getItems().setAll("WS2P", "BMAS", "BASIC_MERKLED_API");
 
@@ -142,7 +144,7 @@ public class PeerPanel implements Initializable {
                     sessid.setVisible(selectedEPType.equals("WS2P"));
                 });
 
-        refresh();
+        Platform.runLater(this::refresh);
 
     }
 

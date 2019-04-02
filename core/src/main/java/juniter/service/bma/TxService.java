@@ -3,9 +3,9 @@ package juniter.service.bma;
 import juniter.core.model.dto.Source;
 import juniter.core.model.dto.TransactionDTO;
 import juniter.core.model.dto.TxHistory;
-import juniter.core.model.index.SINDEX;
-import juniter.core.model.business.tx.Transaction;
-import juniter.repository.jpa.TxRepository;
+import juniter.core.model.dbo.index.SINDEX;
+import juniter.core.model.dbo.tx.Transaction;
+import juniter.repository.jpa.block.TxRepository;
 import juniter.repository.jpa.index.SINDEXRepository;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -92,7 +92,7 @@ public class TxService {
         var sending = new ArrayList<TransactionDTO>();
         var pending = new ArrayList<TransactionDTO>();
 
-        //TODO fill from sandboxes AND / OR branch size
+        //TODO fill from sandboxes AND / OR branch getSize
 
         return new TxHistory(pubkey, sent, received, receiving, sending, pending);
     }

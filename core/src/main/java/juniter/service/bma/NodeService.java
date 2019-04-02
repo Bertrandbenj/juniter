@@ -46,15 +46,15 @@ public class NodeService {
      * @return Technical informations about identities, membership and transactions sandboxes.
      * {
      * "identities": {
-     * "size": 5000,
+     * "getSize": 5000,
      * "free": 4626
      * },
      * "memberships": {
-     * "size": 5000,
+     * "getSize": 5000,
      * "free": 4750
      * },
      * "transactions": {
-     * "size": 200,
+     * "getSize": 200,
      * "free": 190
      * }
      * }

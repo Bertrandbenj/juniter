@@ -2,7 +2,7 @@ package juniter.service.ws2p;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import juniter.core.model.dto.Block;
-import juniter.repository.jpa.BlockRepository;
+import juniter.repository.jpa.block.BlockRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;

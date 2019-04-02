@@ -1,6 +1,6 @@
 package juniter.core.model.dto;
 
-import juniter.core.model.business.net.EndPoint;
+import juniter.core.model.dbo.net.EndPoint;
 import lombok.Data;
 
 import java.util.List;

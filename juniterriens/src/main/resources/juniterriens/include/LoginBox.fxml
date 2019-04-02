@@ -8,11 +8,10 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 
-<HBox prefHeight="400.0" prefWidth="600.0"
-      xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.juniterriens.include.LoginBox">
+<HBox prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.juniterriens.include.LoginBox">
         <children>
             <Region prefHeight="130.0" prefWidth="446.0" HBox.hgrow="ALWAYS" />
-            <VBox alignment="CENTER" minWidth="400.0" spacing="5.0" styleClass="loginBox">
+            <VBox alignment="CENTER" minWidth="450.0" spacing="5.0" styleClass="loginBox">
                 <children>
                     <Label text="%front.login">
                         <font>
@@ -31,11 +30,10 @@
                     </PasswordField>
                     <HBox spacing="10.0">
                         <children>
-                            <Button fx:id="login" focusTraversable="false" mnemonicParsing="false" onAction="#login" prefHeight="25.0" prefWidth="123.0" text="%front.loginButton" />
-                            <Region HBox.hgrow="ALWAYS" />
-                            <Label fx:id="pubkey" text="Public Key">
+                            <Button fx:id="login" focusTraversable="false" mnemonicParsing="false" onAction="#login" prefHeight="25.0" prefWidth="190.0" text="%front.loginButton" />
+                            <Label fx:id="pubkey" alignment="CENTER" contentDisplay="TOP" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text=" ===== Public Key ===== " HBox.hgrow="ALWAYS">
                                 <font>
-                                    <Font name="Bitstream Vera Sans Mono Bold" size="16.0" />
+                                    <Font size="10.0" />
                                 </font>
                             </Label>
                         </children>

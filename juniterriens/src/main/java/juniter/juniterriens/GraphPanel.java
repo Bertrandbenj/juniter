@@ -7,7 +7,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import juniter.juniterriens.include.AbstractJuniterFX;
-import juniter.repository.jpa.BlockRepository;
+import juniter.repository.jpa.block.BlockRepository;
 import juniter.service.web.GraphvizService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

@@ -3,12 +3,12 @@ package juniter.service;
 import com.codahale.metrics.annotation.Counted;
 import io.micrometer.core.annotation.Timed;
 import juniter.core.event.CoreEventBus;
-import juniter.core.model.DBBlock;
-import juniter.core.model.business.BStamp;
-import juniter.core.model.index.Account;
+import juniter.core.model.dbo.DBBlock;
+import juniter.core.model.dbo.BStamp;
+import juniter.core.model.dbo.index.Account;
 import juniter.core.utils.TimeUtils;
 import juniter.core.validation.GlobalValid;
-import juniter.repository.jpa.BlockRepository;
+import juniter.repository.jpa.block.BlockRepository;
 import juniter.repository.jpa.index.*;
 import juniter.service.bma.loader.BlockLoader;
 import org.apache.logging.log4j.LogManager;
@@ -135,17 +135,17 @@ public class Index implements GlobalValid, Serializable {
         // Platform.runLater(() ->  Database.refresh(indexB,indexI,indexM,indexC,indexS,consumeI,consumeM,consumeC,consumeS) );
 
 
-        iRepo.saveAll(indexI.stream().map(i -> modelMapper.map(i, juniter.core.model.index.IINDEX.class)).collect(Collectors.toList()));
+        iRepo.saveAll(indexI.stream().map(i -> modelMapper.map(i, juniter.core.model.dbo.index.IINDEX.class)).collect(Collectors.toList()));
         //iig.addAll(indexI);
-        mRepo.saveAll(indexM.stream().map(i -> modelMapper.map(i, juniter.core.model.index.MINDEX.class)).collect(Collectors.toList()));
-        cRepo.saveAll(indexC.stream().map(i -> modelMapper.map(i, juniter.core.model.index.CINDEX.class)).collect(Collectors.toList()));
+        mRepo.saveAll(indexM.stream().map(i -> modelMapper.map(i, juniter.core.model.dbo.index.MINDEX.class)).collect(Collectors.toList()));
+        cRepo.saveAll(indexC.stream().map(i -> modelMapper.map(i, juniter.core.model.dbo.index.CINDEX.class)).collect(Collectors.toList()));
         sRepo.saveAll(indexS.stream()
-                .map(i -> modelMapper.map(i, juniter.core.model.index.SINDEX.class))
+                .map(i -> modelMapper.map(i, juniter.core.model.dbo.index.SINDEX.class))
                 .collect(Collectors.toList()));
 
 
         if (indexB != null) {
-            bRepo.save(modelMapper.map(indexB, juniter.core.model.index.BINDEX.class));
+            bRepo.save(modelMapper.map(indexB, juniter.core.model.dbo.index.BINDEX.class));
 
             LOG.info("Commit -  Certs: +" + indexC.size() + ",-" + cRepo.count() +
                     "  Membship: +" + indexM.size() + ",-" + mRepo.count() +
@@ -217,6 +217,7 @@ public class Index implements GlobalValid, Serializable {
         return iRepo.idtyByPubkey(pub).stream().map(c -> modelMapper.map(c, IINDEX.class));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Stream<IINDEX> idtyByUid(String uid) {
         return iRepo.byUid(uid).stream().map(c -> modelMapper.map(c, IINDEX.class));
@@ -225,6 +226,7 @@ public class Index implements GlobalValid, Serializable {
     @Override
     public Stream<SINDEX> sourcesByConditions(String conditions) {
         return sRepo.sourcesByConditions(conditions)
+                .stream()
                 .map(s -> modelMapper.map(s, SINDEX.class))
                 ;
     }

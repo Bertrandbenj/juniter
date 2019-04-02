@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import juniter.core.event.CoreEventBus;
 import juniter.core.model.dto.Block;
 import juniter.core.utils.MemoryUtils;
-import juniter.repository.jpa.BlockRepository;
+import juniter.repository.jpa.block.BlockRepository;
 import juniter.service.bma.BlockchainService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

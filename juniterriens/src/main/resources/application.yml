@@ -14,7 +14,7 @@ juniter:
   useGraphViz: true
   useGVA: true      # FIXME:  dependencies ?
   useBMA: true
-  useWS2P: true
+  useWS2P: false
   utils.enabled: false
   useJavaFX: true
   useSpark: true
@@ -82,6 +82,7 @@ spring:
 ##
 server:
   port: 8443
+  #http.port: 8080
   ssl:
     key-store: ../core/keystore.p12
     key-store-password: ouvresToi

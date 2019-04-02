@@ -3,7 +3,7 @@ package juniter.service.gva;
 import io.leangen.graphql.annotations.GraphQLArgument;
 import io.leangen.graphql.annotations.GraphQLNonNull;
 import io.leangen.graphql.annotations.GraphQLQuery;
-import juniter.repository.jpa.BlockRepository;
+import juniter.repository.jpa.block.BlockRepository;
 import juniter.core.model.dto.Block;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

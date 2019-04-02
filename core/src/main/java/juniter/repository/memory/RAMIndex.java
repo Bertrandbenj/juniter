@@ -1,11 +1,11 @@
 package juniter.repository.memory;
 
 import com.google.common.collect.Lists;
-import juniter.core.model.business.BStamp;
-import juniter.core.model.DBBlock;
+import juniter.core.model.dbo.BStamp;
+import juniter.core.model.dbo.DBBlock;
 import juniter.core.validation.GlobalValid;
-import juniter.repository.jpa.BlockRepository;
-import juniter.core.model.index.Account;
+import juniter.repository.jpa.block.BlockRepository;
+import juniter.core.model.dbo.index.Account;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

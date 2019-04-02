@@ -125,12 +125,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Superinterfaces:</dt>
-<dd><code>org.springframework.data.repository.CrudRepository&lt;<a href="../../../juniter/core/model/net/EndPoint.html" title="class in juniter.core.model.business.net">EndPoint</a>,java.lang.Long&gt;</code>, <code>org.springframework.data.jpa.repository.JpaRepository&lt;<a href="../../../juniter/core/model/net/EndPoint.html" title="class in juniter.core.model.business.net">EndPoint</a>,java.lang.Long&gt;</code>, <code>org.springframework.data.repository.PagingAndSortingRepository&lt;<a href="../../../juniter/core/model/net/EndPoint.html" title="class in juniter.core.model.business.net">EndPoint</a>,java.lang.Long&gt;</code>, <code>org.springframework.data.repository.query.QueryByExampleExecutor&lt;<a href="../../../juniter/core/model/net/EndPoint.html" title="class in juniter.core.model.business.net">EndPoint</a>&gt;</code>, <code>org.springframework.data.repository.Repository&lt;<a href="../../../juniter/core/model/net/EndPoint.html" title="class in juniter.core.model.business.net">EndPoint</a>,java.lang.Long&gt;</code></dd>
+<dd><code>org.springframework.data.repository.CrudRepository&lt;<a href="../../../juniter/core/model/net/EndPoint.html" title="class in juniter.core.model.dbo.net">EndPoint</a>,java.lang.Long&gt;</code>, <code>org.springframework.data.jpa.repository.JpaRepository&lt;<a href="../../../juniter/core/model/net/EndPoint.html" title="class in juniter.core.model.dbo.net">EndPoint</a>,java.lang.Long&gt;</code>, <code>org.springframework.data.repository.PagingAndSortingRepository&lt;<a href="../../../juniter/core/model/net/EndPoint.html" title="class in juniter.core.model.dbo.net">EndPoint</a>,java.lang.Long&gt;</code>, <code>org.springframework.data.repository.query.QueryByExampleExecutor&lt;<a href="../../../juniter/core/model/net/EndPoint.html" title="class in juniter.core.model.dbo.net">EndPoint</a>&gt;</code>, <code>org.springframework.data.repository.Repository&lt;<a href="../../../juniter/core/model/net/EndPoint.html" title="class in juniter.core.model.dbo.net">EndPoint</a>,java.lang.Long&gt;</code></dd>
 </dl>
 <hr>
 <pre>@Repository
 public interface <span class="typeNameLabel">EndPointsRepository</span>
-extends org.springframework.data.jpa.repository.JpaRepository&lt;<a href="../../../juniter/core/model/net/EndPoint.html" title="class in juniter.core.model.business.net">EndPoint</a>,java.lang.Long&gt;</pre>
+extends org.springframework.data.jpa.repository.JpaRepository&lt;<a href="../../../juniter/core/model/net/EndPoint.html" title="class in juniter.core.model.dbo.net">EndPoint</a>,java.lang.Long&gt;</pre>
 </li>
 </ul>
 </div>
@@ -151,12 +151,12 @@ extends org.springframework.data.jpa.repository.JpaRepository&lt;<a href="../../
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>java.util.stream.Stream&lt;<a href="../../../juniter/core/model/net/EndPoint.html" title="class in juniter.core.model.business.net">EndPoint</a>&gt;</code></td>
+<td class="colFirst"><code>java.util.stream.Stream&lt;<a href="../../../juniter/core/model/net/EndPoint.html" title="class in juniter.core.model.dbo.net">EndPoint</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../juniter/repository/jpa/EndPointsRepository.html#endpointsBMAS--">endpointsBMAS</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>java.util.stream.Stream&lt;<a href="../../../juniter/core/model/net/EndPoint.html" title="class in juniter.core.model.business.net">EndPoint</a>&gt;</code></td>
+<td class="colFirst"><code>java.util.stream.Stream&lt;<a href="../../../juniter/core/model/net/EndPoint.html" title="class in juniter.core.model.dbo.net">EndPoint</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../juniter/repository/jpa/EndPointsRepository.html#endpointsWS2P--">endpointsWS2P</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -166,18 +166,18 @@ extends org.springframework.data.jpa.repository.JpaRepository&lt;<a href="../../
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code>java.util.Optional&lt;<a href="../../../juniter/core/model/net/EndPoint.html" title="class in juniter.core.model.business.net">EndPoint</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../juniter/repository/jpa/EndPointsRepository.html#findByPeerAndEndpoint-juniter.core.model.business.net.Peer-java.lang.String-">findByPeerAndEndpoint</a></span>&#8203;(<a href="../../../juniter/core/model/net/Peer.html" title="class in juniter.core.model.business.net">Peer</a>&nbsp;pubkey,
+<td class="colFirst"><code>java.util.Optional&lt;<a href="../../../juniter/core/model/net/EndPoint.html" title="class in juniter.core.model.dbo.net">EndPoint</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../juniter/repository/jpa/EndPointsRepository.html#findByPeerAndEndpoint-juniter.core.model.dbo.net.Peer-java.lang.String-">findByPeerAndEndpoint</a></span>&#8203;(<a href="../../../juniter/core/model/net/Peer.html" title="class in juniter.core.model.dbo.net">Peer</a>&nbsp;pubkey,
                      java.lang.String&nbsp;ep_string)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code>&lt;S extends <a href="../../../juniter/core/model/net/EndPoint.html" title="class in juniter.core.model.business.net">EndPoint</a>&gt;<br>S</code></td>
+<td class="colFirst"><code>&lt;S extends <a href="../../../juniter/core/model/net/EndPoint.html" title="class in juniter.core.model.dbo.net">EndPoint</a>&gt;<br>S</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../juniter/repository/jpa/EndPointsRepository.html#save-S-">save</a></span>&#8203;(S&nbsp;endpoint)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i5" class="rowColor">
-<td class="colFirst"><code>&lt;S extends <a href="../../../juniter/core/model/net/EndPoint.html" title="class in juniter.core.model.business.net">EndPoint</a>&gt;<br>java.util.List&lt;S&gt;</code></td>
+<td class="colFirst"><code>&lt;S extends <a href="../../../juniter/core/model/net/EndPoint.html" title="class in juniter.core.model.dbo.net">EndPoint</a>&gt;<br>java.util.List&lt;S&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../juniter/repository/jpa/EndPointsRepository.html#saveAll-java.lang.Iterable-">saveAll</a></span>&#8203;(java.lang.Iterable&lt;S&gt;&nbsp;entities)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -231,7 +231,7 @@ extends org.springframework.data.jpa.repository.JpaRepository&lt;<a href="../../
 <li class="blockList">
 <h4>endpointsBMAS</h4>
 <pre>@Query("select ep from EndPoint ep where api = \'BMAS\' ")
-java.util.stream.Stream&lt;<a href="../../../juniter/core/model/net/EndPoint.html" title="class in juniter.core.model.business.net">EndPoint</a>&gt;&nbsp;endpointsBMAS()</pre>
+java.util.stream.Stream&lt;<a href="../../../juniter/core/model/net/EndPoint.html" title="class in juniter.core.model.dbo.net">EndPoint</a>&gt;&nbsp;endpointsBMAS()</pre>
 </li>
 </ul>
 <a name="endpointsWS2P--">
@@ -241,7 +241,7 @@ java.util.stream.Stream&lt;<a href="../../../juniter/core/model/net/EndPoint.htm
 <li class="blockList">
 <h4>endpointsWS2P</h4>
 <pre>@Query("select ep from EndPoint ep where api = \'WS2P\'  ")
-java.util.stream.Stream&lt;<a href="../../../juniter/core/model/net/EndPoint.html" title="class in juniter.core.model.business.net">EndPoint</a>&gt;&nbsp;endpointsWS2P()</pre>
+java.util.stream.Stream&lt;<a href="../../../juniter/core/model/net/EndPoint.html" title="class in juniter.core.model.dbo.net">EndPoint</a>&gt;&nbsp;endpointsWS2P()</pre>
 </li>
 </ul>
 <a name="enpointsURL--">
@@ -253,17 +253,17 @@ java.util.stream.Stream&lt;<a href="../../../juniter/core/model/net/EndPoint.htm
 <pre>default&nbsp;java.util.List&lt;java.lang.String&gt;&nbsp;enpointsURL()</pre>
 </li>
 </ul>
-<a name="findByPeerAndEndpoint-juniter.core.model.business.net.Peer-java.lang.String-">
+<a name="findByPeerAndEndpoint-juniter.core.model.dbo.net.Peer-java.lang.String-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>findByPeerAndEndpoint</h4>
-<pre>java.util.Optional&lt;<a href="../../../juniter/core/model/net/EndPoint.html" title="class in juniter.core.model.business.net">EndPoint</a>&gt;&nbsp;findByPeerAndEndpoint&#8203;(<a href="../../../juniter/core/model/net/Peer.html" title="class in juniter.core.model.business.net">Peer</a>&nbsp;pubkey,
+<pre>java.util.Optional&lt;<a href="../../../juniter/core/model/net/EndPoint.html" title="class in juniter.core.model.dbo.net">EndPoint</a>&gt;&nbsp;findByPeerAndEndpoint&#8203;(<a href="../../../juniter/core/model/net/Peer.html" title="class in juniter.core.model.dbo.net">Peer</a>&nbsp;pubkey,
                                                    java.lang.String&nbsp;ep_string)</pre>
 </li>
 </ul>
-<a name="save-juniter.core.model.business.net.EndPoint-">
+<a name="save-juniter.core.model.dbo.net.EndPoint-">
 <!--   -->
 </a><a name="save-S-">
 <!--   -->
@@ -271,10 +271,10 @@ java.util.stream.Stream&lt;<a href="../../../juniter/core/model/net/EndPoint.htm
 <ul class="blockList">
 <li class="blockList">
 <h4>save</h4>
-<pre>&lt;S extends <a href="../../../juniter/core/model/net/EndPoint.html" title="class in juniter.core.model.business.net">EndPoint</a>&gt;&nbsp;S&nbsp;save&#8203;(S&nbsp;endpoint)</pre>
+<pre>&lt;S extends <a href="../../../juniter/core/model/net/EndPoint.html" title="class in juniter.core.model.dbo.net">EndPoint</a>&gt;&nbsp;S&nbsp;save&#8203;(S&nbsp;endpoint)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code>save</code>&nbsp;in interface&nbsp;<code>org.springframework.data.repository.CrudRepository&lt;<a href="../../../juniter/core/model/net/EndPoint.html" title="class in juniter.core.model.business.net">EndPoint</a>,java.lang.Long&gt;</code></dd>
+<dd><code>save</code>&nbsp;in interface&nbsp;<code>org.springframework.data.repository.CrudRepository&lt;<a href="../../../juniter/core/model/net/EndPoint.html" title="class in juniter.core.model.dbo.net">EndPoint</a>,java.lang.Long&gt;</code></dd>
 </dl>
 </li>
 </ul>
@@ -284,12 +284,12 @@ java.util.stream.Stream&lt;<a href="../../../juniter/core/model/net/EndPoint.htm
 <ul class="blockListLast">
 <li class="blockList">
 <h4>saveAll</h4>
-<pre>&lt;S extends <a href="../../../juniter/core/model/net/EndPoint.html" title="class in juniter.core.model.business.net">EndPoint</a>&gt;&nbsp;java.util.List&lt;S&gt;&nbsp;saveAll&#8203;(java.lang.Iterable&lt;S&gt;&nbsp;entities)</pre>
+<pre>&lt;S extends <a href="../../../juniter/core/model/net/EndPoint.html" title="class in juniter.core.model.dbo.net">EndPoint</a>&gt;&nbsp;java.util.List&lt;S&gt;&nbsp;saveAll&#8203;(java.lang.Iterable&lt;S&gt;&nbsp;entities)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code>saveAll</code>&nbsp;in interface&nbsp;<code>org.springframework.data.repository.CrudRepository&lt;<a href="../../../juniter/core/model/net/EndPoint.html" title="class in juniter.core.model.business.net">EndPoint</a>,java.lang.Long&gt;</code></dd>
+<dd><code>saveAll</code>&nbsp;in interface&nbsp;<code>org.springframework.data.repository.CrudRepository&lt;<a href="../../../juniter/core/model/net/EndPoint.html" title="class in juniter.core.model.dbo.net">EndPoint</a>,java.lang.Long&gt;</code></dd>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code>saveAll</code>&nbsp;in interface&nbsp;<code>org.springframework.data.jpa.repository.JpaRepository&lt;<a href="../../../juniter/core/model/net/EndPoint.html" title="class in juniter.core.model.business.net">EndPoint</a>,java.lang.Long&gt;</code></dd>
+<dd><code>saveAll</code>&nbsp;in interface&nbsp;<code>org.springframework.data.jpa.repository.JpaRepository&lt;<a href="../../../juniter/core/model/net/EndPoint.html" title="class in juniter.core.model.dbo.net">EndPoint</a>,java.lang.Long&gt;</code></dd>
 </dl>
 </li>
 </ul>

@@ -46,7 +46,7 @@ public abstract class AbstractJuniterFX extends Application {
             return  loader.load();
         } catch (Exception e) {
 
-            throw new RuntimeException(String.format("Failed to load FXML file '%s' ", url) + getClass().getResource(url));
+            throw new RuntimeException(String.format("Failed to load FXML file '%s' ", url) + getClass().getResource(url), e);
         }
     }
 

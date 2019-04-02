@@ -1,6 +1,6 @@
 package juniter.repository.jpa.index;
 
-import juniter.core.model.index.Account;
+import juniter.core.model.dbo.index.Account;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

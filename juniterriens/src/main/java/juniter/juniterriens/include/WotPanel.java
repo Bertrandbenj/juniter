@@ -9,7 +9,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import juniter.core.crypto.SecretBox;
 import juniter.grammar.*;
-import juniter.repository.jpa.BlockRepository;
+import juniter.repository.jpa.block.BlockRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

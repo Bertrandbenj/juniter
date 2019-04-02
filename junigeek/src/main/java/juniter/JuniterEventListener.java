@@ -44,7 +44,7 @@ public class JuniterEventListener implements CoreEventBus {
     }
 
     @Override
-    public void sendEventCurrentAndMax(long x, int y) {
+    public void sendEventCurrent(long x) {
 
     }
 

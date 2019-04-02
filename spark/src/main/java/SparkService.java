@@ -1,6 +1,6 @@
 import juniter.core.model.ChainParameters;
 import juniter.core.model.DBBlock;
-import juniter.core.model.index.*;
+import juniter.core.model.dbo.index.*;
 import juniter.core.utils.TimeUtils;
 import juniter.repository.jpa.BlockRepository;
 import juniter.repository.jpa.index.*;
@@ -178,7 +178,7 @@ public class SparkService {
                 .withColumn("pubkey", split(col("x"), "\\:").getItem(0))
                 .withColumn("signature", split(col("x"), "\\:").getItem(1))
                 .withColumn("createdOn", split(col("x"), "\\:").getItem(2))
-                .withColumn("uid", split(col("x"), "\\:").getItem(3))
+                .withColumn("userid", split(col("x"), "\\:").getItem(3))
                 .join(tree.select(
                         col("written_on").as("createdOn"),
                         col("medianTime").plus(conf.getMsValidity()).as("expires_on"),
@@ -217,7 +217,7 @@ public class SparkService {
                 .withColumn("signature", split(col("x"), "\\:").getItem(1))
                 .withColumn("createdOn", split(col("x"), "\\:").getItem(2))
                 .withColumn("idtyOn", split(col("x"), "\\:").getItem(3))
-                .withColumn("uid", split(col("x"), "\\:").getItem(4))
+                .withColumn("userid", split(col("x"), "\\:").getItem(4))
                 .join(tree.select(
                         col("written_on").as("createdOn"),
                         col("medianTime").plus(conf.getMsValidity()).as("expires_on"),
@@ -237,7 +237,7 @@ public class SparkService {
                 .withColumn("signature", split(col("x"), "\\:").getItem(1))
                 .withColumn("createdOn", split(col("x"), "\\:").getItem(2))
                 .withColumn("idtyOn", split(col("x"), "\\:").getItem(3))
-                .withColumn("uid", split(col("x"), "\\:").getItem(4))
+                .withColumn("userid", split(col("x"), "\\:").getItem(4))
                 .join(tree.select(
                         col("written_on").as("createdOn"),
                         col("medianTime").plus(conf.getMsValidity()).as("expires_on"),
@@ -256,7 +256,7 @@ public class SparkService {
                 .withColumn("signature", split(col("x"), "\\:").getItem(1))
                 .withColumn("createdOn", split(col("x"), "\\:").getItem(2))
                 .withColumn("idtyOn", split(col("x"), "\\:").getItem(3))
-                .withColumn("uid", split(col("x"), "\\:").getItem(4))
+                .withColumn("userid", split(col("x"), "\\:").getItem(4))
                 .drop("x")
                 .cache();
 
@@ -357,7 +357,7 @@ public class SparkService {
 
         iindex = idty
                 .select(lit("CREATE").as("op"),
-                        col("uid"),
+                        col("userid"),
                         col("pubkey"),
                         col("createdOn"),
                         col("written_on"),
@@ -367,7 +367,7 @@ public class SparkService {
                         col("signature"))
                 .union(joiners.select(
                         lit("UPDATE").as("op"),
-                        col("uid"),
+                        col("userid"),
                         col("pubkey"),
                         col("createdOn"),
                         col("written_on"),
@@ -378,7 +378,7 @@ public class SparkService {
                 )
                 .union(excluded.select(
                         lit("UPDATE").as("op"),
-                        lit(null).as("uid"),
+                        lit(null).as("userid"),
                         col("issuer").as("pubkey"),
                         col("written_on").as("createdOn"),
                         col("written_on"),
@@ -445,8 +445,8 @@ public class SparkService {
 
         // Scala join certs table wit
         //certs
-        // .join(idty.select($"uid".as("issuerUID"), $"pubkey".as("issuer")), "issuer")
-        // .join(idty.select($"uid".as("receiverUID"), $"pubkey".as("receiver")), "receiver")
+        // .join(idty.select($"userid".as("issuerUID"), $"pubkey".as("issuer")), "issuer")
+        // .join(idty.select($"userid".as("receiverUID"), $"pubkey".as("receiver")), "receiver")
         // .where("issuerUID LIKE '%bul%'").count
 
         final var elapsed = Long.divideUnsigned(System.nanoTime() - start, 1000000);

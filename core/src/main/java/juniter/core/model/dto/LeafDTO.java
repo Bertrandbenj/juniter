@@ -1,6 +1,6 @@
 package juniter.core.model.dto;
 
-import juniter.core.model.business.net.Peer;
+import juniter.core.model.dbo.net.Peer;
 import lombok.*;
 
 

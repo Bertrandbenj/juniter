@@ -1,10 +1,10 @@
 package juniter.service.bma;
 
 import juniter.core.event.CoreEventBus;
-import juniter.core.model.business.net.EndPoint;
+import juniter.core.model.dbo.net.EndPoint;
 import juniter.core.model.dto.NodeSummaryDTO;
-import juniter.repository.jpa.BlockRepository;
-import juniter.repository.jpa.EndPointsRepository;
+import juniter.repository.jpa.block.BlockRepository;
+import juniter.repository.jpa.net.EndPointsRepository;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;

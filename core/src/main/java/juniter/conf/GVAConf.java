@@ -2,8 +2,8 @@ package juniter.conf;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import juniter.core.model.dto.Block;
-import juniter.core.model.index.BINDEX;
-import juniter.repository.jpa.BlockRepository;
+import juniter.core.model.dbo.index.BINDEX;
+import juniter.repository.jpa.block.BlockRepository;
 import juniter.repository.jpa.index.BINDEXRepository;
 import juniter.service.bma.NetworkService;
 import juniter.service.gva.GVASubscriptionHandler;

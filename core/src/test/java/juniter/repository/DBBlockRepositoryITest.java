@@ -1,7 +1,7 @@
 package juniter.repository;
 
-import juniter.core.model.DBBlock;
-import juniter.repository.jpa.BlockRepository;
+import juniter.core.model.dbo.DBBlock;
+import juniter.repository.jpa.block.BlockRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;

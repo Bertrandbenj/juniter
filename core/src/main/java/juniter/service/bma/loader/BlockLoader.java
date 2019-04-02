@@ -1,10 +1,10 @@
 package juniter.service.bma.loader;
 
 import juniter.core.event.CoreEventBus;
-import juniter.core.model.DBBlock;
+import juniter.core.model.dbo.DBBlock;
 import juniter.core.utils.TimeUtils;
 import juniter.core.validation.BlockLocalValid;
-import juniter.repository.jpa.BlockRepository;
+import juniter.repository.jpa.block.BlockRepository;
 import juniter.service.bma.PeerService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -61,10 +61,8 @@ public class BlockLoader implements BlockLocalValid {
     @Autowired
     private RestTemplate restTemplate;
 
-
     @Autowired
     private CoreEventBus coreEventBus;
-
 
     @Autowired
     private BlockRepository blockRepo;
@@ -74,6 +72,9 @@ public class BlockLoader implements BlockLocalValid {
 
     @Autowired
     private PeerService peerService;
+
+    public BlockLoader() {
+    }
 
     @PostConstruct
     public void initConsumers() {
@@ -106,7 +107,7 @@ public class BlockLoader implements BlockLocalValid {
         resetBlockinDB();
         final var currentNumber = fetchAndSaveBlock("current").getNumber();
 
-        coreEventBus.sendEventCurrentAndMax(blockRepo.count(), currentNumber);
+        coreEventBus.sendEventCurrent (blockRepo.count() );
 
         final var nbPackage = Integer.divideUnsigned(currentNumber, bulkSize);
 
@@ -156,7 +157,7 @@ public class BlockLoader implements BlockLocalValid {
 
                     LOG.info(" records" + body.size() + " from: " + url + "... Status: " + statusCode + " : " + contentType);
                     peerService.reportSuccess(host);
-                    coreEventBus.sendEventSetMaxDBBlock(body.get(body.size()-1).getNumber());
+                    coreEventBus.sendEventCurrent(body.get(body.size()-1).getNumber());
                     return body;
 
                 } catch (final RestClientException e) {

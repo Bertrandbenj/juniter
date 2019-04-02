@@ -1,10 +1,10 @@
 package juniter.service.web;
 
-import juniter.core.model.DBBlock;
-import juniter.core.model.business.tx.*;
-import juniter.repository.jpa.BlockRepository;
-import juniter.repository.jpa.CertsRepository;
-import juniter.repository.jpa.TxRepository;
+import juniter.core.model.dbo.DBBlock;
+import juniter.core.model.dbo.tx.*;
+import juniter.repository.jpa.block.BlockRepository;
+import juniter.repository.jpa.block.CertsRepository;
+import juniter.repository.jpa.block.TxRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -210,7 +210,7 @@ public class GraphvizService {
 //						+ "\t\t\t" + prefix + "tx [label=\"TransactionDTO\", shape=circle];\n"; //
 
                 for (final Transaction tx : b.getTransactions()) {
-                    sub.append("\t\t\ttx").append(tx.getThash()).append(" [label=\"  ").append(tx.getIssuers().stream().map(i -> mini(i.toString())).collect(joining("\\n"))).append("  \",").append("URL=\"/graphviz/svg/tx/").append(tx.getThash()).append("\",").append(" shape=rarrow];\n");
+                    sub.append("\t\t\ttx").append(tx.getHash()).append(" [label=\"  ").append(tx.getIssuers().stream().map(i -> mini(i.toString())).collect(joining("\\n"))).append("  \",").append("URL=\"/graphviz/svg/tx/").append(tx.getHash()).append("\",").append(" shape=rarrow];\n");
                 }
 
                 sub.append("\t\t}\n");
@@ -243,7 +243,7 @@ public class GraphvizService {
             }
 
             if (b.getLeavers().size() > 0) {
-                sub.append("\t\t").append(prefix).append("lea [label=\"Leavers: ").append(b.getLeavers().size()).append("\", shape=octagon];\n");
+                sub.append("\t\t").append(prefix).append("lea [label=\"Leaver: ").append(b.getLeavers().size()).append("\", shape=octagon];\n");
             }
 
             if (b.getDividend() != null) {
@@ -492,7 +492,7 @@ public class GraphvizService {
         res.append("\t\tinfo [labeljust=l, shape=box3d, label=\"" //
                 + "Bstamp: ").append(mini(tx.getBlockstamp().toString()) //
         ).append("\\lCur: ").append(tx.getCurrency()//
-        ).append("\\lhash: ").append(mini(tx.getThash())//
+        ).append("\\lhash: ").append(mini(tx.getHash())//
         ).append("\\llocktime: ").append(tx.getLocktime() //
         ).append("\\l\", URL=\"/graphviz/svg/block/").append(tx.getBlockstamp().toString().split("-")[0]).append("\"];\n");
 
@@ -608,7 +608,7 @@ public class GraphvizService {
         res.append("\t}\n\n").append(links);//
 
 //		// EDGES
-//		for (int i = 0; i < tx.outputs().size(); i++) {
+//		for (int i = 0; i < tx.outputs().getSize(); i++) {
 //			final TxOutput out = tx.outputs().get(i);
 //			res += "\t\tamountOut" + i + " [label=\"" + out.Amount() + "\"" //
 //					+ ", URL=\"/graphviz/svg/tx/" + out.functionReferenceValue() + "\"" //

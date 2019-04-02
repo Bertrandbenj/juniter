@@ -1,7 +1,7 @@
 package juniter.core.model.wso;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import juniter.core.model.business.BStamp;
+import juniter.core.model.dbo.BStamp;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

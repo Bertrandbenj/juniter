@@ -35,7 +35,7 @@ public interface UCodes {
     UCode NOT_A_MEMBER = new UCode(2009, "Not a member");
     UCode NO_CURRENT_BLOCK = new UCode(2010, "No current block");
     UCode PEER_NOT_FOUND = new UCode(2012, "Peer not found");
-    UCode NO_IDTY_MATCHING_PUB_OR_UID = new UCode(2021, "No identity matching this pubkey or uid");
+    UCode NO_IDTY_MATCHING_PUB_OR_UID = new UCode(2021, "No identity matching this pubkey or userid");
     UCode TX_NOT_FOUND = new UCode(2034, "Transaction not found");
     UCode INCORRECT_PAGE_NUMBER = new UCode(2035, "Incorrect page number");
 

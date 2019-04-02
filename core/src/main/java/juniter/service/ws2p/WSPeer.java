@@ -1,8 +1,8 @@
 package juniter.service.ws2p;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import juniter.core.model.index.BINDEX;
-import juniter.repository.jpa.BlockRepository;
+import juniter.core.model.dbo.index.BINDEX;
+import juniter.repository.jpa.block.BlockRepository;
 import juniter.repository.jpa.index.BINDEXRepository;
 import juniter.service.bma.NetworkService;
 import org.apache.logging.log4j.LogManager;

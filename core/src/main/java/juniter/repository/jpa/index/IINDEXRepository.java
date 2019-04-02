@@ -1,7 +1,7 @@
 package juniter.repository.jpa.index;
 
 import juniter.core.model.dto.MemberVO;
-import juniter.core.model.index.IINDEX;
+import juniter.core.model.dbo.index.IINDEX;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -18,7 +18,6 @@ import java.util.Optional;
 public interface IINDEXRepository extends JpaRepository<IINDEX, Long> {
     @Override
     List<IINDEX> findAll();
-
 
 
     @Query(value = "SELECT new juniter.core.model.dto.MemberVO(pub, uid) FROM IINDEX i WHERE i.member IS NOT NULL AND i.member IS TRUE")
@@ -70,6 +69,7 @@ public interface IINDEXRepository extends JpaRepository<IINDEX, Long> {
     default void trimRecords(Integer mTime) {
 
         var below = duplicatesBelow(mTime);
+        below.remove(0);
         below.forEach(d -> {
             var del = fetchTrimmed(d);
             if (del.size() > 0) {
@@ -81,7 +81,7 @@ public interface IINDEXRepository extends JpaRepository<IINDEX, Long> {
 
         });
 //        var below = duplicatesBelow(mTime);
-//        if (below.size() > 0) {
+//        if (below.getSize() > 0) {
 //            System.out.println("IINDEX trimRecords " + below);
 //            below.forEach(d -> {
 //
@@ -91,12 +91,12 @@ public interface IINDEXRepository extends JpaRepository<IINDEX, Long> {
 //
 //                    if (i2.getOp().equals("UPDATE")) {
 //                        tmp = i2;
-//                        tmp.setUid(i1.getUid());
+//                        tmp.setUserid(i1.getUserid());
 //                        tmp.setWotbid(i1.getWotbid());
 //                        tmp.setCreated_on(i1.getCreated_on());
 //                        tmp.setMember(i1.getMember());
 //                    } else {
-//                        tmp.setUid(i2.getUid());
+//                        tmp.setUserid(i2.getUserid());
 //                        tmp.setWotbid(i2.getWotbid());
 //                        tmp.setCreated_on(i2.getCreated_on());
 //                        tmp.setMember(i2.getMember());
@@ -131,7 +131,7 @@ public interface IINDEXRepository extends JpaRepository<IINDEX, Long> {
     @Query("SELECT DISTINCT pub FROM IINDEX m WHERE writtenOn < ?1 GROUP BY pub HAVING count(*) > 1")
     List<String> duplicatesBelow(Integer blockNumber);
 
-    @Query(value = "SELECT * FROM IINDEX WHERE pub = ?1 ORDER BY writtenOn DESC LIMIT 100 OFFSET 1", nativeQuery = true)
+    @Query(value = "FROM IINDEX WHERE pub = ?1 ORDER BY writtenOn")
     List<IINDEX> fetchTrimmed(String pub);
 
 

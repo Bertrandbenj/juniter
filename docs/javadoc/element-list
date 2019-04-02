@@ -4,9 +4,9 @@ juniter.conf
 juniter.core.crypto
 juniter.core.exception
 juniter.core.model
-juniter.core.model.business.net
-juniter.core.model.business.tx
-juniter.core.model.wot
+juniter.core.model.dbo.net
+juniter.core.model.dbo.tx
+juniter.core.model.dbo.wot
 juniter.core.utils
 juniter.core.validation
 juniter.grammar

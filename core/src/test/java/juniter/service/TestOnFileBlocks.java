@@ -3,7 +3,7 @@ package juniter.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import juniter.core.crypto.Crypto;
-import juniter.core.model.DBBlock;
+import juniter.core.model.dbo.DBBlock;
 import juniter.core.validation.BlockLocalValid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -213,7 +213,7 @@ public class TestOnFileBlocks implements BlockLocalValid {
 
 	@Test
 	public void testDuniterTestBlockChain () {
-		assertTrue("parsed blocks/blockchain.json size is 11 - " + blockchain.size(), //
+		assertTrue("parsed blocks/blockchain.json getSize is 11 - " + blockchain.size(), //
 				blockchain.size() == 11);
 
 		blockchain.forEach(b -> {
@@ -224,7 +224,7 @@ public class TestOnFileBlocks implements BlockLocalValid {
 
 	@Test
 	public void testG1BlockChain() {
-		assertTrue("parsed blocks/blockchain.json size is 100 - " + blockchaing1.size(), //
+		assertTrue("parsed blocks/blockchain.json getSize is 100 - " + blockchaing1.size(), //
 				blockchaing1.size() - 100 == 0);
 
 		blockchaing1.forEach(b -> {

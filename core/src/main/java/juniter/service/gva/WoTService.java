@@ -4,9 +4,9 @@ import com.google.common.base.Preconditions;
 import io.leangen.graphql.annotations.*;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Observable;
-import juniter.core.model.business.BStamp;
-import juniter.core.model.index.IINDEX;
-import juniter.core.model.wot.Identity;
+import juniter.core.model.dbo.BStamp;
+import juniter.core.model.dbo.index.IINDEX;
+import juniter.core.model.dbo.wot.Identity;
 import juniter.repository.jpa.index.IINDEXRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,11 +33,11 @@ public class WoTService {
     IINDEXRepository iRepo;
 
 
-//@GraphQLArgument(name = "like", description = "SQL like on either uid or pubkey ") String like
+//@GraphQLArgument(name = "like", description = "SQL like on either userid or pubkey ") String like
 
     @Transactional
     @GraphQLQuery(name = "member", description = "return the identity of a member")
-    public Identity member(@GraphQLArgument(name = "uid", description = "User Identifier") String uid,
+    public Identity member(@GraphQLArgument(name = "userid", description = "User Identifier") String uid,
                            @GraphQLArgument(name = "pubkey", description = "Identifier") String pubkey) {
         LOG.info(" GVA - getIdentity " + uid + " , pub: " + pubkey);
 

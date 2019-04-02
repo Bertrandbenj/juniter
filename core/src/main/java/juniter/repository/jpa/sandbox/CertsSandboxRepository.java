@@ -1,6 +1,6 @@
 package juniter.repository.jpa.sandbox;
 
-import juniter.core.model.wot.Certification;
+import juniter.core.model.dbo.wot.Certification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

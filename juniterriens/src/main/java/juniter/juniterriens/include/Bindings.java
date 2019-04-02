@@ -4,7 +4,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-import juniter.core.model.DBBlock;
+import juniter.core.model.dbo.DBBlock;
 
 import java.util.ArrayList;
 

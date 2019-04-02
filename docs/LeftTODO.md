@@ -130,7 +130,7 @@ Issuing an identity is the act of creating a link between a *public key* and *an
 #### Identity unique ID
 UCP does not rely on any particular identity format, which remains implementation free. Identity simply has to be a string of length between 2 and 100 characters avoiding usage of line ending characters.
 
-In this document *identifier*, `UserID`, `USER_ID` and `uid` will be indifferently used to refer to this identity string.
+In this document *identifier*, `UserID`, `USER_ID` and `userid` will be indifferently used to refer to this identity string.
 
 #### Format
 

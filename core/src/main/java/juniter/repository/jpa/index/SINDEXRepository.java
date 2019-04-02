@@ -1,6 +1,6 @@
 package juniter.repository.jpa.index;
 
-import juniter.core.model.index.SINDEX;
+import juniter.core.model.dbo.index.SINDEX;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -35,7 +35,7 @@ public interface SINDEXRepository extends JpaRepository<SINDEX, Long> {
     List<SINDEX> sourcesOfPubkeyL(String pubkey);
 
     @Query("SELECT sindex from SINDEX sindex WHERE conditions = ?1")
-    Stream<SINDEX> sourcesByConditions(String condition);
+    List<SINDEX> sourcesByConditions(String condition);
 
     @Query("select t from SINDEX t where consumed = false AND conditions = ?1 ")
     Stream<SINDEX> transactionsOfReceiver(String pubkey);

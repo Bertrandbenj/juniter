@@ -20,7 +20,7 @@ public class Footer implements Initializable {
 
     private static final Logger LOG = LogManager.getLogger();
 
-    @FXML private ProgressIndicator loadIndic;
+    @FXML private ProgressIndicator downloadIndic;
     @FXML private ProgressIndicator indexIndic;
     @FXML private Label indexLog;
     @FXML private Label peerLog;
@@ -33,7 +33,7 @@ public class Footer implements Initializable {
         LOG.debug("initialize Footer.fxml");
         // bind indicators
         indexIndic.progressProperty().bind(Bindings.currentBindex.divide(Bindings.maxBindex));
-        loadIndic.progressProperty().bind(Bindings.currentDBBlock.divide(Bindings.maxPeerBlock));
+        downloadIndic.progressProperty().bind(Bindings.currentDBBlock.divide(Bindings.maxPeerBlock));
 
         // bind logger
 

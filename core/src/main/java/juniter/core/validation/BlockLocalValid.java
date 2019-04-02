@@ -1,9 +1,9 @@
 package juniter.core.validation;
 
 import juniter.core.crypto.Crypto;
-import juniter.core.model.DBBlock;
-import juniter.core.model.business.tx.Transaction;
-import juniter.core.model.wot.Identity;
+import juniter.core.model.dbo.DBBlock;
+import juniter.core.model.dbo.tx.Transaction;
+import juniter.core.model.dbo.wot.Identity;
 
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -48,7 +48,7 @@ public interface BlockLocalValid extends LocalValid {
         checkParameters(block);
         if (checkPowAndSignature)
             checkProofOfWork(block);
-        checkInnerHash(block);
+        //checkInnerHash(block);
         checkPreviousHash(block);
         checkPreviousIssuer(block);
         checkUnitBase(block);
@@ -146,7 +146,7 @@ public interface BlockLocalValid extends LocalValid {
 
     private void checkIdentitiesUserIDConflict(DBBlock block) {
         assert block.getIdentities().stream().map(Identity::getUid).distinct().count() == block.getIdentities().size()
-                :" Block must not contain twice same identity uid ";
+                :" Block must not contain twice same identity userid ";
     }
 
     private void checkIdentitiesPubkeyConflict(DBBlock block) {

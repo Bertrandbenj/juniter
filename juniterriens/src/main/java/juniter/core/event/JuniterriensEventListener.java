@@ -47,11 +47,10 @@ public class JuniterriensEventListener implements CoreEventBus {
     }
 
     @Override
-    public void sendEventCurrentAndMax(long x, int y) {
+    public void sendEventCurrent(long x ) {
         Platform.runLater(() -> {
             Bindings.currentDBBlock.setValue(x);
-            Bindings.maxDBBlock.setValue(y);
-        });
+         });
     }
 
     @Override

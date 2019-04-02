@@ -125,11 +125,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Superinterfaces:</dt>
-<dd><code>org.springframework.data.repository.CrudRepository&lt;<a href="../../../juniter/core/model/wot/Certification.html" title="class in juniter.core.model.wot">Certification</a>,java.lang.Long&gt;</code>, <code>org.springframework.data.jpa.repository.JpaRepository&lt;<a href="../../../juniter/core/model/wot/Certification.html" title="class in juniter.core.model.wot">Certification</a>,java.lang.Long&gt;</code>, <code>org.springframework.data.repository.PagingAndSortingRepository&lt;<a href="../../../juniter/core/model/wot/Certification.html" title="class in juniter.core.model.wot">Certification</a>,java.lang.Long&gt;</code>, <code>org.springframework.data.repository.query.QueryByExampleExecutor&lt;<a href="../../../juniter/core/model/wot/Certification.html" title="class in juniter.core.model.wot">Certification</a>&gt;</code>, <code>org.springframework.data.repository.Repository&lt;<a href="../../../juniter/core/model/wot/Certification.html" title="class in juniter.core.model.wot">Certification</a>,java.lang.Long&gt;</code></dd>
+<dd><code>org.springframework.data.repository.CrudRepository&lt;<a href="../../../juniter/core/model/wot/Certification.html" title="class in juniter.core.model.dbo.wot">Certification</a>,java.lang.Long&gt;</code>, <code>org.springframework.data.jpa.repository.JpaRepository&lt;<a href="../../../juniter/core/model/wot/Certification.html" title="class in juniter.core.model.dbo.wot">Certification</a>,java.lang.Long&gt;</code>, <code>org.springframework.data.repository.PagingAndSortingRepository&lt;<a href="../../../juniter/core/model/wot/Certification.html" title="class in juniter.core.model.dbo.wot">Certification</a>,java.lang.Long&gt;</code>, <code>org.springframework.data.repository.query.QueryByExampleExecutor&lt;<a href="../../../juniter/core/model/wot/Certification.html" title="class in juniter.core.model.dbo.wot">Certification</a>&gt;</code>, <code>org.springframework.data.repository.Repository&lt;<a href="../../../juniter/core/model/wot/Certification.html" title="class in juniter.core.model.dbo.wot">Certification</a>,java.lang.Long&gt;</code></dd>
 </dl>
 <hr>
 <pre>public interface <span class="typeNameLabel">CertsRepository</span>
-extends org.springframework.data.jpa.repository.JpaRepository&lt;<a href="../../../juniter/core/model/wot/Certification.html" title="class in juniter.core.model.wot">Certification</a>,java.lang.Long&gt;</pre>
+extends org.springframework.data.jpa.repository.JpaRepository&lt;<a href="../../../juniter/core/model/wot/Certification.html" title="class in juniter.core.model.dbo.wot">Certification</a>,java.lang.Long&gt;</pre>
 </li>
 </ul>
 </div>
@@ -150,12 +150,12 @@ extends org.springframework.data.jpa.repository.JpaRepository&lt;<a href="../../
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>java.util.stream.Stream&lt;<a href="../../../juniter/core/model/wot/Certification.html" title="class in juniter.core.model.wot">Certification</a>&gt;</code></td>
+<td class="colFirst"><code>java.util.stream.Stream&lt;<a href="../../../juniter/core/model/wot/Certification.html" title="class in juniter.core.model.dbo.wot">Certification</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../juniter/repository/jpa/CertsRepository.html#streamCertifiedBy-java.lang.String-">streamCertifiedBy</a></span>&#8203;(java.lang.String&nbsp;pubkeyOrUid)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>java.util.stream.Stream&lt;<a href="../../../juniter/core/model/wot/Certification.html" title="class in juniter.core.model.wot">Certification</a>&gt;</code></td>
+<td class="colFirst"><code>java.util.stream.Stream&lt;<a href="../../../juniter/core/model/wot/Certification.html" title="class in juniter.core.model.dbo.wot">Certification</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../juniter/repository/jpa/CertsRepository.html#streamCertifiersOf-java.lang.String-">streamCertifiersOf</a></span>&#8203;(java.lang.String&nbsp;pubkeyOrUid)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -209,7 +209,7 @@ extends org.springframework.data.jpa.repository.JpaRepository&lt;<a href="../../
 <li class="blockList">
 <h4>streamCertifiersOf</h4>
 <pre>@Query("select t from Certification t where certified = ?1 ")
-java.util.stream.Stream&lt;<a href="../../../juniter/core/model/wot/Certification.html" title="class in juniter.core.model.wot">Certification</a>&gt;&nbsp;streamCertifiersOf&#8203;(java.lang.String&nbsp;pubkeyOrUid)</pre>
+java.util.stream.Stream&lt;<a href="../../../juniter/core/model/wot/Certification.html" title="class in juniter.core.model.dbo.wot">Certification</a>&gt;&nbsp;streamCertifiersOf&#8203;(java.lang.String&nbsp;pubkeyOrUid)</pre>
 </li>
 </ul>
 <a name="streamCertifiedBy-java.lang.String-">
@@ -219,7 +219,7 @@ java.util.stream.Stream&lt;<a href="../../../juniter/core/model/wot/Certificatio
 <li class="blockList">
 <h4>streamCertifiedBy</h4>
 <pre>@Query("select t from Certification t where certifier = ?1 ")
-java.util.stream.Stream&lt;<a href="../../../juniter/core/model/wot/Certification.html" title="class in juniter.core.model.wot">Certification</a>&gt;&nbsp;streamCertifiedBy&#8203;(java.lang.String&nbsp;pubkeyOrUid)</pre>
+java.util.stream.Stream&lt;<a href="../../../juniter/core/model/wot/Certification.html" title="class in juniter.core.model.dbo.wot">Certification</a>&gt;&nbsp;streamCertifiedBy&#8203;(java.lang.String&nbsp;pubkeyOrUid)</pre>
 </li>
 </ul>
 </li>

@@ -14,14 +14,16 @@ It is not yet a calculating node of the network
  - Database: Postgresql  
  - @Annotation typing of the data model (basic type validation + storage semantic)
  - Swagger (REST test)
- - JavaFX admin interface. 
+ - JavaFX interface. 
  - BMA
  - Challenging WS2P 
- - GraphQL - Broken since gradle  
+-  GraphQL
  - Graphviz graphs - Clickable graphs of the chain. [Ex.](https://juniter.bnimajneb.online:8443/graphviz/svg/block/127128)
- - Grammar - [readme](grammar/README.md) [antlr](juniter/src/main/antlr/JuniterGrammar.p4) [perl6](grammar/grammar.pl6)
+ - Need refacto - Grammar - [readme](grammar/README.md)
+   [antlr](juniter/src/main/antlr/JuniterGrammar.p4)
+   [perl6](grammar/grammar.pl6)
     - Grammar helps me define the parsing in the process of **Local Validation** 
- - **Global Validation** is the process of indexing the blockchain and keeping the global state it is reprensetend by 108 business rules BR_G01-108 
+ - **Global Validation** is the process of indexing the blockchain and keeping the global state it is reprensetend by 108 dbo rules BR_G01-108 
     - [GlobalValid](src/main/java/juniter/core/validation/GlobalValid.java) 
     - [Index](src/main/java/juniter/repository/memory/Index.java)
     
@@ -68,12 +70,25 @@ psql -U postgres -c "GRANT ALL ON SCHEMA testdb TO testuser;"
 ## Configuration
 Check [application.yml](src/main/resources/application.yml) and overwrite it or set individual properties
 ``` 
-juniter.useJavaFX=false
+juniter:
+  network:
+    trusted: https://g1.duniter.org/,https://example.com/....
+    bulkSize: 500
+    webSocketPoolSize: 5
+  loader:
+    useUseful: false
+    useDefault: true
+    useMissing: true
+  useGraphViz: true
+  useGVA: true      # FIXME:  dependencies ?
+  useBMA: true
+  useWS2P: false
+  ... 
 ```
 
-Command line properties
+Command line override
 ```bash
--Djuniter.useJavaFX=false -Dproperties=value ...
+-Djuniter.network.webSocketPoolSize=15 -Dproperty2=value ...
 ```
 
 

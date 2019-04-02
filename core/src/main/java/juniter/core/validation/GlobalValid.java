@@ -3,11 +3,11 @@ package juniter.core.validation;
 import com.codahale.metrics.annotation.Counted;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import juniter.core.crypto.Crypto;
-import juniter.core.model.business.BStamp;
-import juniter.core.model.business.ChainParameters;
-import juniter.core.model.DBBlock;
-import juniter.core.model.index.Account;
-import juniter.core.model.business.tx.TxType;
+import juniter.core.model.dbo.BStamp;
+import juniter.core.model.dbo.ChainParameters;
+import juniter.core.model.dbo.DBBlock;
+import juniter.core.model.dbo.index.Account;
+import juniter.core.model.dbo.tx.TxType;
 import lombok.*;
 import org.springframework.lang.NonNull;
 import org.springframework.transaction.annotation.Transactional;
@@ -271,7 +271,7 @@ public interface GlobalValid {
             //@JsonIgnoreProperties(ignoreUnknown = true)
     class IINDEX implements Comparable<IINDEX> {
 
-        public static final BinaryOperator<IINDEX> reducer =(i1, i2) -> {
+        public static final BinaryOperator<IINDEX> reducer = (i1, i2) -> {
 
             IINDEX bot, top;
             if (i1.writtenOn < i2.writtenOn) {
@@ -571,10 +571,8 @@ public interface GlobalValid {
      *
      * </pre>
      */
+    @Data
     @NoArgsConstructor
-    @ToString
-    @Setter
-    @Getter
     class SINDEX implements Comparable<SINDEX>, Serializable {
 
         private static final long serialVersionUID = -6400219111111110671L;
@@ -664,7 +662,7 @@ public interface GlobalValid {
         Optional<BINDEX> tail = IndexB.stream().min(Comparator.comparingInt(b -> b.number));
         //BINDEX head = IndexB.stream().max(Comparator.comparingInt(b -> b.number)).orElseThrow();
 
-        //System.out.println("At block  " + head.number + " bIndexSize: max(" + tail.issuersCount + ", " + tail.issuersFrame + ", " + 24 + ") => size : " + res);
+        //System.out.println("At block  " + head.number + " bIndexSize: max(" + tail.issuersCount + ", " + tail.issuersFrame + ", " + 24 + ") => getSize : " + res);
 
         return Stream.of(
                 conf.getMedianTimeBlocks(),
@@ -850,7 +848,7 @@ public interface GlobalValid {
      * <pre>
      * BR_G07_setAvgBlockSize - HEAD.avgBlockSize
      *
-     * HEAD.avgBlockSize = AVG((HEAD~1..<HEAD.issuersCount>).size)
+     * HEAD.avgBlockSize = AVG((HEAD~1..<HEAD.issuersCount>).getSize)
      * </pre>
      */
     private void BR_G07_setAvgBlockSize(BINDEX head) {
@@ -942,7 +940,7 @@ public interface GlobalValid {
                 .filter(m -> m.member).count();
         final int notMember = (int) localI.stream().filter(m -> !m.member).count();
 
-        //		System.out.println("BR_G10_setMembersCount " + localI.size() + " " + member + " " + notMember);
+        //		System.out.println("BR_G10_setMembersCount " + localI.getSize() + " " + member + " " + notMember);
         if (head.number == 0) {
             head.membersCount = member;
         } else {
@@ -1021,7 +1019,6 @@ public interface GlobalValid {
         }
 
     }
-
 
 
     /**
@@ -1590,7 +1587,7 @@ public interface GlobalValid {
 
     }
 
-    private void huhu(){
+    private void huhu() {
 
     }
 
@@ -1980,15 +1977,25 @@ public interface GlobalValid {
      */
     private void BR_G38_setCertUnchainable(BINDEX head, CINDEX entry) {
         if (head.number > 0) {
+
+            var h1 = head_1();
+            assert h1 != null : "BR_G38_setCertUnchainable HEAD-1 should NOT be null";
+            assert h1.medianTime != null : "BR_G38_setCertUnchainable HEAD-1 median time should NOT be null" ;
+
             entry.unchainables = reduceC(entry.issuer, null)
-                    .filter(c -> c.chainable_on > head_1().medianTime)
+                    .filter(c->  c.chainable_on != null )
+                    .filter(c -> {
+                        assert c != null : "BR_G38_setCertUnchainable CINDEX null " + c;
+                        assert c.chainable_on != null : "BR_G38_setCertUnchainable  chainable_on null " + c;
+                        return c.chainable_on > h1.medianTime;
+                    })
                     .count();
         }
 
     }
 
     /**
-     * <pre>
+     * <pre>s
      * BR_G39_setCertStock
      *
      * ENTRY.stock = COUNT(REDUCE_BY(GLOBAL_CINDEX[issuer=ENTRY.issuer], 'receiver', 'created_on')[expired_on=0])
@@ -2155,7 +2162,7 @@ public interface GlobalValid {
      * Rule:
      *
      * If HEAD.number > 0:
-     *     HEAD.size < MAX(500 ; CEIL(1.10 * HEAD.avgBlockSize))
+     *     HEAD.getSize < MAX(500 ; CEIL(1.10 * HEAD.avgBlockSize))
      * </pre>
      */
     private boolean BR_G50_ruleBlockSize(BINDEX head) {
@@ -2887,7 +2894,7 @@ public interface GlobalValid {
                 .forEach(localS::add);
 
 
-        //		assert localI.size() > 0 : "BR_G91_IndexDividend - Dividend - localS shouldnt be empty";
+        //		assert localI.getSize() > 0 : "BR_G91_IndexDividend - Dividend - localS shouldnt be empty";
     }
 
     /**
@@ -3259,7 +3266,7 @@ public interface GlobalValid {
      *
      *
      *
-     * Leavers
+     * Leaver
      *
      * Each leaver produces 1 new entry:
      *
@@ -3506,7 +3513,7 @@ public interface GlobalValid {
                         (long) tx.getLocktime(),
                         "SIG(" + tx.getIssuers().get(0) + ")",
                         true, // consumed
-                        tx.getThash()
+                        tx.getHash()
                 ));
             }
 
@@ -3515,7 +3522,7 @@ public interface GlobalValid {
                 //				System.out.println("output.base " + output.getBase());
 
                 localS.add(new SINDEX("CREATE",
-                        tx.getThash(),
+                        tx.getHash(),
                         indOut,
                         null,
                         written_on,
@@ -3525,7 +3532,7 @@ public interface GlobalValid {
                         (long) tx.getLocktime(),
                         output.getOutputCondition(),
                         false, // consumed
-                        tx.getThash()
+                        tx.getHash()
                 ));
             }
 
@@ -3724,7 +3731,7 @@ public interface GlobalValid {
                 .collect(Collectors.toList());
 
         //		bheads.forEach(b -> {
-        //			System.out.println(" #B " + IndexB.size() + " range " + m + " : " + b);
+        //			System.out.println(" #B " + IndexB.getSize() + " range " + m + " : " + b);
         //		});
 
         return bheads.stream();
@@ -3743,7 +3750,7 @@ public interface GlobalValid {
         final var newHead = new BINDEX();
 
         newHead.version = (int) block.getVersion();
-        newHead.size = block.size();
+        newHead.size = block.getSize();
         newHead.hash = block.getHash();
         newHead.issuer = block.getIssuer();
         newHead.time = block.getTime();

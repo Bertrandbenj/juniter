@@ -1,6 +1,8 @@
 package juniter.juniterriens;
 
+import com.sun.javafx.scene.control.Properties;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -16,8 +18,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-import juniter.core.model.index.*;
-import juniter.repository.jpa.BlockRepository;
+import juniter.core.model.dbo.index.*;
+import juniter.repository.jpa.block.BlockRepository;
 import juniter.repository.jpa.index.*;
 import juniter.service.Index;
 import juniter.juniterriens.include.AbstractJuniterFX;
@@ -264,13 +266,12 @@ public class Database extends AbstractJuniterFX implements Initializable {
     public void indexUntil() {
 
         Bindings.isIndexing.setValue(!Bindings.isIndexing.get());
+
+        if(!Bindings.isIndexing.get())
+            return;
+
         Bindings.currentBindex.setValue(-1);
 
-        if (Bindings.isIndexing.get()) {
-            indexUntilButton.setText("||");
-        } else {
-            indexUntilButton.setText(">>");
-        }
 
 
         int until;
@@ -373,6 +374,16 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        indexUntilButton.setText(Bindings.isIndexing.get()?"||":">>");
+
+        Bindings.isIndexing.addListener((v, oldValue, newValue)->{
+            if(!newValue)
+                indexUntilButton.setText(">>");
+            else
+                indexUntilButton.setText("||");
+        });
+
+
         indexBar.progressProperty().bind(Bindings.currentBindex.divide(Bindings.maxBindex));
 
 
@@ -382,7 +393,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
         mapColumn(bDividendCol, "dividend");
         mapColumn(bIssuerCol, "issuer");
         mapColumn(bMembersCountCol, "membersCount");
-        mapColumn(bSizeCol, "size");
+        mapColumn(bSizeCol, "getSize");
         mapColumn(bTimeCol, "time");
         mapColumn(bmedianTimeCol, "medianTime");
         mapColumn(bMonetaryMassCol, "mass");

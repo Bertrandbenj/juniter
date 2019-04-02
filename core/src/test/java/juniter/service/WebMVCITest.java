@@ -2,7 +2,7 @@ package juniter.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import juniter.core.model.DBBlock;
+import juniter.core.model.dbo.DBBlock;
 import juniter.core.utils.TimeUtils;
 import juniter.core.validation.BlockLocalValid;
 import org.apache.logging.log4j.LogManager;

@@ -1,6 +1,8 @@
 package juniter.repository.jpa.index;
 
-import juniter.core.model.index.MINDEX;
+
+import juniter.core.model.dbo.index.MINDEX;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -54,6 +56,7 @@ public interface MINDEXRepository extends JpaRepository<MINDEX, Long> {
     @Modifying
     default void trimRecords(Integer mTime) {
         var below = duplicatesBelow(mTime);
+        below.remove(0);
         below.forEach(d -> {
             var del = fetchTrimmed(d);
             if (del.size() > 0) {
@@ -73,7 +76,7 @@ public interface MINDEXRepository extends JpaRepository<MINDEX, Long> {
     @Query("SELECT DISTINCT pub FROM MINDEX m WHERE writtenOn < ?1 GROUP BY pub HAVING count(*) > 1")
     List<String> duplicatesBelow(Integer blockNumber);
 
-    @Query(value = "SELECT * FROM MINDEX WHERE pub = ?1 ORDER BY writtenOn DESC LIMIT 100 OFFSET 1", nativeQuery = true)
+    @Query(value = " FROM MINDEX WHERE pub = ?1 ORDER BY writtenOn ")
     List<MINDEX> fetchTrimmed(String pub);
 
 
@@ -101,7 +104,7 @@ public interface MINDEXRepository extends JpaRepository<MINDEX, Long> {
     List<MINDEX> findPubkeysThatShouldExpire(Long mtime);
 
 
-    @Query(value = "SELECT * FROM mindex WHERE revokes_on <= ?1 AND revoked_on IS NULL ", nativeQuery = true)
+    @Query(value = "SELECT m FROM MINDEX m WHERE m.revokes_on <= ?1 AND m.revoked_on IS NULL ")
     List<MINDEX> findRevokesOnLteAndRevokedOnIsNull(Long mTime);
 }
 

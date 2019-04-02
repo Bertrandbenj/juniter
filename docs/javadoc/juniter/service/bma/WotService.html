@@ -176,12 +176,12 @@ extends java.lang.Object</pre>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>java.util.List&lt;<a href="../../../juniter/core/model/wot/Certification.html" title="class in juniter.core.model.wot">Certification</a>&gt;</code></td>
+<td class="colFirst"><code>java.util.List&lt;<a href="../../../juniter/core/model/wot/Certification.html" title="class in juniter.core.model.dbo.wot">Certification</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../juniter/service/bma/WotService.html#certifiedBy-java.lang.String-">certifiedBy</a></span>&#8203;(java.lang.String&nbsp;pubkeyOrUid)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>java.util.List&lt;<a href="../../../juniter/core/model/wot/Certification.html" title="class in juniter.core.model.wot">Certification</a>&gt;</code></td>
+<td class="colFirst"><code>java.util.List&lt;<a href="../../../juniter/core/model/wot/Certification.html" title="class in juniter.core.model.dbo.wot">Certification</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../juniter/service/bma/WotService.html#certifiersOf-java.lang.String-">certifiersOf</a></span>&#8203;(java.lang.String&nbsp;pubkeyOrUid)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -265,7 +265,7 @@ public&nbsp;java.lang.String&nbsp;requirements&#8203;(@PathVariable("pubkey")
 <pre>@Transactional(readOnly=true)
 @RequestMapping(value="/certifiers-of/{pubkeyOrUid}",
                 method=GET)
-public&nbsp;java.util.List&lt;<a href="../../../juniter/core/model/wot/Certification.html" title="class in juniter.core.model.wot">Certification</a>&gt;&nbsp;certifiersOf&#8203;(@PathVariable("pubkeyOrUid")
+public&nbsp;java.util.List&lt;<a href="../../../juniter/core/model/wot/Certification.html" title="class in juniter.core.model.dbo.wot">Certification</a>&gt;&nbsp;certifiersOf&#8203;(@PathVariable("pubkeyOrUid")
                                                   java.lang.String&nbsp;pubkeyOrUid)</pre>
 </li>
 </ul>
@@ -278,7 +278,7 @@ public&nbsp;java.util.List&lt;<a href="../../../juniter/core/model/wot/Certifica
 <pre>@Transactional(readOnly=true)
 @RequestMapping(value="/certified-by/{pubkeyOrUid}",
                 method=GET)
-public&nbsp;java.util.List&lt;<a href="../../../juniter/core/model/wot/Certification.html" title="class in juniter.core.model.wot">Certification</a>&gt;&nbsp;certifiedBy&#8203;(@PathVariable("pubkeyOrUid")
+public&nbsp;java.util.List&lt;<a href="../../../juniter/core/model/wot/Certification.html" title="class in juniter.core.model.dbo.wot">Certification</a>&gt;&nbsp;certifiedBy&#8203;(@PathVariable("pubkeyOrUid")
                                                  java.lang.String&nbsp;pubkeyOrUid)</pre>
 </li>
 </ul>

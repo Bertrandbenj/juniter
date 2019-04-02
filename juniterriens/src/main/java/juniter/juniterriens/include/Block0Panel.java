@@ -9,10 +9,10 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import juniter.core.crypto.SecretBox;
-import juniter.core.model.DBBlock;
-import juniter.core.model.wot.Certification;
-import juniter.core.model.wot.Identity;
-import juniter.core.model.wot.Join;
+import juniter.core.model.dbo.DBBlock;
+import juniter.core.model.dbo.wot.Certification;
+import juniter.core.model.dbo.wot.Identity;
+import juniter.core.model.dbo.wot.Joiner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 
@@ -222,7 +222,7 @@ public class Block0Panel implements Initializable {
         block.getJoiners().addAll(
                 members.entrySet().stream()
                         .map(ent ->
-                                new Join(ent.getValue().getPublicKey()
+                                new Joiner(ent.getValue().getPublicKey()
                                         + ":" + "==" // signature
                                         + ":" + "0-XXX"// bstamp TODO complete
                                         + ":" + "0-XXX"// bstamp duplicate on block 0

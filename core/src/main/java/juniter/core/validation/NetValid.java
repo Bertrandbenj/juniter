@@ -9,7 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import juniter.core.crypto.DigestUtils;
-import juniter.core.model.DBBlock;
+import juniter.core.model.dbo.DBBlock;
 import juniter.core.utils.Constants;
 
 public class NetValid {

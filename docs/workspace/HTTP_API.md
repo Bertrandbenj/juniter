@@ -467,7 +467,7 @@ GET the list of current Web of Trust members.
 
 **Returns**
 
-A list of public key + uid.
+A list of public key + userid.
 ```json
 {
   "results": [
@@ -545,7 +545,7 @@ Each certification also has:
   "certifications": [
     {
       "pubkey": "9WYHTavL1pmhunFCzUwiiq4pXwvgGG5ysjZnjz9H8yB",
-      "uid": "certifier uid",
+      "uid": userid,
       "cert_time": {
         "block": 88,
         "medianTime": 1509991044
@@ -904,7 +904,7 @@ The hardship value (`level`) + `block` number.
 
 **Goal**
 
-GET hardship level for all member's uid for writing next block.
+GET hardship level for all member's uid for wuseriding next block.
 
 **Parameters**
 

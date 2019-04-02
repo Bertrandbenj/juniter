@@ -1,12 +1,16 @@
 package juniter.service.bma;
 
-import juniter.core.model.DBBlock;
-import juniter.core.model.business.ChainParameters;
-import juniter.core.model.business.ChainParametersDTO;
+import juniter.core.model.dbo.DBBlock;
+import juniter.core.model.dbo.ChainParameters;
+import juniter.core.model.dbo.ChainParametersDTO;
 import juniter.core.model.dto.*;
-import juniter.core.model.index.MINDEX;
-import juniter.repository.jpa.BlockRepository;
+import juniter.core.model.dbo.index.MINDEX;
+import juniter.repository.jpa.block.*;
 import juniter.repository.jpa.index.MINDEXRepository;
+import juniter.repository.jpa.maybe.ExcludedRepository;
+import juniter.repository.jpa.maybe.JoinerRepository;
+import juniter.repository.jpa.maybe.LeaverRepository;
+import juniter.repository.jpa.maybe.RenewRepository;
 import juniter.service.bma.loader.BlockLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -67,6 +71,27 @@ public class BlockchainService {
     @Autowired
     private BlockRepository blockRepo;
 
+    @Autowired
+    private ExcludedRepository excludedRepo;
+
+    @Autowired
+    private JoinerRepository joinerRepo;
+
+    @Autowired
+    private RenewRepository renewRepo;
+
+    @Autowired
+    private LeaverRepository leaverRepo;
+
+    @Autowired
+    private CertsRepository certRepo;
+    @Autowired
+    private MemberRepository memberRepo;
+
+
+
+    @Autowired
+    private TxRepository txRepo;
 
     @Autowired
     private MINDEXRepository mRepo;
@@ -165,20 +190,22 @@ public class BlockchainService {
         Stream<DBBlock> st;
         switch (what) {
             case "newcomers":
-                return new WithDTO(blockRepo.withNewCommers());
+                return new WithDTO(memberRepo.withJoiners());
             case "certs":
-                return new WithDTO(blockRepo.withCertifications());
+                return new WithDTO(certRepo.withCertifications());
             case "actives":
             case "renewed":
-                return new WithDTO(blockRepo.withRenewed());
+                return new WithDTO(memberRepo.withRenewed());
+            case "revoked":
+                return new WithDTO(memberRepo.withRevoked());
             case "leavers":
-                return new WithDTO(blockRepo.withLeavers());
+                return new WithDTO(memberRepo.withLeavers());
             case "excluded":
-                return new WithDTO(blockRepo.withExcluded());
+                return new WithDTO(memberRepo.withExcluded());
             case "ud":
                 return new WithDTO(blockRepo.withUD());
             case "tx":
-                return new WithDTO(blockRepo.withTx());
+                return new WithDTO(txRepo.withTx());
 
             default:
                 st = blockRepo.with(block -> !block.getTransactions().isEmpty());

@@ -10,7 +10,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import juniter.juniterriens.include.AbstractJuniterFX;
 import juniter.juniterriens.include.Bindings;
-import juniter.repository.jpa.BlockRepository;
+import juniter.repository.jpa.block.BlockRepository;
 import juniter.repository.jpa.index.BINDEXRepository;
 import juniter.service.bma.loader.BlockLoader;
 import juniter.service.bma.loader.MissingBlocksLoader;
@@ -107,7 +107,7 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
         Bindings.currentDBBlock.setValue(blockRepo.count());
         Bindings.currentBindex.setValue(bRepo.head().map(b -> b.number).orElse(0));
         Bindings.maxDBBlock.setValue(blockRepo.currentBlockNumber());
-        Bindings.currenBlock.setValue(blockRepo.current().get());
+        Bindings.currenBlock.setValue(blockRepo.current().orElseGet(()->blockLoader.fetchAndSaveBlock("/block/0")));
 
     }
 

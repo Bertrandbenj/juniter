@@ -6,8 +6,6 @@ import java.util.List;
 
 public interface CoreEventBus {
 
-     //Logger LOG = LogManager.getLogger();
-
 
     void sendEventCurrentBindex(int i);
 
@@ -15,37 +13,28 @@ public interface CoreEventBus {
     void sendEventIndexLogMessage(String s);
 
 
-
-    void sendEventPeerLogMessage(String s );
+    void sendEventPeerLogMessage(String s);
 
 
     void sendEventIsIndexing(boolean is);
 
 
-
-     void sendEventCurrentAndMax(long x, int y);
-
+    void sendEventCurrent(long x);
 
 
-
-     void sendEventSetMaxDBBlock(int maxBlockDB );
-
+    void sendEventSetMaxDBBlock(int maxBlockDB);
 
 
-
-     void sendEventSetMaxPeerBlock(long maxBlockDB );
-
+    void sendEventSetMaxPeerBlock(long maxBlockDB);
 
 
-     void sendEventDecrementCurrentBlock();
+    void sendEventDecrementCurrentBlock();
 
 
-     void sendEventRenormalizedPeer(List<PeerService.NetStats> list);
+    void sendEventRenormalizedPeer(List<PeerService.NetStats> list);
 
 
-
-     void sendEventMemoryLog(String log );
-
+    void sendEventMemoryLog(String log);
 
 
 }

@@ -1,6 +1,6 @@
 package juniter.service.ws2p;
 
-import juniter.repository.jpa.EndPointsRepository;
+import juniter.repository.jpa.net.EndPointsRepository;
 import juniter.service.bma.loader.PeerLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

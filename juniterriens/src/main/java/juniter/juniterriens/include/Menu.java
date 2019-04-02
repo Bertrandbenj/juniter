@@ -102,7 +102,7 @@ public class Menu extends AbstractJuniterFX implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // LOG.info(getClass().getResource("/juniterriens/Spark.fxml") + "  " +  vMenu.getChildren().size() );
+        // LOG.info(getClass().getResource("/juniterriens/Spark.fxml") + "  " +  vMenu.getChildren().getSize() );
         if (getClass().getResource("/juniterriens/Spark.fxml") == null) {
             var removed = vMenu.getChildren().remove(6);
         }

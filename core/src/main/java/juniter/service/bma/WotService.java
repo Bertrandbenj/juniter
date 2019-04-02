@@ -1,16 +1,16 @@
 package juniter.service.bma;
 
-import juniter.core.model.business.BStamp;
+import juniter.core.model.dbo.BStamp;
+import juniter.core.model.dbo.index.MINDEX;
+import juniter.core.model.dbo.wot.Certification;
+import juniter.core.model.dbo.wot.Identity;
+import juniter.core.model.dbo.wot.Revoked;
 import juniter.core.model.dto.MemberVO;
 import juniter.core.model.dto.naughtylookup.*;
 import juniter.core.model.dto.requirements.IdtyCerts;
 import juniter.core.model.dto.requirements.ReqDTO;
 import juniter.core.model.dto.requirements.ReqIdtyDTO;
-import juniter.core.model.index.MINDEX;
-import juniter.core.model.wot.Certification;
-import juniter.core.model.wot.Identity;
-import juniter.core.model.wot.Revoked;
-import juniter.repository.jpa.CertsRepository;
+import juniter.repository.jpa.block.CertsRepository;
 import juniter.repository.jpa.index.CINDEXRepository;
 import juniter.repository.jpa.index.IINDEXRepository;
 import juniter.repository.jpa.index.MINDEXRepository;
@@ -52,7 +52,7 @@ public class WotService {
     IINDEXRepository iRepo;
 
 
-    @GetMapping(value = "/requirements/{pubkey}" )
+    @GetMapping(value = "/requirements/{pubkey}")
     public ReqDTO requirements(@PathVariable("pubkey") String pubkeyOrUid) {
         LOG.info("Entering /wot/requirements/{pubkey= " + pubkeyOrUid + "}");
         return ReqDTO.builder()
@@ -60,7 +60,7 @@ public class WotService {
                         .map(i -> {
 
                             var certs = cRepo.receivedBy(i.getPub()).stream()
-                                    .map(c-> IdtyCerts.builder()
+                                    .map(c -> IdtyCerts.builder()
 
                                             .build())
                                     .collect(Collectors.toList());
@@ -73,7 +73,7 @@ public class WotService {
     }
 
     @Transactional(readOnly = true)
-    @GetMapping(value = "/certifiers-of/{pubkeyOrUid}" )
+    @GetMapping(value = "/certifiers-of/{pubkeyOrUid}")
     public List<Certification> certifiersOf(@PathVariable("pubkeyOrUid") String pubkeyOrUid) {
         LOG.info("Entering /wot/certifiers-of/{pubkeyOrUid= " + pubkeyOrUid + "}");
 
@@ -81,20 +81,20 @@ public class WotService {
     }
 
     @Transactional(readOnly = true)
-    @GetMapping(value = "/certified-by/{pubkeyOrUid}" )
+    @GetMapping(value = "/certified-by/{pubkeyOrUid}")
     public List<Certification> certifiedBy(@PathVariable("pubkeyOrUid") String pubkeyOrUid) {
         LOG.info("Entering /wot/certified-by/{pubkeyOrUid= " + pubkeyOrUid + "}");
         return certsRepo.streamCertifiedBy(pubkeyOrUid).collect(Collectors.toList());
     }
 
-    @GetMapping(value = "/identity-of/{pubkeyOrUid}" )
+    @GetMapping(value = "/identity-of/{pubkeyOrUid}")
     public String identityOf(@PathVariable("pubkeyOrUid") String pubkeyOrUid) {
         LOG.info("Entering /wot/identity-of/{pubkeyOrUid= " + pubkeyOrUid + "}");
         return "not implemented yet";
     }
 
     @CrossOrigin(origins = "*")
-    @GetMapping(value = "/lookup/{pubkeyOrUid}" )
+    @GetMapping(value = "/lookup/{pubkeyOrUid}")
     public WotLookup lookup(@PathVariable("pubkeyOrUid") String pubkeyOrUid) {
 
         LOG.info("Entering /wot/lookup/{pubkeyOrUid= " + pubkeyOrUid + "}");
@@ -142,20 +142,20 @@ public class WotService {
 
 
     @CrossOrigin(origins = "*")
-    @GetMapping(value = "/members" )
+    @GetMapping(value = "/members")
     public MembersDTO members() {
         LOG.info("Entering /wot/members");
-        return new MembersDTO (iRepo.members());
+        return new MembersDTO(iRepo.members());
     }
 
     @Data
     @AllArgsConstructor
-    public class MembersDTO{
+    public class MembersDTO {
         List<MemberVO> results;
     }
 
 
-    @PostMapping(value = "/add" )
+    @PostMapping(value = "/add")
     ResponseEntity<Identity> add(HttpServletRequest request, HttpServletResponse response) {
 
         LOG.info("POSTING /wot/add ..." + request.getRemoteHost());
@@ -205,7 +205,6 @@ public class WotService {
 
         LOG.info("POSTING /wot/revoke ...");
         String remote = request.getRemoteHost();
-
 
         try {
             BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));

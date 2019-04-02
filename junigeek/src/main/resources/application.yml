@@ -80,7 +80,7 @@ spring:
 ## =========================== Web Server Configs ===========================
 ##
 server:
-  port: 8443
+  port: 443
   ssl:
     key-store: ../core/keystore.p12
     key-store-password: ouvresToi
@@ -131,15 +131,15 @@ graphiql:
 ##
 
 
-    #logging:
-    #  path: /var/log/juniter
-    ##  file: juniter.log
-    #  level:
-    #    root: info
-    #    org.springframework.web: info
-    #    org.hibernate.SQL: warn
-    #    juniter: info
-    #hibernate.show_sql: false
+    logging:
+      path: /var/log/juniter
+    #  file: juniter.log
+      level:
+        root: info
+        org.springframework.web: info
+        org.hibernate.SQL: warn
+        juniter: info
+    hibernate.show_sql: false
 
 management.endpoint.metrics.enabled: true
 
