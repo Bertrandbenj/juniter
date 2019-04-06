@@ -26,10 +26,8 @@ import java.util.stream.Stream;
  * @author BnimajneB
  */
 @Service
-public class RAMIndex implements GlobalValid, Serializable {
+public class RAMIndex implements GlobalValid {
 
-
-    private static final long serialVersionUID = 1321654987;
     private static final Logger LOG = LogManager.getLogger();
 
     private List<CINDEX> indexCG = Lists.newArrayList();
@@ -101,6 +99,11 @@ public class RAMIndex implements GlobalValid, Serializable {
     @Override
     public Stream<SINDEX> indexSGlobal() {
         return indexSG.stream();
+    }
+
+    @Override
+    public Integer certStock(String issuer) {
+        return 0;
     }
 
     @Override

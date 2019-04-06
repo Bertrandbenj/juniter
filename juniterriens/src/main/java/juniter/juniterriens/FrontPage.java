@@ -4,13 +4,16 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import juniter.core.model.dbo.DBBlock;
 import juniter.juniterriens.include.AbstractJuniterFX;
 import juniter.juniterriens.include.Bindings;
 import juniter.repository.jpa.block.BlockRepository;
+import juniter.repository.jpa.block.TxRepository;
 import juniter.repository.jpa.index.BINDEXRepository;
 import juniter.service.bma.loader.BlockLoader;
 import juniter.service.bma.loader.MissingBlocksLoader;
@@ -21,6 +24,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.ResourceBundle;
 
 /**
@@ -31,6 +36,23 @@ import java.util.ResourceBundle;
 public class FrontPage extends AbstractJuniterFX implements Initializable {
 
     private static final Logger LOG = LogManager.getLogger();
+    @FXML
+    private Label size;
+
+    @FXML
+    private Label number;
+
+    @FXML
+    private Label median;
+
+    @FXML
+    private Label m;
+
+    @FXML
+    private Label n;
+
+    @FXML
+    private Label test;
 
 
     //                                  LOADING  SECTION
@@ -49,10 +71,9 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
     @Autowired
     private BlockRepository blockRepo;
 
-    ResourceBundle translate ;
+    private ResourceBundle translate;
 
-   private Scene scene;
-
+    private Scene scene;
 
 
     public FrontPage() {
@@ -73,7 +94,6 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
     public void loadMissing() {
         mBlockLoader.checkMissingBlocks();
     }
-
 
 
     @Override
@@ -97,22 +117,40 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
     }
 
 
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
 
         loadBar.progressProperty().bind(Bindings.currentDBBlock.divide(Bindings.maxPeerBlock));
         Bindings.maxBindex.setValue(blockRepo.currentBlockNumber());
         Bindings.currentDBBlock.setValue(blockRepo.count());
         Bindings.currentBindex.setValue(bRepo.head().map(b -> b.number).orElse(0));
         Bindings.maxDBBlock.setValue(blockRepo.currentBlockNumber());
-        Bindings.currenBlock.setValue(blockRepo.current().orElseGet(()->blockLoader.fetchAndSaveBlock("/block/0")));
+        Bindings.currenBlock.setValue(blockRepo.current().orElseGet(() -> blockLoader.fetchAndSaveBlock("current")));
+
+        m.setText(Bindings.currenBlock.get().getMonetaryMass() + "");
+
+
+        var mc = Bindings.currenBlock.get().getMembersCount();
+        var h24 = blockRepo.block(Bindings.currenBlock.get().getNumber() - 288)
+                .map(DBBlock::getMembersCount)
+                .map(x -> mc - x)
+                .orElse(0);
+
+        n.setText(mc + " " + (h24 == 0 ? "" : (h24 > 0 ? "+" : "-") + h24));
+
+        Date date = new Date(Bindings.currenBlock.get().getMedianTime() * 1000L);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        sdf.setTimeZone(java.util.TimeZone.getTimeZone("GMT+1"));
+        String formattedDate = sdf.format(date);
+        median.setText(formattedDate);
+        size.setText(Bindings.currenBlock.get().getSize() + "");
+        number.setText(Bindings.currenBlock.get().getNumber() + "");
+       // test.setText(txRepo.transactionsOfIssuer_("4weakHxDBMJG9NShULG1g786eeGh7wwntMeLZBDhJFni").get(0).getWrittenOn()+"");
 
     }
 
 
 
-
-
+    @Autowired
+    TxRepository txRepo;
 }

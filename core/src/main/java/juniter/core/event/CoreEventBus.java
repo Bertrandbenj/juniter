@@ -37,4 +37,5 @@ public interface CoreEventBus {
     void sendEventMemoryLog(String log);
 
 
+    boolean isIndexing();
 }

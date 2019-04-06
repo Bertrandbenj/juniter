@@ -13,13 +13,13 @@ import java.util.function.BinaryOperator;
 @Entity
 @ToString
 @Table(name = "MINDEX", schema = "public", indexes = {
-        @Index(name = "ind_mop", columnList = "op"),
-        @Index(name = "ind_mpub", columnList = "pub"),
-        @Index(name = "ind_mwrittenOn", columnList = "writtenOn"),
-        @Index(name = "ind_mwritten_on", columnList = "written_on"),
-        @Index(name = "ind_mexpires_on", columnList = "expires_on"),
-        @Index(name = "ind_mrevoked_on", columnList = "revoked_on"),
-        @Index(name = "ind_mcreated_on", columnList = "created_on")
+        @Index( columnList = "op"),
+        @Index(  columnList = "pub"),
+        @Index(  columnList = "writtenOn"),
+        @Index(  columnList = "written_on"),
+        @Index(  columnList = "expires_on"),
+        @Index(  columnList = "revoked_on"),
+        @Index(  columnList = "created_on")
 })
 @JsonIgnoreProperties(ignoreUnknown = true)
 //@IdClass(BStamp.class)

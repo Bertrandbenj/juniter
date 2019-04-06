@@ -3,6 +3,7 @@ package juniter.core.model.dbo.wot;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.DUPDocument;
+import juniter.core.model.dbo.DenormalizeWrittenStamp;
 import juniter.core.utils.Constants;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,7 +26,7 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 @Table(name = "wot_identity", schema = "public")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Identity implements DUPDocument, Comparable<Identity> {
+public class Identity implements DUPDocument, Comparable<Identity>, DenormalizeWrittenStamp {
     private static final Logger LOG = LogManager.getLogger();
 
     @Id
@@ -33,7 +34,6 @@ public class Identity implements DUPDocument, Comparable<Identity> {
     private Long id;
 
     @Size(max = 45)
-    @NonNull
     @Pattern(regexp = Constants.Regex.PUBKEY)
     private String pubkey;
 
@@ -43,18 +43,27 @@ public class Identity implements DUPDocument, Comparable<Identity> {
     private String signature;
 
     @Valid
-    @AttributeOverride(name = "buid", column = @Column(name = "createdOn"))
-    private BStamp createdOn;
+    @AttributeOverrides({
+            @AttributeOverride(name = "number", column = @Column(name = "signedOn")),
+            @AttributeOverride(name = "hash", column = @Column(name = "signedHash")),
+            @AttributeOverride(name = "medianTime", column = @Column(name = "signedTime"))
+    })
+    private BStamp signed;
 
     private String uid;
 
+    private Integer writtenOn;
+
+    private String writtenHash;
+
+    private Long writtenTime;
 
     public Identity(String identity) {
         LOG.debug("Parsing Identity... " + identity);
         final var vals = identity.split(":");
         pubkey = vals[0];
         signature = vals[1];
-        createdOn = new BStamp(vals[2]);
+        signed = new BStamp(vals[2]);
         uid = vals[3];
     }
 
@@ -65,7 +74,7 @@ public class Identity implements DUPDocument, Comparable<Identity> {
 
 
     public String toDUP() {
-        return pubkey + ":" + signature + ":" + createdOn + ":" + uid;
+        return pubkey + ":" + signature + ":" + signed + ":" + uid;
     }
 
     @Override

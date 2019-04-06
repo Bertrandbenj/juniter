@@ -60,7 +60,7 @@ public class GraphvizService {
 
     public enum GraphOutput {
         certs("certs"), //
-        block("block"), //
+        block("node"), //
         tx("tx");
 
         private final String gvOutput;
@@ -252,7 +252,7 @@ public class GraphvizService {
 
             sub.append("\t}");
 
-            // link it to its details block
+            // link it to its details node
             // sub += "\n\t"+ prefix + " -> " + prefix + "hash [lhead=cluster_" +
             // b.getNumber() + "];\n";
 
@@ -289,7 +289,7 @@ public class GraphvizService {
         res += "\n\n\t";
 
 //		// print the edges
-//		res += IntStream.range(blockNumber - RANGE, blockNumber + RANGE + 1) //
+//		res += IntStream.range(signedOn - RANGE, signedOn + RANGE + 1) //
 //				.mapToObj(i -> "_" + i + " -> _" + i + "hash [weight=0];") //
 //				.collect(joining("\n\t"));
 
@@ -345,14 +345,14 @@ public class GraphvizService {
         // print edges
         final var allNodes = Stream.concat(certified.stream(), certifier.stream());
         res += allNodes.map(cert -> "_" + cert.getCertified() + " -> " + "__" + cert.getCertifier()
-                + " [URL=\"/graphviz/svg/block/" + cert.getBlockNumber() + "\"]").collect(joining(";\n\t"));
+                + " [URL=\"/graphviz/svg/block/" + cert.getSignedOn() + "\"]").collect(joining(";\n\t"));
 
         return res + "\n}";
     }
 
     /**
      * Generic Graphviz service of the form
-     * /graphviz/{fileType=[dot|svg]}/{output=[certs|block|tx]}/{identifier}
+     * /graphviz/{fileType=[dot|svg]}/{output=[certs|node|tx]}/{identifier}
      *
      * @param request    :
      * @param response   :

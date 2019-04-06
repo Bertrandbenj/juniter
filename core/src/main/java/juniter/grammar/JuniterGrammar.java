@@ -102,8 +102,8 @@ public class JuniterGrammar extends JuniterParserBaseVisitor<Document> implement
 				ctx.pubkey().getText(),
 				ctx.block().buid().getText()
 		);
-		//final var bnum = Integer.parseInt(ctx.block().buid().bnum().getText());
-		//final var bhash = ctx.block().buid().bhash().getText();
+		//final var bnum = Integer.parseInt(ctx.node().buid().bnum().getText());
+		//final var bhash = ctx.node().buid().bhash().getText();
 	}
 
 }

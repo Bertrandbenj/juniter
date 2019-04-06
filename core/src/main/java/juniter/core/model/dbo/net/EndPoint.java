@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import juniter.core.utils.Constants;
 import juniter.core.validation.NetValid;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,8 +20,7 @@ import javax.validation.constraints.Size;
  *
  */
 @Entity
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @Table(name = "endpoints", schema = "public")
 @JsonIgnoreProperties(ignoreUnknown = true)

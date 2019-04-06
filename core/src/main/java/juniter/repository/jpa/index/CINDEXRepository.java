@@ -26,7 +26,7 @@ public interface CINDEXRepository extends JpaRepository<CINDEX, Long> {
     List<CINDEX> findAll();
 
     @Query("select t from CINDEX t WHERE receiver = ?1")
-    public List<CINDEX> receivedBy(String pubkey);
+    List<CINDEX> receivedBy(String pubkey);
 
     @Query("select t from CINDEX t WHERE issuer = ?1")
     List<CINDEX> issuedBy(String pubkey);
@@ -36,6 +36,9 @@ public interface CINDEXRepository extends JpaRepository<CINDEX, Long> {
 
     @Query(value = "SELECT c from CINDEX c WHERE receiver LIKE CONCAT('%',?1,'%') OR issuer LIKE CONCAT('%',?1,'%')")
     List<CINDEX> search(String search);
+
+    @Query(value = "SELECT COUNT(receiver) from CINDEX c WHERE issuer = ?1 AND expired_on = 0 ")
+    Integer certStock(String issuer);
 
     @Transactional
     @Modifying

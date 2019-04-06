@@ -1,6 +1,5 @@
 package juniter.juniterriens.include;
 
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
@@ -9,10 +8,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import juniter.core.crypto.SecretBox;
 import juniter.grammar.*;
-import juniter.repository.jpa.block.BlockRepository;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
+import juniter.juniterriens.Notary;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +22,6 @@ import java.util.ResourceBundle;
 @Component
 public class WotPanel implements Initializable {
 
-    private static final Logger LOG = LogManager.getLogger();
 
 
     @FXML
@@ -89,9 +84,6 @@ public class WotPanel implements Initializable {
     private TextField idtyUniqueIDRev;
 
 
-    @Autowired
-    BlockRepository blockRepo;
-
     private Document doc;
 
 
@@ -102,6 +94,8 @@ public class WotPanel implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
+        version.setText(Notary.PROTOCOL_VERSION+"");
+
         var b = Bindings.currenBlock.get();
         timestamp.setText(b.bstamp());
         block.setText(b.bstamp());
@@ -110,7 +104,7 @@ public class WotPanel implements Initializable {
         idtyTimestamp.setText(b.bstamp());
 
 
-        switchIdty(null);
+        switchIdty();
 
     }
 
@@ -188,7 +182,7 @@ public class WotPanel implements Initializable {
     }
 
     @FXML
-    public void switchIdty(ActionEvent actionEvent) {
+    public void switchIdty( ) {
         boxMembership.setPrefWidth(0);
         boxCertification.setPrefWidth(0);
         boxIdty.setPrefWidth(500);
@@ -201,7 +195,7 @@ public class WotPanel implements Initializable {
     }
 
     @FXML
-    public void switchMembership(ActionEvent actionEvent) {
+    public void switchMembership( ) {
         boxMembership.setPrefWidth(500);
         boxCertification.setPrefWidth(0);
         boxIdty.setPrefWidth(0);
@@ -216,7 +210,7 @@ public class WotPanel implements Initializable {
     }
 
     @FXML
-    public void switchCertif(ActionEvent actionEvent) {
+    public void switchCertif( ) {
         boxMembership.setPrefWidth(0);
         boxCertification.setPrefWidth(500);
         boxIdty.setPrefWidth(0);
@@ -230,7 +224,7 @@ public class WotPanel implements Initializable {
     }
 
     @FXML
-    public void switchRevoc(ActionEvent actionEvent) {
+    public void switchRevoc( ) {
         boxMembership.setPrefWidth(0);
         boxCertification.setPrefWidth(0);
         boxIdty.setPrefWidth(0);

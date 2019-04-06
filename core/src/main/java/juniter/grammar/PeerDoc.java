@@ -1,11 +1,11 @@
 package juniter.grammar;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 public class PeerDoc implements Document {
 
@@ -30,7 +30,7 @@ public class PeerDoc implements Document {
 				"Type: Peer\n" + //
 				"Currency: " + currency + "\n" + //
 				"PublicKey: " + pubkey + "\n" + //
-				"block: " + block + "\n" + //
+				"node: " + block + "\n" + //
 				"Endpoints:\n";
 	}
 

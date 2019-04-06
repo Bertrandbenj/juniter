@@ -16,7 +16,7 @@
            <children>
                <VBox>
                    <children>
-                       <VBox fx:id="identityForm">
+                       <VBox >
                            <children>
                                <HBox spacing="20.0">
                                    <children>

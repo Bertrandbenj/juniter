@@ -3,11 +3,11 @@ package juniter.core.model.dbo.wot;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.DUPDocument;
+import juniter.core.model.dbo.DenormalizeSignatureStamp;
+import juniter.core.model.dbo.DenormalizeWrittenStamp;
 import juniter.core.utils.Constants;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.lang.NonNull;
 
 import javax.persistence.*;
@@ -18,14 +18,15 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @Table(name = "wot_member", schema = "public", indexes = {
-        @Index(name = "ind_mepub", columnList = "pubkey"),
-        @Index(name = "ind_meuid", columnList = "uid")
+        @Index(columnList = "pubkey"),
+        @Index(columnList = "uid"),
+        @Index(columnList = "writtenOn")
 })
-@Inheritance(strategy= InheritanceType.JOINED)
+@Inheritance(strategy = InheritanceType.JOINED)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Member implements DUPDocument, Serializable, Comparable<Member> {
-    private static final long serialVersionUID = -9093525414764126719L;
+public class Member implements DUPDocument, Serializable, Comparable<Member>, DenormalizeWrittenStamp {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
@@ -35,7 +36,11 @@ public class Member implements DUPDocument, Serializable, Comparable<Member> {
 
     protected String signature;
 
-    protected String createdOn;
+    protected Integer signedOn;
+
+    protected String signedHash;
+
+    protected Long signedTime;
 
     protected String i_block_uid;
 
@@ -45,10 +50,13 @@ public class Member implements DUPDocument, Serializable, Comparable<Member> {
 
     protected String revocation;
 
-//    protected String type;
+    protected Boolean excluded;
 
-    protected Boolean excluded ;
+    protected Integer writtenOn;
 
+    protected String writtenHash;
+
+    protected Long writtenTime;
 
     @Override
     public int compareTo(@NonNull Member o) {
@@ -57,15 +65,19 @@ public class Member implements DUPDocument, Serializable, Comparable<Member> {
 
     @Override
     public String toDUP() {
-        return pubkey + ":" + signature + ":" + createdOn + ":" + i_block_uid + ":" + uid;
+        return pubkey + ":" + signature + ":" + signedOn + "-" + signedHash + ":" + i_block_uid + ":" + uid;
     }
 
     public BStamp createdOn() {
-        return new BStamp(createdOn);
+        return new BStamp(signedHash);
     }
+
+
+
     public BStamp idtyOn() {
         return new BStamp(i_block_uid);
     }
+
     public BStamp revokedOn() {
         return new BStamp(revoked_on);
     }
@@ -74,8 +86,6 @@ public class Member implements DUPDocument, Serializable, Comparable<Member> {
     public String toString() {
         return toDUP();
     }
-
-
 
 
 }

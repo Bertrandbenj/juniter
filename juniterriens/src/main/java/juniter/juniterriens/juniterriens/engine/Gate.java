@@ -21,6 +21,7 @@ public class Gate extends ImageView implements Obstacle {
 
     public Gate(Room room, double x, double y) {
         image = new Image("/juniterriens/game/img/gate.png");
+        setPosition(x, y);
     }
 
 

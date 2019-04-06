@@ -1,6 +1,6 @@
 package juniter.repository.jpa.index;
 
-import juniter.core.model.dto.MemberVO;
+import juniter.core.model.dto.wot.MemberDTO;
 import juniter.core.model.dbo.index.IINDEX;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -20,8 +20,8 @@ public interface IINDEXRepository extends JpaRepository<IINDEX, Long> {
     List<IINDEX> findAll();
 
 
-    @Query(value = "SELECT new juniter.core.model.dto.MemberVO(pub, uid) FROM IINDEX i WHERE i.member IS NOT NULL AND i.member IS TRUE")
-    List<MemberVO> members();
+    @Query(value = "SELECT new juniter.core.model.dto.wot.MemberDTO(pub, uid) FROM IINDEX i WHERE i.member IS NOT NULL AND i.member IS TRUE")
+    List<MemberDTO> members();
 
     @Override
     long count();

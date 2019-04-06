@@ -12,6 +12,7 @@ import javafx.scene.layout.VBox;
 import juniter.core.crypto.SecretBox;
 import juniter.core.model.dbo.net.EndPoint;
 import juniter.core.model.dbo.net.Peer;
+import juniter.juniterriens.Notary;
 import juniter.repository.jpa.block.BlockRepository;
 import juniter.service.bma.NetworkService;
 import org.apache.logging.log4j.LogManager;
@@ -33,7 +34,7 @@ public class PeerPanel implements Initializable {
 
 
     @FXML
-    private ComboBox typeCombo;
+    private ComboBox<String> typeCombo;
 
     @FXML
     private TextField salt;
@@ -71,12 +72,9 @@ public class PeerPanel implements Initializable {
     @FXML
     private Label pubkey;
 
-
     @Autowired
-    NetworkService netService;
+    private NetworkService netService;
 
-    @Autowired
-    BlockRepository blockRepository;
 
     private Peer peer;
 
@@ -125,8 +123,7 @@ public class PeerPanel implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
-
+        version.setText(Notary.PROTOCOL_VERSION+"");
         typeCombo.getItems().setAll("WS2P", "BMAS", "BASIC_MERKLED_API");
 
         salt.setOnAction(e -> {
@@ -140,7 +137,7 @@ public class PeerPanel implements Initializable {
 
         typeCombo.getSelectionModel().selectedItemProperty()
                 .addListener((observable, oldValue, newValue) -> {
-                    selectedEPType = newValue.toString();
+                    selectedEPType = newValue;
                     sessid.setVisible(selectedEPType.equals("WS2P"));
                 });
 
@@ -149,18 +146,20 @@ public class PeerPanel implements Initializable {
     }
 
 
-    void presetPeer() {
-        peer = netService.endPointPeer(Bindings.currentBindex.intValue());
+   private void presetPeer() {
+
+        peer = netService.endPointPeer(Bindings.currenBlock.get().getNumber());
         sessid.setText(getRandomHexString(8));
         block.setText(peer.getBlock());
         pubkey.setText(peer.getPubkey());
         version.setText(peer.getVersion() + "");
         currency.setText(peer.getCurrency());
+
     }
 
     private String getRandomHexString(int numchars) {
         Random r = new Random();
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         while (sb.length() < numchars) {
             sb.append(Integer.toHexString(r.nextInt()));
         }

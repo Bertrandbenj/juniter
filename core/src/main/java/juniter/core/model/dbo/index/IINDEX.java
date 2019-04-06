@@ -9,15 +9,13 @@ import java.util.function.BinaryOperator;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode
-@ToString
 @Entity
 @Table(name = "IINDEX", schema = "public", indexes = {
-        @Index(name = "ind_iuid", columnList = "uid" ),
-        @Index(name = "ind_iop", columnList = "op" ),
-        @Index(name = "ind_ipub", columnList = "pub" ),
-        @Index(name = "ind_iwritten_on", columnList = "written_on" ),
-        @Index(name = "ind_iwrittenOn", columnList = "writtenOn" ),
+        @Index ( columnList = "uid" ),
+        @Index(  columnList = "op" ),
+        @Index(  columnList = "pub" ),
+        @Index(  columnList = "written_on" ),
+        @Index(  columnList = "writtenOn" ),
 })
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class IINDEX   {

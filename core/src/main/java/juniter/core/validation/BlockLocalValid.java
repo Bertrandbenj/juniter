@@ -18,7 +18,7 @@ public interface BlockLocalValid extends LocalValid {
      * Exception safe validation to use as boolean
      *
      * @param block to completeGlobalScope
-     * @return true if the block is valid
+     * @return true if the node is valid
      */
     default boolean checkBlockIsLocalValid(DBBlock block) {
 
@@ -26,7 +26,7 @@ public interface BlockLocalValid extends LocalValid {
             assertBlockLocalValid(block, true);
             return true;
         } catch (final AssertionError ea) {
-            System.out.println("checkBlockIsLocalValid At block " + block.getNumber() +" - "+ ea.getMessage());
+            System.out.println("checkBlockIsLocalValid At node " + block.getNumber() +" - "+ ea.getMessage());
         }
 
         return false;
@@ -48,7 +48,7 @@ public interface BlockLocalValid extends LocalValid {
         checkParameters(block);
         if (checkPowAndSignature)
             checkProofOfWork(block);
-        //checkInnerHash(block);
+        //checkInnerHash(node);
         checkPreviousHash(block);
         checkPreviousIssuer(block);
         checkUnitBase(block);
@@ -107,9 +107,9 @@ public interface BlockLocalValid extends LocalValid {
 
     private void checkParameters(DBBlock block) {
         if(block.getNumber()==0 ){
-            assert  block.getParameters() != null : "Chain Parameters MUST be present on block 0 ";
+            assert  block.getParameters() != null : "Chain Parameters MUST be present on node 0 ";
         }else{
-            assert  block.getParameters() == null : "Chain Parameters MUST be null when block > 0 ";
+            assert  block.getParameters() == null : "Chain Parameters MUST be null when node > 0 ";
         }
     }
 
@@ -232,7 +232,7 @@ public interface BlockLocalValid extends LocalValid {
      * maxTxChainingDepth <= 5
      * </pre>
      *
-     * @param block the input block
+     * @param block the input node
      */
     private void checkMaxTransactionChainingDepth(DBBlock block) {
 

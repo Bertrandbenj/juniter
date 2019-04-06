@@ -19,8 +19,7 @@ public class ResponseWotPending  {
 
 	class Identities {
 
-		@Getter
-		@Setter
+		@Data
 		@NoArgsConstructor
 		class Idty {
 
@@ -45,8 +44,7 @@ public class ResponseWotPending  {
 				}
 			}
 
-			@Getter
-			@Setter
+			@Data
 			@NoArgsConstructor
 			class PendingCerts {
 				private String from;
@@ -69,8 +67,7 @@ public class ResponseWotPending  {
 
 			}
 
-			@Getter
-			@Setter
+			@Data
 			@NoArgsConstructor
 			class PendingMembs {
 				private String membership;

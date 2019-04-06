@@ -59,7 +59,7 @@ public class WebMVCITest implements BlockLocalValid {
 
     private void dirtyReload(Integer bnumber) {
         try {
-            LOG.error("Deleting to reload block #" + bnumber);
+            LOG.error("Deleting to reload node #" + bnumber);
 
             mvc.perform(MockMvcRequestBuilders
                     .get("/blockchain/deleteBlock/" + bnumber))
@@ -114,7 +114,7 @@ public class WebMVCITest implements BlockLocalValid {
         final var perBlock = delta / current;
         final var estimate = current * perBlock;
         LOG.info(", elapsed time: " + TimeUtils.format(delta) //
-                + " which is " + perBlock + " ms per block validated, " //
+                + " which is " + perBlock + " ms per node validated, " //
                 + "estimating: " + TimeUtils.format(estimate));
 
         LOG.info("blocks erroring :" + erroringBlock.stream().collect(Collectors.joining("\n")));

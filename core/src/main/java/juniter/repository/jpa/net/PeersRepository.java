@@ -27,6 +27,6 @@ public interface PeersRepository extends JpaRepository<Peer, Long> {
 	@Query("select p from Peer p")
 	Stream<Peer> streamAllPeers();
 
-	@Query("select p from Peer p where block = ?1 ")
+	@Query("select p from Peer p where node = ?1 ")
 	Stream<Peer> peerWithBlock(String s);
 }

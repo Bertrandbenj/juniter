@@ -57,7 +57,7 @@ This is a *very important information* as every document is subject to hashes, a
 
 #### Numbering
 
-[Block](#block) numbering starts from `0`. That is, first block is `BLOCK#0`.
+[Block](#block) numbering starts from `0`. That is, first node is `BLOCK#0`.
 
 #### Block identifiers
 
@@ -65,15 +65,15 @@ There are 2 kinds of [Block](#block) identifiers:
 
 ##### `BLOCK_ID`
 
-It is the number of the block. Its format is `INTEGER`, so it is a positive or zero integer.
+It is the number of the node. Its format is `INTEGER`, so it is a positive or zero integer.
 
 ##### `BLOCK_UID`
-It is the concatenation of the `BLOCK_ID` of a block and hash. Its format is `BLOCK_ID-HASH`.
+It is the concatenation of the `BLOCK_ID` of a node and hash. Its format is `BLOCK_ID-HASH`.
 
 ##### Examples
 
-The block ID of the root block is `0`. Its UID *might be* `0-883228A23F8A75B342E912DF439738450AE94F5D`.
-The block ID of the block#433 is `433`. Its UID *might be* `433-FB11681FC1B3E36C9B7A74F4DDE2D07EC2637957`.
+The node ID of the root node is `0`. Its UID *might be* `0-883228A23F8A75B342E912DF439738450AE94F5D`.
+The node ID of the node#433 is `433`. Its UID *might be* `433-FB11681FC1B3E36C9B7A74F4DDE2D07EC2637957`.
 
 > Note that it says "might be" because the hash is not known in advance.
 
@@ -145,7 +145,7 @@ UniqueID: USER_ID
 Timestamp: BLOCK_UID
 ```
 
-Here, `USER_ID` has to be replaced with a valid identifier, `PUBLIC_KEY` with a valid public key and `BLOCK_UID` with a valid block unique ID. This document **is what signature is based upon**.
+Here, `USER_ID` has to be replaced with a valid identifier, `PUBLIC_KEY` with a valid public key and `BLOCK_UID` with a valid node unique ID. This document **is what signature is based upon**.
 
 The whole identity document is then:
 
@@ -271,7 +271,7 @@ CERTIFIER_SIGNATURE
 
 Where:
 
-* `BLOCK_UID` refers to a block unique ID.
+* `BLOCK_UID` refers to a node unique ID.
 * `CERTIFIER_SIGNATURE` is the signature of the *certifier*.
 
 #### Inline format
@@ -361,7 +361,7 @@ A [Membership](#membership) is to be considered having valid format if:
 * `Membership` matches either `IN` or `OUT` value
 * `Block` starts with an integer value, followed by a dash and an uppercased SHA1 string
 * `UserID` is a non-empty string
-* `CertTS` is a valid block UID
+* `CertTS` is a valid node UID
 
 ### Transaction
 
@@ -426,7 +426,7 @@ A Transaction structure is considered *valid* if:
 * Field `Version` equals `2` or `3`.
 * Field `Type` equals `Transaction`.
 * Field `Currency` is not empty.
-* Field `Blockstamp` is a block UID
+* Field `Blockstamp` is a node UID
 * Field `Locktime` is an integer
 * Field `Issuers` is a multiline field whose lines are public keys.
 * Field `Inputs` is a multiline field whose lines match either:
@@ -663,7 +663,7 @@ Here `XHX(1872767826647264)` returns TRUE if it exists `XHX(8AFC8DF633FC158F9DB4
 
 #### Example 1
 
-Key `HsLShA` sending 25 coins to key `BYfWYF` using 1 source transaction written in block #3.
+Key `HsLShA` sending 25 coins to key `BYfWYF` using 1 source transaction written in node #3.
 
 ```yml
 Version: 10
@@ -689,7 +689,7 @@ Signatures (fake here):
 
 #### Example 2
 
-Key `HsLShA` sending 30 coins (base 2) to key `BYfWYF` using 2 sources transaction written in blocks #65 and #77 + 1 UD from block #88.
+Key `HsLShA` sending 30 coins (base 2) to key `BYfWYF` using 2 sources transaction written in blocks #65 and #77 + 1 UD from node #88.
 
 ```yml
 Version: 10
@@ -718,7 +718,7 @@ Signatures (fake here):
 
 #### Example 3
 
-Key `HsLShA`,  `CYYjHs` and `9WYHTa` sending 235 coins to key `BYfWYF` using 4 sources transaction + 2 UD from same block #46.
+Key `HsLShA`,  `CYYjHs` and `9WYHTa` sending 235 coins to key `BYfWYF` using 4 sources transaction + 2 UD from same node #46.
 
 ```yml
 Version: 10
@@ -769,7 +769,7 @@ Unlock: no unlocking function.
 
 ###### Condition
 
-`CLVT(TIMESTAMP)` returns true if and only if the transaction including block's `MedianTime >= TIMESTAMP`.
+`CLVT(TIMESTAMP)` returns true if and only if the transaction including node's `MedianTime >= TIMESTAMP`.
 
 ###### Description
 
@@ -785,7 +785,7 @@ Outputs
 25:2:CLTV(1489677041)
 ```
 
-So here, the `25` units can be spent *exclusively* in a block whose `MedianTime >= 1489677041`
+So here, the `25` units can be spent *exclusively* in a node whose `MedianTime >= 1489677041`
 
 `CLTV`'s parameter must be an integer with a length between `1` and `10` chars.
 
@@ -799,11 +799,11 @@ Lock:
 
 Unlock: no unlocking function.
 
-We define `TxTime` as the `MedianTime` of the block referenced by the transaction's `Blockstamp` field.
+We define `TxTime` as the `MedianTime` of the node referenced by the transaction's `Blockstamp` field.
 
 ###### Condition
 
-`CSV(DELAY)` returns true if and only if the transaction including block's `MedianTime - TxTime >= DELAY`.
+`CSV(DELAY)` returns true if and only if the transaction including node's `MedianTime - TxTime >= DELAY`.
 
 ###### Description
 
@@ -821,7 +821,7 @@ Outputs
 25:2:CSV(3600)
 ```
 
-Then the `25` units can be spent *exclusively* in a block whose `MedianTime - TxTime >= 3600`.
+Then the `25` units can be spent *exclusively* in a node whose `MedianTime - TxTime >= 3600`.
 
 `CSV`'s parameter must be an integer with a length between `1` and `8` chars.
 
@@ -984,16 +984,16 @@ BlockSize             | Hash from `InnerHash: ` to `SIGNATURE`            | Virt
 
 ##### BlockSize
 
-The block size is defined as the number of lines in multiline fields (`Identities`, `Joiners`, `Actives`, `Leavers`, `Revoked`, `Certifications`, `Transactions`) **except** `Excluded` field.
+The node size is defined as the number of lines in multiline fields (`Identities`, `Joiners`, `Actives`, `Leavers`, `Revoked`, `Certifications`, `Transactions`) **except** `Excluded` field.
 
 For example:
 
-* 1 new identity + 1 joiner + 2 certifications = 4 lines sized block
-* 1 new identity + 1 joiner + 2 certifications + 5 lines transaction = 9 lines sized block
+* 1 new identity + 1 joiner + 2 certifications = 4 lines sized node
+* 1 new identity + 1 joiner + 2 certifications + 5 lines transaction = 9 lines sized node
 
 #### Coherence
 
-To be valid, a block must match the following rules:
+To be valid, a node must match the following rules:
 
 ##### Format
 
@@ -1004,13 +1004,13 @@ To be valid, a block must match the following rules:
 * `Identities` is a multiline field composed for each line of:
   * `PUBLIC_KEY` : a [Public key](#public-key)
   * `SIGNATURE` : a [Signature](#signature)
-  * `BLOCK_UID` : a block UID
+  * `BLOCK_UID` : a node UID
   * `USER_ID` : an identifier
 * `Joiners`, `Actives` and `Leavers` are multiline fields composed for each line of:
   * `PUBLIC_KEY` : a [Public key](#public-key)
   * `SIGNATURE` : a [Signature](#signature)
-  * `M_BLOCK_UID` : a block UID
-  * `I_BLOCK_UID` : a block UID
+  * `M_BLOCK_UID` : a node UID
+  * `I_BLOCK_UID` : a node UID
   * `USER_ID` : an identifier
 * `Revoked` is a multiline field composed for each line of:
   * `SIGNATURE` : a [Signature](#signature)
@@ -1169,7 +1169,7 @@ A Block can be accepted only if it respects a set of rules, here divided in 2 pa
 
 #### Local validation
 
-Local validation verifies the coherence of a well-formatted block, without any other context than the block itself.
+Local validation verifies the coherence of a well-formatted node, without any other context than the node itself.
 
 ##### Version
 
@@ -1217,28 +1217,28 @@ If HEAD.number == 0, HEAD.dividend must equal `null`.
   * If `UniversalDividend` field is present, `UnitBase` must be present too.
 * Block V3:
   * The field is always present.
-  * For root block, `UnitBase` must equal `0`.
+  * For root node, `UnitBase` must equal `0`.
 
 ##### Signature
 
-* A block must have a valid signature over the content from `Hash: ` to `Nonce: NONCE\n`, where the associated public key is the block's `Issuer` field.
+* A node must have a valid signature over the content from `Hash: ` to `Nonce: NONCE\n`, where the associated public key is the node's `Issuer` field.
 
 ##### Dates
 
-* A block must have its `Time` field be between [`MedianTime` ; `MedianTime` + `maxAcceleration`].
-* Root block's `Time` & `MedianTime` must be equal.
+* A node must have its `Time` field be between [`MedianTime` ; `MedianTime` + `maxAcceleration`].
+* Root node's `Time` & `MedianTime` must be equal.
 
 ##### Identities
 
-A block cannot contain identities whose signature does not match the identity's content
+A node cannot contain identities whose signature does not match the identity's content
 
 ##### Memberships (Joiners, Actives, Leavers)
 
-A block cannot contain memberships whose signature does not match the membership's content
+A node cannot contain memberships whose signature does not match the membership's content
 
 ##### Revoked
 
-A block cannot contain revocations whose signature does not match the revocation's content
+A node cannot contain revocations whose signature does not match the revocation's content
 
 ##### Transactions
 
@@ -1433,13 +1433,13 @@ Each transaction output produces 1 new entry:
 * The local IINDEX has a unicity constraint on `PUBLIC_KEY`.
 * Each local IINDEX `op = 'CREATE'` operation must match a single local MINDEX `op = 'CREATE', pub = PUBLIC_KEY` operation.
 
-> Functionally: UserID and public key must be unique in a block, an each new identity must have an opt-in document attached.
+> Functionally: UserID and public key must be unique in a node, an each new identity must have an opt-in document attached.
 
 ###### Membership unicity
 
 * The local MINDEX has a unicity constraint on `PUBLIC_KEY`
 
-> Functionally: a user has only 1 status change allowed per block.
+> Functionally: a user has only 1 status change allowed per node.
 
 ###### Revocation implies exclusion
 
@@ -1450,14 +1450,14 @@ Each transaction output produces 1 new entry:
 ###### Certifications
 
 * The local CINDEX has a unicity constraint on `PUBKEY_FROM, PUBKEY_TO`
-* The local CINDEX has a unicity constraint on `PUBKEY_FROM`, except for block#0
+* The local CINDEX has a unicity constraint on `PUBKEY_FROM`, except for node#0
 * The local CINDEX must not match a MINDEX operation on `PUBLIC_KEY = PUBKEY_FROM, member = false` or `PUBLIC_KEY = PUBKEY_FROM, leaving = true`
 
 > Functionally:
 >
-> * a block cannot have 2 identical certifications (A -> B)
-> * a block cannot have 2 certifications from a same public key, except in block#0
-> * a block cannot have a certification to a leaver or an excluded
+> * a node cannot have 2 identical certifications (A -> B)
+> * a node cannot have 2 certifications from a same public key, except in node#0
+> * a node cannot have a certification to a leaver or an excluded
 
 ###### Sources
 
@@ -1465,10 +1465,10 @@ Each transaction output produces 1 new entry:
 * The local SINDEX has a unicity constraint on `CREATE, IDENTIFIER, POS`
 
 > Functionally: 
-> * a same source cannot be consumed twice by the block
-> * a same output cannot be produced twice by block
+> * a same source cannot be consumed twice by the node
+> * a same output cannot be produced twice by node
 >
-> But a source can be both created and consumed in the same block, so a *chain of transactions* can be stored at once.
+> But a source can be both created and consumed in the same node, so a *chain of transactions* can be stored at once.
 
 ##### Double-spending control
 
@@ -1593,7 +1593,7 @@ Rule:
 
 ##### Block
 
-* `Block` field must target an existing block in the blockchain, or target special block `0-E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855`.
+* `Block` field must target an existing node in the blockchain, or target special node `0-E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855`.
 
 #### Interpretation
 

@@ -39,17 +39,26 @@ spring:
   session.store-type: none # jdbc|mongo|none|redis|hazelcast
 
   datasource:
-    url: jdbc:postgresql://localhost/testdb
-    username: testuser
-    password: junipass
-    driverClassName: org.postgresql.Driver
-    jdbcUrl: jdbc:postgresql://localhost/testdb
+# enable the following if you which to use Postgresql
+
+#    url: jdbc:postgresql://localhost/testdb
+#    username: testuser
+#    password: junipass
+#    driverClassName: org.postgresql.Driver
+#    jdbcUrl: jdbc:postgresql://localhost/testdb
+
+# enable the following if you which to use HSQLDB
+    url: jdbc:hsqldb:file:db/testdb  #jdbc:hsqldb:hsql://localhost/test
+    username: sa
+    password:
+    driverClassName: org.hsqldb.jdbc.JDBCDriver
+    jdbcUrl:  jdbc:hsqldb:file:db/testdb  #jdbc:hsqldb:hsql://localhost/test
 
   jpa:
     database: default
     generate-ddl: true
     show-sql: false
-    hibernate.ddl-auto: create-drop
+    hibernate.ddl-auto:  create-drop
     properties.hibernate.jdbc:
       lob.non_contextual_creation: true # disable an ugly exception at start
 

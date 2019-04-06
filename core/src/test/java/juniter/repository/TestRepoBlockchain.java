@@ -56,7 +56,7 @@ public class TestRepoBlockchain {
 				final String perc = decimalFormat.format(1.0 * i / current);
 
 				LOG.info(perc + ", elapsed time " + TimeUtils.format(delta) + " which is " + perBlock
-						+ " ms per block validated, estimating: " + TimeUtils.format(estimate) + " total");
+						+ " ms per node validated, estimating: " + TimeUtils.format(estimate) + " total");
 			}
 		}
 

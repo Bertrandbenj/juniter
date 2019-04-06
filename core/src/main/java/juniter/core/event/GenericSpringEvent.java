@@ -1,8 +1,8 @@
 package juniter.core.event;
 
-import lombok.Getter;
+import lombok.Data;
 
-@Getter
+@Data
 public class GenericSpringEvent<T> {
     private T what;
     protected boolean success;

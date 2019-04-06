@@ -98,7 +98,7 @@ public class MissingBlocksLoader {
                 bulkStart = miss;
                 cntI = 0;
             } else if (miss != prev + 1) {
-                map.put(prev, cntI);
+                map.put(prev, Math.max(cntI, 1));
                 bulkStart = miss;
                 cntI = 1;
 
@@ -109,14 +109,13 @@ public class MissingBlocksLoader {
 
         }
 
-        map.entrySet().forEach(entry ->
-                defaultLoader.put("blockchain/blocks/"+entry.getValue()+"/"+entry.getKey()));
+        map.forEach((key, value) -> defaultLoader.put("blockchain/blocks/" + value + "/" + key));
 
 //		missing.forEach(n -> {
 //defaultLoader.fetchBlocks(entry.getValue(), entry.getKey())
 //                            .forEach(b -> blockRepo//
 //                                    .localSave(b) //
-//                                    .ifPresent(bl -> LOG.debug("saved missing block " + bl))
+//                                    .ifPresent(bl -> LOG.debug("saved missing node " + bl))
 //			if(!blackList.contains(n)){
 //				LOG.info("  - doFetch for : " + n);
 //				defaultLoader.fetchAndSaveBlock(n);

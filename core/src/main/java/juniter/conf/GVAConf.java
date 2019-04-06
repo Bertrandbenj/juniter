@@ -1,7 +1,7 @@
 package juniter.conf;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import juniter.core.model.dto.Block;
+import juniter.core.model.dto.node.Block;
 import juniter.core.model.dbo.index.BINDEX;
 import juniter.repository.jpa.block.BlockRepository;
 import juniter.repository.jpa.index.BINDEXRepository;
@@ -103,7 +103,7 @@ public class GVAConf implements WebSocketConfigurer {
                     var block = modelMapper.map(bl, Block.class);
 
                     response.getBody().write(objectMapper.writeValueAsBytes(block));
-                    LOG.info("sending block " + block.getNumber() + " " + response.getBody());
+                    LOG.info("sending node " + block.getNumber() + " " + response.getBody());
                     res.set(true);
                 } catch (Exception e) {
                     LOG.error("simpleWsDispatch ERROR", e);

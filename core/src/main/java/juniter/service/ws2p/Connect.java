@@ -14,10 +14,7 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Connect implements Serializable {
-
-
-    private static final long serialVersionUID = 1443849093806421432L;
+public class Connect  {
 
     private static final SecretBox secretBox = new SecretBox("salt", "password");
 

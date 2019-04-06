@@ -5,11 +5,11 @@ import juniter.core.model.dbo.index.MINDEX;
 import juniter.core.model.dbo.wot.Certification;
 import juniter.core.model.dbo.wot.Identity;
 import juniter.core.model.dbo.wot.Revoked;
-import juniter.core.model.dto.MemberVO;
-import juniter.core.model.dto.naughtylookup.*;
-import juniter.core.model.dto.requirements.IdtyCerts;
-import juniter.core.model.dto.requirements.ReqDTO;
-import juniter.core.model.dto.requirements.ReqIdtyDTO;
+import juniter.core.model.dto.wot.MemberDTO;
+import juniter.core.model.dto.wot.lookup.*;
+import juniter.core.model.dto.wot.requirements.IdtyCerts;
+import juniter.core.model.dto.wot.requirements.ReqDTO;
+import juniter.core.model.dto.wot.requirements.ReqIdtyDTO;
 import juniter.repository.jpa.block.CertsRepository;
 import juniter.repository.jpa.index.CINDEXRepository;
 import juniter.repository.jpa.index.IINDEXRepository;
@@ -151,7 +151,7 @@ public class WotService {
     @Data
     @AllArgsConstructor
     public class MembersDTO {
-        List<MemberVO> results;
+        List<MemberDTO> results;
     }
 
 

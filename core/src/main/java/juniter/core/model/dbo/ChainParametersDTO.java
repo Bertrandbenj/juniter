@@ -87,7 +87,7 @@ public class ChainParametersDTO implements DUPDocument {
     private long medianTimeBlocks = 24;
 
     /**
-     * The average time for writing 1 block (wished time)
+     * The average time for writing 1 node (wished time)
      */
     private long avgGenTime = 300;
 

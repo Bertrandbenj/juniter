@@ -11,11 +11,11 @@ import javax.persistence.*;
 @ToString
 @Entity
 @Table(name = "SINDEX", schema = "public", indexes = {
-        @Index(name="ind_shash",columnList = "identifier"),
-        @Index(name="ind_sconsumed",columnList = "consumed"),
-        @Index(name="ind_sconditions",columnList = "conditions"),
-        @Index(name="ind_swritten_on",columnList = "written_on"),
-        @Index(name="ind_swrittenOn",columnList = "writtenOn"),
+        @Index( columnList = "identifier"),
+        @Index( columnList = "consumed"),
+        @Index( columnList = "conditions"),
+        @Index( columnList = "written_on"),
+        @Index( columnList = "writtenOn"),
 })
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SINDEX  {
@@ -56,8 +56,8 @@ public class SINDEX  {
      * return available sources
      * @return
      */
-    public juniter.core.model.dto.Source asSourceBMA(){
-        return new juniter.core.model.dto.Source(
+    public juniter.core.model.dto.tx.Source asSourceBMA(){
+        return new juniter.core.model.dto.tx.Source(
                 tx == null ? "D":"T",
                 pos,
                 identifier,

@@ -2,13 +2,10 @@ package juniter.service.bma;
 
 import juniter.core.event.CoreEventBus;
 import juniter.core.model.dbo.net.EndPoint;
-import juniter.core.model.dto.NodeSummaryDTO;
+import juniter.core.model.dto.node.NodeSummaryDTO;
 import juniter.repository.jpa.block.BlockRepository;
 import juniter.repository.jpa.net.EndPointsRepository;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -209,9 +206,7 @@ public class PeerService {
         }
     }
 
-    @Getter
-    @Setter
-    @ToString
+    @Data
     @AllArgsConstructor
     public class NetStats implements Comparable<NetStats> {
 

@@ -18,7 +18,7 @@ import javax.persistence.*;
 @Data
  @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "chainParams", schema = "public") // , indexes = @Index(columnList = "number,hash"))
+@Table(name = "chainParams", schema = "public")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ChainParameters implements DUPDocument {
 
@@ -98,7 +98,7 @@ public class ChainParameters implements DUPDocument {
     private long medianTimeBlocks = 24;
 
     /**
-     * The average time for writing 1 block (wished time)
+     * The average time for writing 1 node (wished time)
      */
     private long avgGenTime = 300;
 

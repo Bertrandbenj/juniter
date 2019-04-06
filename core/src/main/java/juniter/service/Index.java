@@ -34,10 +34,7 @@ import java.util.stream.Stream;
  * @author BnimajneB
  */
 @Service
-public class Index implements GlobalValid, Serializable {
-
-
-    private static final long serialVersionUID = 1321654987;
+public class Index implements GlobalValid {
 
     private static final Logger LOG = LogManager.getLogger();
 
@@ -112,7 +109,7 @@ public class Index implements GlobalValid, Serializable {
     }
 
 
-    @Transactional(readOnly = true)
+    @Transactional
     @Override
     public Optional<DBBlock> createdOnBlock(BStamp bstamp) {
 
@@ -202,7 +199,7 @@ public class Index implements GlobalValid, Serializable {
 
     @Override
     public Stream<MINDEX> findPubkeysThatShouldExpire(Long mTime) {
-        return mRepo.findPubkeysThatShouldExpire(mTime).stream().map(c -> modelMapper.map(c, MINDEX.class));
+        return mRepo.findPubkeysThatShouldExpire2(mTime).stream().map(c -> modelMapper.map(c, MINDEX.class));
     }
 
 
@@ -251,6 +248,11 @@ public class Index implements GlobalValid, Serializable {
                 .peek(s -> System.out.println("mapped all " + s));
     }
 
+    @Override
+    public Integer certStock(String issuer) {
+        return cRepo.certStock(issuer);
+    }
+
     @Timed
     @Override
     public int trimGlobal(BINDEX head, int bIndexSize) {
@@ -276,7 +278,7 @@ public class Index implements GlobalValid, Serializable {
     /**
      * mostly technical function to error handle, parametrized, log the validation function
      *
-     * @param syncUntil blockNumber to synchronize with
+     * @param syncUntil a specific block number
      * @param quick
      */
     @Async
@@ -289,7 +291,7 @@ public class Index implements GlobalValid, Serializable {
         var time = System.currentTimeMillis();
         long delta;
 
-        for (int i = head().map(h -> h.number + 1).orElse(0); i <= syncUntil; i++) { // && Bus.isIndexing.get()
+        for (int i = head().map(h -> h.number + 1).orElse(0); i <= syncUntil && coreEventBus.isIndexing(); i++) { // && Bus.isIndexing.get()
             final int finali = i;
 
 
@@ -319,7 +321,7 @@ public class Index implements GlobalValid, Serializable {
                 final var estimate = (syncUntil - block.getNumber()) * perBlock;
 
                 var log = "Validation : elapsed time " + TimeUtils.format(baseDelta) + " which is " + perBlock
-                        + " ms per block, estimating: " + TimeUtils.format(estimate) + "left";
+                        + " ms per node, estimating: " + TimeUtils.format(estimate) + "left";
 
                 coreEventBus.sendEventIndexLogMessage(log);
                 time = newTime;

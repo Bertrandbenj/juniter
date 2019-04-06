@@ -10,14 +10,14 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Entity
 @Table(name = "CINDEX", schema = "public", indexes = {
-        @Index(name="ind_op", columnList = "op"),
-        @Index(name="ind_issuer", columnList = "issuer"),
-        @Index(name="ind_receiver", columnList = "receiver"),
-        @Index(name="ind_createdOn", columnList = "createdOn"),
-        @Index(name="ind_createdOn", columnList = "written_on")
+        @Index(columnList = "op"),
+        @Index(columnList = "issuer"),
+        @Index(columnList = "receiver"),
+        @Index(columnList = "createdOn"),
+        @Index(columnList = "written_on")
 })
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CINDEX  {
+public class CINDEX {
 
 
     @Id
@@ -36,6 +36,5 @@ public class CINDEX  {
     private String from_wid;
     private String to_wid;
     private Integer writtenOn;
-
 
 }

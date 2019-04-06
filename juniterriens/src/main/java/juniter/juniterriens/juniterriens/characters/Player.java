@@ -15,6 +15,7 @@ import juniter.juniterriens.juniterriens.engine.Collectable;
 import juniter.juniterriens.juniterriens.engine.Curiosity;
 import juniter.juniterriens.juniterriens.objects.Coins;
 import juniter.juniterriens.juniterriens.objects.Items;
+import lombok.Data;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

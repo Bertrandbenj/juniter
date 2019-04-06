@@ -17,7 +17,7 @@ public interface CertsRepository extends JpaRepository<Certification, Long> {
 	Stream<Certification> streamCertifiedBy(String pubkeyOrUid);
 
 
-	@Query(value = "SELECT DISTINCT blockNumber FROM  Certification c ORDER BY blockNumber ")
+	@Query(value = "SELECT DISTINCT signedOn FROM  Certification c ORDER BY signedOn ")
 	List<Integer> withCertifications();
 	
 }

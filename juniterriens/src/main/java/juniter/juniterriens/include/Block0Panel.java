@@ -13,6 +13,7 @@ import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dbo.wot.Certification;
 import juniter.core.model.dbo.wot.Identity;
 import juniter.core.model.dbo.wot.Joiner;
+import juniter.juniterriens.Notary;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 
@@ -157,7 +158,7 @@ public class Block0Panel implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
+        version.setText(Notary.PROTOCOL_VERSION+"");
         time.setText(String.format("%d", new Date().getTime()));
         medianTime.setText(String.format("%d", new Date().getTime()));
 
@@ -225,7 +226,7 @@ public class Block0Panel implements Initializable {
                                 new Joiner(ent.getValue().getPublicKey()
                                         + ":" + "==" // signature
                                         + ":" + "0-XXX"// bstamp TODO complete
-                                        + ":" + "0-XXX"// bstamp duplicate on block 0
+                                        + ":" + "0-XXX"// bstamp duplicate on node 0
                                         + ":" + ent.getKey()))
                         .collect(Collectors.toList())
         );

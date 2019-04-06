@@ -1,11 +1,10 @@
 package juniter.core.model.dbo.tx;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.leangen.graphql.annotations.types.GraphQLType;
 import juniter.core.crypto.Crypto;
 import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.DUPDocument;
+import juniter.core.model.dbo.DenormalizeWrittenStamp;
 import juniter.core.utils.Constants;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,6 +20,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,14 +30,16 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Entity
 @Table(name = "transaction", schema = "public", indexes = {
-        @Index(name = "ind_tshash", columnList = "signedHash"),
-        @Index(name = "ind_thash", columnList = "hash"),
-        @Index(name = "ind_twhash", columnList = "writtenHash"),
-        @Index(name = "ind_comment", columnList = "comment")
+        @Index(columnList = "signedOn"),
+        @Index(columnList = "signedHash"),
+        @Index(columnList = "hash"),
+        @Index(columnList = "writtenHash"),
+        @Index(columnList = "writtenOn"),
+        @Index(columnList = "comment")
 })
 @JsonIgnoreProperties(ignoreUnknown = true)
-@GraphQLType(description = "Core Transaction")
-public class Transaction implements DUPDocument {
+//@GraphQLType(description = "Core Transaction")
+public class Transaction implements DUPDocument, Serializable, DenormalizeWrittenStamp {
 
     private static final Logger LOG = LogManager.getLogger();
 
@@ -49,8 +51,8 @@ public class Transaction implements DUPDocument {
     @Max(100)
     private Integer version;
 
+
     @Size(max = 42)
-    @Pattern(regexp = Constants.Regex.G1)
     private String currency;
 
     private Integer locktime;
@@ -74,7 +76,7 @@ public class Transaction implements DUPDocument {
     @ElementCollection
     @CollectionTable(name = "tx_issuers", joinColumns = @JoinColumn(name = "tx_id"))
     private List<@Size(max = 45) @Pattern(regexp = Constants.Regex.PUBKEY)
-            String> issuers = new ArrayList<>(); //
+            String> issuers = new ArrayList<>();
 
     @Valid
     @LazyCollection(LazyCollectionOption.FALSE)
@@ -104,6 +106,13 @@ public class Transaction implements DUPDocument {
 
     @Size(max = 255)
     private String comment;
+
+
+    private Integer writtenOn;
+
+    private String writtenHash;
+
+    private Long writtenTime;
 
 
     public String getHash() {

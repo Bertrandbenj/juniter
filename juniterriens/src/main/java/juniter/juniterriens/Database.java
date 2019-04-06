@@ -1,8 +1,6 @@
 package juniter.juniterriens;
 
-import com.sun.javafx.scene.control.Properties;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -19,11 +17,11 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import juniter.core.model.dbo.index.*;
+import juniter.juniterriens.include.AbstractJuniterFX;
+import juniter.juniterriens.include.Bindings;
 import juniter.repository.jpa.block.BlockRepository;
 import juniter.repository.jpa.index.*;
 import juniter.service.Index;
-import juniter.juniterriens.include.AbstractJuniterFX;
-import juniter.juniterriens.include.Bindings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,12 +33,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.ResourceBundle;
 
-@ConditionalOnExpression("${juniter.useJavaFX:false}")
 @Component
+@ConditionalOnExpression("${juniter.useJavaFX:false}")
 public class Database extends AbstractJuniterFX implements Initializable {
 
-    private static final     Logger LOG = LogManager.getLogger();
-
+    private static final Logger LOG = LogManager.getLogger();
 
     private static ObservableList<IINDEX> iindex = FXCollections.observableArrayList();
     private static ObservableList<BINDEX> bindex = FXCollections.observableArrayList();
@@ -265,13 +262,13 @@ public class Database extends AbstractJuniterFX implements Initializable {
     @FXML
     public void indexUntil() {
 
+
         Bindings.isIndexing.setValue(!Bindings.isIndexing.get());
 
-        if(!Bindings.isIndexing.get())
+        if (!Bindings.isIndexing.get())
             return;
 
         Bindings.currentBindex.setValue(-1);
-
 
 
         int until;
@@ -374,10 +371,10 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        indexUntilButton.setText(Bindings.isIndexing.get()?"||":">>");
+        indexUntilButton.setText(Bindings.isIndexing.get() ? "||" : ">>");
 
-        Bindings.isIndexing.addListener((v, oldValue, newValue)->{
-            if(!newValue)
+        Bindings.isIndexing.addListener((v, oldValue, newValue) -> {
+            if (!newValue)
                 indexUntilButton.setText(">>");
             else
                 indexUntilButton.setText("||");
@@ -418,7 +415,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
         mapColumn(cIssuerCol, "issuer");
         mapColumn(cReceiverCol, "receiver");
-        mapColumn(cCreatedOn, "createdOn");
+        mapColumn(cCreatedOn, "signedHash");
         mapColumn(cWritten_on, "written_on");
         mapColumn(cWrittenOn, "writtenOn");
         mapColumn(cChainableOn, "chainable_on");
@@ -502,7 +499,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
         // ===================   FILTER  COLUMNS SINDEX =================
 
         var filteredS = new FilteredList<>(sindex);
-        EventHandler listenerS= (e) -> filteredS.setPredicate(this::matchesFilterS);
+        EventHandler listenerS = (e) -> filteredS.setPredicate(this::matchesFilterS);
 
         filterS.setOnAction(listenerS);
         ckSOP.setOnAction(listenerS);
@@ -595,7 +592,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
 
         if (filterS.getText() != null && !filterS.getText().equals("")) {
-            res &= s.getIdentifier().toLowerCase().contains(filterS.getText().toLowerCase())   ;
+            res &= s.getIdentifier().toLowerCase().contains(filterS.getText().toLowerCase());
         }
 
 
@@ -609,7 +606,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
         res &= ckCOP.isIndeterminate() || c.getOp().equals(expectOP);
 
         if (filterC.getText() != null && !filterC.getText().equals("")) {
-            res &= c.getIssuer().equals(filterC.getText()) || c.getReceiver().equals(filterC.getText()) ;
+            res &= c.getIssuer().equals(filterC.getText()) || c.getReceiver().equals(filterC.getText());
         }
 
         return res;
@@ -657,7 +654,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
     }
 
     public void show(Integer blockNumber) {
-        LOG.info("showing block at " + blockNumber);
+        LOG.info("showing node at " + blockNumber);
     }
 
     @FXML

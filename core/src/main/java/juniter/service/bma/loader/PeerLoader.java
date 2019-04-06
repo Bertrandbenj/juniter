@@ -5,8 +5,8 @@ import juniter.core.event.CoreEventBus;
 import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.net.EndPointType;
 import juniter.core.model.dbo.net.Peer;
-import juniter.core.model.dto.PeerBMA;
-import juniter.core.model.dto.PeersDTO;
+import juniter.core.model.dto.net.PeerBMA;
+import juniter.core.model.dto.net.PeersDTO;
 import juniter.core.utils.TimeUtils;
 import juniter.repository.jpa.block.BlockRepository;
 import juniter.repository.jpa.net.EndPointsRepository;
@@ -94,7 +94,7 @@ public class PeerLoader {
 
     }
 
-
+    @Async
     @Scheduled(fixedDelay = 10 * 60 * 1000, initialDelay = 10 * 60 * 1000)
     public void runPeerCheck() {
 
@@ -139,7 +139,7 @@ public class PeerLoader {
 
 
                     final var elapsed = Long.divideUnsigned(System.nanoTime() - start, 1000000);
-                    LOG.info("Max block found peers:" + maxBlockPeer +
+                    LOG.info("Max node found peers:" + maxBlockPeer +
                             "  db: " + maxBlockDB +
                             " Elapsed time: " + TimeUtils.format(elapsed));
 
@@ -174,7 +174,7 @@ public class PeerLoader {
                 //.so+rted().max(Comparator.naturalOrder())
                 .orElseThrow();
 
-        LOG.info("=== Found max block " + max);
+        LOG.info("=== Found max node " + max);
 
         var peer = netService.endPointPeer(max.getNumber() - 1);
         var asBMA = new PeerBMA(peer.toDUP(true));
@@ -254,7 +254,7 @@ public class PeerLoader {
                     //.flatMap(Collection::stream) // blocks individually
                     .forEach(b -> blockRepo//
                             .localSave(b) //
-                            .ifPresent(bl -> LOG.debug(" saved block : " + bl)));
+                            .ifPresent(bl -> LOG.debug(" saved node : " + bl)));
 
             return bstamp;
 

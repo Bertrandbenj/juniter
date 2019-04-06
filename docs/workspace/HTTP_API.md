@@ -534,7 +534,7 @@ A list of certifications issued to the member by other members (or who used to b
 Each certification also has:
 
 * a `isMember` field to indicate wether the issuer of the certification is still a member or not.
-* a `written` field to indicate the block where the certification was written (or null if not written yet).
+* a `written` field to indicate the node where the certification was written (or null if not written yet).
 
 ```json
 {
@@ -583,7 +583,7 @@ A list of certifications issued by the member to other members (or who used to b
 Each certification also has:
 
 * a `isMember` field to indicate wether the issuer of the certification is still a member or not.
-* a `written` field to indicate the block where the certification was written (or null if not written yet).
+* a `written` field to indicate the node where the certification was written (or null if not written yet).
 ```json
 {
   "pubkey": "HsLShAtzXTVxeUtQd7yi5Z5Zh4zNvbu8sTEZ53nfKcqY",
@@ -741,28 +741,28 @@ A list of memberships issued by the *member* and written in the blockchain.
 }
 ```
 
-#### `blockchain/block`
+#### `blockchain/node`
 
 **Goal**
 
-POST a new block to add to the blockchain.
+POST a new node to add to the blockchain.
 
 **Parameters**
 
 Name               | Value                          | Method
 ------------------ | ------------------------------ | ------
-`block`             | The raw block to be added     | POST
+`node`             | The raw block to be added     | POST
 `signature`         | Signature of the raw block    | POST
 
 **Returns**
 
-The promoted block if successfully added to the blockchain (see [block/[number]](#blockchainblocknumber) return object).
+The promoted node if successfully added to the blockchain (see [block/[number]](#blockchainblocknumber) return object).
 
-#### `blockchain/block/[NUMBER]`
+#### `blockchain/node/[NUMBER]`
 
 **Goal**
 
-GET the promoted block whose number `NUMBER`.
+GET the promoted node whose number `NUMBER`.
 
 **Parameters**
 
@@ -772,7 +772,7 @@ Name               | Value                                                      
 
 **Returns**
 
-The promoted block if it exists (otherwise return HTTP 404).
+The promoted node if it exists (otherwise return HTTP 404).
 ```json
 {
   "version": 2,
@@ -863,7 +863,7 @@ Name               | Value                                                      
 
 **Returns**
 
-The promoted blocks if it exists block `[FROM]` (otherwise return HTTP 404). Result is an array whose values are the same structure as [/blockchain/block/[number]](#blockchainblocknumber).
+The promoted blocks if it exists node `[FROM]` (otherwise return HTTP 404). Result is an array whose values are the same structure as [/blockchain/block/[number]](#blockchainblocknumber).
 ```json
 {
   "blocks": [
@@ -875,13 +875,13 @@ The promoted blocks if it exists block `[FROM]` (otherwise return HTTP 404). Res
 
 #### `blockchain/current`
 
-Same as [block/[number]](#blockchainblocknumber), but return last accepted block.
+Same as [block/[number]](#blockchainblocknumber), but return last accepted node.
 
 #### `blockchain/hardship/[PUBKEY]`
 
 **Goal**
 
-GET hardship level for given member's pubkey for writing next block.
+GET hardship level for given member's pubkey for writing next node.
 
 **Parameters**
 
@@ -891,7 +891,7 @@ Name              | Value                     | Method
 
 **Returns**
 
-The hardship value (`level`) + `block` number.
+The hardship value (`level`) + `node` number.
 ```json
 {
   "block": 598,
@@ -904,7 +904,7 @@ The hardship value (`level`) + `block` number.
 
 **Goal**
 
-GET hardship level for all member's uid for wuseriding next block.
+GET hardship level for all member's uid for wuseriding next node.
 
 **Parameters**
 
@@ -912,7 +912,7 @@ None.
 
 **Returns**
 
-The respective difficulty of each member in the last `IssuersFrame` blocks for current block.
+The respective difficulty of each member in the last `IssuersFrame` blocks for current node.
 ```json
 {
   "block": 598,
@@ -930,7 +930,7 @@ The respective difficulty of each member in the last `IssuersFrame` blocks for c
 #### `blockchain/with/newcomers`
 **Goal**
 
-GET the block numbers containing newcomers (new identities).
+GET the node numbers containing newcomers (new identities).
 
 **Parameters**
 
@@ -950,7 +950,7 @@ Block numbers.
 #### `blockchain/with/certs`
 **Goal**
 
-GET the block numbers containing certifications.
+GET the node numbers containing certifications.
 
 **Parameters**
 
@@ -970,7 +970,7 @@ Block numbers.
 #### `blockchain/with/joiners`
 **Goal**
 
-GET the block numbers containing joiners (newcomers or people coming back after exclusion).
+GET the node numbers containing joiners (newcomers or people coming back after exclusion).
 
 **Parameters**
 
@@ -990,7 +990,7 @@ Block numbers.
 #### `blockchain/with/renewed`
 **Goal**
 
-GET the block numbers containing renewed (members updating their membership).
+GET the node numbers containing renewed (members updating their membership).
 
 **Parameters**
 
@@ -1010,7 +1010,7 @@ Block numbers.
 #### `blockchain/with/leavers`
 **Goal**
 
-GET the block numbers containing leavers (members leaving definitely the currency).
+GET the node numbers containing leavers (members leaving definitely the currency).
 
 **Parameters**
 
@@ -1030,7 +1030,7 @@ Block numbers.
 #### `blockchain/with/revoked`
 **Goal**
 
-GET the block numbers containing revoked members.
+GET the node numbers containing revoked members.
 
 **Parameters**
 
@@ -1050,7 +1050,7 @@ Block numbers.
 #### `blockchain/with/excluded`
 **Goal**
 
-GET the block numbers containing excluded members.
+GET the node numbers containing excluded members.
 
 **Parameters**
 
@@ -1070,7 +1070,7 @@ Block numbers.
 #### `blockchain/with/ud`
 **Goal**
 
-GET the block numbers containing Universal Dividend.
+GET the node numbers containing Universal Dividend.
 
 **Parameters**
 
@@ -1090,7 +1090,7 @@ Block numbers.
 #### `blockchain/with/tx`
 **Goal**
 
-GET the block numbers containing transactions.
+GET the node numbers containing transactions.
 
 **Parameters**
 
@@ -1119,7 +1119,7 @@ GET current branches of the node.
 
 **Returns**
 
-Top block of each branch, i.e. the last received block of each branch. An array of 4 blocks would mean the node has 4 branches,
+Top node of each branch, i.e. the last received node of each branch. An array of 4 blocks would mean the node has 4 branches,
 3 would mean 3 branches, and so on.
 
 ```json
@@ -1910,7 +1910,7 @@ The universal dividend history for the given `pubkey`.
 
 ### ws/*
 
-#### `ws/block`
+#### `ws/node`
 
 **Goal**
 

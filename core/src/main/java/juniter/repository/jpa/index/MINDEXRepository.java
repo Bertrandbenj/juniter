@@ -80,28 +80,33 @@ public interface MINDEXRepository extends JpaRepository<MINDEX, Long> {
     List<MINDEX> fetchTrimmed(String pub);
 
 
-    @Query(value = "SELECT *, (SELECT m2.expires_on \n" +
-            "             FROM mindex m2 \n" +
-            "             WHERE m2.pub = m1.pub \n" +
-            "             AND m2.writtenOn = (\n" +
-            "               SELECT MAX(m4.writtenOn)\n" +
-            "               FROM mindex m4\n" +
-            "               WHERE pub = m2.pub\n" +
-            "             )) as renewal ,\n" +
-            "\n" +
-            "             ( SELECT m2.expired_on \n" +
-            "             FROM mindex m2 \n" +
-            "             WHERE m2.pub = m1.pub \n" +
-            "             AND m2.writtenOn = (\n" +
-            "               SELECT MAX(m4.writtenOn)\n" +
-            "               FROM mindex m4\n" +
-            "               WHERE pub = m2.pub\n" +
-            "             )\n" +
-            "           ) as expiry \n" +
-            "FROM mindex as m1\n" +
-            "WHERE m1.expires_on <= ?1\n" +
-            "  AND m1.revokes_on > ?1 ", nativeQuery = true, name = "is it slow ?")
-    List<MINDEX> findPubkeysThatShouldExpire(Long mtime);
+//    @Query(value = "SELECT *, (SELECT m2.expires_on \n" +
+//            "             FROM mindex m2 \n" +
+//            "             WHERE m2.pub = m1.pub \n" +
+//            "             AND m2.writtenOn = (\n" +
+//            "               SELECT MAX(m4.writtenOn)\n" +
+//            "               FROM mindex m4\n" +
+//            "               WHERE pub = m2.pub\n" +
+//            "             )) as renewal ,\n" +
+//            "\n" +
+//            "             ( SELECT m2.expired_on \n" +
+//            "             FROM mindex m2 \n" +
+//            "             WHERE m2.pub = m1.pub \n" +
+//            "             AND m2.writtenOn = (\n" +
+//            "               SELECT MAX(m4.writtenOn)\n" +
+//            "               FROM mindex m4\n" +
+//            "               WHERE pub = m2.pub\n" +
+//            "             )\n" +
+//            "           ) as expiry \n" +
+//            "FROM mindex as m1\n" +
+//            "WHERE m1.expires_on <= ?1\n" +
+//            "  AND m1.revokes_on > ?1 ", nativeQuery = true, name = "is it slow ?")
+//    List<MINDEX> findPubkeysThatShouldExpire(Long mtime);
+
+
+    default List<MINDEX> findPubkeysThatShouldExpire2(Long mtime) {
+        return List.of();
+    }
 
 
     @Query(value = "SELECT m FROM MINDEX m WHERE m.revokes_on <= ?1 AND m.revoked_on IS NULL ")

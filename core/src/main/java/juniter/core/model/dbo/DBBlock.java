@@ -18,6 +18,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -44,23 +45,28 @@ import java.util.stream.Collectors;
 @Data
 @NoArgsConstructor
 @Table(name = "block", schema = "public", indexes = {
-        @Index(name = "ind_bnumber", columnList = "number"),
-        @Index(name = "ind_bhash", columnList = "hash"),
-        @Index(name = "ind_bstamp", columnList = "number,hash"),
-        @Index(name = "ind_bdividend", columnList = "dividend"),
-        @Index(name = "ind_bsize", columnList = "size"),
-        @Index(name = "ind_bmedianTime", columnList = "medianTime")
+        @Index(  columnList = "number"),
+        @Index(  columnList = "hash"),
+        @Index(  columnList = "dividend"),
+        @Index(  columnList = "size"),
+        @Index(  columnList = "medianTime")
+}, uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"number", "hash"})
 })
 @JsonIgnoreProperties(ignoreUnknown = true)
-@IdClass(BStamp.class)
-public class DBBlock implements DUPDocument {
+//@IdClass(BStamp.class)
+public class DBBlock implements DUPDocument, Serializable {
 
-    //private static final long serialVersionUID = -4464417074968456696L;
+    private static final long serialVersionUID = -4464417074968456696L;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+
+    // @Id
     private Integer number;
 
-    @Id
+    // @Id
     @Size(max = 64)
     @Column(length = 64)
     protected String hash;
@@ -136,63 +142,70 @@ public class DBBlock implements DUPDocument {
     @OrderColumn
     @LazyCollection(LazyCollectionOption.FALSE)
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumns(value = {
-            @JoinColumn(name = "writtenOn", referencedColumnName = "number"),
-            @JoinColumn(name = "writtenHash", referencedColumnName = "hash")})
+//    @JoinColumns(value = {
+//            @JoinColumn(name = "writtenOn", referencedColumnName = "number"),
+//            @JoinColumn(name = "writtenHash", referencedColumnName = "hash")})
+    @JoinColumn(name = "writtenId", referencedColumnName = "id")
     private List<Identity> identities = new ArrayList<>();
 
     @Valid
     @LazyCollection(LazyCollectionOption.FALSE)
     @OrderColumn
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumns({
-            @JoinColumn(name = "writtenOn", referencedColumnName = "number"),
-            @JoinColumn(name = "writtenHash", referencedColumnName = "hash")})
+//    @JoinColumns({
+//            @JoinColumn(name = "writtenOn", referencedColumnName = "number"),
+//            @JoinColumn(name = "writtenHash", referencedColumnName = "hash")})
+    @JoinColumn(name = "writtenId", referencedColumnName = "id")
     private List<Joiner> joiners = new ArrayList<>();
 
     @Valid
     @OrderColumn
     @LazyCollection(LazyCollectionOption.FALSE)
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumns({
-            @JoinColumn(name = "writtenOn", referencedColumnName = "number"),
-            @JoinColumn(name = "writtenHash", referencedColumnName = "hash")})
+//    @JoinColumns({
+//            @JoinColumn(name = "writtenOn", referencedColumnName = "number"),
+//            @JoinColumn(name = "writtenHash", referencedColumnName = "hash")})
+    @JoinColumn(name = "writtenId", referencedColumnName = "id")
     private List<Renew> renewed = new ArrayList<>();
 
     @Valid
     @OrderColumn
     @LazyCollection(LazyCollectionOption.FALSE)
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumns({
-            @JoinColumn(name = "writtenOn", referencedColumnName = "number"),
-            @JoinColumn(name = "writtenHash", referencedColumnName = "hash")})
+//    @JoinColumns({
+//            @JoinColumn(name = "writtenOn", referencedColumnName = "number"),
+//            @JoinColumn(name = "writtenHash", referencedColumnName = "hash")})
+    @JoinColumn(name = "writtenId", referencedColumnName = "id")
     private List<Leaver> leavers = new ArrayList<>();
 
     @Valid
     //@OrderColumn(nullable = false)
     @LazyCollection(LazyCollectionOption.FALSE)
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumns({
-            @JoinColumn(name = "writtenOn", referencedColumnName = "number"),
-            @JoinColumn(name = "writtenHash", referencedColumnName = "hash")})
+//    @JoinColumns({
+//            @JoinColumn(name = "writtenOn", referencedColumnName = "number"),
+//            @JoinColumn(name = "writtenHash", referencedColumnName = "hash")})
+    @JoinColumn(name = "writtenId", referencedColumnName = "id")
     private List<Revoked> revoked = new ArrayList<>();
 
     @Valid
     @OrderColumn
     @LazyCollection(LazyCollectionOption.FALSE)
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumns({
-            @JoinColumn(name = "writtenOn", referencedColumnName = "number"),
-            @JoinColumn(name = "writtenHash", referencedColumnName = "hash")})
+//    @JoinColumns({
+//            @JoinColumn(name = "writtenOn", referencedColumnName = "number"),
+//            @JoinColumn(name = "writtenHash", referencedColumnName = "hash")})
+    @JoinColumn(name = "writtenId", referencedColumnName = "id")
     private List<Excluded> excluded = new ArrayList<>();
 
     @Valid
     @OrderColumn
     @LazyCollection(LazyCollectionOption.FALSE)
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumns({
-            @JoinColumn(name = "writtenOn", referencedColumnName = "number"),
-            @JoinColumn(name = "writtenHash", referencedColumnName = "hash")})
+//    @JoinColumns({
+//            @JoinColumn(name = "writtenOn", referencedColumnName = "number"),
+//            @JoinColumn(name = "writtenHash", referencedColumnName = "hash")})
+    @JoinColumn(name = "writtenId", referencedColumnName = "id")
     private List<Certification> certifications = new ArrayList<>();
 
 
@@ -200,9 +213,10 @@ public class DBBlock implements DUPDocument {
     @OrderColumn
     @LazyCollection(LazyCollectionOption.FALSE)
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumns({
-            @JoinColumn(name = "writtenOn", referencedColumnName = "number"),
-            @JoinColumn(name = "writtenHash", referencedColumnName = "hash")})
+    @JoinColumn(name = "writtenId", referencedColumnName = "id")
+//    @JoinColumns({
+//            @JoinColumn(name = "writtenOn", referencedColumnName = "number"),
+//            @JoinColumn(name = "writtenHash", referencedColumnName = "hash")})
     private List<Member> members = new ArrayList<>();
 
 
@@ -210,9 +224,7 @@ public class DBBlock implements DUPDocument {
     @OrderColumn
     @LazyCollection(LazyCollectionOption.FALSE)
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumns({
-            @JoinColumn(name = "writtenOn", referencedColumnName = "number"),
-            @JoinColumn(name = "writtenHash", referencedColumnName = "hash")})
+    @JoinColumn(name = "writtenId", referencedColumnName = "id")
     private List<Transaction> transactions = new ArrayList<>();
 
 
@@ -286,7 +298,7 @@ public class DBBlock implements DUPDocument {
 
     /**
      * The only occasion previousBlock may be Null is if we are dealing with the
-     * first block then Here we hack the getter to avoid Nesting the Json struct
+     * first node then Here we hack the getter to avoid Nesting the Json struct
      *
      * @return the previousHash
      */
@@ -298,7 +310,7 @@ public class DBBlock implements DUPDocument {
 
     /**
      * The only occasion previousBlock may be Null is if we are dealing with the
-     * first block
+     * first node
      * <p>
      * then Here we hack the getter to avoid Nesting the Json struct
      *
@@ -328,13 +340,13 @@ public class DBBlock implements DUPDocument {
      * <pre>
      * BlockSize
      *
-     * The block getSize is defined as the number of lines in multiline fields (Identities, Joiners, Actives, Leaver, Revoked, Certifications, Transactions) except Excluded field.
+     * The node getSize is defined as the number of lines in multiline fields (Identities, Joiners, Actives, Leaver, Revoked, Certifications, Transactions) except Excluded field.
      *
      * For example:
      *
      *
-     * 1 new identity + 1 joiner + 2 certifications = 4 lines sized block
-     * 1 new identity + 1 joiner + 2 certifications + 5 lines transaction = 9 lines sized block
+     * 1 new identity + 1 joiner + 2 certifications = 4 lines sized node
+     * 1 new identity + 1 joiner + 2 certifications + 5 lines transaction = 9 lines sized node
      * </pre>
      *
      * @return getSize of the DBBlock
@@ -363,7 +375,7 @@ public class DBBlock implements DUPDocument {
     }
 
     /**
-     * Method returning block as a Raw format
+     * Method returning node as a Raw format
      *
      * @return the DUP as text format
      */

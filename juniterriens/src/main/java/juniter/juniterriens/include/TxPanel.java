@@ -1,7 +1,7 @@
 package juniter.juniterriens.include;
 
 import com.google.common.collect.Lists;
-import javafx.event.ActionEvent;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -11,20 +11,19 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import juniter.core.crypto.SecretBox;
+import juniter.core.model.dbo.index.SINDEX;
 import juniter.core.model.dbo.tx.*;
-import juniter.repository.jpa.block.BlockRepository;
+import juniter.juniterriens.Notary;
 import juniter.repository.jpa.index.SINDEXRepository;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger ;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -69,18 +68,17 @@ public class TxPanel implements Initializable {
     private VBox signatureContainer;
 
     private List<TxInput> inputs = Lists.newArrayList();
-    private List<TxOutput> outputs = Lists.newArrayList();
-    private List<TxUnlock> unlocks = Lists.newArrayList();
-    private Map<SecretBox, Integer> issuersInputs = new HashMap<>();
 
+    private List<TxOutput> outputs = Lists.newArrayList();
+
+    private List<TxUnlock> unlocks = Lists.newArrayList();
+
+    private Map<SecretBox, Integer> issuersInputs = new HashMap<>();
 
     private Transaction tx;
 
     @Autowired
-    BlockRepository blockRepo;
-
-    @Autowired
-    SINDEXRepository sRepo;
+    private SINDEXRepository sRepo;
 
 
     public TxPanel() {
@@ -89,13 +87,12 @@ public class TxPanel implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
-        var b =  Bindings.currenBlock.get();
-        fieldBlockstamp.setText(b.bstamp()) ;
+        fieldVersion.setText(Notary.PROTOCOL_VERSION + "");
+        fieldBlockstamp.setText(Bindings.currenBlock.get().bstamp());
     }
 
     @FXML
-    public void addIssuers(ActionEvent event) {
+    public void addIssuers() {
         try {
             issuersInputs.put(
                     new SecretBox(issSalt.getText(), issPass.getText()),
@@ -114,7 +111,8 @@ public class TxPanel implements Initializable {
     @FXML
     public void refresh() {
 
-        var b =  Bindings.currenBlock.get();
+        Platform.runLater(() -> {
+            var b = Bindings.currenBlock.get();
 
             tx = new Transaction(null,
                     Integer.parseInt(fieldVersion.getText()),
@@ -122,13 +120,17 @@ public class TxPanel implements Initializable {
                     Integer.parseInt(fieldLocktime.getText()),
                     "",
                     b.bStamp(),
+                    // b,
                     b.getTime().intValue(),
                     issuersInputs.keySet().stream().map(SecretBox::getPublicKey).collect(Collectors.toList()),
                     inputs,
                     outputs,
                     unlocks,
                     null,
-                    fieldComment.getText());
+                    fieldComment.getText(),
+                    b.getNumber(),
+                    b.getHash(),
+                    b.getMedianTime());
 
 
             tx.setSignatures(issuersInputs.entrySet().stream()
@@ -136,80 +138,86 @@ public class TxPanel implements Initializable {
                     .collect(Collectors.toList()));
 
 
-        issuerContainer.getChildren().clear();
-        signatureContainer.getChildren().clear();
-        inputContainer.getChildren().clear();
-        unlockContainer.getChildren().clear();
+            issuerContainer.getChildren().clear();
+            signatureContainer.getChildren().clear();
+            inputContainer.getChildren().clear();
+            unlockContainer.getChildren().clear();
 
 
+            int i = 0;
+            for (Map.Entry<SecretBox, Integer> entry : issuersInputs.entrySet()) {
+                SecretBox sb = entry.getKey();
+                Integer amount = entry.getValue();
+                var rem = new Button("-");
+                rem.setOnAction(e -> {
+                    issuersInputs.remove(sb);
+                    refresh();
+                });
+                var pk = new Label(sb.getPublicKey());
+                pk.setStyle("-fx-font: 16 monospaced;");
+                var amountL = new Label("" + amount);
+                var issCtrl = new HBox();
+                issCtrl.setSpacing(20);
+                issCtrl.getChildren().addAll(pk, amountL, rem);
+                issuerContainer.getChildren().add(issCtrl);
+                var sign = new Label(sb.sign(tx.toDUPdoc(false)));
+                sign.setStyle("-fx-font: 10 monospaced;");
+                signatureContainer.getChildren().add(sign);
+                inputs.clear();
+                unlocks.clear();
 
-        int i=0;
-        for (Map.Entry<SecretBox, Integer> entry : issuersInputs.entrySet()) {
-            SecretBox sb = entry.getKey();
-            Integer amount = entry.getValue();
-            var rem = new Button("-");
-            rem.setOnAction(e -> {
-                issuersInputs.remove(sb);
-                refresh();
-            });
-            var pk = new Label(sb.getPublicKey());
-            pk.setStyle("-fx-font: 16 monospaced;");
-            var amountL = new Label("" + amount);
-            var issCtrl = new HBox();
-            issCtrl.setSpacing(20);
-            issCtrl.getChildren().addAll(pk, amountL, rem);
-            issuerContainer.getChildren().add(issCtrl);
-            var sign = new Label(sb.sign(tx.toDUPdoc(false)));
-            sign.setStyle("-fx-font: 10 monospaced;");
-            signatureContainer.getChildren().add(sign);
-            inputs.clear(); unlocks.clear();
-            inputContainer.getChildren().addAll(
-                    sRepo.sourcesOfPubkeyL(sb.getPublicKey()).stream()
-                            //.map(SINDEX::asSourceBMA)
-                            .map(s -> new TxInput(s.getAmount() + ":" + s.getBase() + ":" + TxType.D + ":" + s.getIdentifier() + ":" + s.getPos()))
-                            .peek(txIn -> inputs.add(txIn))
-                            .map(s -> new Label(s.toDUP()))
-                            .collect(Collectors.toList()));
+                AtomicInteger ai = new AtomicInteger(0);
+                inputContainer.getChildren().addAll(
+                        sRepo.sourcesOfPubkeyL(sb.getPublicKey()).stream()
+                                .sorted(Comparator.comparingInt(SINDEX::getAmount))
+                                .limit(40)
+                                .takeWhile(s -> ai.getAndAdd(s.getAmount()) < amount)
+                                //.map(SINDEX::asSourceBMA)
+                                .map(s -> new TxInput(s.getAmount() + ":" + s.getBase() + ":" + TxType.D + ":" + s.getIdentifier() + ":" + s.getPos()))
+                                .peek(txIn -> inputs.add(txIn))
+                                .map(s -> new Label(s.toDUP()))
+                                .collect(Collectors.toList()));
 
-            var inCnt =0;
-            for (TxInput in : inputs) {
-                if(in.getDsource().toString().equals(sb.getPublicKey())){
-                    var txu = new TxUnlock(i++ + ":SIG(" + inCnt++ + ")");
-                    unlocks.add(txu);
-                    unlockContainer.getChildren().add(new Label(txu.toDUP()));
+                var inCnt = 0;
+                for (TxInput in : inputs) {
+                    if (in.getDsource().toString().equals(sb.getPublicKey())) {
+                        var txu = new TxUnlock(i++ + ":SIG(" + inCnt++ + ")");
+                        unlocks.add(txu);
+                        unlockContainer.getChildren().add(new Label(txu.toDUP()));
 
+                    }
                 }
             }
-        }
 
 
+            outputContainer.getChildren().clear();
+            outputContainer.getChildren().addAll(
+                    outputs.stream()
+                            .map(o -> {
+                                var rem = new Button("-");
+                                rem.setOnAction(e -> {
+                                    outputs.remove(o);
+                                    refresh();
+                                });
+                                var lab = new Label(o.toDUP());
+                                var outCtrl = new HBox();
+                                outCtrl.setSpacing(20);
+                                outCtrl.getChildren().addAll(lab, rem);
+                                return outCtrl;
+                            })
+                            .collect(Collectors.toList())
+            );
 
-        outputContainer.getChildren().clear();
-        outputContainer.getChildren().addAll(
-                outputs.stream()
-                        .map(o -> {
-                            var rem = new Button("-");
-                            rem.setOnAction(e -> {
-                                outputs.remove(o);
-                                refresh();
-                            });
-                            var lab = new Label(o.toDUP());
-                            var outCtrl = new HBox();
-                            outCtrl.setSpacing(20);
-                            outCtrl.getChildren().addAll(lab, rem);
-                            return outCtrl;
-                        })
-                        .collect(Collectors.toList())
-        );
 
+            Bindings.rawDocument.setValue(tx.toDUPdoc(true));
 
-        Bindings.rawDocument.setValue(tx.toDUPdoc(true));
+        });
 
     }
 
 
     @FXML
-    public void addOutputs(ActionEvent actionEvent) {
+    public void addOutputs() {
         var out = new TxOutput();
         out.setAmount(Integer.parseInt(amountDest.getText()));
         out.setBase(0);
@@ -219,13 +227,13 @@ public class TxPanel implements Initializable {
     }
 
     @FXML
-    public void refreshUnlocks(ActionEvent actionEvent) {
+    public void refreshUnlocks() {
         unlockContainer.getChildren().clear();
     }
 
 
     @FXML
-    public void refreshInputs(ActionEvent actionEvent) {
+    public void refreshInputs() {
 
 
     }

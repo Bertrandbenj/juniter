@@ -1,27 +1,22 @@
 package juniter.juniterriens;
 
-import javafx.scene.chart.*;
-import javafx.scene.control.CheckBox;
-import javafx.scene.layout.BorderPane;
-import juniter.core.model.dto.IssuersFrameDTO;
-import juniter.juniterriens.include.Bindings;
-import juniter.juniterriens.include.ConfirmBox;
-import juniter.juniterriens.include.AbstractJuniterFX;
 import javafx.application.Platform;
-import javafx.beans.property.ListProperty;
-import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
+import javafx.scene.chart.*;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.text.Font;
+import javafx.scene.control.Tooltip;
 import javafx.stage.Stage;
+import juniter.core.model.dto.node.IssuersFrameDTO;
 import juniter.core.validation.BlockLocalValid;
+import juniter.juniterriens.include.AbstractJuniterFX;
+import juniter.juniterriens.include.Bindings;
+import juniter.juniterriens.include.ConfirmBox;
 import juniter.repository.jpa.block.BlockRepository;
 import juniter.service.bma.PeerService;
 import juniter.service.bma.loader.PeerLoader;
@@ -32,6 +27,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -42,27 +38,33 @@ public class Network extends AbstractJuniterFX implements Initializable {
 
     private static final Logger LOG = LogManager.getLogger();
 
-    public static final Integer PERIOD = 3 * 288;
+
+    @FXML
+    private ComboBox<String> period;
+
     @FXML
     private CheckBox testLowerThan;
+
     @FXML
     private CheckBox testHigherThan;
+
     @FXML
     private CheckBox delHigherThan;
+
     @FXML
     private CheckBox delLowerThan;
+
     @FXML
-    private LineChart medianTime;
+    private LineChart<Integer, Long> medianTime;
+
     @FXML
     private NumberAxis medianY;
+
     @FXML
     private NumberAxis medianX;
 
     @FXML
-    private BorderPane contentPane;
-
-    @FXML
-    private LineChart issuersFrame;
+    private LineChart<Integer, Integer> issuersFrame;
 
     @FXML
     private PieChart netstats;
@@ -73,13 +75,11 @@ public class Network extends AbstractJuniterFX implements Initializable {
     @FXML
     private NumberAxis issuersFrameY;
 
-
     @FXML
     private NumberAxis powX;
 
     @FXML
     private NumberAxis powY;
-
 
     @FXML
     private NumberAxis issuersFrameVarX;
@@ -88,13 +88,10 @@ public class Network extends AbstractJuniterFX implements Initializable {
     private NumberAxis issuersFrameVarY;
 
     @FXML
-    private LineChart issuersFrameVar;
+    private LineChart<Integer, Integer> issuersFrameVar;
 
     @FXML
-    private StackedAreaChart pow;
-
-    @FXML
-    private FlowPane peersList;
+    private StackedAreaChart<Integer, Integer> pow;
 
     @FXML
     private TextField delSome;
@@ -113,9 +110,13 @@ public class Network extends AbstractJuniterFX implements Initializable {
 
 
     public static ObservableList<PeerService.NetStats> observableList = FXCollections.observableArrayList();
+    private static ObservableList<String> periodList = FXCollections.observableArrayList("Day", "Week", "Month", "Equinox", "Year", "All");
+    private static ObservableList<PieChart.Data> pieChartData =
+            FXCollections.observableArrayList(
+                    new PieChart.Data("Grapefruit", 10),
+                    new PieChart.Data("Oranges", 10),
+                    new PieChart.Data("Plums", 10));
 
-
-    public ListProperty<PeerService.NetStats> choice = new SimpleListProperty<>(observableList);
 
     @FXML
     public void pairing() {
@@ -136,9 +137,7 @@ public class Network extends AbstractJuniterFX implements Initializable {
                 .forEach(id -> {
                     LOG.info("deleting Blocks # " + id);
 
-                    blockRepo.block_(id).forEach(block -> {
-                        blockRepo.delete(block);
-                    });
+                    blockRepo.block_(id).forEach(block -> blockRepo.delete(block));
                 });
     }
 
@@ -176,64 +175,32 @@ public class Network extends AbstractJuniterFX implements Initializable {
         primaryStage.show();
     }
 
+    private Integer PERIOD = 3 * 288;
 
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        observableList.addListener((ListChangeListener<PeerService.NetStats>) c -> {
-            //LOG.info("initialize ListChangeListener: " + c);
+    @FXML
+    @SuppressWarnings("unchecked")
+    private void refreshGraphs() {
 
-            var buttons = c.getList().stream().map(ns -> {
-                var res = new Button(ns.getSuccess() + "/" + ns.getCount() + " " +
-                        String.format("%.2f", ns.getLastNormalizedScore() * 100) + "% " + ns.getHost());
-                res.setFont(Font.font(11));
-                return res;
-            }).collect(Collectors.toList());
 
-            Platform.runLater(() -> {
-                peersList.getChildren().setAll(buttons);
-                peersList.requestLayout();
-            });
-            //refresh();
-        });
-
-        ObservableList<PieChart.Data> pieChartData =
-                FXCollections.observableArrayList(
-                        new PieChart.Data("Grapefruit", 10),
-                        new PieChart.Data("Oranges", 10),
-                        new PieChart.Data("Plums", 10),
-                        new PieChart.Data("Pears", 22),
-                        new PieChart.Data("Apples", 30));
-        netstats.dataProperty().setValue(pieChartData);
-
-        observableList.addListener((ListChangeListener<PeerService.NetStats>) c ->
-                pieChartData.setAll(
-                        c.getList().stream()
-                                .map(ns -> {
-                                    var st = ns.getHost().substring(ns.getHost().indexOf("://") + 3);
-                                    if (st.contains("/"))
-                                        st = st.substring(0, st.indexOf("/"));
-                                    return new PieChart.Data(st, ns.getLastNormalizedScore());
-                                })
-                                .collect(Collectors.toList()))
-
-        );
+        final var range = PERIOD;
+        final var tick = (range / 4);
 
 
         Platform.runLater(() -> {
             var current = Bindings.currenBlock.get().getNumber();
-            var issuersPoints = blockRepo.issuersFrameFromTo(current - PERIOD, current);
+            var issuersPoints = blockRepo.issuersFrameFromTo(current - range, current);
 
 
             //issuersFrameVarX.setAutoRanging(false);
-            issuersFrameVarX.setTickUnit(PERIOD / 4);
-            issuersFrameVarX.setLowerBound(current - PERIOD);
+            issuersFrameVarX.setTickUnit(tick);
+            issuersFrameVarX.setLowerBound(current - range);
             issuersFrameVarX.setUpperBound(current);
 
             // issuersFrameVarY.setAutoRanging(false);
             issuersFrameVarY.setLowerBound(issuersPoints.stream().mapToInt(IssuersFrameDTO::getIssuersFrameVar).min().orElse(0) - 10);
             issuersFrameVarY.setUpperBound(issuersPoints.stream().mapToInt(IssuersFrameDTO::getIssuersFrameVar).max().orElse(0) + 10);
 
-            XYChart.Series series = new XYChart.Series();
+            XYChart.Series<Integer, Integer> series = new XYChart.Series<>();
             series.getData().addAll(issuersPoints.stream()
                     .map(frame -> new XYChart.Data<>(frame.getNumber(), frame.getIssuersFrameVar()))
                     .collect(Collectors.toList()));
@@ -245,20 +212,20 @@ public class Network extends AbstractJuniterFX implements Initializable {
 
         Platform.runLater(() -> {
             var current = Bindings.currenBlock.get().getNumber();
-            var issuersPoints = blockRepo.issuersFrameFromTo(current - PERIOD, current);
+            var issuersPoints = blockRepo.issuersFrameFromTo(current - range, current);
 
             //issuersFrameX.setAutoRanging(false);
-            issuersFrameX.setTickUnit(PERIOD / 4);
-            issuersFrameX.setLowerBound(current - PERIOD);
+            issuersFrameX.setTickUnit(tick);
+            issuersFrameX.setLowerBound(current - range);
             issuersFrameX.setUpperBound(current);
 
             //issuersFrameY.setAutoRanging(false);
 //            issuersFrameVarY.setLowerBound(50);
 //            issuersFrameVarY.setUpperBound(180);
 
-            issuersFrameVarY.setLowerBound(issuersPoints.stream().mapToInt(IssuersFrameDTO::getIssuersFrame).min().orElse(80) - 10);
-            issuersFrameVarY.setUpperBound(issuersPoints.stream().mapToInt(IssuersFrameDTO::getIssuersFrame).max().orElse(250) + 10);
-            XYChart.Series series = new XYChart.Series();
+            issuersFrameY.setLowerBound(issuersPoints.stream().mapToInt(IssuersFrameDTO::getIssuersFrame).min().orElse(80) - 10);
+            issuersFrameY.setUpperBound(issuersPoints.stream().mapToInt(IssuersFrameDTO::getIssuersFrame).max().orElse(250) + 10);
+            XYChart.Series<Integer, Integer> series = new XYChart.Series<>();
 
             series.getData().addAll(issuersPoints.stream()
                     .map(frame -> new XYChart.Data<>(frame.getNumber(), frame.getIssuersFrame()))
@@ -272,11 +239,11 @@ public class Network extends AbstractJuniterFX implements Initializable {
 
         Platform.runLater(() -> {
             var current = Bindings.currenBlock.get().getNumber();
-            var issuersPoints = blockRepo.issuersFrameFromTo(current - PERIOD, current);
+            var issuersPoints = blockRepo.issuersFrameFromTo(current - range, current);
 
             //issuersFrameX.setAutoRanging(false);
-            powX.setTickUnit(PERIOD / 4);
-            powX.setLowerBound(current - PERIOD);
+            powX.setTickUnit(tick);
+            powX.setLowerBound(current - range);
             powX.setUpperBound(current);
 
             //issuersFrameY.setAutoRanging(false);
@@ -285,7 +252,7 @@ public class Network extends AbstractJuniterFX implements Initializable {
 
             powY.setLowerBound(issuersPoints.stream().mapToInt(IssuersFrameDTO::getPowMin).min().orElse(0) - 10);
             powY.setUpperBound(issuersPoints.stream().mapToInt(IssuersFrameDTO::getPowMin).max().orElse(250) + 10);
-            XYChart.Series series = new XYChart.Series();
+            XYChart.Series<Integer, Integer> series = new XYChart.Series<>();
 
             series.getData().addAll(issuersPoints.stream()
                     .map(frame -> new XYChart.Data<>(frame.getNumber(), frame.getPowMin()))
@@ -297,37 +264,137 @@ public class Network extends AbstractJuniterFX implements Initializable {
 
         Platform.runLater(() -> {
             var current = Bindings.currenBlock.get().getNumber();
-            var issuersPoints = blockRepo.issuersFrameFromTo(current - PERIOD, current);
+            var issuersPoints = blockRepo.issuersFrameFromTo(current - range, current);
+            Long prev = null;
+            for (IssuersFrameDTO ifd : issuersPoints) {
+                if (prev != null) {
+                    var tmp = ifd.getMedianTime();
+                    ifd.setMedianTime(tmp - prev);
+                    prev = tmp;
+                } else {
+                    prev = ifd.getMedianTime();
+                    ifd.setMedianTime(100L);
+                }
+
+            }
 
             //issuersFrameX.setAutoRanging(false);
-            medianX.setTickUnit(PERIOD / 4);
-            medianX.setLowerBound(current - PERIOD);
+            medianX.setTickUnit(tick);
+            medianX.setLowerBound(current - range);
             medianX.setUpperBound(current);
-
 
 //            issuersFrameVarY.setLowerBound(50);
 //            issuersFrameVarY.setUpperBound(180);
 
-            var medianMin = issuersPoints.stream().mapToLong(IssuersFrameDTO::getMedianTime).min().orElse(0);
-            var medianMax = issuersPoints.stream().mapToLong(IssuersFrameDTO::getMedianTime).max().orElse(250);
+//            var medianMin = issuersPoints.stream().mapToLong(IssuersFrameDTO::getMedianTime).min().orElse(0);
+//            var medianMax = issuersPoints.stream().mapToLong(IssuersFrameDTO::getMedianTime).max().orElse(250);
             medianY.setAutoRanging(false);
-            medianY.setLowerBound(medianMin - 10);
-            medianY.setUpperBound(medianMax + 10);
+            medianY.setLowerBound(0);
+            medianY.setUpperBound(1000);
 
-            XYChart.Series series = new XYChart.Series();
+            XYChart.Series<Integer, Long> series = new XYChart.Series<>();
 
             series.getData().addAll(issuersPoints.stream()
                     .map(frame -> new XYChart.Data<>(frame.getNumber(), frame.getMedianTime()))
+                    .peek(f -> Tooltip.install(f.getNode(), new Tooltip(df.format(f.getYValue()) + "XX")))
+
                     .collect(Collectors.toList()));
 
 
             medianTime.getData().setAll(series);
-        });
 
+            /*
+             * Browsing through the Data and applying ToolTip
+             * as well as the class on hover
+             */
+            for (XYChart.Series<Integer, Long> s : medianTime.getData()) {
+                for (XYChart.Data<Integer, Long> d : s.getData()) {
+                    Tooltip.install(d.getNode(), new Tooltip(
+                            d.getXValue().toString() + "\n" +
+                                    "Number Of Events : " + d.getYValue()));
+
+
+                    if (d.getNode() != null) {
+                        //Adding class on hover
+                        d.getNode().setOnMouseEntered(event -> d.getNode().getStyleClass().add("onHover"));
+
+                        //Removing class on exit
+                        d.getNode().setOnMouseExited(event -> d.getNode().getStyleClass().remove("onHover"));
+
+                    }
+                }
+            }
+
+
+        });
     }
 
 
-    public void ping(ActionEvent actionEvent) {
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+
+        period.setItems(periodList);
+
+        netstats.dataProperty().setValue(pieChartData);
+
+        observableList.addListener((ListChangeListener<PeerService.NetStats>) c -> {
+            pieChartData.setAll(
+                    c.getList().stream()
+                            .map(ns -> {
+                                var st = ns.getHost().substring(ns.getHost().indexOf("://") + 3);
+                                if (st.contains("/"))
+                                    st = ns.getSuccess() + "/" + ns.getCount() + " " + st.substring(0, st.indexOf("/"));
+
+                                return new PieChart.Data(st, ns.getLastNormalizedScore());
+                            })
+                            .collect(Collectors.toList()));
+
+            for (final PieChart.Data data : pieChartData) {
+                Tooltip.install(data.getNode(), new Tooltip(df.format(data.getPieValue() * 100) + "%"));
+            }
+
+        });
+
+        period.getSelectionModel().selectedItemProperty().addListener(
+                (observable, oldValue, newValue) -> {
+                    try {
+                        PERIOD = Integer.parseInt(newValue);
+                    } catch (Exception e) {
+                        switch (newValue) {
+                            case "Day":
+                                PERIOD = 288;
+                                break;
+                            case "Week":
+                                PERIOD = 7 * 288;
+                                break;
+                            case "Month":
+                                PERIOD = 30 * 288;
+                                break;
+                            case "Equinox":
+                                PERIOD = 183 * 288;
+                                break;
+                            case "Year":
+                                PERIOD = 365 * 288;
+                                break;
+                            case "All":
+                                PERIOD = 730 * 288;
+                                break;
+                            default:
+                                PERIOD = 3 * 288;
+                        }
+                    }
+                    refreshGraphs();
+                });
+
+        refreshGraphs();
+
+
+    }
+
+    private DecimalFormat df = new DecimalFormat("#.##");
+
+    @FXML
+    public void ping() {
         peerService.pings();
     }
 }

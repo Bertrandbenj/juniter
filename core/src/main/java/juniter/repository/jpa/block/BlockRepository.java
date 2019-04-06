@@ -1,7 +1,11 @@
 package juniter.repository.jpa.block;
 
 import juniter.core.model.dbo.DBBlock;
-import juniter.core.model.dto.IssuersFrameDTO;
+import juniter.core.model.dbo.tx.Transaction;
+import juniter.core.model.dbo.wot.Certification;
+import juniter.core.model.dbo.wot.Identity;
+import juniter.core.model.dbo.wot.Member;
+import juniter.core.model.dto.node.IssuersFrameDTO;
 import juniter.core.validation.BlockLocalValid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -28,7 +33,7 @@ public interface BlockRepository extends JpaRepository<DBBlock, Long>, BlockLoca
     @Override
     void delete(DBBlock entity);
 
-    @Cacheable(value="blocks")//, unless="#getSize()<1")
+    //@Cacheable(value = "blocks")//, unless="#getSize()<1")
     @Query("SELECT b from DBBlock b WHERE number = ?1")
     Optional<DBBlock> block(Integer number);
 
@@ -41,7 +46,7 @@ public interface BlockRepository extends JpaRepository<DBBlock, Long>, BlockLoca
     List<DBBlock> findAll();
 
 
-    @Cacheable(value = "blocks", key = "#number")
+    //@Cacheable(value = "blocks", key = "#number" )
     @Query("SELECT b FROM DBBlock b WHERE number = ?1 AND hash = ?2 ")
     Optional<DBBlock> block(Integer number, String hash);
 
@@ -92,11 +97,53 @@ public interface BlockRepository extends JpaRepository<DBBlock, Long>, BlockLoca
      * @return Optional<DBBlock>
      */
     Optional<DBBlock> findTop1ByOrderByNumberDesc();
+    // Generic function to concatenate multiple lists in Java
 
 
     default Optional<DBBlock> localSave(DBBlock block) throws AssertionError {
-        //LOG.error("localsavng  "+block.getNumber());
+        //LOG.error("localsavng  "+node.getNumber());
+        block.getSize();
 
+        // Denormalized Fields !
+        for (Transaction tx : block.getTransactions()) {
+            tx.getHash();
+            tx.setWritten(block);
+        }
+
+        for (Identity ident : block.getIdentities()) {
+            ident.setWritten(block);
+        }
+
+        for (Certification cert : block.getCertifications()) {
+            cert.setWritten(block);
+        }
+
+        for (Member m : block.getRenewed()) {
+            m.setWritten(block);
+        }
+
+        for (Member m : block.getRevoked()) {
+            m.setWritten(block);
+        }
+
+        for (Member m : block.getJoiners()) {
+            m.setWritten(block);
+        }
+
+        for (Member m : block.getExcluded()) {
+            m.setWritten(block);
+        }
+
+        for (Member m : block.getMembers()) {
+            m.setWritten(block);
+        }
+
+        for (Member m : block.getLeavers()) {
+            m.setWritten(block);
+        }
+
+
+        // Do the saving after some checks
         if (checkBlockIsLocalValid(block)) {
 
             try {
@@ -107,7 +154,7 @@ public interface BlockRepository extends JpaRepository<DBBlock, Long>, BlockLoca
                 return Optional.empty();
             }
         } else {
-            LOG.error("Error localSave block " + block.getNumber() );
+            LOG.error("Error localSave block " + block.getNumber());
 
         }
 
@@ -149,9 +196,9 @@ public interface BlockRepository extends JpaRepository<DBBlock, Long>, BlockLoca
 
 
     @Query("SELECT c FROM DBBlock c WHERE number >= ?1 AND number < ?2")
-    List<DBBlock> blocksFromTo(int from, int to);
+    List<DBBlock> blocksFromTo(Integer from, Integer to);
 
-    @Query("SELECT  new juniter.core.model.dto.IssuersFrameDTO(number, issuersFrame, issuersFrameVar, powMin, medianTime) FROM DBBlock c WHERE number >= ?1 AND number < ?2")
+    @Query("SELECT  new juniter.core.model.dto.node.IssuersFrameDTO(number, issuersFrame, issuersFrameVar, powMin, medianTime) FROM DBBlock c WHERE number >= ?1 AND number < ?2")
     List<IssuersFrameDTO> issuersFrameFromTo(int from, int to);
 
 }

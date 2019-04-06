@@ -4,7 +4,7 @@ import juniter.core.crypto.SecretBox;
 import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dbo.net.EndPoint;
 import juniter.core.model.dbo.net.Peer;
-import juniter.core.model.dto.*;
+import juniter.core.model.dto.net.*;
 import juniter.repository.jpa.block.BlockRepository;
 import juniter.repository.jpa.net.EndPointsRepository;
 import juniter.repository.jpa.net.PeersRepository;
@@ -141,7 +141,7 @@ return response ;
     /**
      * Create the peer card of this node
      *
-     * @param number the block number we declare the node
+     * @param number the node number we declare the node
      * @return the Peer object
      */
     public Peer endPointPeer(Integer number) {

@@ -1,12 +1,12 @@
 package juniter.grammar;
 
 import juniter.core.validation.LocalValid;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 public class CertificationDoc implements WotDocument, LocalValid {
 

@@ -1,13 +1,13 @@
 package juniter.grammar;
 
 import juniter.core.validation.LocalValid;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 
-@Setter
-@Getter
+@Data
 @NoArgsConstructor
 public class RevocationDoc implements WotDocument, LocalValid {
 	private String version;

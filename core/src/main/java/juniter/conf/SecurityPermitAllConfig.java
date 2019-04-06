@@ -64,7 +64,7 @@ public class SecurityPermitAllConfig extends WebSecurityConfigurerAdapter {
 //                .and().authorizeRequests()
 //                .antMatchers("/js/**", "/lib/**", "/images/**", "/css/**", "/index.html", "/", "/*.css", "/webjars/**", "/*.js").permitAll()
 //
-//                .antMatchers("/","/ws/**","/ws/block/websocket" , "/websocket", "/graphql", "/**/websocket","/node/summary").permitAll()
+//                .antMatchers("/","/ws/**","/ws/node/websocket" , "/websocket", "/graphql", "/**/websocket","/node/summary").permitAll()
 //                //.defaultAuthenticationEntryPointFor(forbiddenEntryPoint(), PROTECTED_URLS)
 //                .requestMatchers(EndpointRequest.toAnyEndpoint()).permitAll()
 //                .anyRequest().permitAll()

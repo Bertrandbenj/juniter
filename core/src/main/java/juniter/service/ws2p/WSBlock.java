@@ -1,7 +1,7 @@
 package juniter.service.ws2p;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import juniter.core.model.dto.Block;
+import juniter.core.model.dto.node.Block;
 import juniter.repository.jpa.block.BlockRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -56,7 +56,7 @@ public class WSBlock extends TextWebSocketHandler {
         blockRepo.current().ifPresent(bl -> {
             try {
                 var block = modelMapper.map(bl, Block.class);
-                LOG.info("sending block " + block.getNumber() + " to "+ session );
+                LOG.info("sending node " + block.getNumber() + " to "+ session );
                 var strBlock = objectMapper.writeValueAsString(block);
                 session.sendMessage(new TextMessage(strBlock));
             } catch (Exception e) {

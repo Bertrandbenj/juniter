@@ -2,12 +2,12 @@ package juniter.service.gva;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.leangen.graphql.annotations.GraphQLNonNull;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PendingCertification {

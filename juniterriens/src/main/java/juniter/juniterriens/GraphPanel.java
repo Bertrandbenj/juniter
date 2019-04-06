@@ -7,6 +7,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import juniter.juniterriens.include.AbstractJuniterFX;
+import juniter.juniterriens.include.Bindings;
 import juniter.repository.jpa.block.BlockRepository;
 import juniter.service.web.GraphvizService;
 import org.apache.logging.log4j.LogManager;
@@ -33,22 +34,20 @@ public class GraphPanel extends AbstractJuniterFX implements Initializable {
     private static final Logger LOG = LogManager.getLogger();
 
     @FXML
-    WebView SVGAnchor;
+    private WebView SVGAnchor;
 
     @FXML
-    WebView CesiumAnchor;
+    private WebView CesiumAnchor;
 
     @FXML
-    WebView WotMapAnchor;
+    private WebView WotMapAnchor;
 
     @FXML
-    TextField uri;
+    private TextField uri;
 
     @Autowired
-    GraphvizService graphvizService;
+    private GraphvizService graphvizService;
 
-    @Autowired
-    BlockRepository blockRepo;
 
     @Override
     public void start(Stage primaryStage) {
@@ -70,7 +69,6 @@ public class GraphPanel extends AbstractJuniterFX implements Initializable {
         }
     }
 
-
     private boolean isGraphviz() {
         return uri.getText().startsWith("/graphviz");
     }
@@ -78,7 +76,6 @@ public class GraphPanel extends AbstractJuniterFX implements Initializable {
     private boolean isWeb() {
         return uri.getText().startsWith("http");
     }
-
 
     @FXML
     public void go() {
@@ -111,7 +108,7 @@ public class GraphPanel extends AbstractJuniterFX implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        uri.setText("/graphviz/svg/block/" + (blockRepo.currentBlockNumber() - 2));
+        uri.setText("/graphviz/svg/block/" + (Bindings.currenBlock.get().getNumber() - 2));
 
         var webEngine = SVGAnchor.getEngine();    // Get WebEngine via WebView
         SVGAnchor.setZoom(0.60);
@@ -120,7 +117,7 @@ public class GraphPanel extends AbstractJuniterFX implements Initializable {
             if (newState == State.SUCCEEDED) {
                 // note next classes are from org.w3c.dom domain
                 EventListener listener = (Event ev) -> {
-                    var me = ((MouseEvent) ev);
+                    //var me = ((MouseEvent) ev);
                     var link = ((Element) ev.getTarget()).getAttribute("href");
 
                     if (link == null)
@@ -146,7 +143,7 @@ public class GraphPanel extends AbstractJuniterFX implements Initializable {
                 Document doc = webEngine.getDocument();
                 LOG.debug("doc : " + doc);
                 if (doc != null) {
-                    Element el = doc.getElementById("a");
+                    // Element el = doc.getElementById("a");
                     NodeList aaa = doc.getElementsByTagName("a");
                     LOG.debug("list: " + aaa.getLength());
 

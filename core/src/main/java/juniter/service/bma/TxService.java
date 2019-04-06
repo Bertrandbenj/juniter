@@ -1,12 +1,13 @@
 package juniter.service.bma;
 
-import juniter.core.model.dto.Source;
-import juniter.core.model.dto.TransactionDTO;
-import juniter.core.model.dto.TxHistory;
+import juniter.core.model.dto.tx.Source;
+import juniter.core.model.dto.tx.TransactionDTO;
+import juniter.core.model.dto.tx.TxHistory;
 import juniter.core.model.dbo.index.SINDEX;
 import juniter.core.model.dbo.tx.Transaction;
 import juniter.repository.jpa.block.TxRepository;
 import juniter.repository.jpa.index.SINDEXRepository;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -166,12 +167,9 @@ public class TxService {
     }
 
 
-    @Getter
-    @Setter
+    @Data
     @NoArgsConstructor
-    public class Wrapper implements Serializable {
-
-        private static final long serialVersionUID = 7842838617478484444L;
+    public class Wrapper   {
 
         String currency = "g1";
         String pubkey;

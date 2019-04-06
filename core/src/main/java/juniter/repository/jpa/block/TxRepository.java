@@ -83,6 +83,10 @@ public interface TxRepository extends JpaRepository<Transaction, Long> {
     Stream<Transaction> transactionsOfIssuer(Object pubkey);
 
 
+    @Query("SELECT t FROM Transaction t INNER JOIN t.issuers i WHERE i = ?1 ")
+    List<Transaction> transactionsOfIssuer_(Object pubkey);
+
+
 
     @Query(value = "SELECT DISTINCT t.blockstamp.number FROM  Transaction t ORDER BY blockstampTime ")
     List<Integer> withTx();

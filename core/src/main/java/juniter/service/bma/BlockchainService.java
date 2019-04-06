@@ -3,14 +3,15 @@ package juniter.service.bma;
 import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dbo.ChainParameters;
 import juniter.core.model.dbo.ChainParametersDTO;
-import juniter.core.model.dto.*;
 import juniter.core.model.dbo.index.MINDEX;
+import juniter.core.model.dto.node.Block;
+import juniter.core.model.dto.node.WithDTO;
+import juniter.core.model.dto.net.DifficultiesDTO;
+import juniter.core.model.dto.net.Difficulty;
+import juniter.core.model.dto.net.HardshipDTO;
+import juniter.core.model.dto.wot.MembershipDTO;
 import juniter.repository.jpa.block.*;
 import juniter.repository.jpa.index.MINDEXRepository;
-import juniter.repository.jpa.maybe.ExcludedRepository;
-import juniter.repository.jpa.maybe.JoinerRepository;
-import juniter.repository.jpa.maybe.LeaverRepository;
-import juniter.repository.jpa.maybe.RenewRepository;
 import juniter.service.bma.loader.BlockLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -53,7 +54,7 @@ import static java.util.stream.Collectors.toList;
  * |       `-- tx
  * |   |-- hardship
  * |   |   `-- [PUBKEY]
- * |   |-- block
+ * |   |-- node
  * |   |   `-- [NUMBER]
  * |   |-- difficulties
  * |   `-- current
@@ -72,23 +73,10 @@ public class BlockchainService {
     private BlockRepository blockRepo;
 
     @Autowired
-    private ExcludedRepository excludedRepo;
-
-    @Autowired
-    private JoinerRepository joinerRepo;
-
-    @Autowired
-    private RenewRepository renewRepo;
-
-    @Autowired
-    private LeaverRepository leaverRepo;
-
-    @Autowired
     private CertsRepository certRepo;
+
     @Autowired
     private MemberRepository memberRepo;
-
-
 
     @Autowired
     private TxRepository txRepo;

@@ -120,7 +120,7 @@ public class Peer  {
 
 
         var status = "&status=" + getStatus();
-        //var block = "&block=" + getBlock();
+        //var node = "&node=" + getBlock();
         var sign = getSignature();
         var pub = getPubkey();
 

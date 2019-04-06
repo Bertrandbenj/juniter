@@ -12,7 +12,6 @@ import lombok.*;
 import org.springframework.lang.NonNull;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -80,11 +79,8 @@ import java.util.stream.Stream;
  */
 public interface GlobalValid {
 
-    @Getter
-    @Setter
-    @ToString
+    @Data
     @NoArgsConstructor
-    @EqualsAndHashCode
     @JsonIgnoreProperties(ignoreUnknown = true)
     class BINDEX implements Comparable<BINDEX> {
 
@@ -158,8 +154,7 @@ public interface GlobalValid {
      * </pre>
      */
     @NoArgsConstructor
-    @Setter
-    @Getter
+    @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
     class CINDEX implements Comparable<CINDEX> {
 
@@ -232,6 +227,11 @@ public interface GlobalValid {
         }
 
         @Override
+        public int hashCode() {
+            return super.hashCode();
+        }
+
+        @Override
         public String toString() {
             return "CINDEX[" + op + "," + issuer + "," + receiver + "," + created_on + "," + written_on + "," + sig
                     + "," + expires_on + "," + expired_on + "," + chainable_on + "," + from_wid + "," + to_wid + ","
@@ -265,9 +265,7 @@ public interface GlobalValid {
      * </pre>
      */
     @NoArgsConstructor
-    @EqualsAndHashCode
-    @Setter
-    @Getter
+    @Data
             //@JsonIgnoreProperties(ignoreUnknown = true)
     class IINDEX implements Comparable<IINDEX> {
 
@@ -389,10 +387,7 @@ public interface GlobalValid {
      * </pre>
      */
     @NoArgsConstructor
-    @EqualsAndHashCode
-    @Setter
-    @Getter
-    @ToString
+    @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
     class MINDEX implements Comparable<MINDEX> {
 
@@ -573,9 +568,7 @@ public interface GlobalValid {
      */
     @Data
     @NoArgsConstructor
-    class SINDEX implements Comparable<SINDEX>, Serializable {
-
-        private static final long serialVersionUID = -6400219111111110671L;
+    class SINDEX implements Comparable<SINDEX> {
 
 
         //Long id;
@@ -1518,7 +1511,6 @@ public interface GlobalValid {
      * <pre>
      * Local IINDEX augmentation
      *
-     * BR_G19_setAge
      *
      * For each ENTRY in local IINDEX where op = 'CREATE':
      *
@@ -1549,7 +1541,7 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G20_setUidUnicity - Identity UserID unicity
+     *     Identity UserID unicity
      *
      * For each ENTRY in local IINDEX:
      *
@@ -1593,7 +1585,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G22_setAge - prepare ENTRY.age
      *
      * For each ENTRY in local MINDEX where revoked_on == null
      *
@@ -1623,7 +1614,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G23_setNumberFollowing
      *
      * For each ENTRY in local MINDEX where revoked_on == null
      *
@@ -1656,7 +1646,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G24_setDistanceOK
      *
      * Functionally: checks if it exists, for at least xpercent% of the sentries, a
      * path using GLOBAL_CINDEX + LOCAL_CINDEX leading to the key PUBLIC_KEY with a
@@ -1702,7 +1691,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G25_setOnRevoked
      *
      * For each ENTRY in local MINDEX:
      *     ENTRY.onRevoked = REDUCE(GLOBAL_MINDEX[pub=ENTRY.pub]).revoked_on != null
@@ -1715,7 +1703,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G26_setJoinsTwice
      *
      * This rule ensures that someone who is in the Joiners field isn't already a
      * member.
@@ -1735,7 +1722,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G27_setEnoughCerts
      *
      * Functionally: any member or newcomer needs [sigQty] certifications coming to
      * him to be in the WoT
@@ -1766,7 +1752,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G28_setLeaverIsMember
      *
      * For each ENTRY in local MINDEX where type == 'LEAVE':
      *     ENTRY.leaverIsMember = REDUCE(GLOBAL_IINDEX[pub=ENTRY.pub]).member
@@ -1786,7 +1771,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G29_setActiveIsMember
      *
      * For each ENTRY in local MINDEX where type == 'RENEW'
      *     ENTRY.activeIsMember = REDUCE(GLOBAL_IINDEX[pub=ENTRY.pub]).member
@@ -1806,7 +1790,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G30_setRevokedIsMember
      *
      * For each ENTRY in local MINDEX where revoked_on == null:
      *     ENTRY.revokedIsMember = true
@@ -1826,7 +1809,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G31_setAlreadyRevoked
      *
      * For each ENTRY in local MINDEX where revoked_on == null:
      *     ENTRY.alreadyRevoked = false
@@ -1847,7 +1829,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G32_setRevocationSigOK
      *
      * For each ENTRY in local MINDEX where revoked_on == null:
      *     ENTRY.revocationSigOK = true
@@ -1868,7 +1849,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G33_setExcludedIsMember
      *
      * For each ENTRY in local IINDEX where member != false:
      *     ENTRY.excludedIsMember = true
@@ -1902,7 +1882,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G35_setIsBeingKicked
      *
      * For each ENTRY in local IINDEX where member != false:
      *     ENTRY.isBeingKicked = false
@@ -1931,8 +1910,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     *
-     * BR_G37_setAge
      *
      * REF_BLOCK = HEAD~<HEAD~1.number + 1 -  NUMBER(ENTRY.created_on)>[hash=HASH(ENTRY.created_on)]
      *
@@ -1969,7 +1946,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G38_setCertUnchainable
      *
      * If HEAD.number > 0:
      *     ENTRY.unchainables = COUNT(GLOBAL_CINDEX[issuer=ENTRY.issuer, chainable_on > HEAD~1.medianTime]))
@@ -1995,28 +1971,18 @@ public interface GlobalValid {
     }
 
     /**
-     * <pre>s
-     * BR_G39_setCertStock
+     * <pre>
      *
      * ENTRY.stock = COUNT(REDUCE_BY(GLOBAL_CINDEX[issuer=ENTRY.issuer], 'receiver', 'created_on')[expired_on=0])
      *
      * </pre>
      */
     private void BR_G39_setCertStock(CINDEX entry) {
-        // TODO REDUCE BY recevier, created_on ??
-
-        assert indexCGlobal() != null : "BR_G39_setCertStock - index null ";
-        entry.stock = indexCGlobal().filter(c -> {
-                    assert entry.issuer != null : "BR_G39_setCertStock -  issuer null " + entry + "\n" + c;
-                    return entry.issuer.equals(c.issuer);
-                }
-        ).count();
-
+        entry.stock = certStock(entry.issuer);
     }
 
     /**
      * <pre>
-     * BR_G40_setCertFromMember
      *
      * ENTRY.fromMember = REDUCE(GLOBAL_IINDEX[pub=ENTRY.issuer]).member
      * </pre>
@@ -2027,7 +1993,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G41_setCertToMember
      *
      * ENTRY.toMember = REDUCE(GLOBAL_IINDEX[pub=ENTRY.receiver]).member
      *
@@ -2040,7 +2005,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G42_setCertToNewCommer
      *
      * ENTRY.toNewcomer = COUNT(LOCAL_IINDEX[member=true,pub=ENTRY.receiver]) > 0
      * </pre>
@@ -2052,7 +2016,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G43_setToLeaver
      *
      * ENTRY.toLeaver = REDUCE(GLOBAL_MINDEX[pub=ENTRY.receiver]).leaving
      * </pre>
@@ -2066,7 +2029,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G44_setIsReplay
      *
      * reducible = GLOBAL_CINDEX[issuer=ENTRY.issuer,receiver=ENTRY.receiver,expired_on=0]
      *
@@ -2084,8 +2046,6 @@ public interface GlobalValid {
     /**
      * <pre>
      *
-     * BR_G45_setSignatureOK
-     *
      * ENTRY.sigOK = SIG_CHECK_CERT(REDUCE(GLOBAL_IINDEX[pub=ENTRY.receiver]), ENTRY)
      *
      * </pre>
@@ -2098,8 +2058,7 @@ public interface GlobalValid {
      * Local SINDEX augmentation
      *
      * <pre>
-     *
-     * BR_G46_prepareAvailableAndCondition - ENTRY.available and ENTRY.conditions
+     * ENTRY.available and ENTRY.conditions
      *
      *     INPUT = REDUCE(INPUT_ENTRIES)
      *     ENTRY.conditions = INPUT.conditions
@@ -2115,7 +2074,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G47_prepareIsLocked
      *
      *     INPUT = REDUCE(INPUT_ENTRIES)
      *     ENTRY.isLocked = TX_SOURCE_UNLOCK(INPUT.conditions, ENTRY)
@@ -2130,8 +2088,6 @@ public interface GlobalValid {
     /**
      * <pre>
      *
-     * BR_G48_prepareIsTimeLocked
-     *
      * INPUT = REDUCE(INPUT_ENTRIES)
      * ENTRY.isTimeLocked = ENTRY.written_time - INPUT.written_time < ENTRY.locktime
      * </pre>
@@ -2144,7 +2100,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G49_ruleVersion
      *
      *  If `HEAD.number > 0`
      *      HEAD.version == (HEAD~1.version OR HEAD~1.version + 1)
@@ -2157,7 +2112,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G50_ruleBlockSize
      *
      * Rule:
      *
@@ -2171,7 +2125,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G51_ruleBlockNumber
      *
      * Number = HEAD.number
      * </pre>
@@ -2182,7 +2135,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G52_rulePreviousHash
      *
      * PreviousHash = HEAD.previousHash
      * </pre>
@@ -2199,7 +2151,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G53_rulePreviousIssuer
      *
      * PreviousIssuer = HEAD.previousIssuer
      * </pre>
@@ -2214,7 +2165,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G54_ruleDifferentIssuersCount
      *
      * DifferentIssuersCount = HEAD.issuersCount
      * </pre>
@@ -2226,7 +2176,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G55_ruleIssuersFrame
      *
      * IssuersFrame = HEAD.issuersFrame
      * </pre>
@@ -2238,7 +2187,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G56_ruleIssuersFrameVar
      *
      * IssuersFrameVar = HEAD.issuersFrameVar
      * </pre>
@@ -2250,7 +2198,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G57_ruleMedianTime
      *
      * MedianTime = HEAD.medianTime
      * </pre>
@@ -2263,7 +2210,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G58_ruleUniversalDividend
      *
      * UniversalDividend = HEAD.new_dividend
      * </pre>
@@ -2289,7 +2235,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G59_ruleUnitBase
      *
      * UnitBase = HEAD.unitBase
      * </pre>
@@ -2301,7 +2246,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G60_ruleMembersCount
      *
      * MembersCount = HEAD.membersCount
      * </pre>
@@ -2315,7 +2259,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G61_rulePowMin
      *
      * If HEAD.number > 0
      *     PowMin = HEAD.powMin
@@ -2328,7 +2271,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G62_ruleProofOfWork
      *
      * Rule: the proof is considered valid if:
      *
@@ -2407,7 +2349,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G63_ruleIdentityWritability
      *
      * ENTRY.age <= [idtyWindow]
      */
@@ -2418,7 +2359,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G64_ruleMembershipMsWindow
      *
      * Rule:
      *
@@ -2431,7 +2371,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G65_ruleCertificationSigWindow
      *
      * Rule:
      *
@@ -2444,7 +2383,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G66_ruleCertificationStock
      *
      * Rule:
      *
@@ -2457,7 +2395,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G67_ruleCertificationPeriod
      *
      * Rule:
      *
@@ -2470,7 +2407,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G68_ruleCertificationFromMember
      *
      * Rule:
      *
@@ -2485,7 +2421,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G69_ruleCertificationToMemberOrNewComer
      *
      * Rule:
      *
@@ -2498,7 +2433,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G70_ruleCertificationToNonLeaver
      *
      * Rule:
      *
@@ -2511,7 +2445,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G71_ruleCertificationReplay
      *
      * Rule:
      *
@@ -2524,7 +2457,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G72_ruleCertificationSignature
      *
      * Rule:
      *
@@ -2537,7 +2469,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G73_ruleIdentityUserIdUnicity
      *
      * Rule:
      *
@@ -2550,7 +2481,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G74_ruleIdentityPubkeyUnicity
      *
      * Rule:
      *
@@ -2563,7 +2493,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G75_ruleMembershipSuccession
      *
      * Rule:
      *
@@ -2576,7 +2505,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G76_ruleMembershipDistance
      *
      * Rule:
      *
@@ -2589,7 +2517,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G77_ruleMembershipOnRevoked
      *
      * Rule:
      *
@@ -2602,7 +2529,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G78_ruleMembershipJoinsTwice
      *
      * Rule:
      *
@@ -2615,7 +2541,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G79_ruleMembershipEnoughCertifications
      *
      * Rule:
      *
@@ -2628,7 +2553,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G80_ruleMembershipLeaver -
      *
      * Rule:
      *
@@ -2641,7 +2565,6 @@ public interface GlobalValid {
 
     /**
      * <pre>
-     * BR_G81_ruleMembershipActive
      *
      * Rule:
      *
@@ -3412,7 +3335,7 @@ public interface GlobalValid {
 
         for (int ind = 0; ind < block.getIdentities().size(); ind++) {
             var idty = block.getIdentities().get(ind);
-            var median = createdOnBlock(idty.getCreatedOn()).orElse(block).getMedianTime();
+            var median = createdOnBlock(idty.getSigned()).orElse(block).getMedianTime();
 
             //System.out.println("on block "+ block + " applying median "+ median );
 
@@ -3420,7 +3343,7 @@ public interface GlobalValid {
             localI.add(new IINDEX("CREATE",
                     idty.getUid(),
                     idty.getPubkey(),
-                    idty.getCreatedOn(),
+                    idty.getSigned(),
                     written_on,
                     true,
                     true,
@@ -3429,7 +3352,7 @@ public interface GlobalValid {
 
             localM.add(new MINDEX("CREATE",
                     idty.getPubkey(),
-                    idty.getCreatedOn(),
+                    idty.getSigned(),
                     written_on,
                     "JOIN",
                     median + conf.getMsValidity(),
@@ -3443,7 +3366,6 @@ public interface GlobalValid {
         }
 
         block.getJoiners().stream()
-                // FIXME :  specs says :  "Each join whose PUBLIC_KEY does not match a local MINDEX CREATE, PUBLIC_KEY produces 2 new entries"   each joinER?
                 .filter(join -> localM.stream()
                         .noneMatch(m -> m.op.equals("CREATE")
                                 && m.pub.equals(join.getPubkey())))
@@ -3479,13 +3401,13 @@ public interface GlobalValid {
 
         block.getCertifications().forEach(cert -> {
 
-            var createOn = createdOnBlock(cert.getBlockNumber()).orElse(block);
+            var createOn = createdOnBlock(cert.getSignedOn()).orElse(block);
             //System.out.println("CERT created on " + createOn.getMedianTime() + "expires " + (createOn.getMedianTime() + conf.getSigValidity()));
 
             localC.add(new CINDEX("CREATE",
                     cert.getCertifier(),
                     cert.getCertified(),
-                    cert.getBlockNumber(),
+                    cert.getSignedOn(),
                     written_on,
                     cert.getSignature(),
                     createOn.getMedianTime() + conf.getSigValidity(),
@@ -3577,6 +3499,8 @@ public interface GlobalValid {
      */
     Stream<SINDEX> indexSGlobal();
 
+
+    Integer certStock(String issuer);
 
     Stream<MINDEX> findPubkeysThatShouldExpire(Long mTime);
 

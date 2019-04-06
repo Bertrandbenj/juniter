@@ -30,7 +30,7 @@ public class JuniterriensEventListener implements CoreEventBus {
     }
 
     @Override
-    public void sendEventIndexLogMessage(String s ) {
+    public void sendEventIndexLogMessage(String s) {
         Platform.runLater(() -> Bindings.indexLogMessage.setValue(s));
 
     }
@@ -43,14 +43,13 @@ public class JuniterriensEventListener implements CoreEventBus {
     @Override
     public void sendEventIsIndexing(boolean is) {
         Platform.runLater(() -> Bindings.isIndexing.setValue(is));
-
     }
 
     @Override
-    public void sendEventCurrent(long x ) {
+    public void sendEventCurrent(long x) {
         Platform.runLater(() -> {
             Bindings.currentDBBlock.setValue(x);
-         });
+        });
     }
 
     @Override
@@ -79,6 +78,11 @@ public class JuniterriensEventListener implements CoreEventBus {
 
     @Override
     public void sendEventMemoryLog(String log) {
-        Platform.runLater(()-> Bindings.memoryLogMessage.setValue(log));
+        Platform.runLater(() -> Bindings.memoryLogMessage.setValue(log));
+    }
+
+    @Override
+    public boolean isIndexing() {
+        return Bindings.isIndexing.get();
     }
 }

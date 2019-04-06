@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 <!--stylesheets="@./css/dark-theme.css"-->
-<BorderPane fx:id="content"
+<BorderPane
             xmlns="http://javafx.com/javafx/8"
             xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.juniterriens.Notary">
     <right>

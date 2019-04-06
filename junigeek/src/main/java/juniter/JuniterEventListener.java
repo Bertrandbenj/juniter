@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+import javax.naming.Binding;
 import java.util.List;
 
 @Component
@@ -71,5 +72,10 @@ public class JuniterEventListener implements CoreEventBus {
     @Override
     public void sendEventMemoryLog(String log) {
 
+    }
+
+    @Override
+    public boolean isIndexing(){
+        return true;
     }
 }

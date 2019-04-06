@@ -155,7 +155,7 @@ public class BlockLoader implements BlockLocalValid {
                     body.removeIf(block -> !checkBlockIsLocalValid(block));
 
 
-                    LOG.info(" records" + body.size() + " from: " + url + "... Status: " + statusCode + " : " + contentType);
+                    LOG.info("getBlocks " + body.size() + " from: " + url + "... Status: " + statusCode + " : " + contentType);
                     peerService.reportSuccess(host);
                     coreEventBus.sendEventCurrent(body.get(body.size()-1).getNumber());
                     return body;
@@ -225,9 +225,9 @@ public class BlockLoader implements BlockLocalValid {
     }
 
     /**
-     * Fetch a block and save it synchronously
+     * Fetch a node and save it synchronously
      *
-     * @param id the block id
+     * @param id the node id
      */
     @Transactional
     public DBBlock fetchAndSaveBlock(String id) {
@@ -238,9 +238,9 @@ public class BlockLoader implements BlockLocalValid {
 
 
     /**
-     * Fetch a block and save it synchronously
+     * Fetch a node and save it synchronously
      *
-     * @param id the block id
+     * @param id the node id
      */
     @Transactional
     public DBBlock fetchBlock(String id) {
@@ -308,7 +308,7 @@ public class BlockLoader implements BlockLocalValid {
                 body.removeIf(block -> !checkBlockIsLocalValid(block));
 
 
-                LOG.info("attempts: " + attempts + " records" + body.size() + " from: " + url + "... Status: " + statusCode + " : " + contentType);
+                LOG.info("attempts: " + attempts + " to record " + body.size() + " from: " + url + "... Status: " + statusCode + " : " + contentType);
                 peerService.reportSuccess(host.get().getHost());
                 return body;
 

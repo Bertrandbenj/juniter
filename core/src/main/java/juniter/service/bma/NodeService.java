@@ -1,8 +1,8 @@
 package juniter.service.bma;
 
-import juniter.core.model.dto.NodeSummaryDTO;
-import juniter.core.model.dto.SandBoxesDTO;
-import juniter.core.model.dto.UnitDTO;
+import juniter.core.model.dto.node.NodeSummaryDTO;
+import juniter.core.model.dto.node.SandBoxesDTO;
+import juniter.core.model.dto.node.UnitDTO;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.web.bind.annotation.*;
 

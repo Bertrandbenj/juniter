@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.lang.NonNull;
 
 import javax.persistence.Embeddable;
+import javax.persistence.Entity;
 import javax.validation.constraints.Size;
 
 @Data

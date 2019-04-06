@@ -12,6 +12,7 @@ buildscript {
     }
 
 }
+
 apply plugin: "java"
 apply plugin: 'antlr'
 apply plugin: 'org.springframework.boot'
@@ -177,6 +178,11 @@ dependencies {
 
     compile 'org.javassist:javassist:3.23.1-GA'
     // https://stackoverflow.com/questions/18125587/hibernate-mapping-exception-could-not-get-constructor-for-org-hibernate-entity
+
+    // hsql
+
+    compile 'org.hsqldb:hsqldb:2.4.0'
+
 }
 
 

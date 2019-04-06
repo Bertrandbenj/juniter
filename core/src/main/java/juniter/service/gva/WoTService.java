@@ -44,7 +44,7 @@ public class WoTService {
         var idty = iRepo.byUidOrPubkey(uid, pubkey).stream().reduce(IINDEX.reducer).filter(IINDEX::getMember);
         if (idty.isPresent()) {
             var res = new Identity();
-            res.setCreatedOn(new BStamp(idty.get().getCreated_on()));
+            res.setSigned(new BStamp(idty.get().getCreated_on()));
             res.setPubkey(idty.get().getPub());
             res.setSignature(idty.get().getSig());
             res.setUid(idty.get().getUid());

@@ -6,21 +6,16 @@ import lombok.*;
 import javax.persistence.*;
 import java.io.Serializable;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
-@ToString
-@EqualsAndHashCode
 @Entity
 @Table(name = "BINDEX", schema = "public", indexes = {
-        @Index(name = "ind_Bissuer", columnList = "issuer"),
-        @Index(name = "ind_time", columnList = "time"),
-        @Index(name = "ind_Bnum", columnList = "number")
+        @Index(  columnList = "issuer"),
+        @Index(  columnList = "time"),
+        @Index(  columnList = "number")
 })
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class BINDEX implements Serializable {
-
-    private static final long serialVersionUID = -640721971830671L;
+public class BINDEX  {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
