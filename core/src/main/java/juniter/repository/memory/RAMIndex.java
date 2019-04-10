@@ -3,16 +3,15 @@ package juniter.repository.memory;
 import com.google.common.collect.Lists;
 import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.DBBlock;
+import juniter.core.model.dbo.index.*;
 import juniter.core.validation.GlobalValid;
 import juniter.repository.jpa.block.BlockRepository;
-import juniter.core.model.dbo.index.Account;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -28,7 +27,7 @@ import java.util.stream.Stream;
 @Service
 public class RAMIndex implements GlobalValid {
 
-    private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger(RAMIndex.class);
 
     private List<CINDEX> indexCG = Lists.newArrayList();
     private List<MINDEX> indexMG = Lists.newArrayList();
@@ -52,8 +51,7 @@ public class RAMIndex implements GlobalValid {
     }
 
     @Override
-    public int trimGlobal(BINDEX head, int bIndexSize) {
-        return 0;
+    public void trimGlobal(BINDEX head, int bIndexSize) {
     }
 
     @Override

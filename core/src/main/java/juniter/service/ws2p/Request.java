@@ -12,7 +12,7 @@ import java.util.Random;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Request {
 
-	private static final Logger LOG = LogManager.getLogger();
+	private static final Logger LOG = LogManager.getLogger(Request.class);
 
 	private String reqId;
 

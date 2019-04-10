@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @Service
 public class TransactionService {
 
-	private static final Logger LOG = LogManager.getLogger();
+	private static final Logger LOG = LogManager.getLogger(TransactionService.class);
 
 	@Autowired private TxRepository txRepository;
 

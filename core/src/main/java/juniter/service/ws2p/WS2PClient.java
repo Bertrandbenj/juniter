@@ -30,7 +30,7 @@ import java.util.Map;
  */
 public class WS2PClient extends WebSocketClient {
 
-	private static final Logger LOG = LogManager.getLogger();
+	private static final Logger LOG = LogManager.getLogger(WS2PClient.class);
 	Map<String, Request> sentRequests = new HashMap<String, Request>();
 
 	@Value("${juniter.network.webSocketPoolSize:5}")

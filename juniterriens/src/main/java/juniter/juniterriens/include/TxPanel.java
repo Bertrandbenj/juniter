@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 @Component
 public class TxPanel implements Initializable {
 
-    private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger(TxPanel.class);
     @FXML
     private TextField pkDest;
     @FXML
@@ -121,16 +121,14 @@ public class TxPanel implements Initializable {
                     "",
                     b.bStamp(),
                     // b,
-                    b.getTime().intValue(),
+                    //b.getTime().intValue(),
                     issuersInputs.keySet().stream().map(SecretBox::getPublicKey).collect(Collectors.toList()),
                     inputs,
                     outputs,
                     unlocks,
                     null,
                     fieldComment.getText(),
-                    b.getNumber(),
-                    b.getHash(),
-                    b.getMedianTime());
+                    b.bStamp());
 
 
             tx.setSignatures(issuersInputs.entrySet().stream()

@@ -18,7 +18,7 @@ import java.util.ResourceBundle;
 @Component
 public class Footer implements Initializable {
 
-    private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger(Footer.class);
 
     @FXML private ProgressIndicator downloadIndic;
     @FXML private ProgressIndicator indexIndic;

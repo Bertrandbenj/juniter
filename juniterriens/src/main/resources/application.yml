@@ -52,15 +52,19 @@ spring:
     username: sa
     password:
     driverClassName: org.hsqldb.jdbc.JDBCDriver
-    jdbcUrl:  jdbc:hsqldb:file:db/testdb  #jdbc:hsqldb:hsql://localhost/test
+    jdbcUrl: jdbc:hsqldb:file:db/testdb  #jdbc:hsqldb:hsql://localhost/test
 
   jpa:
     database: default
     generate-ddl: true
     show-sql: false
-    hibernate.ddl-auto:  create-drop
+    hibernate:
+      ddl-auto: update # create-drop
+      naming.implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyComponentPathImpl
+      naming.physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     properties.hibernate.jdbc:
       lob.non_contextual_creation: true # disable an ugly exception at start
+
 
     properties:
       hibernate:
@@ -93,7 +97,7 @@ server:
   port: 8443
   #http.port: 8080
   ssl:
-    key-store: ../core/keystore.p12
+    key-store: classpath:keystore.p12
     key-store-password: ouvresToi
     keyStoreType: PKCS12
     keyAlias: juniter2
@@ -152,6 +156,12 @@ graphiql:
     #    org.hibernate.SQL: warn
     #    juniter: info
     #hibernate.show_sql: false
+
+log4j:
+  logger:
+    org:
+      hibernate: FATAL
+      hibernate.SQL: INHERITED
 
 management.endpoint.metrics.enabled: true
 

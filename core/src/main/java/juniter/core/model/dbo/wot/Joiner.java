@@ -1,5 +1,6 @@
 package juniter.core.model.dbo.wot;
 
+import juniter.core.model.dbo.BStamp;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
@@ -20,9 +21,9 @@ public class Joiner extends Member implements Serializable {
         final var vals = joiner.split(":");
         pubkey = vals[0];
         signature = vals[1];
-        var signed  = vals[2];
-        signedOn = Integer.parseInt(signed.split("-")[0]);
-        signedHash = signed.split("-")[1];
+        signed  = new BStamp(vals[2]);
+//        signedOn = Integer.parseInt(signed.split("-")[0]);
+//        signedHash = signed.split("-")[1];
         i_block_uid = vals[3];
         uid = vals[4];
     }

@@ -46,16 +46,15 @@ public interface SINDEXRepository extends JpaRepository<SINDEX, Long> {
     @Query("SELECT sindex from SINDEX sindex WHERE identifier = ?1 AND pos = ?2")
     Stream<SINDEX> sourcesByIdentifierAndPos(String identifier, Integer pos);
 
-    @Query("SELECT sindex from SINDEX sindex WHERE written_on = ?1")
-    List<SINDEX> writtenOn(String s);
+    @Query("SELECT sindex from SINDEX sindex WHERE  written.number = ?1 AND  written.hash = ?2 ")
+    List<SINDEX> writtenOn(Integer writtenOn, String writtenHash);
 
     @Query("SELECT s from SINDEX s WHERE identifier LIKE CONCAT('%',?1,'%')")
     List<SINDEX> search(String search);
 
 
-
-    @Query("SELECT sindex FROM SINDEX sindex WHERE consumed = true AND writtenOn < ?1")
-    List<SINDEX>  getForTrim(Integer trimBelow);
+    @Query("SELECT sindex FROM SINDEX sindex WHERE consumed = true AND written.number < ?1")
+    List<SINDEX> getForTrim(Integer trimBelow);
 
     @Transactional
     @Modifying
@@ -64,13 +63,12 @@ public interface SINDEXRepository extends JpaRepository<SINDEX, Long> {
 
     @Transactional
     @Modifying
-    default void trim(Integer trimBelow){
+    default void trim(Integer trimBelow) {
         for (SINDEX s : getForTrim(trimBelow)) {
             trimCreate(s.getIdentifier(), s.getPos(), s.getAmount(), s.getBase());
         }
 
     }
-
 
 
 //    @Query("SELECT conditions, SUM ( case WHEN consumed THEN ( 0 - s.amount ) ELSE s.amount end )   " +

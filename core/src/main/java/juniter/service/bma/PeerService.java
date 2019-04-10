@@ -30,7 +30,7 @@ import java.util.stream.IntStream;
 @Order(10)
 public class PeerService {
 
-    public static final Logger LOG = LogManager.getLogger();
+    public static final Logger LOG = LogManager.getLogger(PeerService.class);
 
     @Autowired
     private CoreEventBus coreEventBus;

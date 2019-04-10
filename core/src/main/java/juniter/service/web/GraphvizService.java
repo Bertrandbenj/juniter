@@ -74,7 +74,7 @@ public class GraphvizService {
         }
     }
 
-    private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger(GraphvizService.class);
 
     @Value("${juniter.dataPath:/tmp/juniter/data/}")
     private String dataPath;
@@ -455,7 +455,7 @@ public class GraphvizService {
             LOG.info("Created output graphviz file:" + dotOut);
             run("/usr/bin/dot -Tsvg " + dotOut + " -o " + svgOut);
             LOG.info("Created output graphviz SVG:" + svgOut);
-            return Files.readAllLines(Paths.get(svgOut)).stream().collect(joining());
+            return String.join("", Files.readAllLines(Paths.get(svgOut)));
         } catch (final Exception e) {
             e.printStackTrace();
         }
@@ -476,7 +476,7 @@ public class GraphvizService {
 
         res.append("digraph{\n" //
                 + "\tgraph [rankdir=").append(rankdir).append("];\n");
-        res.append("\tsum [label=\"sum\\n").append(tx.getInputs().stream().mapToInt(i -> i.getAmount()).sum()).append("\", tooltip=\"huhuhaha\"];\n");
+        res.append("\tsum [label=\"sum\\n").append(tx.getInputs().stream().mapToInt(TxInput::getAmount).sum()).append("\", tooltip=\"huhuhaha\"];\n");
 
         //
         // DRAW THE ACTUAL TRANSACTION

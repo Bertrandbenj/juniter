@@ -19,7 +19,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class WSPeer extends TextWebSocketHandler {
 
-    private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger(WSPeer.class);
 
 
     private List<WebSocketSession> sessions = new CopyOnWriteArrayList();

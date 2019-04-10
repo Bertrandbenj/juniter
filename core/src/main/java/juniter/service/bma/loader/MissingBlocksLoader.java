@@ -31,7 +31,7 @@ import java.util.stream.IntStream;
 @Order(10)
 public class MissingBlocksLoader {
 
-    private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger(MissingBlocksLoader.class);
 
 
     @Autowired

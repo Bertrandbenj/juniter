@@ -15,7 +15,7 @@ import java.util.List;
 public class JuniterEventListener implements CoreEventBus {
 
 
-    Logger LOG = LogManager.getLogger();
+    Logger LOG = LogManager.getLogger(JuniterEventListener.class);
 
 
     @EventListener(condition = "#event.success")
@@ -29,7 +29,7 @@ public class JuniterEventListener implements CoreEventBus {
     }
 
     @Override
-    public void sendEventIndexLogMessage(String s  ) {
+    public void sendEventIndexLogMessage(String s) {
 
         LOG.info(s);
     }
@@ -71,11 +71,11 @@ public class JuniterEventListener implements CoreEventBus {
 
     @Override
     public void sendEventMemoryLog(String log) {
-
+        LOG.info(log);
     }
 
     @Override
-    public boolean isIndexing(){
+    public boolean isIndexing() {
         return true;
     }
 }

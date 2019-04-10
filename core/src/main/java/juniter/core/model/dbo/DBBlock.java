@@ -142,9 +142,6 @@ public class DBBlock implements DUPDocument, Serializable {
     @OrderColumn
     @LazyCollection(LazyCollectionOption.FALSE)
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-//    @JoinColumns(value = {
-//            @JoinColumn(name = "writtenOn", referencedColumnName = "number"),
-//            @JoinColumn(name = "writtenHash", referencedColumnName = "hash")})
     @JoinColumn(name = "writtenId", referencedColumnName = "id")
     private List<Identity> identities = new ArrayList<>();
 
@@ -152,9 +149,6 @@ public class DBBlock implements DUPDocument, Serializable {
     @LazyCollection(LazyCollectionOption.FALSE)
     @OrderColumn
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-//    @JoinColumns({
-//            @JoinColumn(name = "writtenOn", referencedColumnName = "number"),
-//            @JoinColumn(name = "writtenHash", referencedColumnName = "hash")})
     @JoinColumn(name = "writtenId", referencedColumnName = "id")
     private List<Joiner> joiners = new ArrayList<>();
 
@@ -162,9 +156,6 @@ public class DBBlock implements DUPDocument, Serializable {
     @OrderColumn
     @LazyCollection(LazyCollectionOption.FALSE)
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-//    @JoinColumns({
-//            @JoinColumn(name = "writtenOn", referencedColumnName = "number"),
-//            @JoinColumn(name = "writtenHash", referencedColumnName = "hash")})
     @JoinColumn(name = "writtenId", referencedColumnName = "id")
     private List<Renew> renewed = new ArrayList<>();
 
@@ -172,19 +163,12 @@ public class DBBlock implements DUPDocument, Serializable {
     @OrderColumn
     @LazyCollection(LazyCollectionOption.FALSE)
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-//    @JoinColumns({
-//            @JoinColumn(name = "writtenOn", referencedColumnName = "number"),
-//            @JoinColumn(name = "writtenHash", referencedColumnName = "hash")})
     @JoinColumn(name = "writtenId", referencedColumnName = "id")
     private List<Leaver> leavers = new ArrayList<>();
 
     @Valid
-    //@OrderColumn(nullable = false)
     @LazyCollection(LazyCollectionOption.FALSE)
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-//    @JoinColumns({
-//            @JoinColumn(name = "writtenOn", referencedColumnName = "number"),
-//            @JoinColumn(name = "writtenHash", referencedColumnName = "hash")})
     @JoinColumn(name = "writtenId", referencedColumnName = "id")
     private List<Revoked> revoked = new ArrayList<>();
 
@@ -192,9 +176,6 @@ public class DBBlock implements DUPDocument, Serializable {
     @OrderColumn
     @LazyCollection(LazyCollectionOption.FALSE)
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-//    @JoinColumns({
-//            @JoinColumn(name = "writtenOn", referencedColumnName = "number"),
-//            @JoinColumn(name = "writtenHash", referencedColumnName = "hash")})
     @JoinColumn(name = "writtenId", referencedColumnName = "id")
     private List<Excluded> excluded = new ArrayList<>();
 
@@ -202,9 +183,6 @@ public class DBBlock implements DUPDocument, Serializable {
     @OrderColumn
     @LazyCollection(LazyCollectionOption.FALSE)
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-//    @JoinColumns({
-//            @JoinColumn(name = "writtenOn", referencedColumnName = "number"),
-//            @JoinColumn(name = "writtenHash", referencedColumnName = "hash")})
     @JoinColumn(name = "writtenId", referencedColumnName = "id")
     private List<Certification> certifications = new ArrayList<>();
 
@@ -214,9 +192,6 @@ public class DBBlock implements DUPDocument, Serializable {
     @LazyCollection(LazyCollectionOption.FALSE)
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "writtenId", referencedColumnName = "id")
-//    @JoinColumns({
-//            @JoinColumn(name = "writtenOn", referencedColumnName = "number"),
-//            @JoinColumn(name = "writtenHash", referencedColumnName = "hash")})
     private List<Member> members = new ArrayList<>();
 
 
@@ -226,36 +201,6 @@ public class DBBlock implements DUPDocument, Serializable {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "writtenId", referencedColumnName = "id")
     private List<Transaction> transactions = new ArrayList<>();
-
-
-//    public void setActives(List<String> actives) {
-//        members.addAll(actives.stream()
-//                .map(Renew::new)
-//                .collect(Collectors.toList()));
-//    }
-//
-//    public void setJoiners(List<String> actives) {
-//        members.addAll(actives.stream()
-//                .map(Joiner::new)
-//                .collect(Collectors.toList()));
-//    }
-//
-//    public void setLeavers(List<String> actives) {
-//        members.addAll(actives.stream()
-//                .map(Leaver::new)
-//                .collect(Collectors.toList()));
-//    }
-//
-//    public void setRevoked(List<String> actives) {
-//        members.addAll(actives.stream()
-//                .map(Revoked::new)
-//                .collect(Collectors.toList()));
-//    }
-//    public void setExcluded(List<String> actives) {
-//        members.addAll(actives.stream()
-//                .map(Revoked::new)
-//                .collect(Collectors.toList()));
-//    }
 
     public void setParameters(String string) {
         parameters.accept(string);
@@ -366,7 +311,7 @@ public class DBBlock implements DUPDocument, Serializable {
     }
 
     public BStamp bStamp() {
-        return new BStamp(getNumber(), getHash());
+        return new BStamp(getNumber(), getHash(), getMedianTime());
     }
 
     @Override

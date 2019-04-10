@@ -1,0 +1,233 @@
+<!doctype html>
+<!--suppress BuyFluidPluginNoteInspection -->
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>Juniter - a Java implementation of the Duniter protocol </title>
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/black.css">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section>
+					<section>
+						<h1>- Money’s just a means to meaning </h1>
+					</section>
+					<section>
+						<h2> A libre crypto currency  </h2>
+					</section>
+
+					<section>
+						<h2>
+							<a href="http://en.trm.creationmonetaire.info/"> <strike>Quantitative</strike> Relative Theory of Money </a>
+						</h2>
+						<ul>
+							<li>Spatial symmetry</li>
+							<li>Temporal symmetry</li>
+							<li>Relativistic Invariance </li>
+							<li>Money is neutral... finally </li>
+						</ul>
+					</section>
+
+					<section>
+						<h1> Freedom </h1>
+
+						<h3>My definition</h3>
+						<p>
+							Freedom stops where other's freedom begins.
+						</p>
+
+						<h3>TRM's definition</h2>
+						<p> Freedom is defined as a symmetrical principle: no nuisance to oneself and to others.
+
+						</p><img width="40px" src="../checks.png"/>
+
+
+
+					</section>
+
+					<section>
+						<h2>the economy, a cycle ? </h2>
+						<img src="../watercycle.png"/>
+					</section>
+					<section data-background-color="#eeeeee">
+						<table>
+							<tr>
+								<td>
+									<img src="../economiccycle.png"/>
+								</td>
+								<td style="vertical-align:top">
+									<p>…, like that ?</p>
+								</td>
+							</tr>
+						</table>
+					</section>
+
+					<section>
+						<h2> Value field </h2>
+						<img src="../trm_value_field.png"/>
+					</section>
+				</section>
+				<section>
+
+					<section>
+						<h1>- what’s meaning ? </h1>
+					</section>
+
+					<section>
+						<ul>
+							<li>Breakfast : Specifications </li>
+							<li>Lunch : From scratch implementation
+								<ul>
+									<li>Starter : nœud miroir </li>
+									<li>Main dish : Validation </li>
+									<li>Cheesing grammars ! </li>
+									<li>Dessert : Block index  à la RAM </li>
+								</ul>
+							</li>
+							<li>Dinner :
+								<ul>
+									<li>OLAP buffet  </li>
+									<li>Chit Chat & Peering </li>
+								</ul>
+							</li>
+						</ul>
+					</section>
+
+					<section>
+						<h2> Reading Specs </h2>
+
+						<ul>
+							<li>Local validation - grammatical correctness </li>
+							<li>Global validation (aka. Indexing) </li>
+							<li>BMA - good old json webservice </li>
+							<li>WebSocket, GraphQL, binaries </li>
+						</ul>
+					</section>
+
+					<section>
+						<h2> Implementing </h2>
+						<ul>
+							<li> spring-boot for gluing things  </li>
+							<li> Antlr4 - grammar
+                                <ul>
+                                    <li>
+                                        <a href="https://github.com/Bertrandbenj/juniter/blob/master/src/main/antlr/JuniterLexer.g4" data-preview-link>Lexer</a>
+                                    </li>
+                                    <li>
+                                        <a href="https://github.com/Bertrandbenj/juniter/blob/master/src/main/antlr/JuniterParser.g4" data-preview-link>Parser</a>
+                                    </li>
+                                </ul>
+                            </li>
+							<li> Gradle for modern building </li>
+						</ul>
+					</section>
+					<section>
+						<h2> Indexing </h2>
+						<ul>
+							<li> Denormalization</li>
+							<li> Simpler verification queries</li>
+							<li> Push & Pop fork branches </li>
+						</ul>
+					</section>
+
+				</section>
+				<section>
+                    <section>
+                        <h1>- things you value</h1>
+                    </section>
+
+                    <section>
+						<h2> Machine with Entropy in a Demos of User as the Sociomimecry of Anarchy </h2>
+                        <img src="../medusa.jpg"/>
+
+                    </section>
+					<section>
+						Kant identified four kinds of government: <a href="https://en.wikipedia.org/wiki/Anarchy">Wikipedia</a>
+						<ul>
+							<li> Law and freedom without force (anarchy) </li>
+							<li> Law and force without freedom (despotism) </li>
+							<li> Force without freedom and law (barbarism) </li>
+							<li> Force with freedom and law (republic) </li>
+						</ul>
+
+					</section>
+				</section>
+				<section>
+					<section>
+						<h1>- what’s value?</h1>
+					</section>
+					<section>
+						<h2> IT History </h2>
+						<ul>
+							<li> Turing machine </li>
+							<li> Multitasking </li>
+							<li> Parralelism </li>
+							<li> Distributed </li>
+						</ul>
+					</section>
+					<section>
+						<h2> CAP ou PACap ?  </h2>
+						<img src="../truth-of-cap-theorem-diagram.png" />
+					</section>
+					<section>
+						<img src="../PAC_for_nerds.png" />
+					</section>
+
+					<section>
+						<h2> A data issue </h2>
+						<a href="../zeppelin_example.png">
+							<img src="../zeppelin_example.png"/>
+						</a>
+					</section>
+
+				</section>
+				<section>
+					<section>
+						<h1>- … Sigh </h1>
+					</section>
+					<section>
+						<h2> La création monétaire, c’est mieux quand c’est sur mon compte </h2>
+						<img src="../myaccount.png"/>
+					</section>
+					<section data-background-color="#eeeeee">
+						<img src="../Juniter.png"/>
+					</section>
+				</section>
+			</div>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+			// More info about config & dependencies:
+			// - https://github.com/hakimel/reveal.js#configuration
+			// - https://github.com/hakimel/reveal.js#dependencies
+			Reveal.initialize({
+				dependencies: [
+					{ src: 'plugin/markdown/marked.js' },
+					{ src: 'plugin/markdown/markdown.js' },
+					{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+				]
+			});
+		</script>
+	</body>
+</html>

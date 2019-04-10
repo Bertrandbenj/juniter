@@ -10,7 +10,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Table(name = "wot_revoked", schema = "public")
 public class Revoked extends Member implements Serializable {
-    private static final long serialVersionUID = -9083525414764126719L;
+    //private static final long serialVersionUID = -9083525414764126719L;
 
     public Revoked(String dup) {
         parse(dup);
@@ -27,5 +27,18 @@ public class Revoked extends Member implements Serializable {
     public String toDUP() {
         return pubkey + ":" + revocation;
     }
+
+    public String toDoc(boolean signed) {
+        return "Version: " + 10 +
+                "\nType: Revocation" +
+                "\nCurrency: g1" +
+                "\nIssuer: " + pubkey +
+                "\nIdtyUniqueID: " + uid +
+                "\nIdtyTimestamp: " + i_block_uid +
+                "\nIdtySignature: " + signature +
+                "\n" + (signed ? revocation + "\n" : "")
+                ;
+    }
+
 
 }

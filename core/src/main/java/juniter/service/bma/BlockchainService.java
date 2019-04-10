@@ -67,7 +67,7 @@ import static java.util.stream.Collectors.toList;
 @RequestMapping("/blockchain")
 public class BlockchainService {
 
-    private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger(BlockchainService.class);
 
     @Autowired
     private BlockRepository blockRepo;

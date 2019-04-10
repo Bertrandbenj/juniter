@@ -17,7 +17,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class WSBlock extends TextWebSocketHandler {
 
-    private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger(WSBlock.class);
 
 
     private List<WebSocketSession> sessions = new CopyOnWriteArrayList();

@@ -45,7 +45,7 @@ public class PeerLoader {
 
     @Autowired
     private CoreEventBus coreEventBus;
-    public static final Logger LOG = LogManager.getLogger();
+    public static final Logger LOG = LogManager.getLogger(PeerLoader.class);
 
     @Autowired
     private RestTemplate restTpl;

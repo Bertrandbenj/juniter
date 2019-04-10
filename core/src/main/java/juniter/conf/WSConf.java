@@ -23,7 +23,7 @@ import java.util.List;
 public class WSConf extends WebSocketMessageBrokerConfigurationSupport implements WebSocketMessageBrokerConfigurer {
 
 
-    private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger(WSConf.class);
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {

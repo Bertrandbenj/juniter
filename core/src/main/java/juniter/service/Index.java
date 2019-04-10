@@ -3,9 +3,9 @@ package juniter.service;
 import com.codahale.metrics.annotation.Counted;
 import io.micrometer.core.annotation.Timed;
 import juniter.core.event.CoreEventBus;
-import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dbo.BStamp;
-import juniter.core.model.dbo.index.Account;
+import juniter.core.model.dbo.DBBlock;
+import juniter.core.model.dbo.index.*;
 import juniter.core.utils.TimeUtils;
 import juniter.core.validation.GlobalValid;
 import juniter.repository.jpa.block.BlockRepository;
@@ -13,7 +13,6 @@ import juniter.repository.jpa.index.*;
 import juniter.service.bma.loader.BlockLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -21,7 +20,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -36,7 +35,7 @@ import java.util.stream.Stream;
 @Service
 public class Index implements GlobalValid {
 
-    private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger(Index.class);
 
     @Autowired
     private CoreEventBus coreEventBus;
@@ -60,9 +59,6 @@ public class Index implements GlobalValid {
     private AccountRepository accountRepo;
 
     @Autowired
-    private ModelMapper modelMapper;
-
-    @Autowired
     private BlockRepository blockRepo;
 
 
@@ -70,7 +66,7 @@ public class Index implements GlobalValid {
     private boolean startIndex;
 
 
-    @Scheduled(initialDelay = 1000*60, fixedRate = 1000 * 60 *5)
+    @Scheduled(initialDelay = 1000 * 60, fixedRate = 1000 * 60 * 5)
     void launchIndexing() {
         if (startIndex) {
             indexUntil(blockRepo.currentBlockNumber(), false);
@@ -79,7 +75,7 @@ public class Index implements GlobalValid {
 
     @Transactional
     @Counted(absolute = true)
-    void init(boolean resetDB) {
+    private void init(boolean resetDB) {
         if (resetDB) {
             cRepo.deleteAll();
             iRepo.deleteAll();
@@ -114,7 +110,7 @@ public class Index implements GlobalValid {
     public Optional<DBBlock> createdOnBlock(BStamp bstamp) {
 
         if (bstamp.getNumber().equals(0))
-            return  blockRepo.block(0);
+            return blockRepo.block(0);
         return Optional.of(blockRepo.block(bstamp.getNumber())
                 .orElseGet(() -> blockLoader.fetchAndSaveBlock(bstamp.getNumber())));
     }
@@ -132,23 +128,21 @@ public class Index implements GlobalValid {
         // Platform.runLater(() ->  Database.refresh(indexB,indexI,indexM,indexC,indexS,consumeI,consumeM,consumeC,consumeS) );
 
 
-        iRepo.saveAll(indexI.stream().map(i -> modelMapper.map(i, juniter.core.model.dbo.index.IINDEX.class)).collect(Collectors.toList()));
+        iRepo.saveAll(new ArrayList<>(indexI));
         //iig.addAll(indexI);
-        mRepo.saveAll(indexM.stream().map(i -> modelMapper.map(i, juniter.core.model.dbo.index.MINDEX.class)).collect(Collectors.toList()));
-        cRepo.saveAll(indexC.stream().map(i -> modelMapper.map(i, juniter.core.model.dbo.index.CINDEX.class)).collect(Collectors.toList()));
-        sRepo.saveAll(indexS.stream()
-                .map(i -> modelMapper.map(i, juniter.core.model.dbo.index.SINDEX.class))
-                .collect(Collectors.toList()));
+        mRepo.saveAll(new ArrayList<>(indexM));
+        cRepo.saveAll(new ArrayList<>(indexC));
+        sRepo.saveAll(new ArrayList<>(indexS));
 
 
         if (indexB != null) {
-            bRepo.save(modelMapper.map(indexB, juniter.core.model.dbo.index.BINDEX.class));
+            bRepo.save(indexB);
 
             LOG.info("Commit -  Certs: +" + indexC.size() + ",-" + cRepo.count() +
                     "  Membship: +" + indexM.size() + ",-" + mRepo.count() +
                     "  Idty: +" + indexI.size() + ",-" + iRepo.count() +
                     "  localS: +" + indexS.size() + "," + sRepo.count() +
-                    "  IndexB: " + bRepo.count() + ", " + indexB.number);
+                    "  IndexB: " + bRepo.count() + ", " + indexB.getNumber());
         }
 
 
@@ -156,34 +150,47 @@ public class Index implements GlobalValid {
     }
 
 
-    public Stream<BINDEX> indexBGlobal() {
-        return bRepo.findAll().stream().map(c -> modelMapper.map(c, BINDEX.class));
+    private Stream<BINDEX> indexBGlobal() {
+        return bRepo.findAll().stream();
     }
 
 
     @Override
     public Stream<CINDEX> indexCGlobal() {
-        return cRepo.findAll().stream().map(c -> modelMapper.map(c, CINDEX.class));
+        return cRepo.findAll().stream();
     }
 
     //List<IINDEX> iig = new ArrayList<>();
 
     @Override
     public Stream<IINDEX> indexIGlobal() {
-        return iRepo.findAll().stream().map(c -> modelMapper.map(c, IINDEX.class));
+        return iRepo.findAll().stream();
     }
 
     @Override
-    public Stream<CINDEX> reduceC(String issuer, String receiver) {
+    public Stream<CINDEX> getC(String issuer, String receiver) {
         if (issuer == null && receiver != null) {
-            return cRepo.receivedBy(receiver).stream().map(c -> modelMapper.map(c, CINDEX.class));
+            return cRepo.receivedBy(receiver).stream();
         }
 
         if (receiver == null && issuer != null) {
-            return cRepo.issuedBy(issuer).stream().map(c -> modelMapper.map(c, CINDEX.class));
+            return cRepo.issuedBy(issuer).stream();
+        }
+        return Stream.empty();
+    }
+
+
+    @Override
+    public Optional<CINDEX> reduceC(String issuer, String receiver) {
+        if (issuer == null && receiver != null) {
+            return cRepo.receivedBy(receiver).stream().reduce(CINDEX.reducer);
         }
 
-        return Stream.empty();
+        if (receiver == null && issuer != null) {
+            return cRepo.issuedBy(issuer).stream().reduce(CINDEX.reducer);
+        }
+
+        return Optional.empty();
     }
 
 
@@ -193,58 +200,55 @@ public class Index implements GlobalValid {
     }
 
     @Override
-    public Stream<MINDEX> reduceM(String pub) {
-        return mRepo.member(pub).stream().map(c -> modelMapper.map(c, MINDEX.class));
+    public Optional<MINDEX> reduceM(String pub) {
+        return mRepo.member(pub).stream().reduce(MINDEX.reducer);
     }
 
     @Override
     public Stream<MINDEX> findPubkeysThatShouldExpire(Long mTime) {
-        return mRepo.findPubkeysThatShouldExpire2(mTime).stream().map(c -> modelMapper.map(c, MINDEX.class));
+        return mRepo.findPubkeysThatShouldExpire2(mTime).stream();
     }
 
 
     @Override
     public Stream<MINDEX> findRevokesOnLteAndRevokedOnIsNull(Long mTime) {
-        return mRepo.findRevokesOnLteAndRevokedOnIsNull(mTime).stream().map(c -> modelMapper.map(c, MINDEX.class));
+        return mRepo.findRevokesOnLteAndRevokedOnIsNull(mTime).stream();
     }
 
     @Transactional(readOnly = true)
     @Override
     public Stream<IINDEX> idtyByPubkey(String pub) {
-        return iRepo.idtyByPubkey(pub).stream().map(c -> modelMapper.map(c, IINDEX.class));
+        return iRepo.idtyByPubkey(pub).stream();
     }
 
     @Transactional(readOnly = true)
     @Override
     public Stream<IINDEX> idtyByUid(String uid) {
-        return iRepo.byUid(uid).stream().map(c -> modelMapper.map(c, IINDEX.class));
+        return iRepo.byUid(uid).stream();
     }
 
     @Override
     public Stream<SINDEX> sourcesByConditions(String conditions) {
         return sRepo.sourcesByConditions(conditions)
                 .stream()
-                .map(s -> modelMapper.map(s, SINDEX.class))
                 ;
     }
 
     @Override
     public Stream<SINDEX> sourcesByConditions(String identifier, Integer pos) {
         return sRepo.sourcesByIdentifierAndPos(identifier, pos)
-                .map(c -> modelMapper.map(c, SINDEX.class))
                 .peek(s -> System.out.println("mapped i p " + s))
                 ;
     }
 
     @Override
     public Stream<MINDEX> indexMGlobal() {
-        return mRepo.findAll().stream().map(c -> modelMapper.map(c, MINDEX.class));
+        return mRepo.findAll().stream();
     }
 
     @Override
     public Stream<SINDEX> indexSGlobal() {
         return sRepo.sourceNotConsumed()
-                .map(c -> modelMapper.map(c, SINDEX.class))
                 .peek(s -> System.out.println("mapped all " + s));
     }
 
@@ -255,18 +259,17 @@ public class Index implements GlobalValid {
 
     @Timed
     @Override
-    public int trimGlobal(BINDEX head, int bIndexSize) {
+    public void trimGlobal(BINDEX head, int bIndexSize) {
 
-        int bellow = Math.max(0, head.number - bIndexSize);
+        int bellow = Math.max(0, head.getNumber() - bIndexSize);
 
-        LOG.info("Trimming " + bIndexSize + " at " + head.number);
+        LOG.info("Trimming " + bIndexSize + " at " + head.getNumber());
         bRepo.trim(bIndexSize);
         sRepo.trim(bellow);
         //iRepo.trimRecords(bellow);
         //mRepo.trimRecords(bellow);
         cRepo.trim(bellow);
-        return bIndexSize;
-    }
+     }
 
     @Override
     public void trimSandbox(DBBlock block) {
@@ -275,11 +278,12 @@ public class Index implements GlobalValid {
 
     @Autowired
     private BlockLoader blockLoader;
+
     /**
      * mostly technical function to error handle, parametrized, log the validation function
      *
      * @param syncUntil a specific block number
-     * @param quick
+     * @param quick     whether or not to index quickly
      */
     @Async
     @Timed(longTask = true, histogram = true)
@@ -291,11 +295,11 @@ public class Index implements GlobalValid {
         var time = System.currentTimeMillis();
         long delta;
 
-        for (int i = head().map(h -> h.number + 1).orElse(0); i <= syncUntil && coreEventBus.isIndexing(); i++) { // && Bus.isIndexing.get()
+        for (int i = head().map(h -> h.getNumber() + 1).orElse(0); i <= syncUntil && coreEventBus.isIndexing(); i++) { // && Bus.isIndexing.get()
             final int finali = i;
 
 
-            final var block = blockRepo.block(i).orElseGet(()->blockLoader.fetchAndSaveBlock(finali));
+            final var block = blockRepo.block(i).orElseGet(() -> blockLoader.fetchAndSaveBlock(finali));
 
             try {
                 if (completeGlobalScope(block, !quick)) {
@@ -307,7 +311,7 @@ public class Index implements GlobalValid {
                     break;
                 }
             } catch (AssertionError | Exception e) {
-                coreEventBus.sendEventIndexLogMessage("ERROR Validating " + block + " - " + e.getMessage() );
+                coreEventBus.sendEventIndexLogMessage("ERROR Validating " + block + " - " + e.getMessage());
                 LOG.error("ERROR Validating " + block + " - " + e.getMessage(), e);
 
                 break;

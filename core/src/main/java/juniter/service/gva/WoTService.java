@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 import io.leangen.graphql.annotations.*;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Observable;
-import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.index.IINDEX;
 import juniter.core.model.dbo.wot.Identity;
 import juniter.repository.jpa.index.IINDEXRepository;
@@ -24,7 +23,7 @@ import java.util.stream.Collectors;
 @Service
 public class WoTService {
 
-    private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger(WoTService.class);
 
     @Autowired
     ModelMapper modelMapper;
@@ -44,7 +43,7 @@ public class WoTService {
         var idty = iRepo.byUidOrPubkey(uid, pubkey).stream().reduce(IINDEX.reducer).filter(IINDEX::getMember);
         if (idty.isPresent()) {
             var res = new Identity();
-            res.setSigned(new BStamp(idty.get().getCreated_on()));
+            res.setSigned(idty.get().getSigned());
             res.setPubkey(idty.get().getPub());
             res.setSignature(idty.get().getSig());
             res.setUid(idty.get().getUid());
@@ -102,7 +101,6 @@ public class WoTService {
     /*** SUBSCRIPTION **/
 
 
-
     @GraphQLSubscription(name = "updateAccount", description = "Subscribe to an account update")
     public Publisher<IINDEX> updateAccount(
             @P("pubkey") @GraphQLArgument(name = "pubkey") final String pubkey,
@@ -113,9 +111,9 @@ public class WoTService {
 
         IINDEX person = iRepo.idtyByPubkey(pubkey).get(0);
         return Observable.interval(minIntervalInSecond, TimeUnit.SECONDS)
-                .flatMap(n ->  Observable.fromArray( person))
+                .flatMap(n -> Observable.fromArray(person))
                 .toFlowable(BackpressureStrategy.BUFFER);
-       // return changesPublisherService.getPublisher(Person.class, IINDEX.class, person.getId(), minIntervalInSecond, true);
+        // return changesPublisherService.getPublisher(Person.class, IINDEX.class, person.getId(), minIntervalInSecond, true);
     }
 
 }

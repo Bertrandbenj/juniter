@@ -10,7 +10,7 @@ import org.apache.logging.log4j.Logger;
 
 public class JuniterGrammar extends JuniterParserBaseVisitor<Document> implements LocalValid {
 
-	private static final Logger LOG = LogManager.getLogger();
+	private static final Logger LOG = LogManager.getLogger(JuniterGrammar.class);
 
 
 	/**

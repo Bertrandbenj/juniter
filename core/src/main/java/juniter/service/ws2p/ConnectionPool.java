@@ -29,7 +29,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 @Order(10)
 public class ConnectionPool {
 
-    private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger(ConnectionPool.class);
 
 
     @Value("${juniter.network.webSocketPoolSize:5}")

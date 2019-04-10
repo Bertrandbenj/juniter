@@ -7,8 +7,6 @@ import juniter.core.model.dbo.DenormalizeWrittenStamp;
 import juniter.core.utils.Constants;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.lang.NonNull;
 
 import javax.persistence.*;
@@ -24,10 +22,16 @@ import javax.validation.constraints.Size;
 @Entity
 @Data
 @NoArgsConstructor
-@Table(name = "wot_identity", schema = "public")
+@Table(name = "wot_identity", schema = "public", indexes = {
+        @Index(columnList = "uid"),
+        @Index(columnList = "pubkey"),
+        @Index(columnList = "written_number"),
+        @Index(columnList = "written_medianTime"),
+        @Index(columnList = "signed_medianTime"),
+        @Index(columnList = "signed_number")
+})
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Identity implements DUPDocument, Comparable<Identity>, DenormalizeWrittenStamp {
-    private static final Logger LOG = LogManager.getLogger();
+public class Identity implements DUPDocument, Comparable<Identity> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -43,23 +47,14 @@ public class Identity implements DUPDocument, Comparable<Identity>, DenormalizeW
     private String signature;
 
     @Valid
-    @AttributeOverrides({
-            @AttributeOverride(name = "number", column = @Column(name = "signedOn")),
-            @AttributeOverride(name = "hash", column = @Column(name = "signedHash")),
-            @AttributeOverride(name = "medianTime", column = @Column(name = "signedTime"))
-    })
     private BStamp signed;
 
     private String uid;
 
-    private Integer writtenOn;
-
-    private String writtenHash;
-
-    private Long writtenTime;
+    @Valid
+    private BStamp written;
 
     public Identity(String identity) {
-        LOG.debug("Parsing Identity... " + identity);
         final var vals = identity.split(":");
         pubkey = vals[0];
         signature = vals[1];
@@ -74,7 +69,7 @@ public class Identity implements DUPDocument, Comparable<Identity>, DenormalizeW
 
 
     public String toDUP() {
-        return pubkey + ":" + signature + ":" + signed + ":" + uid;
+        return pubkey + ":" + signature + ":" + signed.stamp() + ":" + uid;
     }
 
     @Override

@@ -10,7 +10,7 @@ import static org.junit.Assert.assertTrue;
 
 public class TestCrypto {
 
-	private static final Logger LOG = LogManager.getLogger();
+	private static final Logger LOG = LogManager.getLogger(TestCrypto.class);
 
 
 	@Test

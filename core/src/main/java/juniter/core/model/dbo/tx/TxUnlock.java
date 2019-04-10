@@ -16,7 +16,7 @@ import javax.validation.constraints.Size;
 @Embeddable
 public class TxUnlock implements  Comparable<TxUnlock>, DUPDocument {
 
-	private static final Logger LOG = LogManager.getLogger();
+	private static final Logger LOG = LogManager.getLogger(TxUnlock.class);
 
 	private Integer inputRef;
 

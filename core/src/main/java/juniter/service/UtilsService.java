@@ -24,7 +24,7 @@ import java.util.stream.IntStream;
 @Service
 public class UtilsService {
 
-    private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger(UtilsService.class);
 
     @Value("${juniter.dataPath:/tmp/juniter/data/}")
     private String dataPath;
@@ -93,12 +93,9 @@ public class UtilsService {
     }
 
 
-    @Scheduled(fixedRate = 5 * 60 * 1000, initialDelay = 60 * 1000)
+    @Scheduled(fixedRate = 30 * 1000, initialDelay = 60 * 1000)
     public void checkMemory() {
-        var log = MemoryUtils.memInfo();
-
-        coreEventBus.sendEventMemoryLog(log);
-
+        coreEventBus.sendEventMemoryLog(MemoryUtils.memInfo());
     }
 
 

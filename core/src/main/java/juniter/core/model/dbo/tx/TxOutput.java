@@ -29,7 +29,7 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 public class TxOutput implements Comparable<TxOutput>, DUPDocument {
 
-	static final Logger LOG = LogManager.getLogger();
+	static final Logger LOG = LogManager.getLogger(TxOutput.class);
 
 
 	private Integer base;

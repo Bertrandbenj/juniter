@@ -14,7 +14,7 @@ import juniter.core.utils.Constants;
 
 public class NetValid {
 
-	private static final Logger LOG = LogManager.getLogger();
+	private static final Logger LOG = LogManager.getLogger(NetValid.class);
 
 	public static Pattern BASE58_PATTERN = Pattern.compile(Constants.Regex.BASE58 + "{43,45}");
 

@@ -41,7 +41,7 @@ import java.util.stream.IntStream;
 @Order(1)
 public class BlockLoader implements BlockLocalValid {
 
-    private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger(BlockLoader.class);
 
 
     @Value("${bulkLoad:false}")

@@ -181,8 +181,8 @@ dependencies {
 
     // hsql
 
-    compile 'org.hsqldb:hsqldb:2.4.0'
-
+    runtime 'org.hsqldb:hsqldb:2.4.0'
+    //compile 'org.springframework.boot:spring-boot-starter-jetty'
 }
 
 

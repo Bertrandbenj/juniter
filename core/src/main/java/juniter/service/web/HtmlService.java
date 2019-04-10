@@ -14,7 +14,7 @@ import java.util.Map;
 @Controller
 @RequestMapping("/html")
 public class HtmlService {
-	private static final Logger LOG = LogManager.getLogger();
+	private static final Logger LOG = LogManager.getLogger(HtmlService.class);
 	
 //	@Autowired
 //	private RequestMappingHandlerMapping handlerMapping;

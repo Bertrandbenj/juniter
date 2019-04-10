@@ -19,7 +19,7 @@ import java.text.DecimalFormat;
 @DataJpaTest
 public class TestRepoBlockchain {
 
-	private static final Logger LOG = LogManager.getLogger();
+	private static final Logger LOG = LogManager.getLogger(TestRepoBlockchain.class);
 
 	@Autowired
 	public BlockRepository blockRepo;

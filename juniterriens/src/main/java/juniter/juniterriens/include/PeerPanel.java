@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 @Component
 public class PeerPanel implements Initializable {
 
-    private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger(PeerPanel.class);
 
 
     @FXML

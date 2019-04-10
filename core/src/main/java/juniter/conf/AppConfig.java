@@ -34,7 +34,7 @@ import java.util.stream.Stream;
 @ComponentScan("juniter")
 public class AppConfig {
 
-    private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger(AppConfig.class);
 
 
     @Value("${juniter.dataPath}")

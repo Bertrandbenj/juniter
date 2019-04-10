@@ -31,7 +31,7 @@ import java.util.ResourceBundle;
 @Component
 public class Menu extends AbstractJuniterFX implements Initializable {
 
-    private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger(Menu.class);
 
     private final String CSS_FOLDER = "/juniterriens/css/";
 

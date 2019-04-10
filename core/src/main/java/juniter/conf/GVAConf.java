@@ -31,7 +31,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @EnableWebSocket
 @Configuration
 public class GVAConf implements WebSocketConfigurer {
-    private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger(GVAConf.class);
 
     @Autowired
     private ObjectMapper objectMapper;

@@ -1,6 +1,5 @@
 package juniter.service.bma;
 
-import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.index.MINDEX;
 import juniter.core.model.dbo.wot.Certification;
 import juniter.core.model.dbo.wot.Identity;
@@ -37,7 +36,7 @@ import java.util.stream.Collectors;
 @ConditionalOnExpression("${juniter.useBMA:false}")
 @RequestMapping("/wot")
 public class WotService {
-    private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger(WotService.class);
 
     @Autowired
     private CertsRepository certsRepo;
@@ -106,7 +105,7 @@ public class WotService {
                     .map(cert -> OtherLookup.builder()
                             .isMember(true)
                             .meta(MetaLookup.builder()
-                                    .timestamp(new BStamp(cert.getWritten_on()))
+                                    .timestamp( cert.getWritten())
                                     .build())
                             .pubkey(cert.getIssuer())
                             .wasMember(true)
@@ -117,10 +116,10 @@ public class WotService {
 
             return UserID.builder()
                     .meta(MetaLookup.builder()
-                            .timestamp(new BStamp(i.getWritten_on()))
+                            .timestamp(i.getWritten())
                             .build())
                     .uid(i.getUid())
-                    .revoked(m.get().getRevoked_on() != null)
+                    .revoked(m.get().getRevoked() != null)
                     .revocation_sig(m.get().getRevocation())
                     .revoked_on(null)
                     .others(c)

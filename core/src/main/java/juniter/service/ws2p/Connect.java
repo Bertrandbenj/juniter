@@ -18,7 +18,7 @@ public class Connect  {
 
     private static final SecretBox secretBox = new SecretBox("salt", "password");
 
-    private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger(Connect.class);
 
 
     private String auth;

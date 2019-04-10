@@ -31,7 +31,7 @@ import java.util.ResourceBundle;
 @Component
 public class GraphPanel extends AbstractJuniterFX implements Initializable {
 
-    private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger(GraphPanel.class);
 
     @FXML
     private WebView SVGAnchor;

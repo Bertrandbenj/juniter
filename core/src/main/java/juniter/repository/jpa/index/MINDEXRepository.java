@@ -20,7 +20,7 @@ public interface MINDEXRepository extends JpaRepository<MINDEX, Long> {
 
 
     @Override
-    public long count();
+    long count();
 
     @Override
     List<MINDEX> findAll();
@@ -28,27 +28,27 @@ public interface MINDEXRepository extends JpaRepository<MINDEX, Long> {
     @Override
     void deleteAll(Iterable<? extends MINDEX> entities);
 
-    @Query(value = "SELECT mi FROM MINDEX mi WHERE pub = ?1 ORDER BY created_on DESC")
+    @Query(value = "SELECT mi FROM MINDEX mi WHERE pub = ?1 ORDER BY signed DESC")
     List<MINDEX> member(String pubkey);
 
-    @Query(value = "SELECT m from MINDEX m WHERE written_on = ?1")
-    public List<MINDEX> writtenOn(String s);
+    @Query(value = "SELECT m from MINDEX m WHERE  written.number = ?1 AND  written.hash = ?2 ")
+    List<MINDEX> writtenOn(Integer writtenOn, String writtenHash);
 
     @Query(value = "SELECT m from MINDEX m WHERE  pub LIKE CONCAT('%',?1,'%')")
     Stream<MINDEX> search(String search);
 
-    @Query("SELECT m FROM MINDEX m WHERE expires_on <= ?1  OR revoked_on > ?1 ")
+    @Query("SELECT m FROM MINDEX m WHERE expires_on <= ?1  OR revoked.medianTime > ?1 ")
     List<MINDEX> getForTrim(Long mTime);
 
     @Transactional
     @Modifying
-    @Query("DELETE FROM MINDEX m WHERE pub = ?1 AND written_on = ?2 ")
+    @Query("DELETE FROM MINDEX m WHERE pub = ?1 AND written = ?2 ")
     void trimCreate(String pub, String created_on);
 
 
     @Transactional
     @Modifying
-    @Query("SELECT m FROM MINDEX m WHERE written_on = ?1 ")
+    @Query("SELECT m FROM MINDEX m WHERE written.number = ?1 ")
     List<MINDEX> bellowWrittenOn(Integer written_on);
 
 
@@ -73,10 +73,10 @@ public interface MINDEXRepository extends JpaRepository<MINDEX, Long> {
     List<String> expiresBetween(Long begin, Long end);
 
 
-    @Query("SELECT DISTINCT pub FROM MINDEX m WHERE writtenOn < ?1 GROUP BY pub HAVING count(*) > 1")
+    @Query("SELECT DISTINCT pub FROM MINDEX m WHERE written.number < ?1 GROUP BY pub HAVING count(*) > 1")
     List<String> duplicatesBelow(Integer blockNumber);
 
-    @Query(value = " FROM MINDEX WHERE pub = ?1 ORDER BY writtenOn ")
+    @Query(value = " FROM MINDEX WHERE pub = ?1 ORDER BY written.number ")
     List<MINDEX> fetchTrimmed(String pub);
 
 
@@ -109,7 +109,7 @@ public interface MINDEXRepository extends JpaRepository<MINDEX, Long> {
     }
 
 
-    @Query(value = "SELECT m FROM MINDEX m WHERE m.revokes_on <= ?1 AND m.revoked_on IS NULL ")
+    @Query(value = "SELECT m FROM MINDEX m WHERE m.revokes_on <= ?1 AND m.revoked IS NULL ")
     List<MINDEX> findRevokesOnLteAndRevokedOnIsNull(Long mTime);
 }
 

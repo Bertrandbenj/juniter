@@ -14,7 +14,7 @@ import juniter.core.model.dbo.tx.OutCondition.SIG;
 import juniter.core.model.dbo.tx.OutCondition.XHX;
 
 public class TestOutCondition {
-	private static final Logger log = LogManager.getLogger();
+	private static final Logger log = LogManager.getLogger(TestOutCondition.class);
 
 	public final String _singleSIG = "SIG(HsLShAtzXTVxeUtQd7yi5Z5Zh4zNvbu8sTEZ53nfKcqY)";
 	public final String _singleXHX = "XHX(8AFC8DF633FC158F9DB4864ABED696C1AA0FE5D617A7B5F7AB8DE7CA2EFCD4CB)";

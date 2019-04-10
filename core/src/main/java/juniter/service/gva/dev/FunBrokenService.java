@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @Service
 public class FunBrokenService {
 
-	private static final Logger LOG = LogManager.getLogger();
+	private static final Logger LOG = LogManager.getLogger(FunBrokenService.class);
 
 	@Autowired
 	private TxRepository txRepository;

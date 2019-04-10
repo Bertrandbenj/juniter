@@ -45,7 +45,7 @@ import java.util.ResourceBundle;
 @ConditionalOnExpression("${juniter.useJavaFX:false}")
 @Component
 public class Game implements Initializable {
-    private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger(Game.class);
 
     @FXML
     private Canvas canvas;

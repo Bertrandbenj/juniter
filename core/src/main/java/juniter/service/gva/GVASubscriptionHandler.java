@@ -51,7 +51,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class GVASubscriptionHandler extends TextWebSocketHandler {
 
-    private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger(GVASubscriptionHandler.class);
 
     private final AtomicReference<Subscription> subscriptionRef = new AtomicReference<>();
 

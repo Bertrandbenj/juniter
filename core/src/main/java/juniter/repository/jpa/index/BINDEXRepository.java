@@ -37,14 +37,11 @@ public interface BINDEXRepository extends JpaRepository<BINDEX, Long> {
     @Transactional
     @Modifying
     default void trim(int bIndexSize){
-        var top1 = head().map(b-> b.number).orElseThrow();
+        var top1 = head().map(BINDEX::getNumber).orElseThrow();
 
         findAll().stream()
-                .filter(b-> b.number < top1-bIndexSize)
-                .forEach(trim-> {
-                    delete(trim);
-
-        });
+                .filter(b-> b.getNumber() < top1-bIndexSize)
+                .forEach(this::delete);
     }
 
     @Override

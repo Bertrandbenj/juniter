@@ -7,9 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
-import javax.validation.constraints.Null;
 import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
 import java.io.Serializable;
 
 /**
@@ -21,15 +19,13 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @Embeddable
-public class BStamp implements  Serializable, Comparable<BStamp> {
+public class BStamp implements Serializable, Comparable<BStamp> {
 
 
-    @Column(length = 8, name = "number")
     private Integer number;
 
     @Pattern(regexp = Constants.Regex.HASH)
-    @Column(length = 64, name = "hash")
-    private  String hash;
+    private String hash;
 
     private Long medianTime;
 
@@ -40,13 +36,17 @@ public class BStamp implements  Serializable, Comparable<BStamp> {
         hash = pat[1];
     }
 
-    public BStamp(Integer n , String string) {
+    public BStamp(Integer n, String string) {
         number = n;
         hash = string;
     }
 
     @Override
     public String toString() {
+        return number + "-" + hash;
+    }
+
+    public String stamp() {
         return number + "-" + hash;
     }
 

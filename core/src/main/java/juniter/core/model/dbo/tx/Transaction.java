@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import juniter.core.crypto.Crypto;
 import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.DUPDocument;
-import juniter.core.model.dbo.DenormalizeWrittenStamp;
 import juniter.core.utils.Constants;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,18 +29,17 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Entity
 @Table(name = "transaction", schema = "public", indexes = {
-        @Index(columnList = "signedOn"),
-        @Index(columnList = "signedHash"),
+        @Index(columnList = "blockstamp_number"),
+        @Index(columnList = "blockstamp_hash"),
         @Index(columnList = "hash"),
-        @Index(columnList = "writtenHash"),
-        @Index(columnList = "writtenOn"),
+        @Index(columnList = "written_hash"),
+        @Index(columnList = "written_number"),
         @Index(columnList = "comment")
 })
 @JsonIgnoreProperties(ignoreUnknown = true)
-//@GraphQLType(description = "Core Transaction")
-public class Transaction implements DUPDocument, Serializable, DenormalizeWrittenStamp {
+public class Transaction implements DUPDocument, Serializable {
 
-    private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger(Transaction.class);
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -62,14 +60,7 @@ public class Transaction implements DUPDocument, Serializable, DenormalizeWritte
     private String hash;
 
     @Valid
-    @AttributeOverrides({
-            @AttributeOverride(name = "number", column = @Column(name = "signedOn")),
-            @AttributeOverride(name = "hash", column = @Column(name = "signedHash"))
-    })
     private BStamp blockstamp;
-
-    @Column(name = "signedTime")
-    private Integer blockstampTime;
 
     @Valid
     @LazyCollection(LazyCollectionOption.FALSE)
@@ -107,12 +98,7 @@ public class Transaction implements DUPDocument, Serializable, DenormalizeWritte
     @Size(max = 255)
     private String comment;
 
-
-    private Integer writtenOn;
-
-    private String writtenHash;
-
-    private Long writtenTime;
+    private BStamp written;
 
 
     public String getHash() {
@@ -156,7 +142,7 @@ public class Transaction implements DUPDocument, Serializable, DenormalizeWritte
         return "Version: " + version +
                 "\nType: Transaction" +
                 "\nCurrency: g1" +
-                "\nBlockstamp: " + blockstamp +
+                "\nBlockstamp: " + this.blockstamp.stamp() +
                 "\nLocktime: " + locktime +
                 "\nIssuers:\n" + String.join("\n", issuers) +
                 "\nInputs:\n" + inputs.stream().map(TxInput::toDUP).collect(Collectors.joining("\n")) +
@@ -187,17 +173,13 @@ public class Transaction implements DUPDocument, Serializable, DenormalizeWritte
         final var hasComment = comment != null && !comment.equals("");
 
         return "TX:" + version + ":" + issuers.size() + ":" + inputs.size() + ":" + unlocks.size() + ":"
-                + outputs.size() + ":" + (hasComment ? 1 : 0) + ":" + locktime + "\n" + blockstamp + "\n"
+                + outputs.size() + ":" + (hasComment ? 1 : 0) + ":" + locktime + "\n" + blockstamp.stamp() + "\n"
                 + String.join("\n", issuers) + "\n"
                 + inputs.stream().map(TxInput::toDUP).collect(Collectors.joining("\n")) + "\n" //
                 + unlocks.stream().map(TxUnlock::toDUP).collect(Collectors.joining("\n")) + "\n"
                 + outputs.stream().map(TxOutput::toDUP).collect(Collectors.joining("\n")) + "\n"
                 + (hasComment ? comment + "\n" : "")
                 + String.join("\n", signatures);
-    }
-
-    public boolean txReceivedBy(Object pubkey) {
-        return issuers.stream().anyMatch(pk -> pk.equals(pubkey));
     }
 
 

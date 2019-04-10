@@ -34,7 +34,7 @@ import java.util.ResourceBundle;
 @Component
 public class Notary extends AbstractJuniterFX implements Initializable {
 
-    private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger(Notary.class);
 
     @FXML
     private TextArea rawDoc;

@@ -25,7 +25,7 @@ import java.util.ArrayList;
 @Getter
 public class Player extends ImageView {
 
-    private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger(Player.class);
 
     private Image _image;
     public double positionX;

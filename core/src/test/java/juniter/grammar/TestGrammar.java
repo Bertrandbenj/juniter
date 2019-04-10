@@ -14,7 +14,7 @@ import static org.junit.Assert.assertTrue;
 
 public class TestGrammar implements BlockExamples {
 
-	private static final Logger LOG = LogManager.getLogger();
+	private static final Logger LOG = LogManager.getLogger(TestGrammar.class);
 
 	private static final String folder = "/home/ben/ws/juniter/grammar/tests/";
 

@@ -34,7 +34,7 @@ import java.util.Map;
 @ConditionalOnExpression("${juniter.useGVA:false}")
 @RestController
 public class GVARestEntryPoint  {
-    private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger(GVARestEntryPoint.class);
 
     private GraphQL graphQL;
 

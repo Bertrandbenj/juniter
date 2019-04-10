@@ -15,7 +15,7 @@ import java.util.List;
 public class JuniterriensEventListener implements CoreEventBus {
 
 
-    Logger LOG = LogManager.getLogger();
+    Logger LOG = LogManager.getLogger(JuniterriensEventListener.class);
 
 
     @EventListener(condition = "#event.success")

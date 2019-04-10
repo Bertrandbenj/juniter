@@ -52,7 +52,7 @@ public class NetworkService {
     private String serverName;
 
 
-    public static final Logger LOG = LogManager.getLogger();
+    public static final Logger LOG = LogManager.getLogger(NetworkService.class);
 
     @Autowired
     private PeersRepository peerRepo;

@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 
 public interface TxRepository extends JpaRepository<Transaction, Long> {
 
-    Logger LOG = LogManager.getLogger();
+    Logger LOG = LogManager.getLogger(TxRepository.class);
 
 //	@Override
 //	Optional<TransactionDTO> findById(Long id);
@@ -62,7 +62,7 @@ public interface TxRepository extends JpaRepository<Transaction, Long> {
     Stream<Transaction> streamAll();
 
 
-    @Query("SELECT t FROM Transaction t INNER JOIN t.issuers i WHERE i = ?1 AND t.blockstampTime >= ?2 AND t.blockstampTime <= ?3")
+    @Query("SELECT t FROM Transaction t INNER JOIN t.issuers i WHERE i = ?1 AND blockstampTime >= ?2 AND blockstampTime <= ?3")
     Stream<Transaction> transactionsOfIssuerWindowedByTime(String pubkey, String start, String end);
 
     @Query("SELECT t FROM Transaction t WHERE pub = ?1 AND blockstampTime >= ?2 AND blockstampTime <= ?3")

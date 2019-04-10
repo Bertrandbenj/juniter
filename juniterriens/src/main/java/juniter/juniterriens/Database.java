@@ -12,7 +12,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
@@ -37,7 +36,7 @@ import java.util.ResourceBundle;
 @ConditionalOnExpression("${juniter.useJavaFX:false}")
 public class Database extends AbstractJuniterFX implements Initializable {
 
-    private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger(Database.class);
 
     private static ObservableList<IINDEX> iindex = FXCollections.observableArrayList();
     private static ObservableList<BINDEX> bindex = FXCollections.observableArrayList();
@@ -66,9 +65,6 @@ public class Database extends AbstractJuniterFX implements Initializable {
     private TableColumn mWritten_on;
 
     @FXML
-    private BorderPane content;
-
-    @FXML
     private TableColumn iWritten_on;
     @FXML
     private TabPane tabPane;
@@ -84,8 +80,6 @@ public class Database extends AbstractJuniterFX implements Initializable {
     private TableColumn bIssuersFrameCol;
     @FXML
     private TableColumn bIssuerFrameVarCol;
-    @FXML
-    private TextField filterB;
     @FXML
     private TableColumn iWotbidCol;
     @FXML
@@ -107,11 +101,11 @@ public class Database extends AbstractJuniterFX implements Initializable {
     @FXML
     private TableColumn mCreatedOn;
     @FXML
-    private TableColumn mExpiresOn;
+    private TableColumn<String, Long> mExpiresOn;
     @FXML
-    private TableColumn mExpiredOn;
+    private TableColumn<String, Long> mExpiredOn;
     @FXML
-    private TableColumn mRevokesOn;
+    private TableColumn<String, Long> mRevokesOn;
     @FXML
     private TableColumn mRevokedOn;
     @FXML
@@ -119,21 +113,19 @@ public class Database extends AbstractJuniterFX implements Initializable {
     @FXML
     private TableColumn mRevocationSig;
     @FXML
-    private TableColumn mChainableOn;
+    private TableColumn<String, Long> mChainableOn;
     @FXML
     private TextField filterM;
     @FXML
     private TableColumn cOp;
     @FXML
-    private TableColumn cExpiresOn;
+    private TableColumn<String, Long> cExpiresOn;
     @FXML
-    private TableColumn cExpiredOn;
+    private TableColumn<String, Long> cExpiredOn;
     @FXML
     private TableColumn cSig;
     @FXML
-    private TableColumn cSignedOn;
-    @FXML
-    private TableColumn cChainableOn;
+    private TableColumn<String, Long> cChainableOn;
     @FXML
     private TableColumn cFromWid;
     @FXML
@@ -141,9 +133,9 @@ public class Database extends AbstractJuniterFX implements Initializable {
     @FXML
     private TextField filterC;
     @FXML
-    private TableColumn sWrittenTime;
+    private TableColumn<String, Long> sWrittenTime;
     @FXML
-    private TableColumn sLocktime;
+    private TableColumn<String, Long> sLocktime;
     @FXML
     private TableColumn sPos;
     @FXML
@@ -161,11 +153,11 @@ public class Database extends AbstractJuniterFX implements Initializable {
     @FXML
     private TableColumn bDividendCol;
     @FXML
-    private TableColumn bmedianTimeCol;
+    private TableColumn<String, Long> bmedianTimeCol;
     @FXML
     private TableColumn bMembersCountCol;
     @FXML
-    private TableColumn bTimeCol;
+    private TableColumn<String, Long> bTimeCol;
     @FXML
     private TableColumn bSizeCol;
     @FXML
@@ -208,9 +200,10 @@ public class Database extends AbstractJuniterFX implements Initializable {
     private Label txCountB;
 
     @FXML
-    private TableColumn bNumberCol;
+    private TableColumn<String, Integer> bNumberCol;
     @FXML
     private TableColumn bHashCol;
+
     @FXML
     private FlowPane flowPanel;
 
@@ -285,7 +278,6 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
     @FXML
     public void indexReset() {
-
         index.reset(true);
         Bindings.currentBindex.setValue(0);
     }
@@ -301,7 +293,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
     }
 
-    public void revert1(ActionEvent actionEvent) {
+    public void revert1() {
         if (Bindings.isIndexing.get())
             return;
 
@@ -309,20 +301,20 @@ public class Database extends AbstractJuniterFX implements Initializable {
             bRepo.delete(h);
 
             iRepo.deleteAll(
-                    iRepo.writtenOn(h.number + "-" + h.hash)
+                    iRepo.writtenOn(h.getNumber(), h.getHash())
             );
             mRepo.deleteAll(
-                    mRepo.writtenOn(h.number + "-" + h.hash)
+                    mRepo.writtenOn(h.getNumber(), h.getHash())
             );
             cRepo.deleteAll(
-                    cRepo.writtenOn(h.number + "-" + h.hash)
+                    cRepo.writtenOn(h.getNumber(), h.getHash())
             );
             sRepo.deleteAll(
-                    sRepo.writtenOn(h.number + "-" + h.hash)
+                    sRepo.writtenOn(h.getNumber(), h.getHash())
             );
 
 
-            Bindings.currentBindex.setValue(h.number - 1);
+            Bindings.currentBindex.setValue(h.getNumber() - 1);
             Bindings.indexLogMessage.setValue("Reverted to " + Bindings.currentBindex.intValue() + " from " + h);
 
             index.reset(false);
@@ -330,9 +322,9 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
     }
 
-    private TextFieldTableCell medianTimeColumnFormat() {
+    private TextFieldTableCell<String, Long> medianTimeColumnFormat() {
 
-        return new TextFieldTableCell<String, Long>() {
+        return new TextFieldTableCell<>() {
 
 
             @Override
@@ -365,6 +357,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
     }
 
     private void mapColumn(TableColumn col, String name) {
+
         col.setCellValueFactory(new PropertyValueFactory<>(name));
     }
 
@@ -403,10 +396,10 @@ public class Database extends AbstractJuniterFX implements Initializable {
         mapColumn(iOpCol, "op");
         mapColumn(iPubCol, "pub");
         mapColumn(iUidCol, "uid");
-        mapColumn(iWritten_on, "written_on");
-        mapColumn(iWrittenOn, "writtenOn");
+        mapColumn(iWritten_on, "written");
+        //mapColumn(iWrittenOn, "writtenOn");
         mapColumn(iSigCol, "sig");
-        mapColumn(iCreatedOnCol, "created_on");
+        mapColumn(iCreatedOnCol, "signed");
         mapColumn(iHashCol, "hash");
         mapColumn(iKickCol, "kick");
         mapColumn(iMemberCol, "member");
@@ -416,8 +409,8 @@ public class Database extends AbstractJuniterFX implements Initializable {
         mapColumn(cIssuerCol, "issuer");
         mapColumn(cReceiverCol, "receiver");
         mapColumn(cCreatedOn, "signedHash");
-        mapColumn(cWritten_on, "written_on");
-        mapColumn(cWrittenOn, "writtenOn");
+        mapColumn(cWritten_on, "written");
+        //mapColumn(cWrittenOn, "writtenOn");
         mapColumn(cChainableOn, "chainable_on");
         mapColumn(cExpiredOn, "expired_on");
         mapColumn(cExpiresOn, "expires_on");
@@ -428,12 +421,12 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
         mapColumn(mPubCol, "pub");
         mapColumn(mStatus, "type");
-        mapColumn(mWritten_on, "written_on");
-        mapColumn(mWrittenOn, "writtenOn");
+        mapColumn(mWritten_on, "written");
+        //mapColumn(mWrittenOn, "writtenOn");
 
         mapColumn(mChainableOn, "chainable_on");
-        mapColumn(mCreatedOn, "created_on");
-        mapColumn(mRevokedOn, "revoked_on");
+        mapColumn(mCreatedOn, "signed");
+        mapColumn(mRevokedOn, "revoked");
         mapColumn(mExpiresOn, "expires_on");
         mapColumn(mRevokesOn, "revokes_on");
         mapColumn(mLeaving, "leaving");
@@ -441,9 +434,9 @@ public class Database extends AbstractJuniterFX implements Initializable {
         mapColumn(mRevocationSig, "revocation");
         mapColumn(mOpCol, "op");
 
-        mapColumn(sWrittenOn, "written_on");
+        mapColumn(sWrittenOn, "written");
         mapColumn(sWrittenTime, "written_time");
-        mapColumn(sCreatedOn, "created_on");
+        mapColumn(sCreatedOn, "signed");
         mapColumn(sAmountCol, "amount");
         mapColumn(sBaseCol, "base");
         mapColumn(sConsumedCol, "consumed");
@@ -459,7 +452,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
         var filteredI = new FilteredList<>(iindex);
 
-        EventHandler filterEventI = (e) -> filteredI.setPredicate(this::matchesFilterI);
+        EventHandler<ActionEvent> filterEventI = (e) -> filteredI.setPredicate(this::matchesFilterI);
 
         filterI.setOnAction(filterEventI);
         ckIOP.setOnAction(filterEventI);
@@ -474,7 +467,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
         // ===================   FILTER  COLUMNS MINDEX =================
 
         var filteredM = new FilteredList<>(mindex);
-        EventHandler listenerM = (e) -> filteredM.setPredicate(this::matchesFilterM);
+        EventHandler<ActionEvent> listenerM = (e) -> filteredM.setPredicate(this::matchesFilterM);
 
         filterM.setOnAction(listenerM);
         ckLeaving.setOnAction(listenerM);
@@ -487,7 +480,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
         // ===================   FILTER  COLUMNS CINDEX =================
 
         var filteredC = new FilteredList<>(cindex);
-        EventHandler listenerC = (e) -> filteredC.setPredicate(this::matchesFilterC);
+        EventHandler<ActionEvent> listenerC = (e) -> filteredC.setPredicate(this::matchesFilterC);
 
         filterC.setOnAction(listenerC);
         ckCOP.setOnAction(listenerC);
@@ -499,7 +492,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
         // ===================   FILTER  COLUMNS SINDEX =================
 
         var filteredS = new FilteredList<>(sindex);
-        EventHandler listenerS = (e) -> filteredS.setPredicate(this::matchesFilterS);
+        EventHandler<ActionEvent> listenerS = (e) -> filteredS.setPredicate(this::matchesFilterS);
 
         filterS.setOnAction(listenerS);
         ckSOP.setOnAction(listenerS);
@@ -512,7 +505,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
         // ===================   FANCY COLORS  =================
         final var headTime = bRepo.head().map(BINDEX::getNumber);
         final var bindexsize = bRepo.count();
-        bNumberCol.setCellFactory(t -> new TextFieldTableCell<String, Integer>() {
+        bNumberCol.setCellFactory(t -> new TextFieldTableCell<>() {
 
 
             @Override
@@ -543,19 +536,19 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
         tableB.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
-                LOG.info("onSelect  " + newSelection.number + "-" + newSelection.hash + "   " + newSelection);
+                LOG.info("onSelect  " + newSelection.getNumber() + "-" + newSelection.getHash() + "   " + newSelection);
 
                 iindex.clear();
-                iindex.addAll(iRepo.writtenOn(newSelection.number + "-" + newSelection.hash));
+                iindex.addAll(iRepo.writtenOn(newSelection.getNumber(), newSelection.getHash()));
 
                 cindex.clear();
-                cindex.addAll(cRepo.writtenOn(newSelection.number + "-" + newSelection.hash));
+                cindex.addAll(cRepo.writtenOn(newSelection.getNumber(), newSelection.getHash()));
 
                 mindex.clear();
-                mindex.addAll(mRepo.writtenOn(newSelection.number + "-" + newSelection.hash));
+                mindex.addAll(mRepo.writtenOn(newSelection.getNumber(), newSelection.getHash()));
 
                 sindex.clear();
-                sindex.addAll(sRepo.writtenOn(newSelection.number + "-" + newSelection.hash));
+                sindex.addAll(sRepo.writtenOn(newSelection.getNumber(), newSelection.getHash()));
 
             }
         });
@@ -584,10 +577,10 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
 
     private boolean matchesFilterS(SINDEX s) {
-        boolean res = true;
+        boolean res;
 
         var expectOP = ckSOP.isSelected() ? "CREATE" : "UPDATE";
-        res &= ckSOP.isIndeterminate() || s.getOp().equals(expectOP);
+        res = ckSOP.isIndeterminate() || s.getOp().equals(expectOP);
         res &= ckConsumed.isIndeterminate() || Boolean.valueOf(ckConsumed.isSelected()).equals(s.isConsumed());
 
 
@@ -600,10 +593,10 @@ public class Database extends AbstractJuniterFX implements Initializable {
     }
 
     private boolean matchesFilterC(CINDEX c) {
-        boolean res = true;
+        boolean res;
 
         var expectOP = ckCOP.isSelected() ? "CREATE" : "UPDATE";
-        res &= ckCOP.isIndeterminate() || c.getOp().equals(expectOP);
+        res = ckCOP.isIndeterminate() || c.getOp().equals(expectOP);
 
         if (filterC.getText() != null && !filterC.getText().equals("")) {
             res &= c.getIssuer().equals(filterC.getText()) || c.getReceiver().equals(filterC.getText());
@@ -613,10 +606,10 @@ public class Database extends AbstractJuniterFX implements Initializable {
     }
 
     private boolean matchesFilterM(MINDEX m) {
-        boolean res = true;
+        boolean res;
 
         var expectOP = ckMOP.isSelected() ? "CREATE" : "UPDATE";
-        res &= ckMOP.isIndeterminate() || m.getOp().equals(expectOP);
+        res = ckMOP.isIndeterminate() || m.getOp().equals(expectOP);
 
         res &= ckLeaving.isIndeterminate() || Boolean.valueOf(ckLeaving.isSelected()).equals(m.getLeaving());
 
@@ -630,10 +623,10 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
     private boolean matchesFilterI(IINDEX i) {
 
-        boolean res = true;
+        boolean res;
 
         var expectOP = ckIOP.isSelected() ? "CREATE" : "UPDATE";
-        res &= ckIOP.isIndeterminate() || i.getOp().equals(expectOP);
+        res = ckIOP.isIndeterminate() || i.getOp().equals(expectOP);
 
         res &= ckMember.isIndeterminate() || Boolean.valueOf(ckMember.isSelected()).equals(i.getMember());
 
@@ -653,12 +646,12 @@ public class Database extends AbstractJuniterFX implements Initializable {
         return res; // Does not match
     }
 
-    public void show(Integer blockNumber) {
+    private void show(Integer blockNumber) {
         LOG.info("showing node at " + blockNumber);
     }
 
     @FXML
-    public void reload(ActionEvent actionEvent) {
+    public void reload() {
         Platform.runLater(() -> {
 
             var blocks = bRepo.findAll();//.stream().map(b -> modelMapper.map(b, GlobalValid.BINDEX.class)).collect(Collectors.toList());
@@ -666,9 +659,9 @@ public class Database extends AbstractJuniterFX implements Initializable {
             // draw the button list // TODO decide what to do of the flow layout, if anything
             flowPanel.getChildren().clear();
             blocks.forEach(block -> {
-                var button = new Button(block.number + "");
+                var button = new Button(block.getNumber() + "");
                 button.setFont(new Font(9));
-                button.setOnAction(event -> show(block.number));
+                button.setOnAction(event -> show(block.getNumber()));
                 //flowPanel.getChildren().add(button);
             });
 
@@ -701,7 +694,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
     }
 
-    public void button1(ActionEvent actionEvent) {
+    public void button1() {
 
     }
 

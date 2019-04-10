@@ -28,7 +28,7 @@ import java.util.ResourceBundle;
 @ConditionalOnExpression("${juniter.useJavaFX:false}")
 @Component
 public class Spark extends AbstractJuniterFX implements Initializable {
-    private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger(Spark.class);
     public TitledPane transformPane;
 
     @FXML

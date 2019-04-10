@@ -3,8 +3,6 @@ package juniter.core.model.dbo.wot;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.DUPDocument;
-import juniter.core.model.dbo.DenormalizeSignatureStamp;
-import juniter.core.model.dbo.DenormalizeWrittenStamp;
 import juniter.core.utils.Constants;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,12 +18,14 @@ import java.io.Serializable;
 @Table(name = "wot_member", schema = "public", indexes = {
         @Index(columnList = "pubkey"),
         @Index(columnList = "uid"),
-        @Index(columnList = "writtenOn")
+        @Index(columnList = "written_number"),
+        @Index(columnList = "signed_number"),
+        @Index(columnList = "excluded")
 })
 @Inheritance(strategy = InheritanceType.JOINED)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Member implements DUPDocument, Serializable, Comparable<Member>, DenormalizeWrittenStamp {
+public class Member implements DUPDocument, Serializable, Comparable<Member> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,11 +36,7 @@ public class Member implements DUPDocument, Serializable, Comparable<Member>, De
 
     protected String signature;
 
-    protected Integer signedOn;
-
-    protected String signedHash;
-
-    protected Long signedTime;
+    protected BStamp signed;
 
     protected String i_block_uid;
 
@@ -52,11 +48,7 @@ public class Member implements DUPDocument, Serializable, Comparable<Member>, De
 
     protected Boolean excluded;
 
-    protected Integer writtenOn;
-
-    protected String writtenHash;
-
-    protected Long writtenTime;
+    protected BStamp written;
 
     @Override
     public int compareTo(@NonNull Member o) {
@@ -65,21 +57,7 @@ public class Member implements DUPDocument, Serializable, Comparable<Member>, De
 
     @Override
     public String toDUP() {
-        return pubkey + ":" + signature + ":" + signedOn + "-" + signedHash + ":" + i_block_uid + ":" + uid;
-    }
-
-    public BStamp createdOn() {
-        return new BStamp(signedHash);
-    }
-
-
-
-    public BStamp idtyOn() {
-        return new BStamp(i_block_uid);
-    }
-
-    public BStamp revokedOn() {
-        return new BStamp(revoked_on);
+        return pubkey + ":" + signature + ":" + signed.getNumber() + "-" + signed.getHash() + ":" + i_block_uid + ":" + uid;
     }
 
     @Override

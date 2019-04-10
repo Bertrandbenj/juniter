@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/tx")
 public class TxService {
 
-    private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger(TxService.class);
 
     @Autowired
     private TxRepository repository;

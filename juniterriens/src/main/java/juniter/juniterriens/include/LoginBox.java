@@ -25,7 +25,7 @@ import java.util.ResourceBundle;
 @Component
 public class LoginBox extends AbstractJuniterFX implements Initializable {
 
-    private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger(LoginBox.class);
 
 
 

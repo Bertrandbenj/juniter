@@ -1,6 +1,7 @@
 package juniter.core.model.dbo.wot;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.DenormalizeWrittenStamp;
 import juniter.core.utils.Constants;
 import lombok.AllArgsConstructor;
@@ -20,12 +21,12 @@ import javax.validation.constraints.Size;
 @Table(name = "wot_certification", schema = "public", indexes = {
         @Index(columnList = "certifier"),
         @Index(columnList = "certified"),
-        @Index(columnList = "writtenOn")
+        @Index(columnList = "written_number")
 })
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Certification implements Comparable<Certification>, DenormalizeWrittenStamp {
+public class Certification implements Comparable<Certification> {
 
-    private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger(Certification.class);
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -44,11 +45,7 @@ public class Certification implements Comparable<Certification>, DenormalizeWrit
     @Size(max = 88)
     private String signature;
 
-    private Integer writtenOn;
-
-    private String writtenHash;
-
-    private Long writtenTime;
+    private BStamp written;
 
 
     public Certification(String certif) {

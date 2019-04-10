@@ -22,7 +22,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 @EntityScan("juniter.core.model")
 public class Application {
 
-    private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger(Application.class);
 
 
     public static void main(String[] args) {

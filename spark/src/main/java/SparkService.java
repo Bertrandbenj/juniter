@@ -25,7 +25,7 @@ import static org.apache.spark.sql.functions.*;
 @Service
 public class SparkService {
 
-    private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger(SparkService.class);
 
     @Autowired
     SparkSession spark;
@@ -139,10 +139,10 @@ public class SparkService {
         spark.read().json(dataPath + "dump/*.jsonrows")
                 .withColumn("x", when(col("number").equalTo(0), "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855").otherwise(col("hash")))
                 .drop("hash").withColumnRenamed("x", "hash")
-                .withColumn("written_on", concat(col("number"), lit("-"), col("hash")))
+                .withColumn("written", concat(col("number"), lit("-"), col("hash")))
 
                 .repartition(4)
-                .orderBy("written_on")
+                .orderBy("written")
                 .write()
                 .mode(SaveMode.Overwrite)
                 .parquet(dataPath + "blockchain/tree");
@@ -167,11 +167,11 @@ public class SparkService {
         blockchain.printSchema();
 
         //blockchain.show();
-        tree = blockchain.select("written_on", "medianTime").cache();
+        tree = blockchain.select("written", "medianTime").cache();
 
 
         idty = blockchain.select(col("identities"),
-                col("written_on"),
+                col("written"),
                 col("number").as("writtenOn"),
                 col("medianTime").as("writtenTime"))
                 .withColumn("x", explode(col("identities"))).drop("identities")
@@ -180,7 +180,7 @@ public class SparkService {
                 .withColumn("signedHash", split(col("x"), "\\:").getItem(2))
                 .withColumn("userid", split(col("x"), "\\:").getItem(3))
                 .join(tree.select(
-                        col("written_on").as("signedHash"),
+                        col("written").as("signedHash"),
                         col("medianTime").plus(conf.getMsValidity()).as("expires_on"),
                         col("medianTime").plus(conf.getMsValidity() * 2).as("revokes_on"))
                         , "signedHash")
@@ -189,7 +189,7 @@ public class SparkService {
                 .cache();
 
         certs = blockchain.select(col("certifications"),
-                col("written_on"),
+                col("written"),
                 col("number").as("writtenOn"),
                 col("medianTime").as("writtenTime"))
                 .withColumn("x", explode(col("certifications"))).drop("certifications")
@@ -198,7 +198,7 @@ public class SparkService {
                 .withColumn("signedHash", split(col("x"), "\\:").getItem(2))
                 .withColumn("signature", split(col("x"), "\\:").getItem(3))
                 .join(tree.select(
-                        split(col("written_on"), "-").getItem(0).as("signedHash"),
+                        split(col("written"), "-").getItem(0).as("signedHash"),
                         col("medianTime").plus(conf.getSigValidity()).as("expires_on")),
                         "signedHash")
 
@@ -209,7 +209,7 @@ public class SparkService {
 
 
         actives = blockchain.select(col("actives"),
-                col("written_on"),
+                col("written"),
                 col("number").as("writtenOn"),
                 col("medianTime").as("writtenTime"))
                 .withColumn("x", explode(col("actives"))).drop("actives")
@@ -219,7 +219,7 @@ public class SparkService {
                 .withColumn("idtyOn", split(col("x"), "\\:").getItem(3))
                 .withColumn("userid", split(col("x"), "\\:").getItem(4))
                 .join(tree.select(
-                        col("written_on").as("signedHash"),
+                        col("written").as("signedHash"),
                         col("medianTime").plus(conf.getMsValidity()).as("expires_on"),
                         col("medianTime").plus(conf.getMsValidity() * 2).as("revokes_on"))
                         , "signedHash")
@@ -229,7 +229,7 @@ public class SparkService {
 
 
         joiners = blockchain.select(col("joiners"),
-                col("written_on"),
+                col("written"),
                 col("number").as("writtenOn"),
                 col("medianTime").as("writtenTime"))
                 .withColumn("x", explode(col("joiners"))).drop("joiners")
@@ -239,7 +239,7 @@ public class SparkService {
                 .withColumn("idtyOn", split(col("x"), "\\:").getItem(3))
                 .withColumn("userid", split(col("x"), "\\:").getItem(4))
                 .join(tree.select(
-                        col("written_on").as("signedHash"),
+                        col("written").as("signedHash"),
                         col("medianTime").plus(conf.getMsValidity()).as("expires_on"),
                         col("medianTime").plus(conf.getMsValidity() * 2).as("revokes_on"))
                         , "signedHash")
@@ -248,7 +248,7 @@ public class SparkService {
                 .cache();
 
         leavers = blockchain.select(col("leavers"),
-                col("written_on"),
+                col("written"),
                 col("number").as("writtenOn"),
                 col("medianTime").as("writtenTime"))
                 .withColumn("x", explode(col("leavers"))).drop("leavers")
@@ -261,7 +261,7 @@ public class SparkService {
                 .cache();
 
         excluded = blockchain.select(col("excluded"),
-                col("written_on"),
+                col("written"),
                 col("number").as("writtenOn"),
                 col("medianTime").as("writtenTime"))
                 .withColumn("x", explode(col("excluded"))).drop("excluded")
@@ -270,7 +270,7 @@ public class SparkService {
                 .cache();
 
         revoked = blockchain.select(col("revoked"),
-                col("written_on"),
+                col("written"),
                 col("number").as("writtenOn"),
                 col("medianTime").as("writtenTime"))
                 .withColumn("x", explode(col("revoked"))).drop("revoked")
@@ -292,27 +292,27 @@ public class SparkService {
         // specs says :  "Each join whose PUBLIC_KEY does not match a local MINDEX CREATE, PUBLIC_KEY produces 2 new entries"
         var actualJoiners = joiners
                 .join(idty.select(
-                        idty.col("written_on").as("awritten_on"),
+                        idty.col("written").as("awritten_on"),
                         idty.col("pubkey").as("apubkey")),
-                        col("written_on").equalTo(col("awritten_on")).and(col("pubkey").equalTo(col("apubkey"))),
+                        col("written").equalTo(col("awritten_on")).and(col("pubkey").equalTo(col("apubkey"))),
                         "leftanti")
                 .drop("awritten_on", "apubkey");
 
         mindex = idty
                 .withColumn("op", lit("CREATE"))
-                .withColumn("idtyOn", col("written_on"))
-                .select("signedHash", "written_on", "writtenOn", "writtenTime", "pubkey", "signature", "expires_on", "revokes_on", "chainable_on", "op", "idtyOn")
+                .withColumn("idtyOn", col("written"))
+                .select("signedHash", "written", "writtenOn", "writtenTime", "pubkey", "signature", "expires_on", "revokes_on", "chainable_on", "op", "idtyOn")
                 .union(actualJoiners
                         .withColumn("op", lit("UPDATE"))
-                        .select("signedHash", "written_on", "writtenOn", "writtenTime", "pubkey", "signature", "expires_on", "revokes_on", "chainable_on", "op", "idtyOn")
+                        .select("signedHash", "written", "writtenOn", "writtenTime", "pubkey", "signature", "expires_on", "revokes_on", "chainable_on", "op", "idtyOn")
                 )
-                //.join(revoked.select(revoked.col("written_on").as("revoked_on"), revoked.col("revoked"), revoked.col("revoked")))
+                //.join(revoked.select(revoked.col("written").as("revoked"), revoked.col("revoked"), revoked.col("revoked")))
 
                 .withColumn("type", lit("JOIN"))
                 .withColumn("leaving", lit(false))
                 .union(actives
                         .withColumn("op", lit("UPDATE"))
-                        .select("signedHash", "written_on", "writtenOn", "writtenTime", "pubkey", "signature", "expires_on", "revokes_on", "chainable_on", "op", "idtyOn")
+                        .select("signedHash", "written", "writtenOn", "writtenTime", "pubkey", "signature", "expires_on", "revokes_on", "chainable_on", "op", "idtyOn")
                         .withColumn("type", lit("RENEW"))
                         .withColumn("leaving", lit(false))
                 )
@@ -321,7 +321,7 @@ public class SparkService {
                         .withColumn("revokes_on", lit(null))
                         .withColumn("expires_on", lit(null))
                         .withColumn("chainable_on", lit(null))
-                        .select("signedHash", "written_on", "writtenOn", "writtenTime", "pubkey", "signature", "expires_on", "revokes_on", "chainable_on", "op", "idtyOn")
+                        .select("signedHash", "written", "writtenOn", "writtenTime", "pubkey", "signature", "expires_on", "revokes_on", "chainable_on", "op", "idtyOn")
                         .withColumn("type", lit("LEAVE"))
                         .withColumn("leaving", lit(true))
                 )
@@ -331,9 +331,9 @@ public class SparkService {
                         .withColumn("expires_on", lit(null))
                         .withColumn("chainable_on", lit(null))
                         .withColumn("idtyOn", lit(null))
-                        .withColumn("signedHash", col("written_on"))
+                        .withColumn("signedHash", col("written"))
                         .withColumn("pubkey", col("revoked"))
-                        .select("signedHash", "written_on", "writtenOn", "writtenTime", "pubkey", "signature", "expires_on", "revokes_on", "chainable_on", "op", "idtyOn")
+                        .select("signedHash", "written", "writtenOn", "writtenTime", "pubkey", "signature", "expires_on", "revokes_on", "chainable_on", "op", "idtyOn")
                         .withColumn("type", lit("REV"))
                         .withColumn("leaving", lit(true))
                 ).cache();
@@ -342,7 +342,7 @@ public class SparkService {
         saveAsync(mindex, "mindex");
 
         cindex = certs.select(
-                col("written_on"),
+                col("written"),
                 col("writtenOn"),
                 col("signedHash"),
                 col("issuer"),
@@ -360,7 +360,7 @@ public class SparkService {
                         col("userid"),
                         col("pubkey"),
                         col("signedHash"),
-                        col("written_on"),
+                        col("written"),
                         lit(true).as("member"),
                         lit(true).as("wasMember"),
                         lit(false).as("kick"),
@@ -370,7 +370,7 @@ public class SparkService {
                         col("userid"),
                         col("pubkey"),
                         col("signedHash"),
-                        col("written_on"),
+                        col("written"),
                         lit(true).as("member"),
                         lit(true).as("wasMember"),
                         lit(false).as("kick"),
@@ -380,8 +380,8 @@ public class SparkService {
                         lit("UPDATE").as("op"),
                         lit(null).as("userid"),
                         col("issuer").as("pubkey"),
-                        col("written_on").as("signedHash"),
-                        col("written_on"),
+                        col("written").as("signedHash"),
+                        col("written"),
                         lit(false).as("member"),
                         lit(true).as("wasMember"),
                         lit(false).as("kick"),
@@ -392,11 +392,11 @@ public class SparkService {
 
 
         transactions = blockchain.select(explode(col("transactions")).as("tx"),
-                concat(col("number"), lit("-"), col("hash")).as("written_on"),
+                concat(col("number"), lit("-"), col("hash")).as("written"),
                 col("medianTime").as("writtenTime"))
                 .select(col("writtenTime"),
-                        col("written_on"),
-                        col("tx.blockstamp").as("txStamp"),
+                        col("written"),
+                        col("tx.signed").as("txStamp"),
                         col("tx.blockstampTime"),
                         col("tx.comment"),
                         col("tx.currency"),
@@ -461,7 +461,7 @@ public class SparkService {
         membersAsOf = tree.select(col("medianTime").as("asOf"))
                 .join(mindex, col("asOf").between(0, mindex.col("writtenTime")), "left_outer")
                 .select(col("asOf"),col("writtenTime").as("mtime"), col("pubkey"))
-        //.drop("leaving", "type", "op", "chainable_on","revokes_on", "signature", "writtenOn", "written_on", "created_on", "idtyOn")
+        //.drop("leaving", "type", "op", "chainable_on","revokes_on", "signature", "writtenOn", "written", "signed", "idtyOn")
         ;
 //        spark.sparkContext()
         saveAsync(membersAsOf, "membersAsOf");

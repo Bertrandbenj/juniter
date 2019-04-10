@@ -28,7 +28,7 @@ import java.util.stream.Stream;
  */
 @Repository
 public interface BlockRepository extends JpaRepository<DBBlock, Long>, BlockLocalValid {
-    Logger LOG = LogManager.getLogger();
+    Logger LOG = LogManager.getLogger(BlockRepository.class);
 
     @Override
     void delete(DBBlock entity);
@@ -106,40 +106,40 @@ public interface BlockRepository extends JpaRepository<DBBlock, Long>, BlockLoca
 
         // Denormalized Fields !
         for (Transaction tx : block.getTransactions()) {
+            tx.setWritten(block.bStamp());
             tx.getHash();
-            tx.setWritten(block);
         }
 
         for (Identity ident : block.getIdentities()) {
-            ident.setWritten(block);
+            ident.setWritten(block.bStamp());
         }
 
         for (Certification cert : block.getCertifications()) {
-            cert.setWritten(block);
+            cert.setWritten(block.bStamp());
         }
 
         for (Member m : block.getRenewed()) {
-            m.setWritten(block);
+            m.setWritten(block.bStamp());
         }
 
         for (Member m : block.getRevoked()) {
-            m.setWritten(block);
+            m.setWritten(block.bStamp());
         }
 
         for (Member m : block.getJoiners()) {
-            m.setWritten(block);
+            m.setWritten(block.bStamp());
         }
 
         for (Member m : block.getExcluded()) {
-            m.setWritten(block);
+            m.setWritten(block.bStamp());
         }
 
         for (Member m : block.getMembers()) {
-            m.setWritten(block);
+            m.setWritten(block.bStamp());
         }
 
         for (Member m : block.getLeavers()) {
-            m.setWritten(block);
+            m.setWritten(block.bStamp());
         }
 
 

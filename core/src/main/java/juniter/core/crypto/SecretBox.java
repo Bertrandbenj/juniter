@@ -36,7 +36,7 @@ import static org.abstractj.kalium.crypto.Util.*;
  */
 
 public class SecretBox {
-	private static final Logger LOG = LogManager.getLogger();
+	private static final Logger LOG = LogManager.getLogger(SecretBox.class);
 
 	// Length of the key
 	private static int SEED_LENGTH = 32;

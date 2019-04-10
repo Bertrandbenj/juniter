@@ -1,7 +1,7 @@
 package juniter.repository.jpa.index;
 
-import juniter.core.model.dto.wot.MemberDTO;
 import juniter.core.model.dbo.index.IINDEX;
+import juniter.core.model.dto.wot.MemberDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -54,8 +54,8 @@ public interface IINDEXRepository extends JpaRepository<IINDEX, Long> {
     @Query(value = "SELECT iindex from IINDEX iindex WHERE pub = ?1 ")
     Optional<IINDEX> findFirstByPubLike(String pub);
 
-    @Query(value = "SELECT iindex from IINDEX iindex WHERE written_on = ?1 ")
-    List<IINDEX> writtenOn(String writtenOn);
+    @Query(value = "SELECT iindex from IINDEX iindex WHERE written.number = ?1 AND  written.hash = ?2 ")
+    List<IINDEX> writtenOn(Integer writtenOn, String writtenHash);
 
     @Override
     <S extends IINDEX> S save(S entity);
@@ -93,12 +93,12 @@ public interface IINDEXRepository extends JpaRepository<IINDEX, Long> {
 //                        tmp = i2;
 //                        tmp.setUserid(i1.getUserid());
 //                        tmp.setWotbid(i1.getWotbid());
-//                        tmp.setCreated_on(i1.getCreated_on());
+//                        tmp.setSigned(i1.getSigned());
 //                        tmp.setMember(i1.getMember());
 //                    } else {
 //                        tmp.setUserid(i2.getUserid());
 //                        tmp.setWotbid(i2.getWotbid());
-//                        tmp.setCreated_on(i2.getCreated_on());
+//                        tmp.setSigned(i2.getSigned());
 //                        tmp.setMember(i2.getMember());
 //
 //                    }
@@ -128,10 +128,10 @@ public interface IINDEXRepository extends JpaRepository<IINDEX, Long> {
     }
 
 
-    @Query("SELECT DISTINCT pub FROM IINDEX m WHERE writtenOn < ?1 GROUP BY pub HAVING count(*) > 1")
+    @Query("SELECT DISTINCT pub FROM IINDEX m WHERE written.number < ?1 GROUP BY pub HAVING count(*) > 1")
     List<String> duplicatesBelow(Integer blockNumber);
 
-    @Query(value = "FROM IINDEX WHERE pub = ?1 ORDER BY writtenOn")
+    @Query(value = "FROM IINDEX WHERE pub = ?1 ORDER BY written.number")
     List<IINDEX> fetchTrimmed(String pub);
 
 

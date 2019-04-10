@@ -11,19 +11,19 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 //    @Query(value = "SELECT DISTINCT writtenon FROM wot_member m ORDER BY writtenon ")
 //    List<Integer> withMembers();
 
-    @Query(value = "SELECT DISTINCT writtenOn FROM Member m WHERE dtype = 'Excluded' ORDER BY writtenOn ")
+    @Query(value = "SELECT DISTINCT written.number FROM Member m WHERE dtype = 'Excluded' ORDER BY written.number")
     List<Integer> withExcluded();
 
-    @Query(value = "SELECT DISTINCT writtenOn FROM Member m WHERE dtype = 'Joiner' ORDER BY writtenOn ")
+    @Query(value = "SELECT DISTINCT written.number FROM Member m WHERE dtype = 'Joiner' ORDER BY written.number")
     List<Integer> withJoiners();
 
-    @Query(value = "SELECT DISTINCT writtenOn FROM Member m WHERE dtype = 'Leaver' ORDER BY writtenOn ")
+    @Query(value = "SELECT DISTINCT written.number FROM Member m WHERE dtype = 'Leaver' ORDER BY written.number")
     List<Integer> withLeavers();
 
-    @Query(value = "SELECT DISTINCT writtenOn FROM Member m WHERE dtype = 'Renew' ORDER BY writtenOn ")
+    @Query(value = "SELECT DISTINCT written.number FROM Member m WHERE dtype = 'Renew' ORDER BY written.number")
     List<Integer> withRenewed();
 
-    @Query(value = "SELECT DISTINCT writtenOn FROM  Member m WHERE dtype = 'Revoked'  ORDER BY writtenOn ")
+    @Query(value = "SELECT DISTINCT written.number FROM Member m WHERE dtype = 'Revoked' ORDER BY written.number")
     List<Integer> withRevoked();
 
 

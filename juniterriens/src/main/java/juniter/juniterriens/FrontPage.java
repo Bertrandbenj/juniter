@@ -1,6 +1,7 @@
 package juniter.juniterriens;
 
 import javafx.application.Platform;
+import javafx.application.Preloader;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
@@ -10,15 +11,13 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import juniter.core.model.dbo.DBBlock;
+import juniter.core.model.dbo.index.BINDEX;
 import juniter.juniterriens.include.AbstractJuniterFX;
 import juniter.juniterriens.include.Bindings;
 import juniter.repository.jpa.block.BlockRepository;
-import juniter.repository.jpa.block.TxRepository;
 import juniter.repository.jpa.index.BINDEXRepository;
 import juniter.service.bma.loader.BlockLoader;
 import juniter.service.bma.loader.MissingBlocksLoader;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
@@ -35,7 +34,6 @@ import java.util.ResourceBundle;
 @Component
 public class FrontPage extends AbstractJuniterFX implements Initializable {
 
-    private static final Logger LOG = LogManager.getLogger();
     @FXML
     private Label size;
 
@@ -50,9 +48,6 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
 
     @FXML
     private Label n;
-
-    @FXML
-    private Label test;
 
 
     //                                  LOADING  SECTION
@@ -70,10 +65,6 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
 
     @Autowired
     private BlockRepository blockRepo;
-
-    private ResourceBundle translate;
-
-    private Scene scene;
 
 
     public FrontPage() {
@@ -99,13 +90,15 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
     @Override
     public void start(Stage primaryStage) {
 
+        notifyPreloader(new Preloader.StateChangeNotification(Preloader.StateChangeNotification.Type.BEFORE_START));
+
         if (null == blockRepo) {
             throw new IllegalStateException("BlockRepository was not injected properly");
         }
 
         BorderPane page = (BorderPane) load("/juniterriens/FrontPage.fxml");
 
-        scene = new Scene(page);
+        Scene scene = new Scene(page);
 
         primaryStage.setTitle("Juniter - Admin panel ");
         primaryStage.setScene(scene);
@@ -113,6 +106,11 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
         primaryStage.getIcons().add(new Image("/juniterriens/images/logo.png"));
         primaryStage.show();
         primaryStage.setOnHidden(e -> Platform.exit());
+
+        primaryStage.setOnCloseRequest(t -> {
+            Platform.exit();
+            System.exit(0);
+        });
 
     }
 
@@ -123,7 +121,7 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
         loadBar.progressProperty().bind(Bindings.currentDBBlock.divide(Bindings.maxPeerBlock));
         Bindings.maxBindex.setValue(blockRepo.currentBlockNumber());
         Bindings.currentDBBlock.setValue(blockRepo.count());
-        Bindings.currentBindex.setValue(bRepo.head().map(b -> b.number).orElse(0));
+        Bindings.currentBindex.setValue(bRepo.head().map(BINDEX::getNumber).orElse(0));
         Bindings.maxDBBlock.setValue(blockRepo.currentBlockNumber());
         Bindings.currenBlock.setValue(blockRepo.current().orElseGet(() -> blockLoader.fetchAndSaveBlock("current")));
 
@@ -145,12 +143,8 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
         median.setText(formattedDate);
         size.setText(Bindings.currenBlock.get().getSize() + "");
         number.setText(Bindings.currenBlock.get().getNumber() + "");
-       // test.setText(txRepo.transactionsOfIssuer_("4weakHxDBMJG9NShULG1g786eeGh7wwntMeLZBDhJFni").get(0).getWrittenOn()+"");
+        // test.setText(txRepo.transactionsOfIssuer_("4weakHxDBMJG9NShULG1g786eeGh7wwntMeLZBDhJFni").get(0).getWrittenOn()+"");
 
     }
 
-
-
-    @Autowired
-    TxRepository txRepo;
 }

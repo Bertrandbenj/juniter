@@ -17,7 +17,7 @@ import static org.junit.Assert.assertTrue;
 
 public class TestOnFileBlocks implements BlockLocalValid {
 
-	private static final Logger LOG = LogManager.getLogger();
+	private static final Logger LOG = LogManager.getLogger(TestOnFileBlocks.class);
 
 	/**
 	 * joiners/identity/certification & parameters
