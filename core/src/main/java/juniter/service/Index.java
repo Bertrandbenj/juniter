@@ -169,30 +169,18 @@ public class Index implements GlobalValid {
 
     @Override
     public Stream<CINDEX> getC(String issuer, String receiver) {
-        if (issuer == null && receiver != null) {
-            return cRepo.receivedBy(receiver).stream();
-        }
+        if (receiver != null && issuer != null) {
+            return cRepo.getCert(issuer, receiver).stream();
 
-        if (receiver == null && issuer != null) {
+        } else if (receiver != null && issuer == null) {
+            return cRepo.receivedBy(receiver).stream();
+
+        } else if (receiver == null && issuer != null) {
             return cRepo.issuedBy(issuer).stream();
         }
+
         return Stream.empty();
     }
-
-
-    @Override
-    public Optional<CINDEX> reduceC(String issuer, String receiver) {
-        if (issuer == null && receiver != null) {
-            return cRepo.receivedBy(receiver).stream().reduce(CINDEX.reducer);
-        }
-
-        if (receiver == null && issuer != null) {
-            return cRepo.issuedBy(issuer).stream().reduce(CINDEX.reducer);
-        }
-
-        return Optional.empty();
-    }
-
 
     @Override
     public Stream<Account> lowAccounts() {
@@ -201,17 +189,26 @@ public class Index implements GlobalValid {
 
     @Override
     public Optional<MINDEX> reduceM(String pub) {
-        return mRepo.member(pub).stream().reduce(MINDEX.reducer);
+        return mRepo.member(pub).stream()
+                .sorted((m2, m1) -> m1.getWritten().getMedianTime().compareTo(m2.getWritten().getMedianTime()))
+                //.peek(x -> LOG.info("reducing " + x))
+                .reduce(MINDEX.reducer);
     }
 
     @Override
-    public Stream<MINDEX> findPubkeysThatShouldExpire(Long mTime) {
-        return mRepo.findPubkeysThatShouldExpire2(mTime).stream();
+    public Stream<CINDEX> findCertsThatShouldExpire(Long mTime) {
+        return cRepo.findCertsThatShouldExpire(mTime).stream();
     }
 
 
     @Override
-    public Stream<MINDEX> findRevokesOnLteAndRevokedOnIsNull(Long mTime) {
+    public Stream<String> findPubkeysThatShouldExpire(Long mTime) {
+        return mRepo.findPubkeysThatShouldExpire3(mTime).stream();
+    }
+
+
+    @Override
+    public Stream<String> findRevokesOnLteAndRevokedOnIsNull(Long mTime) {
         return mRepo.findRevokesOnLteAndRevokedOnIsNull(mTime).stream();
     }
 
@@ -237,7 +234,7 @@ public class Index implements GlobalValid {
     @Override
     public Stream<SINDEX> sourcesByConditions(String identifier, Integer pos) {
         return sRepo.sourcesByIdentifierAndPos(identifier, pos)
-                .peek(s -> System.out.println("mapped i p " + s))
+                .peek(s -> LOG.info("mapped i p " + s))
                 ;
     }
 
@@ -249,12 +246,12 @@ public class Index implements GlobalValid {
     @Override
     public Stream<SINDEX> indexSGlobal() {
         return sRepo.sourceNotConsumed()
-                .peek(s -> System.out.println("mapped all " + s));
+                .peek(s -> LOG.info("mapped all " + s));
     }
 
     @Override
-    public Integer certStock(String issuer) {
-        return cRepo.certStock(issuer);
+    public Integer certStock(String issuer, Long asOf) {
+        return cRepo.certStock(issuer, asOf);
     }
 
     @Timed
@@ -269,7 +266,7 @@ public class Index implements GlobalValid {
         //iRepo.trimRecords(bellow);
         //mRepo.trimRecords(bellow);
         cRepo.trim(bellow);
-     }
+    }
 
     @Override
     public void trimSandbox(DBBlock block) {

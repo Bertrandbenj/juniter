@@ -76,7 +76,7 @@ public class GraphvizService {
 
     private static final Logger LOG = LogManager.getLogger(GraphvizService.class);
 
-    @Value("${juniter.dataPath:/tmp/juniter/data/}")
+    @Value("${juniter.dataPath:${user.home}/.config/juniter/data/}")
     private String dataPath;
 
     private final String svgFile = "%sdot/%s.svg";

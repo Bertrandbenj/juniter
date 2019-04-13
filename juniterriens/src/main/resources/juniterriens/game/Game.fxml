@@ -8,7 +8,7 @@
       fx:controller="juniter.juniterriens.juniterriens.Game">
     <children>
         <TextField fx:id="erg" alignment="CENTER" editable="false" prefWidth="0.0"
-                   text="Wanna play game ? click here to begin, UP - DOWN - LEFT - RIGHT  to direct "
+                   text="%game.welcome"
                    VBox.vgrow="NEVER"/>
 
         <Canvas fx:id="canvas" focusTraversable="true" height="440" width="1100" VBox.vgrow="ALWAYS"/>

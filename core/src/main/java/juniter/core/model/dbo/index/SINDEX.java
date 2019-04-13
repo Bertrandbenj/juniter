@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import org.springframework.lang.NonNull;
 
 import javax.persistence.*;
+import java.util.function.BinaryOperator;
+
 /**
  * <pre>
  * * Sources
@@ -116,16 +118,16 @@ import javax.persistence.*;
 @Entity
 @NoArgsConstructor
 @Table(name = "SINDEX", schema = "public", indexes = {
-        @Index( columnList = "identifier"),
-        @Index( columnList = "consumed"),
-        @Index( columnList = "conditions"),
-        @Index( columnList = "signed_number"),
-        @Index( columnList = "written_number"),
+        @Index(columnList = "identifier"),
+        @Index(columnList = "consumed"),
+        @Index(columnList = "conditions"),
+        @Index(columnList = "signed_number"),
+        @Index(columnList = "written_number"),
 }, uniqueConstraints = {
         @UniqueConstraint(columnNames = {"op", "identifier", "pos"})
 })
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class SINDEX implements Comparable<SINDEX>  {
+public class SINDEX implements Comparable<SINDEX> {
 
 
     @Id
@@ -150,10 +152,9 @@ public class SINDEX implements Comparable<SINDEX>  {
 
     private Long locktime;
 
-    public boolean consumed;
+    private boolean consumed;
 
     public String conditions;
-
 
 
     // Local to the Block we are validating
@@ -166,8 +167,8 @@ public class SINDEX implements Comparable<SINDEX>  {
     public transient boolean isTimeLocked;
 
 
-   public SINDEX(String op, String identifier, Integer pos, BStamp signed, BStamp written_on,
-                 long written_time, int amount, int base, Long locktime, String conditions, boolean consumed, String tx) {
+    public SINDEX(String op, String identifier, Integer pos, BStamp signed, BStamp written_on,
+                  int amount, int base, Long locktime, String conditions, boolean consumed, String tx) {
         this.op = op;
         this.identifier = identifier;
         this.pos = pos;
@@ -197,10 +198,9 @@ public class SINDEX implements Comparable<SINDEX>  {
     }
 
 
-
-    public Source asSourceGVA(){
+    public Source asSourceGVA() {
         return new Source(
-                tx == null ? "D":"T",
+                tx == null ? "D" : "T",
                 pos,
                 identifier,
                 amount,
@@ -211,11 +211,12 @@ public class SINDEX implements Comparable<SINDEX>  {
 
     /**
      * return available sources
+     *
      * @return
      */
-    public juniter.core.model.dto.tx.Source asSourceBMA(){
+    public juniter.core.model.dto.tx.Source asSourceBMA() {
         return new juniter.core.model.dto.tx.Source(
-                tx == null ? "D":"T",
+                tx == null ? "D" : "T",
                 pos,
                 identifier,
                 amount,
@@ -223,4 +224,50 @@ public class SINDEX implements Comparable<SINDEX>  {
                 conditions);
     }
 
+    public static final BinaryOperator<SINDEX> reducer = (m1, m2) -> {
+
+        // var top = m1.written.compareTo(m2.written) > 0 ? m2 : m1;
+        //System.out.println("Reducing" + m1 + "\n" + m2);
+        SINDEX bot, top;
+        if (m1.written.getNumber() < m2.written.getNumber()) {
+            top = m1;
+            bot = m2;
+        } else {
+            top = m2;
+            bot = m1;
+        }
+
+
+        if (top.getTx() == null)
+            top.setTx(bot.getTx());
+
+        if (top.getIdentifier() == null)
+            top.setIdentifier(bot.getIdentifier());
+
+        if (top.getPos() == null)
+            top.setPos(bot.getPos());
+
+        if (top.getSigned() == null)
+            top.setSigned(bot.getSigned());
+
+        if (top.getWritten() == null)
+            top.setWritten(bot.getWritten());
+
+        if (top.getAmount() == 0)
+            top.setAmount(bot.getAmount());
+
+        if (top.getBase() == 0)
+            top.setBase(bot.getBase());
+
+        if (top.getLocktime() == null)
+            top.setLocktime(bot.getLocktime());
+
+        if (top.getConditions() == null)
+            top.setConditions(bot.getConditions());
+
+        top.setConsumed(bot.consumed);
+
+        return top;
+
+    };
 }

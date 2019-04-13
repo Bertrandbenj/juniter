@@ -40,7 +40,9 @@ import java.util.function.BinaryOperator;
         @Index(columnList = "written_number"),
         @Index(columnList = "expires_on"),
         @Index(columnList = "revoked_number"),
-        @Index(columnList = "signed_number")
+        @Index(columnList = "signed_number"),
+        @Index(columnList = "revokes_on"),
+        @Index(columnList = "revokes_on,expires_on")
 }, uniqueConstraints = {
         @UniqueConstraint(columnNames = {"written_number", "pub", "op"})
 })
@@ -127,15 +129,16 @@ public class MINDEX implements Comparable<MINDEX> {
     public static final BinaryOperator<MINDEX> reducer = (m1, m2) -> {
 
         // var top = m1.written.compareTo(m2.written) > 0 ? m2 : m1;
-        //System.out.println("Reducing" + m1 + "\n" + m2);
+        //
         MINDEX bot, top;
-        if (m1.written.getNumber() < m2.written.getNumber()) {
+        if (m1.written.getNumber() > m2.written.getNumber()) {
             top = m1;
             bot = m2;
         } else {
             top = m2;
             bot = m1;
         }
+        //System.out.println("Reducing" + top+ "\n  with  " + bot + "\nrevok: "  + bot.getRevoked() +" "+ top.getRevoked());
 
         if (top.getSigned() == null)
             top.setSigned(bot.getSigned());
@@ -143,8 +146,9 @@ public class MINDEX implements Comparable<MINDEX> {
         if (top.getLeaving() == null)
             top.setLeaving(bot.getLeaving());
 
-        if (top.getRevoked() == null)
+        if (top.getRevoked() == null) {
             top.setRevoked(bot.getRevoked());
+        }
 
         if (top.getRevokes_on() == null)
             top.setRevokes_on(bot.getRevokes_on());

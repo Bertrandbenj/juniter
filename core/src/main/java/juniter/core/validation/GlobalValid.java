@@ -13,8 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
 
 
 /**
@@ -560,7 +562,7 @@ public interface GlobalValid {
 
             LOG.info("BR_G106_IndexLowAccounts " + account);
             sourcesByConditions(account.conditions)
-                    .collect(Collectors.groupingBy(SINDEX::getIdentifier, Collectors.groupingBy(SINDEX::getPos)))
+                    .collect(groupingBy(SINDEX::getIdentifier, groupingBy(SINDEX::getPos)))
                     .forEach((id, l) -> l.forEach((pos, ll) -> {
 
                         var src = ll.get(0);
@@ -571,7 +573,6 @@ public interface GlobalValid {
                                     src.getPos(),
                                     null,
                                     block,
-                                    src.getWritten().getMedianTime(),
                                     src.getAmount(),
                                     src.getBase(),
                                     null,
@@ -920,7 +921,7 @@ public interface GlobalValid {
         if (head.getNumber() != 0) {
             final var blocksOfIssuer = range(head.getIssuersFrame())
                     .filter(i -> i.getIssuer().equals(head.getIssuer()))
-                    .collect(Collectors.toList());
+                    .collect(toList());
             nbPersonalBlocksInFrame = blocksOfIssuer.size();
             final Object blocksPerIssuerInFrame = null;
 
@@ -1068,7 +1069,7 @@ public interface GlobalValid {
     private void BR_G23_setNumberFollowing(MINDEX entry) {
         if (entry.getRevoked() == null) {
 
-            LOG.info("BR_G23_setNumberFollowing " + entry);
+            //LOG.info("BR_G23_setNumberFollowing " + entry);
             var createdOn = reduceM(entry.getPub()).map(MINDEX::getSigned);
 
             entry.numberFollowing = createdOn
@@ -1101,7 +1102,7 @@ public interface GlobalValid {
     private void BR_G24_setDistanceOK(BINDEX head, MINDEX entry) {
         if ("JOIN".equals(entry.getType()) || "RENEW".equals(entry.getType())) {
             final var dSen = Math.ceil(Math.pow(head.getMembersCount(), 1.0 / conf.getStepMax()));
-            final var graph = Stream.concat(localC.stream(), indexCGlobal()).collect(Collectors.toList());
+            final var graph = Stream.concat(localC.stream(), indexCGlobal()).collect(toList());
 
             final Set<CINDEX> sentries = new TreeSet<>();
 
@@ -1115,7 +1116,7 @@ public interface GlobalValid {
                     .map(stEdges -> graph.stream().filter(p4 -> stEdges.anyMatch(e -> e.getIssuer().equals(p4.getReceiver()))))
                     .distinct()
                     .map(stEdges -> graph.stream().filter(p5 -> stEdges.anyMatch(e -> e.getIssuer().equals(p5.getReceiver()))))
-                    .distinct().collect(Collectors.toList());
+                    .distinct().collect(toList());
 
             entry.distanceOK = reachedNode.containsAll(sentries);
 
@@ -1133,7 +1134,13 @@ public interface GlobalValid {
      * </pre>
      */
     private void BR_G25_setOnRevoked(MINDEX entry) {
-        entry.onRevoked = reduceM(entry.getPub()).map(m -> m.getRevoked() != null).orElse(false);
+        LOG.info("BR_G25_setOnRevoked "  );
+
+        entry.onRevoked = reduceM(entry.getPub())
+                .map(m -> m.getRevoked() != null)
+                .orElse (false);
+
+        LOG.info("BR_G25_setOnRevoked set to " + entry.onRevoked + " " );
 
     }
 
@@ -1419,8 +1426,8 @@ public interface GlobalValid {
      *
      * </pre>
      */
-    private void BR_G39_setCertStock(CINDEX entry) {
-        entry.setStock(certStock(entry.getIssuer()));
+    private void BR_G39_setCertStock(CINDEX entry, BINDEX head) {
+        entry.setStock(certStock(entry.getIssuer(), head.getMedianTime() ));
     }
 
     /**
@@ -1480,10 +1487,30 @@ public interface GlobalValid {
      *     ENTRY.isReplay = reduce(reducible).expired_on == 0
      * </pre>
      */
-    private void BR_G44_setIsReplay(CINDEX entry) {
-        entry.setReplay(reduceC(entry.getIssuer(), entry.getReceiver())
-                .map(c -> c.getExpired_on() == 0)
-                .orElse(false));
+    private void BR_G44_setIsReplay(BINDEX head, CINDEX entry) {
+        var reducible = getC(entry.getIssuer(), entry.getReceiver())
+                .filter(c -> c.getExpired_on() == 0)
+                .collect(toList());
+        LOG.info(reducible.size() + " " + reducible);
+        if (reducible.size() == 0) {
+            entry.setReplay(false);
+        } else {
+            LOG.info(reducible.stream().reduce(CINDEX.reducer).map(c -> c.getExpired_on() == 0).orElseThrow());
+            entry.setReplay(reducible.stream()
+                    .reduce(CINDEX.reducer)
+                    .map(c -> c.getExpired_on() == 0)
+                    .orElse(false));
+        }
+
+
+        if (head.getNumber() > 0 && head_1().getVersion() > 10) {
+            entry.setReplayable(reducible.size() == 0 || reducible.stream().reduce(CINDEX.reducer).orElseThrow().getReplayable_on() < head_1().getMedianTime());
+        } else {
+            // v10 blocks do not allow certification replay
+            entry.setReplayable(false);
+        }
+
+
     }
 
     /**
@@ -1510,7 +1537,7 @@ public interface GlobalValid {
      * </pre>
      */
     private void BR_G46_prepareAvailableAndCondition(SINDEX entry, SINDEX input) {
-        entry.available = !input.consumed;
+        entry.available = !input.isConsumed();
         entry.conditions = input.conditions;
 
     }
@@ -1892,7 +1919,7 @@ public interface GlobalValid {
      * ENTRY.isReplay == false
      */
     private void BR_G71_ruleCertificationReplay(CINDEX c) {
-        assert !c.isReplay() : "BR_G71_ruleCertificationReplay - isReplay? " + c.isReplay() + " for " + c;
+        assert !c.isReplay() || c.isReplayable() : "BR_G71_ruleCertificationReplay - isReplay? " + c.isReplay() + " isReplayable? " + c.isReplayable() + " for " + c;
     }
 
     /**
@@ -2230,7 +2257,6 @@ public interface GlobalValid {
                         head.getNumber(),
                         null,
                         block,
-                        head.getMedianTime(),
                         head.getDividend(),
                         head.getUnitBase(),
                         null,
@@ -2262,13 +2288,20 @@ public interface GlobalValid {
      * </pre>
      */
     private void BR_G92_IndexCertificationExpiry(BINDEX head) {
+//FIXME very ineficient way of doing it !!!
+        findCertsThatShouldExpire(head.getMedianTime())
+                //.peek(x -> LOG.info("findCertsThatShouldExpire " + x))
+                .map(cert -> reduceC(cert.getIssuer(), cert.getReceiver()).orElseThrow())
+                //.peek(x -> LOG.info("reduced " + x))
 
-        indexCGlobal().filter(c -> c.getExpires_on() != null && c.getExpires_on() <= head.getMedianTime())
-                .map(c -> new CINDEX("UPDATE",
-                        c.getIssuer(),
-                        c.getReceiver(),
-                        c.getCreatedOn(),
-                        head.getMedianTime()))
+                .filter(c -> c.getExpired_on() == 0)
+                //.peek(x -> LOG.info("filtered " + x))
+                .map(cert -> new CINDEX("UPDATE",
+                        cert.getIssuer(),
+                        cert.getReceiver(),
+                        cert.getCreatedOn(),
+                        head.getMedianTime(),
+                        head.bstamp()))
                 .forEach(localC::add);
 
     }
@@ -2291,8 +2324,8 @@ public interface GlobalValid {
 
     private void BR_G93_IndexMembershipExpiry(BINDEX head) {
         findPubkeysThatShouldExpire(head.getMedianTime())
-                .map(potential -> reduceM(potential.getPub()).orElseThrow())
-                .filter(ms -> ms.getExpired_on() == null || ms.getExpired_on() == 0)
+                .map(potential -> reduceM(potential).orElseThrow())
+                .filter(ms -> (ms.getExpired_on() == null || ms.getExpired_on() == 0) && ms.getExpires_on() > head.getMedianTime())
                 .forEach(ms -> {
                     LOG.info("BR_G93_IndexMembershipExpiry " + ms);
                     localM.add(
@@ -2404,9 +2437,9 @@ public interface GlobalValid {
      */
     private void BR_G96_IndexImplicitRevocation(BINDEX head) {
         findRevokesOnLteAndRevokedOnIsNull(head.getMedianTime())
-                //.filter(m -> m.revokes_on != null && m.revokes_on <= head.medianTime && m.revoked == null)
-                .map(potential -> reduceM(potential.getPub()).orElseThrow())
-                .filter(ms -> ms.getRevokes_on().equals(head.getMedianTime()) || ms.getRevoked() == null)
+                //.filter(m -> m.getRevokes_on() != null && m.getRevokes_on() <= head.getMedianTime() && m.getRevoked()  == null)
+                .map(ms -> reduceM(ms).orElseThrow())
+                .filter(ms -> ms.getRevokes_on() <= head.getMedianTime() || ms.getRevoked() == null)
                 .forEach(ms -> {
                     LOG.info("BR_G96_IndexImplicitRevocation " + ms);
 
@@ -2839,7 +2872,8 @@ public interface GlobalValid {
                     cert.getSignature(),
                     createOn.getMedianTime() + conf.getSigValidity(),
                     writtenTime + conf.getSigPeriod(),
-                    0L
+                    0L,
+                    writtenTime + conf.getSigReplay()
             ).putCreatedOn(createOn));
         });
 
@@ -2856,7 +2890,6 @@ public interface GlobalValid {
                         input.getType().equals(TxType.D) ? input.getDBlockID() : input.getTIndex(), // pos
                         created_on,
                         written_on,
-                        writtenTime,
                         input.getAmount(),
                         input.getBase(),
                         (long) tx.getLocktime(),
@@ -2875,7 +2908,6 @@ public interface GlobalValid {
                         indOut,
                         null,
                         written_on,
-                        writtenTime,
                         output.getAmount(),
                         output.getBase(),
                         (long) tx.getLocktime(),
@@ -2927,12 +2959,13 @@ public interface GlobalValid {
     Stream<SINDEX> indexSGlobal();
 
 
-    Integer certStock(String issuer);
+    Integer certStock(String issuer,Long asOf);
 
-    Stream<MINDEX> findPubkeysThatShouldExpire(Long mTime);
+    Stream<String> findPubkeysThatShouldExpire(Long mTime);
 
-    Stream<MINDEX> findRevokesOnLteAndRevokedOnIsNull(Long mTime);
+    Stream<CINDEX> findCertsThatShouldExpire(Long mTime);
 
+    Stream<String> findRevokesOnLteAndRevokedOnIsNull(Long mTime);
 
     default Stream<IINDEX> idtyByUid(String uid) {
         return indexIGlobal().filter(i -> i.getUid().equals(uid));
@@ -3011,13 +3044,13 @@ public interface GlobalValid {
                             && s.getBase() == entry.getBase();
                 })
 
-                .collect(Collectors.toList());
+                .collect(toList());
 
         if (inputEntries.size() == 0) {
             inputEntries = sourcesByConditions(entry.getIdentifier(), entry.getPos())
                     //.peek(consumedS::add)
                     .peek(s -> LOG.info("pings " + s))
-                    .collect(Collectors.toList());
+                    .collect(toList());
         }
         return inputEntries;
     }
@@ -3036,7 +3069,7 @@ public interface GlobalValid {
         final var bheads = IndexB.stream()
                 .filter(h -> h.getNumber() >= head_1().getNumber() - m + 1)
                 .sorted((b1, b2) -> Integer.compare(b2.getNumber(), b1.getNumber()))
-                .collect(Collectors.toList());
+                .collect(toList());
 
         //		bheads.forEach(b -> {
         //			LOG.info(" #B " + IndexB.getSize() + " range " + m + " : " + b);
@@ -3116,12 +3149,12 @@ public interface GlobalValid {
         for (final var cert : localC) {
             BR_G37_setAge(newHead, cert);
             BR_G38_setCertUnchainable(newHead, cert);
-            BR_G39_setCertStock(cert);
+            BR_G39_setCertStock(cert,newHead);
             BR_G40_setCertFromMember(cert);
             BR_G41_setCertToMember(cert);
             BR_G42_setCertToNewCommer(cert);
             BR_G43_setToLeaver(cert);
-            BR_G44_setIsReplay(cert);
+            BR_G44_setIsReplay(newHead, cert);
             BR_G45_setSignatureOK(cert);
         }
 

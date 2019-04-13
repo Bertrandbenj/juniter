@@ -1,37 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.text.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-
 <HBox prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.juniterriens.include.LoginBox">
         <children>
             <Region prefHeight="130.0" prefWidth="446.0" HBox.hgrow="ALWAYS" />
             <VBox alignment="CENTER" minWidth="450.0" spacing="5.0" styleClass="loginBox">
                 <children>
-                    <Label text="%front.login">
+                    <Label text="%login.login">
                         <font>
                             <Font size="24.0" />
                         </font>
                     </Label>
-                    <PasswordField fx:id="salt" focusTraversable="false" onKeyTyped="#login" prefHeight="25.0" prefWidth="485.0" promptText="salt - secret key ">
+                    <PasswordField fx:id="salt" focusTraversable="false" onKeyTyped="#login" prefHeight="25.0" prefWidth="485.0" promptText="%login.salt">
                         <font>
                             <Font size="10.0" />
                         </font>
                     </PasswordField>
-                    <PasswordField fx:id="password" focusTraversable="false" onKeyTyped="#login" prefHeight="25.0" prefWidth="660.0" promptText="password - secret password">
+                    <PasswordField fx:id="password" focusTraversable="false" onKeyTyped="#login" prefHeight="25.0" prefWidth="660.0" promptText="%login.pass">
                         <font>
                             <Font size="10.0" />
                         </font>
                     </PasswordField>
                     <HBox spacing="10.0">
                         <children>
-                            <Button fx:id="login" focusTraversable="false" mnemonicParsing="false" onAction="#login" prefHeight="25.0" prefWidth="190.0" text="%front.loginButton" />
-                            <Label fx:id="pubkey" alignment="CENTER" contentDisplay="TOP" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text=" ===== Public Key ===== " HBox.hgrow="ALWAYS">
+                            <Button fx:id="login" focusTraversable="false" mnemonicParsing="false" onAction="#login" prefHeight="25.0" prefWidth="190.0" text="%login.loginButton" />
+                            <Label fx:id="pubkey" alignment="CENTER" contentDisplay="TOP" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="%login.pubkey" HBox.hgrow="ALWAYS">
                                 <font>
                                     <Font size="10.0" />
                                 </font>

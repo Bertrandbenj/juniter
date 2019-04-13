@@ -37,7 +37,7 @@ public class AppConfig {
     private static final Logger LOG = LogManager.getLogger(AppConfig.class);
 
 
-    @Value("${juniter.dataPath}")
+    @Value("${juniter.dataPath:${user.home}/.config/juniter/data/}")
     private String dataPath;
 
     @Bean

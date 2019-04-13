@@ -100,17 +100,23 @@ public class RAMIndex implements GlobalValid {
     }
 
     @Override
-    public Integer certStock(String issuer) {
+    public Integer certStock(String issuer,Long asOf) {
         return 0;
     }
 
     @Override
-    public Stream<MINDEX> findPubkeysThatShouldExpire(Long mTime) {
-        return null;
+    public Stream<String> findPubkeysThatShouldExpire(Long mTime) {
+        return Stream.of();
     }
 
     @Override
-    public Stream<MINDEX> findRevokesOnLteAndRevokedOnIsNull(Long mTime) {
+    public Stream<CINDEX> findCertsThatShouldExpire(Long mTime) {
+        return Stream.of();
+    }
+
+
+    @Override
+    public Stream<String> findRevokesOnLteAndRevokedOnIsNull(Long mTime) {
         return null;
     }
 

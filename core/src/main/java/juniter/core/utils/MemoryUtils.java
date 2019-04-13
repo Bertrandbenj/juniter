@@ -21,6 +21,8 @@ public class MemoryUtils {
         sb.append("Total free memory: ");
         sb.append(format.format((freeMemory + (maxMemory - allocatedMemory)) / 1024));
        // sb.append(" - ");
+
+        Runtime.getRuntime().gc();
         return sb.toString();
     }
 }

@@ -51,7 +51,7 @@ public class SparkService {
     @Autowired
     ModelMapper modelMapper;
 
-    @Value("${juniter.dataPath:/tmp/juniter/data/}")
+    @Value("${juniter.dataPath:${user.home}/.config/juniter/data/}")
     private String dataPath;
 
     public static Dataset<Row> iindex;

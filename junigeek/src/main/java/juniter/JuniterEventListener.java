@@ -20,7 +20,7 @@ public class JuniterEventListener implements CoreEventBus {
 
     @EventListener(condition = "#event.success")
     public void handleSuccessful(GenericSpringEvent<String> event) {
-        System.out.println("Handling generic event (conditional).");
+        LOG.info("Handling generic event (conditional).");
     }
 
     @Override

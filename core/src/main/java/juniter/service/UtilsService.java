@@ -26,7 +26,7 @@ public class UtilsService {
 
     private static final Logger LOG = LogManager.getLogger(UtilsService.class);
 
-    @Value("${juniter.dataPath:/tmp/juniter/data/}")
+    @Value("${juniter.dataPath:${user.home}/.config/juniter/data/}")
     private String dataPath;
 
     @Autowired
@@ -103,7 +103,7 @@ public class UtilsService {
         try {
             InetAddress inet = InetAddress.getByName(ipAddress);
 
-            System.out.println("Sending Ping Request to " + ipAddress);
+            LOG.info("Sending Ping Request to " + ipAddress);
 
             long finish = 0;
             long start = new GregorianCalendar().getTimeInMillis();

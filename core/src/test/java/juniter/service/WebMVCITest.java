@@ -47,7 +47,7 @@ public class WebMVCITest implements BlockLocalValid {
     private Integer bulkSize;
 
 
-    @Value("${juniter.dataPath:/tmp/juniter/data/}")
+    @Value("${juniter.dataPath:${user.home}/.config/juniter/data/}")
     private String dataPath;
 
     final ObjectMapper jsonMapper = new ObjectMapper();

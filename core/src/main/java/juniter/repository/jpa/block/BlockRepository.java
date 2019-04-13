@@ -147,8 +147,7 @@ public interface BlockRepository extends JpaRepository<DBBlock, Long>, BlockLoca
         if (checkBlockIsLocalValid(block)) {
 
             try {
-                var dbblock = Optional.of(save(block));
-                return dbblock;
+                return Optional.of(save(block));
             } catch (Exception e) {
                 LOG.error("Error localSave block " + block.getNumber(), e);
                 return Optional.empty();

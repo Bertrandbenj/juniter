@@ -3,12 +3,17 @@ package juniter.repository.jpa.index;
 
 import juniter.core.model.dbo.index.MINDEX;
 
+import juniter.core.model.dbo.index.SINDEX;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.net.ContentHandler;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -54,14 +59,12 @@ public interface MINDEXRepository extends JpaRepository<MINDEX, Long> {
 
     @Transactional
     @Modifying
-    default void trimRecords(Integer mTime) {
+    default void trimRecords(Long mTime) {
         var below = duplicatesBelow(mTime);
         below.remove(0);
         below.forEach(d -> {
             var del = fetchTrimmed(d);
             if (del.size() > 0) {
-
-                System.out.println("MINDEX trimRecords " + del);
 
                 deleteAll(del);
             }
@@ -73,8 +76,8 @@ public interface MINDEXRepository extends JpaRepository<MINDEX, Long> {
     List<String> expiresBetween(Long begin, Long end);
 
 
-    @Query("SELECT DISTINCT pub FROM MINDEX m WHERE written.number < ?1 GROUP BY pub HAVING count(*) > 1")
-    List<String> duplicatesBelow(Integer blockNumber);
+    @Query("SELECT DISTINCT pub FROM MINDEX m WHERE written.medianTime < ?1 GROUP BY pub HAVING count(*) > 1")
+    List<String> duplicatesBelow(Long blockNumber);
 
     @Query(value = " FROM MINDEX WHERE pub = ?1 ORDER BY written.number ")
     List<MINDEX> fetchTrimmed(String pub);
@@ -104,13 +107,18 @@ public interface MINDEXRepository extends JpaRepository<MINDEX, Long> {
 //    List<MINDEX> findPubkeysThatShouldExpire(Long mtime);
 
 
-    default List<MINDEX> findPubkeysThatShouldExpire2(Long mtime) {
-        return List.of();
-    }
+
+    @Query(value = "SELECT pub FROM MINDEX GROUP BY pub HAVING max(expires_on) <= ?1 AND max(revokes_on) > ?1 ")
+    List<String> findPubkeysThatShouldExpire3(Long mtime) ;
+
+    @Query(value = "SELECT pub FROM MINDEX m WHERE expires_on <= ?1 AND revokes_on > ?1 ")
+    List<String> findPubkeysThatShouldExpire2(Long mtime) ;
 
 
-    @Query(value = "SELECT m FROM MINDEX m WHERE m.revokes_on <= ?1 AND m.revoked IS NULL ")
-    List<MINDEX> findRevokesOnLteAndRevokedOnIsNull(Long mTime);
+    @Query(value = "SELECT pub FROM MINDEX WHERE revoked IS NULL AND expires_on > ?1 GROUP BY pub HAVING max(revokes_on) <= ?1 ")
+    List<String> findRevokesOnLteAndRevokedOnIsNull(Long mTime);
+
+    @Query("SELECT m FROM MINDEX m ")
+    Page<MINDEX> findSome(Pageable pageable);
 }
 
-	

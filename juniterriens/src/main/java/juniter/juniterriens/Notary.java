@@ -12,6 +12,7 @@ import juniter.core.model.dto.raw.*;
 import juniter.grammar.JuniterGrammar;
 import juniter.juniterriens.include.AbstractJuniterFX;
 import juniter.juniterriens.include.Bindings;
+import juniter.juniterriens.include.I18N;
 import juniter.service.bma.PeerService;
 import org.antlr.v4.runtime.*;
 import org.apache.logging.log4j.LogManager;
@@ -60,7 +61,7 @@ public class Notary extends AbstractJuniterFX implements Initializable {
     public void start(Stage primaryStage) {
         LOG.info("Starting Notary");
 
-        primaryStage.setTitle("Juniter - DUP Documents Form  ");
+        primaryStage.setTitle("Juniter - "+I18N.get("notary"));
         primaryStage.show();
 
     }
@@ -85,9 +86,7 @@ public class Notary extends AbstractJuniterFX implements Initializable {
 
 
                 logLocalValid.setWrapText(true);
-                logLocalValid.setText("Prométhée dans sa révolte offrit le feu aux hommes, " +
-                        "et si l'homme dans sa sagesse l'avait découvert tout seul ? " +
-                        "et si c'était une femme? l'ordre de Zeus eut-il été différent ? ");
+                logLocalValid.setText(I18N.get("φ.1"));
             } catch (Exception e) {
                 StringWriter sw = new StringWriter();
                 e.printStackTrace(new PrintWriter(sw));
@@ -96,7 +95,6 @@ public class Notary extends AbstractJuniterFX implements Initializable {
                 sendButton.setDisable(true);
             }
             sendButton.setDisable(false); // FIXME
-            logGlobalValid.setText(" some global validation log here  ");
         });
     }
 

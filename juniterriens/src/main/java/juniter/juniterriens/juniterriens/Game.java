@@ -86,7 +86,7 @@ public class Game implements Initializable {
 
     @EventListener
     public void handleContextStart(ContextStartedEvent cse) {
-        System.out.println("Handling context started event.");
+        LOG.info("Handling context started event.");
     }
 
     @Override
@@ -126,7 +126,7 @@ public class Game implements Initializable {
 
         // Init Gates objects
         rt = new Gate("/juniterriens/game/img/gate.png", roundTable(gc), 50, 180);
-        technology = new Gate( BARoom.get(), 1000, 180);
+        technology = new Gate( BARoom.singleton(BARoom.class), 1000, 180);
         obstacles.addAll(List.of(rt, technology));
 
 
@@ -239,7 +239,7 @@ public class Game implements Initializable {
 
             if (technology.intersects(player)) {
                 exercise1.stop();
-                technology.getTimeline().play();
+                technology.getRoom().getTimeline().play();
             } else {
                 technology.render(gc);
             }

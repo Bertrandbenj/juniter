@@ -1,6 +1,7 @@
 package juniter.juniterriens;
 
 import javafx.application.Platform;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -15,6 +16,7 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.index.*;
 import juniter.juniterriens.include.AbstractJuniterFX;
 import juniter.juniterriens.include.Bindings;
@@ -25,8 +27,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
+import javax.persistence.EntityManager;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -43,10 +47,13 @@ public class Database extends AbstractJuniterFX implements Initializable {
     private static ObservableList<CINDEX> cindex = FXCollections.observableArrayList();
     private static ObservableList<MINDEX> mindex = FXCollections.observableArrayList();
     private static ObservableList<SINDEX> sindex = FXCollections.observableArrayList();
+
+    @FXML
+    private TextField jpql;
     @FXML
     private Button indexUntilButton;
     @FXML
-    private TableColumn cWritten_on;
+    private TableColumn<Object, BStamp> cWritten;
 
     @FXML
     private CheckBox
@@ -62,10 +69,10 @@ public class Database extends AbstractJuniterFX implements Initializable {
     @FXML
     private TextField tfHash;
     @FXML
-    private TableColumn mWritten_on;
+    private TableColumn<Object, BStamp> mWritten;
 
     @FXML
-    private TableColumn iWritten_on;
+    private TableColumn<Object, BStamp> iWritten;
     @FXML
     private TabPane tabPane;
     @FXML
@@ -83,7 +90,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
     @FXML
     private TableColumn iWotbidCol;
     @FXML
-    private TableColumn iCreatedOnCol;
+    private TableColumn<Object, BStamp> iSignedCol;
     @FXML
     private TableColumn iSigCol;
     @FXML
@@ -99,7 +106,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
     @FXML
     private TableColumn mOpCol;
     @FXML
-    private TableColumn mCreatedOn;
+    private TableColumn<Object, BStamp> mSigned;
     @FXML
     private TableColumn<String, Long> mExpiresOn;
     @FXML
@@ -126,10 +133,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
     private TableColumn cSig;
     @FXML
     private TableColumn<String, Long> cChainableOn;
-    @FXML
-    private TableColumn cFromWid;
-    @FXML
-    private TableColumn ctoWid;
+
     @FXML
     private TextField filterC;
     @FXML
@@ -148,7 +152,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
 
     @FXML
-    private TableColumn cCreatedOn;
+    private TableColumn cSigned;
 
     @FXML
     private TableColumn bDividendCol;
@@ -163,13 +167,11 @@ public class Database extends AbstractJuniterFX implements Initializable {
     @FXML
     private TableColumn bIssuerCol;
     @FXML
-    private TableColumn iWrittenOn;
-    @FXML
     private TableColumn sConsumedCol;
     @FXML
-    private TableColumn sWrittenOn;
+    private TableColumn<Object, BStamp> sWritten;
     @FXML
-    private TableColumn sCreatedOn;
+    private TableColumn<Object, BStamp> sSigned;
     @FXML
     private TableColumn sIdentifierCol;
     @FXML
@@ -178,10 +180,6 @@ public class Database extends AbstractJuniterFX implements Initializable {
     private TableColumn sAmountCol;
     @FXML
     private TableColumn sOpCol;
-    @FXML
-    private TableColumn cWrittenOn;
-    @FXML
-    private TableColumn mWrittenOn;
     @FXML
     private TableColumn iOpCol;
     @FXML
@@ -203,9 +201,6 @@ public class Database extends AbstractJuniterFX implements Initializable {
     private TableColumn<String, Integer> bNumberCol;
     @FXML
     private TableColumn bHashCol;
-
-    @FXML
-    private FlowPane flowPanel;
 
 
     @FXML
@@ -357,8 +352,48 @@ public class Database extends AbstractJuniterFX implements Initializable {
     }
 
     private void mapColumn(TableColumn col, String name) {
+        col.setCellValueFactory(new PropertyValueFactory<>(name));
+    }
+
+
+    private void mapBStampColumn2(TableColumn<Object, BStamp> col, String name) {
 
         col.setCellValueFactory(new PropertyValueFactory<>(name));
+
+        TableColumn<Object, Integer> numCol = new TableColumn<>("On");
+        numCol.setCellValueFactory(param -> {
+            var res = (Integer) null;
+            try {
+                res = col.getCellData(param.getValue()).getNumber();
+            } catch (Exception ignored) {
+            }
+            return new SimpleObjectProperty<>(res);
+        });
+
+
+        TableColumn<Object, String> hashCol = new TableColumn<>("Hash");
+        hashCol.setVisible(false);
+        hashCol.setCellValueFactory(param -> {
+            var res = "";
+            try {
+                res = col.getCellData(param.getValue()).getHash();
+            } catch (Exception ignored) {
+            }
+            return new SimpleObjectProperty<>(res);
+        });
+
+        TableColumn<Object, Long> timeCol = new TableColumn<>("Time");
+        timeCol.setCellValueFactory(param -> {
+            var res = (Long) null;
+            try {
+                res = col.getCellData(param.getValue()).getMedianTime();
+            } catch (Exception ignored) {
+            }
+            return new SimpleObjectProperty<>(res);
+        });
+        timeCol.setVisible(!name.toLowerCase().equals("signed"));
+
+        col.getColumns().setAll(numCol, hashCol, timeCol);
     }
 
 
@@ -383,7 +418,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
         mapColumn(bDividendCol, "dividend");
         mapColumn(bIssuerCol, "issuer");
         mapColumn(bMembersCountCol, "membersCount");
-        mapColumn(bSizeCol, "getSize");
+        mapColumn(bSizeCol, "size");
         mapColumn(bTimeCol, "time");
         mapColumn(bmedianTimeCol, "medianTime");
         mapColumn(bMonetaryMassCol, "mass");
@@ -396,10 +431,10 @@ public class Database extends AbstractJuniterFX implements Initializable {
         mapColumn(iOpCol, "op");
         mapColumn(iPubCol, "pub");
         mapColumn(iUidCol, "uid");
-        mapColumn(iWritten_on, "written");
+        mapBStampColumn2(iWritten, "written");
         //mapColumn(iWrittenOn, "writtenOn");
         mapColumn(iSigCol, "sig");
-        mapColumn(iCreatedOnCol, "signed");
+        mapBStampColumn2(iSignedCol, "signed");
         mapColumn(iHashCol, "hash");
         mapColumn(iKickCol, "kick");
         mapColumn(iMemberCol, "member");
@@ -408,24 +443,21 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
         mapColumn(cIssuerCol, "issuer");
         mapColumn(cReceiverCol, "receiver");
-        mapColumn(cCreatedOn, "signedHash");
-        mapColumn(cWritten_on, "written");
+        mapColumn(cSigned, "createdOn");
+
+        mapBStampColumn2(cWritten, "written");
         //mapColumn(cWrittenOn, "writtenOn");
         mapColumn(cChainableOn, "chainable_on");
         mapColumn(cExpiredOn, "expired_on");
         mapColumn(cExpiresOn, "expires_on");
-        mapColumn(cFromWid, "from_wid");
-        mapColumn(ctoWid, "to_wid");
         mapColumn(cSig, "sig");
         mapColumn(cOp, "op");
 
         mapColumn(mPubCol, "pub");
         mapColumn(mStatus, "type");
-        mapColumn(mWritten_on, "written");
-        //mapColumn(mWrittenOn, "writtenOn");
-
+        mapBStampColumn2(mWritten, "written");
         mapColumn(mChainableOn, "chainable_on");
-        mapColumn(mCreatedOn, "signed");
+        mapBStampColumn2(mSigned, "signed");
         mapColumn(mRevokedOn, "revoked");
         mapColumn(mExpiresOn, "expires_on");
         mapColumn(mRevokesOn, "revokes_on");
@@ -434,9 +466,8 @@ public class Database extends AbstractJuniterFX implements Initializable {
         mapColumn(mRevocationSig, "revocation");
         mapColumn(mOpCol, "op");
 
-        mapColumn(sWrittenOn, "written");
-        mapColumn(sWrittenTime, "written_time");
-        mapColumn(sCreatedOn, "signed");
+        mapBStampColumn2(sWritten, "written");
+        mapBStampColumn2(sSigned, "signed");
         mapColumn(sAmountCol, "amount");
         mapColumn(sBaseCol, "base");
         mapColumn(sConsumedCol, "consumed");
@@ -524,7 +555,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
         //  ===================   SET MEDIAN-TIME HUMAN FORMAT   =================
         bmedianTimeCol.setCellFactory(t -> medianTimeColumnFormat());
         bTimeCol.setCellFactory(t -> medianTimeColumnFormat());
-        sWrittenTime.setCellFactory(t -> medianTimeColumnFormat());
+
         mChainableOn.setCellFactory(t -> medianTimeColumnFormat());
         cChainableOn.setCellFactory(t -> medianTimeColumnFormat());
         cExpiresOn.setCellFactory(t -> medianTimeColumnFormat());
@@ -650,14 +681,27 @@ public class Database extends AbstractJuniterFX implements Initializable {
         LOG.info("showing node at " + blockNumber);
     }
 
+    @Autowired
+    private EntityManager em;
+
+    @FXML
+    public void jpqlQuery() {
+        LOG.info("jpql Query " + jpql.getText());
+        em.createQuery(jpql.getText())
+                .setMaxResults(1000)
+                .getResultList()
+                .stream()
+                .forEach(r -> LOG.info("result : " + r));
+    }
+
+
     @FXML
     public void reload() {
         Platform.runLater(() -> {
 
             var blocks = bRepo.findAll();//.stream().map(b -> modelMapper.map(b, GlobalValid.BINDEX.class)).collect(Collectors.toList());
 
-            // draw the button list // TODO decide what to do of the flow layout, if anything
-            flowPanel.getChildren().clear();
+
             blocks.forEach(block -> {
                 var button = new Button(block.getNumber() + "");
                 button.setFont(new Font(9));
@@ -674,19 +718,19 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
             txCountM.textProperty().set("Count " + mRepo.count());
             mindex.clear();
-            mindex.addAll(mRepo.findAll());
+            mindex.addAll(mRepo.findSome(PageRequest.of(0, 500)).getContent());
 
             txCountI.textProperty().set("Count " + iRepo.count());
             iindex.clear();
-            iindex.addAll(iRepo.findAll());//.stream().map(i -> modelMapper.map(i, GlobalValid.IINDEX.class)).collect(Collectors.toList()));
+            iindex.addAll(iRepo.findSome(PageRequest.of(0, 500)).getContent());//.stream().map(i -> modelMapper.map(i, GlobalValid.IINDEX.class)).collect(Collectors.toList()));
 
             txCountC.textProperty().set("Count " + cRepo.count());
             cindex.clear();
-            cindex.addAll(cRepo.findAll());//.stream().map(c -> modelMapper.map(c, GlobalValid.CINDEX.class)).collect(Collectors.toList()));
+            cindex.addAll(cRepo.findSome(PageRequest.of(0, 500)).getContent());//.stream().map(c -> modelMapper.map(c, GlobalValid.CINDEX.class)).collect(Collectors.toList()));
 
             txCountS.textProperty().set("Count " + sRepo.count());
             sindex.clear();
-            sindex.addAll(sRepo.findAll());//.stream().map(s -> modelMapper.map(s, GlobalValid.SINDEX.class)).collect(Collectors.toList()));
+            sindex.addAll(sRepo.findSome(PageRequest.of(0, 500)).getContent());//.stream().map(s -> modelMapper.map(s, GlobalValid.SINDEX.class)).collect(Collectors.toList()));
 
 
         });

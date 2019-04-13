@@ -9,7 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Stream;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 /**
  * Repository to manage {@link SINDEX} instances.
  */
@@ -24,6 +25,9 @@ public interface SINDEXRepository extends JpaRepository<SINDEX, Long> {
 
     @Override
     List<SINDEX> findAll();
+
+    @Query("SELECT s FROM SINDEX s ")
+    Page<SINDEX> findSome(Pageable pageable);
 
     @Query("SELECT sindex from SINDEX sindex WHERE consumed = false")
     Stream<SINDEX> sourceNotConsumed();

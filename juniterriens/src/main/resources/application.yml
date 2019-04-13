@@ -22,12 +22,13 @@ juniter:
   startIndex: false
 
   ##  reset: true     # default false
-  dataPath: /tmp/juniter/_data/
+#overwrite dataPath to change the working directory
+ # dataPath: ~/.config/juniter/_data/
 
 spark:
   master: spark://ben:7077
   app.name: juniter
-  home: /home/ben/spark-2.4.0-bin-hadoop2.7/
+  home: ~/spark-2.4.0-bin-hadoop2.7/
 
 
 ##
@@ -62,24 +63,18 @@ spring:
       ddl-auto: update # create-drop
       naming.implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyComponentPathImpl
       naming.physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-    properties.hibernate.jdbc:
-      lob.non_contextual_creation: true # disable an ugly exception at start
-
-
-    properties:
-      hibernate:
+    properties.hibernate:
+      jdbc:
+        lob.non_contextual_creation: true # disable an ugly exception at start
         format_sql : true
-  #  mvc.view:
-  #      prefix: /WEB-INF/view/
-  #      suffix: .jsp
-  #  autoconfigure.exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      #schema_update.unique_constraint_strategy: RECREATE_QUIETLY
+
+
   cache:
     cache-names: instruments, directory
     caffeine:
       spec: maximumSize=500, expireAfterAccess=30s
 
-  ##
-  ## =========================== Web Server Configs ===========================
   ## https://kafka.apache.org/quickstart
   kafka:
     #    bootstrap-servers: kafka:9092
@@ -161,7 +156,18 @@ log4j:
   logger:
     org:
       hibernate: FATAL
-      hibernate.SQL: INHERITED
+      #hibernate.SQL: INHERITED
+
+logging:
+  level:
+    org:
+      hibernate: ERROR
+
+
+
+##
+## =========================== Metrics Configs ===========================
+##
 
 management.endpoint.metrics.enabled: true
 

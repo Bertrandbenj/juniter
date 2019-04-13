@@ -8,19 +8,17 @@
 <?import javafx.scene.Group?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
-
-            fx:controller="juniter.juniterriens.include.WotPanel">
+<AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.juniterriens.include.WotPanel">
    <children>
        <Group>
            <children>
                <VBox>
                    <children>
-                       <VBox >
+                       <VBox>
                            <children>
                                <HBox spacing="20.0">
                                    <children>
-                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Version" />
+                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="%notary.version" />
                                        <TextField fx:id="version" editable="false" prefHeight="25.0" prefWidth="120.0" text="10" />
                                    </children>
                                    <padding>
@@ -29,8 +27,8 @@
                                </HBox>
                                <HBox spacing="20.0">
                                    <children>
-                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Type" />
-                                       <RadioButton fx:id="swIdty" mnemonicParsing="false" onAction="#switchIdty" selected="true" text="Identity">
+                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="%notary.type" />
+                                       <RadioButton fx:id="swIdty" mnemonicParsing="false" onAction="#switchIdty" selected="true" text="%notary.type.identity">
                                            <padding>
                                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                                            </padding>
@@ -38,17 +36,17 @@
                                                <ToggleGroup fx:id="wotType" />
                                            </toggleGroup>
                                        </RadioButton>
-                                       <RadioButton fx:id="swMember" mnemonicParsing="false" onAction="#switchMembership" text="Membership" toggleGroup="$wotType">
+                                       <RadioButton fx:id="swMember" mnemonicParsing="false" onAction="#switchMembership" text="%notary.type.membership" toggleGroup="$wotType">
                                            <padding>
                                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                                            </padding>
                                        </RadioButton>
-                                       <RadioButton fx:id="swCertif" mnemonicParsing="false" onAction="#switchCertif" text="Certification" toggleGroup="$wotType">
+                                       <RadioButton fx:id="swCertif" mnemonicParsing="false" onAction="#switchCertif" text="%notary.type.certification" toggleGroup="$wotType">
                                            <padding>
                                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                                            </padding>
                                        </RadioButton>
-                              <RadioButton fx:id="swRevoc" mnemonicParsing="false" onAction="#switchRevoc" text="Revocation" toggleGroup="$wotType">
+                              <RadioButton fx:id="swRevoc" mnemonicParsing="false" onAction="#switchRevoc" text="%notary.type.revocation" toggleGroup="$wotType">
                                  <padding>
                                     <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                                  </padding>
@@ -60,7 +58,7 @@
                                </HBox>
                                <HBox spacing="20.0">
                                    <children>
-                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Currency" />
+                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="%notary.ccy" />
                                        <TextField fx:id="currency" editable="false" prefHeight="25.0" prefWidth="120.0" promptText="g1" text="g1" HBox.hgrow="NEVER" />
                                    </children>
                                    <padding>
@@ -69,14 +67,14 @@
                                </HBox>
                                <HBox spacing="20.0">
                                    <children>
-                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Issuer" />
+                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="%notary.issuer" />
                               <VBox spacing="5.0">
                                  <children>
-                                     <PasswordField fx:id="salt" onAction="#refresh" promptText="salt" />
-                                    <PasswordField fx:id="password" onAction="#refresh" promptText="password" />
+                                     <PasswordField fx:id="salt" onAction="#refresh" promptText="%login.salt" />
+                                    <PasswordField fx:id="password" onAction="#refresh" promptText="%login.pass" />
                                  </children>
                               </VBox>
-                              <Label fx:id="pk" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="pubkey" HBox.hgrow="ALWAYS" />
+                              <Label fx:id="pk" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="%login.pubkey" HBox.hgrow="ALWAYS" />
                                    </children>
                                    <padding>
                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
@@ -89,7 +87,7 @@
                                            <children>
                                                <HBox spacing="20.0">
                                                    <children>
-                                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="UniqueID" />
+                                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="%notary.uniqueID" />
                                                        <TextField fx:id="uniqueID" onAction="#refresh" HBox.hgrow="ALWAYS" />
                                                    </children>
                                                    <padding>
@@ -98,7 +96,7 @@
                                                </HBox>
                                                <HBox spacing="20.0">
                                                    <children>
-                                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Timestamp" />
+                                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="%notary.timestamp" />
                                                        <TextField fx:id="timestamp" HBox.hgrow="ALWAYS" />
                                                    </children>
                                                    <padding>
@@ -111,7 +109,7 @@
                                            <children>
                                                <HBox spacing="20.0">
                                                    <children>
-                                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Block" />
+                                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="%notary.block" />
                                                        <TextField fx:id="block" editable="false" HBox.hgrow="ALWAYS" />
                                                    </children>
                                                    <padding>
@@ -120,7 +118,7 @@
                                                </HBox>
                                                <HBox spacing="20.0">
                                                    <children>
-                                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Membership" />
+                                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="%notary.mstatus" />
                                                        <TextField disable="true" editable="false" maxWidth="100.0" text="IN" />
                                                    </children>
                                                    <padding>
@@ -129,7 +127,7 @@
                                                </HBox>
                                                <HBox spacing="20.0">
                                                    <children>
-                                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="UserID" />
+                                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="%notary.userID" />
                                                        <TextField fx:id="userid" onKeyTyped="#refresh" HBox.hgrow="ALWAYS" />
                                                    </children>
                                                    <padding>
@@ -138,7 +136,7 @@
                                                </HBox>
                                                <HBox spacing="20.0">
                                                    <children>
-                                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="CertTS" />
+                                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="%notary.certTS" />
                                                        <TextField fx:id="certTS" HBox.hgrow="ALWAYS" />
                                                    </children>
                                                    <padding>
@@ -151,7 +149,7 @@
                                            <children>
                                                <HBox spacing="20.0">
                                                    <children>
-                                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="IdtyIssuer" />
+                                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="%notary.idtyIssuer" />
                                                        <TextField fx:id="idtyIssuer" onKeyTyped="#refresh" HBox.hgrow="ALWAYS" />
                                                    </children>
                                                    <padding>
@@ -160,7 +158,7 @@
                                                </HBox>
                                                <HBox spacing="20.0">
                                                    <children>
-                                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="IdtyUniqueID" />
+                                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="%notary.idtyUID" />
                                                        <TextField fx:id="idtyUniqueID" onKeyTyped="#refresh" HBox.hgrow="ALWAYS" />
                                                    </children>
                                                    <padding>
@@ -169,7 +167,7 @@
                                                </HBox>
                                                <HBox spacing="20.0">
                                                    <children>
-                                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="IdtyTimestamp" />
+                                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="%notary.idtyTimestamp" />
                                                        <TextField fx:id="idtyTimestamp" editable="false" HBox.hgrow="ALWAYS" />
                                                    </children>
                                                    <padding>
@@ -178,7 +176,7 @@
                                                </HBox>
                                                <HBox spacing="20.0">
                                                    <children>
-                                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="IdtySignature" />
+                                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="%notary.idtySig" />
                                                        <TextField fx:id="idtySignature" HBox.hgrow="ALWAYS" />
                                                    </children>
                                                    <padding>
@@ -187,7 +185,7 @@
                                                </HBox>
                                                <HBox spacing="20.0">
                                                    <children>
-                                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="CertTimestamp" />
+                                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="%notary.certTimestamp" />
                                                        <TextField fx:id="certTimestamp" editable="false" HBox.hgrow="ALWAYS" />
                                                    </children>
                                                    <padding>
@@ -200,7 +198,7 @@
                                  <children>
                                     <HBox spacing="20.0">
                                        <children>
-                                          <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="IdtyUniqueID" />
+                                          <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="%notary.idtyUID" />
                                           <TextField fx:id="idtyUniqueIDRev" onKeyTyped="#refresh" HBox.hgrow="ALWAYS" />
                                        </children>
                                        <padding>
@@ -209,7 +207,7 @@
                                     </HBox>
                                     <HBox spacing="20.0">
                                        <children>
-                                          <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="IdtyTimestamp" />
+                                          <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="%notary.idtyTimestamp" />
                                           <TextField fx:id="idtyTimestampRev" editable="false" HBox.hgrow="ALWAYS" />
                                        </children>
                                        <padding>
@@ -218,7 +216,7 @@
                                     </HBox>
                                     <HBox spacing="20.0">
                                        <children>
-                                          <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="IdtySignature" />
+                                          <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="%notary.idtySig" />
                                           <TextField fx:id="idtySignatureRev" onKeyTyped="#refresh" HBox.hgrow="ALWAYS" />
                                        </children>
                                        <padding>
@@ -232,7 +230,7 @@
                                    <Separator prefWidth="200.0" />
                                <HBox spacing="20.0" VBox.vgrow="ALWAYS">
                                    <children>
-                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="Signature" />
+                                       <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="%notary.signature" />
                                        <TextField fx:id="signature" editable="false" prefWidth="400.0" />
                                    </children>
                                    <padding>

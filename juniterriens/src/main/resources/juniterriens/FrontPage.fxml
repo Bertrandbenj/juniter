@@ -27,18 +27,18 @@
                                 <VBox prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
                                     <children>
                                         <Label alignment="CENTER" maxHeight="1.7976931348623157E308"
-                                               maxWidth="1.7976931348623157E308" text="Block number"
+                                               maxWidth="1.7976931348623157E308" text="%front.blockNumber"
                                                VBox.vgrow="ALWAYS"/>
                                         <Label alignment="CENTER" maxHeight="1.7976931348623157E308"
-                                               maxWidth="1.7976931348623157E308" text="Monetary Mass (M)"
+                                               maxWidth="1.7976931348623157E308" text="%front.monetaryMass"
                                                VBox.vgrow="ALWAYS"/>
                                         <Label alignment="CENTER" maxHeight="1.7976931348623157E308"
-                                               maxWidth="1.7976931348623157E308" text="Members count (N)"
+                                               maxWidth="1.7976931348623157E308" text="%front.memberCount"
                                                VBox.vgrow="ALWAYS"/>
                                         <Label alignment="CENTER" maxHeight="1.7976931348623157E308"
-                                               maxWidth="1.7976931348623157E308" text="Block size" VBox.vgrow="ALWAYS"/>
+                                               maxWidth="1.7976931348623157E308" text="%front.blockSize" VBox.vgrow="ALWAYS"/>
                                         <Label alignment="CENTER" maxHeight="1.7976931348623157E308"
-                                               maxWidth="1.7976931348623157E308" text="Median Time"
+                                               maxWidth="1.7976931348623157E308" text="%front.medianTime"
                                                VBox.vgrow="ALWAYS"/>
                                     </children>
                                 </VBox>

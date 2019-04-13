@@ -68,9 +68,6 @@ public class CINDEX implements Comparable<CINDEX> {
 
     private Long chainable_on;
 
-    private String from_wid;
-
-    private String to_wid;
 
     //  Local to the Block we are validating
     private transient long unchainables;
@@ -83,10 +80,16 @@ public class CINDEX implements Comparable<CINDEX> {
     private transient boolean sigOK;
     private transient boolean fromMember;
     private transient DBBlock created_on;
+    /**
+     *  introduced as of version 11
+     *  allow replaying certification prior to its expiry
+     */
+    private transient boolean isReplayable;
+    private Long replayable_on;
 
 
     public CINDEX(String op, String issuer, String receiver, Integer createdOn, BStamp written_on, String sig,
-                  long expires_on, long chainable_on, Long expired_on) {
+                  long expires_on, long chainable_on, Long expired_on, Long replayable_on) {
 
         this.op = op;
         this.issuer = issuer;
@@ -97,6 +100,7 @@ public class CINDEX implements Comparable<CINDEX> {
         this.expires_on = expires_on;
         this.chainable_on = chainable_on;
         this.expired_on = expired_on;
+        this.replayable_on = replayable_on;
     }
 
     public CINDEX putCreatedOn(DBBlock b) {
@@ -104,13 +108,14 @@ public class CINDEX implements Comparable<CINDEX> {
         return this;
     }
 
-    public CINDEX(String op, String issuer, String receiver, Integer created_on, Long expired_on) {
+    public CINDEX(String op, String issuer, String receiver, Integer created_on, Long expired_on, BStamp written) {
 
         this.op = op;
         this.issuer = issuer;
         this.receiver = receiver;
         this.createdOn = created_on;
         this.expired_on = expired_on;
+        this.written = written;
     }
 
     @Override
@@ -131,25 +136,20 @@ public class CINDEX implements Comparable<CINDEX> {
         return super.hashCode();
     }
 
-    @Override
-    public String toString() {
-        return "CINDEX[" + op + "," + issuer + "," + receiver + "," + created_on + "," + written + "," + sig
-                + "," + expires_on + "," + expired_on + "," + chainable_on + "," + from_wid + "," + to_wid + ","
-                + written.getNumber() + "]";
-    }
-
-    public static final BinaryOperator<CINDEX> reducer = (m1, m2) -> {
+    public static final BinaryOperator<CINDEX> reducer = (c1, c2) -> {
 
         // var top = m1.written.compareTo(m2.written) > 0 ? m2 : m1;
         //System.out.println("Reducing" + m1 + "\n" + m2);
         CINDEX bot, top;
-        if (m1.written.getNumber() < m2.written.getNumber()) {
-            top = m1;
-            bot = m2;
+        if (c1.written.getNumber() > c2.written.getNumber()) {
+            top = c1;
+            bot = c2;
         } else {
-            top = m2;
-            bot = m1;
+            top = c2;
+            bot = c1;
         }
+
+        //System.out.println(c1.written.getNumber() +" > "+ c2.written.getNumber() + "\ntop "+ top+"\nbot "+bot+"\n");
 
         if (top.getCreated_on() == null)
             top.setCreated_on(bot.getCreated_on());
@@ -168,12 +168,6 @@ public class CINDEX implements Comparable<CINDEX> {
 
         if (top.getChainable_on() == null)
             top.setChainable_on(bot.getChainable_on());
-
-        if (top.getFrom_wid() == null)
-            top.setFrom_wid(bot.getFrom_wid());
-
-        if (top.getTo_wid() == null)
-            top.setTo_wid(bot.getTo_wid());
 
         if (top.getSig() == null)
             top.setSig(bot.getSig());

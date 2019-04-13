@@ -1,6 +1,9 @@
 package juniter.repository.jpa.index;
 
+import juniter.core.model.dbo.ChainParameters;
 import juniter.core.model.dbo.index.CINDEX;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -25,25 +28,34 @@ public interface CINDEXRepository extends JpaRepository<CINDEX, Long> {
     @Override
     List<CINDEX> findAll();
 
-    @Query("select t from CINDEX t WHERE receiver = ?1")
+    @Query("select cert from CINDEX cert WHERE receiver = ?1")
     List<CINDEX> receivedBy(String pubkey);
 
-    @Query("select t from CINDEX t WHERE issuer = ?1")
+    @Query("select cert from CINDEX cert WHERE issuer = ?1")
     List<CINDEX> issuedBy(String pubkey);
 
-    @Query(value = "SELECT c from CINDEX c WHERE  written.number = ?1 AND  written.hash = ?2 ")
+    @Query("select cert from CINDEX cert WHERE issuer = ?1 AND receiver = ?2")
+    List<CINDEX> getCert(String issuer, String receiver);
+
+    @Query(value = "SELECT cert from CINDEX cert WHERE  written.number = ?1 AND  written.hash = ?2 ")
     List<CINDEX> writtenOn(Integer writtenOn, String writtenHash);
 
-    @Query(value = "SELECT c from CINDEX c WHERE receiver LIKE CONCAT('%',?1,'%') OR issuer LIKE CONCAT('%',?1,'%')")
+    @Query(value = "SELECT cert from CINDEX cert WHERE receiver LIKE CONCAT('%',?1,'%') OR issuer LIKE CONCAT('%',?1,'%')")
     List<CINDEX> search(String search);
 
-    @Query(value = "SELECT COUNT(receiver) from CINDEX c WHERE issuer = ?1 AND expired_on = 0 ")
-    Integer certStock(String issuer);
+    @Query(value = "SELECT COUNT(receiver) from CINDEX cert WHERE issuer = ?1 AND expired_on = 0 AND expires_on >= ?2 ")
+    Integer certStock(String issuer, Long asOf);
 
     @Transactional
     @Modifying
-    @Query("DELETE from CINDEX c WHERE op = 'pings'")
+    @Query("DELETE from CINDEX cert WHERE op = 'pings'")
     void trim(int bIndexSize);
+
+    @Query(value = "SELECT cert from CINDEX cert WHERE expires_on < ?1")
+    List<CINDEX> findCertsThatShouldExpire(Long mTime);
+
+    @Query("SELECT c FROM CINDEX c ")
+    Page<CINDEX> findSome(Pageable pageable);
 }
 
 	

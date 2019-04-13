@@ -2,16 +2,17 @@ package juniter.juniterriens.juniterriens.screens;
 
 import juniter.juniterriens.juniterriens.engine.Gate;
 
-public class BARoom extends Room {
+public class BBRoom extends Room {
 
 
-    public BARoom() {
+    public BBRoom() {
 
     }
-
 
     @Override
     void setGates() {
-        gates.add(new Gate(BBRoom.singleton(BARoom.class), canvas.getWidth() / 2, 50));
+        gates.add(new Gate(BARoom.singleton(BARoom.class), canvas.getWidth() / 2, 50));
     }
+
+
 }

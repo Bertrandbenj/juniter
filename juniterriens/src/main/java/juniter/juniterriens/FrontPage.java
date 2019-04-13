@@ -143,7 +143,7 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
         median.setText(formattedDate);
         size.setText(Bindings.currenBlock.get().getSize() + "");
         number.setText(Bindings.currenBlock.get().getNumber() + "");
-        // test.setText(txRepo.transactionsOfIssuer_("4weakHxDBMJG9NShULG1g786eeGh7wwntMeLZBDhJFni").get(0).getWrittenOn()+"");
+        // test.setText(txRepo.transactionsOfIssuer_("4weakHxDBMJG9NShULG1g786eeGh7wwntMeLZBDhJFni").singleton(0).getWrittenOn()+"");
 
     }
 

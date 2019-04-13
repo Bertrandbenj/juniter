@@ -29,7 +29,7 @@ public interface BINDEXRepository extends JpaRepository<BINDEX, Long> {
 
     Optional<BINDEX> findFirstByNumberIsNotNullOrderByNumberDesc();
 
-    public default Optional<BINDEX> head(){
+    default Optional<BINDEX> head(){
         return findFirstByNumberIsNotNullOrderByNumberDesc();
     }
 
@@ -45,7 +45,7 @@ public interface BINDEXRepository extends JpaRepository<BINDEX, Long> {
     }
 
     @Override
-    public void deleteAll();
+    void deleteAll();
 }
 
 	

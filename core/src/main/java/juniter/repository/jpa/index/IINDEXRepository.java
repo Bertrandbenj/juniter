@@ -2,6 +2,8 @@ package juniter.repository.jpa.index;
 
 import juniter.core.model.dbo.index.IINDEX;
 import juniter.core.model.dto.wot.MemberDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -74,8 +76,6 @@ public interface IINDEXRepository extends JpaRepository<IINDEX, Long> {
             var del = fetchTrimmed(d);
             if (del.size() > 0) {
 
-                System.out.println("MINDEX trimRecords " + del);
-
                 deleteAll(del);
             }
 
@@ -135,6 +135,8 @@ public interface IINDEXRepository extends JpaRepository<IINDEX, Long> {
     List<IINDEX> fetchTrimmed(String pub);
 
 
+    @Query("SELECT i FROM IINDEX i ")
+    Page<IINDEX> findSome(Pageable pageable);
 }
 
 	

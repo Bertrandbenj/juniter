@@ -7,33 +7,35 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import juniter.juniterriens.juniterriens.screens.Room;
+import lombok.Data;
+import lombok.Getter;
 
-
+@Getter
 public class Gate extends ImageView implements Obstacle {
-    private Image image;
+
     private double positionX;
     private double positionY;
     private double width;
     private double height;
     private Timeline timeline;
-
+    private Room room;
 
 
     public Gate(Room room, double x, double y) {
-        image = new Image("/juniterriens/game/img/gate.png");
+        this.room = room;
+        setImage(new Image("/juniterriens/game/img/gate.png"));
         setPosition(x, y);
     }
 
 
     public Gate(String img, Timeline timeline, double x, double y) {
         setPosition(x, y);
-        image = new Image(img);
+        setImage(new Image(img));
+        //image = new Image(img);
         this.timeline = timeline;
-        width = image.getWidth() / 7;
-        height = image.getHeight() / 4;
+        width = getWidth() / 7;
+        height = getHeight() / 4;
 
-
-        setImage(image);
     }
 
     public Timeline getTimeline() {
@@ -45,8 +47,8 @@ public class Gate extends ImageView implements Obstacle {
         positionY = y;
     }
 
-    public void render(GraphicsContext gc ) {
-        gc.drawImage(image, positionX, positionY,50, 50);
+    public void render(GraphicsContext gc) {
+        gc.drawImage(getImage(), positionX, positionY, 50, 50);
 
     }
 

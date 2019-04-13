@@ -52,7 +52,7 @@ public class Spark extends AbstractJuniterFX implements Initializable {
     @Autowired
     UtilsService utilsService;
 
-    @Value("${juniter.dataPath:/tmp/juniter/data/}")
+    @Value("${juniter.dataPath:${user.home}/.config/juniter/data/}")
     private String dataPath;
 
     @Autowired

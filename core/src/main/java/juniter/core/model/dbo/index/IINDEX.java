@@ -113,7 +113,7 @@ public class IINDEX implements Comparable<IINDEX> {
     public static final BinaryOperator<IINDEX> reducer = (i1, i2) -> {
 
         IINDEX bot, top;
-        if (i1.getWritten().getNumber() < i2.getWritten().getNumber()) {
+        if (i1.written.getNumber() < i2.written.getNumber()) {
             top = i1;
             bot = i2;
         } else {
