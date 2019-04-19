@@ -2,7 +2,7 @@ package juniter.core.event;
 
 import javafx.application.Platform;
 import juniter.juniterriens.Network;
-import juniter.juniterriens.include.Bindings;
+import juniter.juniterriens.include.JuniterBindings;
 import juniter.service.bma.PeerService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,49 +26,49 @@ public class JuniterriensEventListener implements CoreEventBus {
 
     @Override
     public void sendEventCurrentBindex(final int i) {
-        Platform.runLater(() -> Bindings.currentBindex.setValue(i));
+        Platform.runLater(() -> JuniterBindings.currentBindex.setValue(i));
     }
 
     @Override
     public void sendEventIndexLogMessage(String s) {
-        Platform.runLater(() -> Bindings.indexLogMessage.setValue(s));
+        Platform.runLater(() -> JuniterBindings.indexLogMessage.setValue(s));
 
     }
 
     @Override
     public void sendEventPeerLogMessage(String s) {
-        Platform.runLater(() -> Bindings.peerLogMessage.setValue(s));
+        Platform.runLater(() -> JuniterBindings.peerLogMessage.setValue(s));
     }
 
     @Override
     public void sendEventIsIndexing(boolean is) {
-        Platform.runLater(() -> Bindings.isIndexing.setValue(is));
+        Platform.runLater(() -> JuniterBindings.isIndexing.setValue(is));
     }
 
     @Override
     public void sendEventCurrent(long x) {
         Platform.runLater(() -> {
-            Bindings.currentDBBlock.setValue(x);
+            JuniterBindings.currentDBBlock.setValue(x);
         });
     }
 
     @Override
     public void sendEventSetMaxDBBlock(int maxBlockDB) {
         Platform.runLater(() -> {
-            Bindings.maxDBBlock.setValue(maxBlockDB);
+            JuniterBindings.maxDBBlock.setValue(maxBlockDB);
         });
     }
 
     @Override
     public void sendEventSetMaxPeerBlock(long maxBlockDB) {
         Platform.runLater(() -> {
-            Bindings.maxPeerBlock.setValue(maxBlockDB);
+            JuniterBindings.maxPeerBlock.setValue(maxBlockDB);
         });
     }
 
     @Override
     public void sendEventDecrementCurrentBlock() {
-        Platform.runLater(() -> Bindings.currentDBBlock.subtract(1));
+        Platform.runLater(() -> JuniterBindings.currentDBBlock.subtract(1));
     }
 
     @Override
@@ -78,11 +78,11 @@ public class JuniterriensEventListener implements CoreEventBus {
 
     @Override
     public void sendEventMemoryLog(String log) {
-        Platform.runLater(() -> Bindings.memoryLogMessage.setValue(log));
+        Platform.runLater(() -> JuniterBindings.memoryLogMessage.setValue(log));
     }
 
     @Override
     public boolean isIndexing() {
-        return Bindings.isIndexing.get();
+        return JuniterBindings.isIndexing.get();
     }
 }

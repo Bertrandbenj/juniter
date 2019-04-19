@@ -7,8 +7,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import juniter.juniterriens.include.AbstractJuniterFX;
-import juniter.juniterriens.include.Bindings;
-import juniter.repository.jpa.block.BlockRepository;
+import juniter.juniterriens.include.JuniterBindings;
 import juniter.service.web.GraphvizService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,7 +20,6 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.events.Event;
 import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
-import org.w3c.dom.events.MouseEvent;
 
 import java.net.URL;
 import java.util.HashMap;
@@ -108,7 +106,7 @@ public class GraphPanel extends AbstractJuniterFX implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        uri.setText("/graphviz/svg/block/" + (Bindings.currenBlock.get().getNumber() - 2));
+        uri.setText("/graphviz/svg/block/" + (JuniterBindings.currenBlock.get().getNumber() - 2));
 
         var webEngine = SVGAnchor.getEngine();    // Get WebEngine via WebView
         SVGAnchor.setZoom(0.60);

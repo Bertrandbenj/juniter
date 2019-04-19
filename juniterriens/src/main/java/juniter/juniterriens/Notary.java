@@ -11,7 +11,7 @@ import javafx.stage.Stage;
 import juniter.core.model.dto.raw.*;
 import juniter.grammar.JuniterGrammar;
 import juniter.juniterriens.include.AbstractJuniterFX;
-import juniter.juniterriens.include.Bindings;
+import juniter.juniterriens.include.JuniterBindings;
 import juniter.juniterriens.include.I18N;
 import juniter.service.bma.PeerService;
 import org.antlr.v4.runtime.*;
@@ -68,7 +68,7 @@ public class Notary extends AbstractJuniterFX implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        rawDoc.textProperty().bind(Bindings.rawDocument);
+        rawDoc.textProperty().bind(JuniterBindings.rawDocument);
         rawDoc.textProperty().addListener((observable, oldValue, newValue) -> {
             LOG.info("rawDocument Doc changed ");
 

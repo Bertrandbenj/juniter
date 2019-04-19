@@ -15,13 +15,24 @@ public class Gate extends ImageView implements Obstacle {
 
     private double positionX;
     private double positionY;
+
+    private double initPlayerX;
+    private double initPlayerY;
+
     private double width;
     private double height;
     private Timeline timeline;
     private Room room;
 
 
-    public Gate(Room room, double x, double y) {
+    public Gate(Room room, double x, double y, double playerx, double playery) {
+        this(room, x, y);
+        initPlayerX=playerx;
+        initPlayerY=playery;
+
+    }
+
+    public Gate(Room room, double x, double y ) {
         this.room = room;
         setImage(new Image("/juniterriens/game/img/gate.png"));
         setPosition(x, y);

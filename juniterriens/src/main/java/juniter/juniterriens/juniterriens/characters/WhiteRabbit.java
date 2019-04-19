@@ -28,7 +28,7 @@ public class WhiteRabbit extends ImageView {
     private int currentClip = 0;
 
 
-    Transition animation;
+    private Transition animation;
 
     public Transition getAnimation() {
         return animation;

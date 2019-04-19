@@ -14,12 +14,12 @@
                             <Font size="24.0" />
                         </font>
                     </Label>
-                    <PasswordField fx:id="salt" focusTraversable="false" onKeyTyped="#login" prefHeight="25.0" prefWidth="485.0" promptText="%login.salt">
+                    <PasswordField fx:id="salt" focusTraversable="false"  prefHeight="25.0" prefWidth="485.0" promptText="%login.salt">
                         <font>
                             <Font size="10.0" />
                         </font>
                     </PasswordField>
-                    <PasswordField fx:id="password" focusTraversable="false" onKeyTyped="#login" prefHeight="25.0" prefWidth="660.0" promptText="%login.pass">
+                    <PasswordField fx:id="password" focusTraversable="false"  prefHeight="25.0" prefWidth="660.0" promptText="%login.pass">
                         <font>
                             <Font size="10.0" />
                         </font>

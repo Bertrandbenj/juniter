@@ -96,7 +96,7 @@ public class WotPanel implements Initializable {
 
         version.setText(Notary.PROTOCOL_VERSION+"");
 
-        var b = Bindings.currenBlock.get();
+        var b = JuniterBindings.currenBlock.get();
         timestamp.setText(b.bstamp());
         block.setText(b.bstamp());
         certTS.setText(b.bstamp());
@@ -176,7 +176,7 @@ public class WotPanel implements Initializable {
             signature.setText(sign);
         }
 
-        Bindings.rawDocument.setValue(doc.toString());
+        JuniterBindings.rawDocument.setValue(doc.toString());
         pk.setText(sb.getPublicKey());
 
     }

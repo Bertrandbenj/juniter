@@ -13,7 +13,6 @@ import juniter.core.crypto.SecretBox;
 import juniter.core.model.dbo.net.EndPoint;
 import juniter.core.model.dbo.net.Peer;
 import juniter.juniterriens.Notary;
-import juniter.repository.jpa.block.BlockRepository;
 import juniter.service.bma.NetworkService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -117,7 +116,7 @@ public class PeerPanel implements Initializable {
                         .collect(Collectors.toList())
         );
 
-        Bindings.rawDocument.setValue(peer.toDUP(true));
+        JuniterBindings.rawDocument.setValue(peer.toDUP(true));
     }
 
 
@@ -148,7 +147,7 @@ public class PeerPanel implements Initializable {
 
    private void presetPeer() {
 
-        peer = netService.endPointPeer(Bindings.currenBlock.get().getNumber());
+        peer = netService.endPointPeer(JuniterBindings.currenBlock.get().getNumber());
         sessid.setText(getRandomHexString(8));
         block.setText(peer.getBlock());
         pubkey.setText(peer.getPubkey());

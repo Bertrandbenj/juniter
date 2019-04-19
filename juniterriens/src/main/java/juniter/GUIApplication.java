@@ -22,12 +22,13 @@ import java.util.logging.Level;
 @EnableAsync
 @EnableScheduling
 @EntityScan("juniter.core.model")
+//https://www.youtube.com/watch?v=RifjriAxbw8 could be better like that
 public class GUIApplication {
 
     private static final Logger LOG = LogManager.getLogger(GUIApplication.class);
 
     public static void main(String[] args) {
-        java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.OFF);
+        //java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.OFF);
 
 
         //FirstPreloader.launch(FirstPreloader.class);
@@ -48,7 +49,7 @@ public class GUIApplication {
      *
      * @return taskScheduler
      */
-    @Bean
+    @Bean("taskExecutor")
     public TaskScheduler taskScheduler() {
         ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
         taskScheduler.setPoolSize(10);

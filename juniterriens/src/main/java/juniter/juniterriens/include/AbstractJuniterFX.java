@@ -1,6 +1,7 @@
 package juniter.juniterriens.include;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
@@ -27,6 +28,8 @@ public abstract class AbstractJuniterFX extends Application {
     public void stop() throws Exception {
         super.stop();
         applicationContext.close();
+        Platform.exit();
+        System.exit(0);
     }
 
     public static void launchGUI(Class<? extends AbstractJuniterFX> appClass, ConfigurableApplicationContext context) {

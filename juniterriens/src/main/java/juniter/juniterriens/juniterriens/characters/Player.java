@@ -1,11 +1,11 @@
 package juniter.juniterriens.juniterriens.characters;
 
 import javafx.animation.Interpolator;
-import javafx.animation.Timeline;
 import javafx.animation.Transition;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.geometry.Bounds;
+import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
@@ -15,7 +15,6 @@ import juniter.juniterriens.juniterriens.engine.Collectable;
 import juniter.juniterriens.juniterriens.engine.Curiosity;
 import juniter.juniterriens.juniterriens.objects.Coins;
 import juniter.juniterriens.juniterriens.objects.Items;
-import lombok.Data;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,31 +22,38 @@ import org.apache.logging.log4j.Logger;
 import java.util.ArrayList;
 
 @Getter
+
 public class Player extends ImageView {
 
     private static final Logger LOG = LogManager.getLogger(Player.class);
 
+    static Player singleton;
+
+    public static Player get() {
+        if (singleton == null) {
+            singleton = new Player();
+        }
+        return singleton;
+    }
+
     private Image _image;
-    public double positionX;
-    public double positionY;
-    private double velocityX;
-    private double velocityY;
-    private double width;
-    private double height;
+    protected Point2D pos;
+    protected Point2D velocity;
+    protected Point2D displaySize;
+
+    public int score;
+
+    private final int speed = 150;
 
     private Rectangle2D[] clips;
     public int currentClip = 14;
-    private Timeline timeline;
 
     private ArrayList<Items> inventory;
 
 
     private final IntegerProperty frameCounter = new SimpleIntegerProperty(0);
-    Transition animation;
 
-    public Transition getAnimation() {
-        return animation;
-    }
+    private Transition animation;
 
 
     public Player() {
@@ -55,15 +61,15 @@ public class Player extends ImageView {
         setVelocity(0, 0);
         _image = new Image("/juniterriens/game/img/body.png");
 
-        width = _image.getWidth() / 7;
-        height = _image.getHeight() / 4;
+        displaySize = new Point2D(_image.getWidth() / 7, _image.getHeight() / 4);
+
         inventory = new ArrayList<>();
 
         clips = new Rectangle2D[4 * 7];
         int count = 0;
         for (int row = 0; row < 4; row++)
             for (int column = 0; column < 7; column++, count++)
-                clips[count] = new Rectangle2D(width * column, height * row, width, height);
+                clips[count] = new Rectangle2D(displaySize.getX() * column, displaySize.getY() * row, displaySize.getX(), displaySize.getY());
 
         setImage(_image);
         setViewport(clips[currentClip]);
@@ -92,16 +98,17 @@ public class Player extends ImageView {
     }
 
     public void setPosition(double x, double y) {
-        positionX = x;
-        positionY = y;
+        pos = new Point2D(x, y);
     }
 
     public void setVelocity(double x, double y) {
-        velocityX = x;
-        velocityY = y;
+        velocity = new Point2D(x, y);
     }
 
     public void addVelocity(double x, double y, Bounds frame) {
+
+        x *= speed;
+        y *= speed;
         animation.play();
         double coef = 1;
         if (inventory.stream().anyMatch(items -> items.is("Boots"))) {
@@ -109,39 +116,40 @@ public class Player extends ImageView {
         }
         if (x > 0) {
             currentClip = 21;
-            if (positionX >= frame.getWidth() - width) {
+            if (pos.getX() >= frame.getWidth() - displaySize.getX()) {
                 coef = 0;
             }
         }
         if (x < 0) {
             currentClip = 7;
-            if (positionX <= 0) {
+            if (pos.getX() <= 0) {
                 coef = 0;
             }
         }
         if (y > 0) {
             currentClip = 14;
-            if (positionY >= frame.getHeight() - height) {
+            if (pos.getY() >= frame.getHeight() - displaySize.getY()) {
                 coef = 0;
             }
         }
         if (y < 0) {
             currentClip = 0;
-            if (positionY <= 0) {
+            if (pos.getY() <= 0) {
                 coef = 0;
             }
         }
 
         setViewport(clips[currentClip]);
-        velocityX += coef * x;
-        velocityY += coef * y;
+
+        velocity = velocity.add(x, y).multiply(coef);
+
     }
 
-    public  void update(double time) {
+    public void update(double time) {
         var up = new Transition() {
             {
                 setCycleDuration(Duration.millis(1000));
-                setVelocity(velocityX, velocityY);
+                //setVelocity(velocity.getX(),velocity.getY());
             }
 
             @Override
@@ -155,54 +163,41 @@ public class Player extends ImageView {
 
         up.setCycleCount(7);
         up.play();
-        positionX += velocityX * time;
-        positionY += velocityY * time;
+
+        pos = pos.add(velocity.multiply(time));
+
     }
 
-    public  Coins payment() {
+    public Coins payment() {
         ///LOG.info("pos " + positionX + " " + positionY);
         var coin = new Coins();
-        coin.setPosition(positionX + 25 - (currentClip == 7 ? 80 : 0) + (currentClip == 21 ? 80 : 0)
-
-                , positionY + 25 - (currentClip == 0 ? 80 : 0) + (currentClip == 14 ? 80 : 0));
+        coin.setPosition(pos.getX() + 25 - (currentClip == 7 ? 80 : 0) + (currentClip == 21 ? 80 : 0)
+                , pos.getY() + 25 - (currentClip == 0 ? 80 : 0) + (currentClip == 14 ? 80 : 0));
         Coins.playSound();
         return coin;
     }
 
-    public  void render(GraphicsContext gc) {
+    public void render(GraphicsContext gc) {
         var v = getViewport();
-        gc.drawImage(_image, v.getMinX(), v.getMinY(), v.getWidth(), v.getHeight(), positionX, positionY, v.getWidth(), v.getHeight());
+        gc.drawImage(_image, v.getMinX(), v.getMinY(), v.getWidth(), v.getHeight(), pos.getX(), pos.getY(), v.getWidth(), v.getHeight());
     }
 
     public Rectangle2D getBoundary() {
-        return new Rectangle2D(positionX, positionY, 50, 50);
+        return new Rectangle2D(pos.getX(), pos.getY(), 50, 50);
     }
 
-    /**
-     * player.getBoundary().getMinY() <= (bounds.getMinY() - player.height);
-     *
-     * @param frame
-     * @return
-     */
-    public  boolean isInside(Bounds frame) {
 
-        return getBoundary().getMinY() >= frame.getMinY() - 25
-                && getBoundary().getMinX() >= frame.getMinX() - 25
-                && getBoundary().getMaxY() <= frame.getMaxY() - 25
-                && getBoundary().getMaxX() <= frame.getMaxX() - 25
-                ;
-    }
-
-    public  boolean intersects(Collectable collectable) {
+    public boolean intersects(Collectable collectable) {
         return collectable.getBoundary().intersects(this.getBoundary());
     }
-    public  boolean intersects(Curiosity collectable) {
+
+    public boolean intersects(Curiosity collectable) {
         return collectable.getBoundary().intersects(this.getBoundary());
     }
 
     public String toString() {
-        return " Position: [" + positionX + "," + positionY + "]"
-                + " Velocity: [" + velocityX + "," + velocityY + "]";
+        return " Position: [" + pos.getX() + "," + pos.getY() + "]"
+                + " Velocity: [" + velocity.getX() + "," + velocity.getY() + "]";
     }
 
 

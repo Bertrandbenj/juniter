@@ -21,7 +21,7 @@ apply plugin: 'io.spring.dependency-management'
 
 //https://openjfx.io/openjfx-docs/#gradle
 javafx {
-    modules = ['javafx.controls', 'javafx.fxml', 'javafx.web', 'javafx.media']
+    modules = ['javafx.controls', 'javafx.fxml', 'javafx.web', 'javafx.media', 'javafx.graphics']
     // version = "11.0.2"
 }
 

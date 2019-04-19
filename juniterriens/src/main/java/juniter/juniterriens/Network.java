@@ -15,7 +15,7 @@ import javafx.stage.Stage;
 import juniter.core.model.dto.node.IssuersFrameDTO;
 import juniter.core.validation.BlockLocalValid;
 import juniter.juniterriens.include.AbstractJuniterFX;
-import juniter.juniterriens.include.Bindings;
+import juniter.juniterriens.include.JuniterBindings;
 import juniter.juniterriens.include.ConfirmBox;
 import juniter.repository.jpa.block.BlockRepository;
 import juniter.service.bma.PeerService;
@@ -187,7 +187,7 @@ public class Network extends AbstractJuniterFX implements Initializable {
 
 
         Platform.runLater(() -> {
-            var current = Bindings.currenBlock.get().getNumber();
+            var current = JuniterBindings.currenBlock.get().getNumber();
             var issuersPoints = blockRepo.issuersFrameFromTo(current - range, current);
 
 
@@ -211,7 +211,7 @@ public class Network extends AbstractJuniterFX implements Initializable {
         });
 
         Platform.runLater(() -> {
-            var current = Bindings.currenBlock.get().getNumber();
+            var current = JuniterBindings.currenBlock.get().getNumber();
             var issuersPoints = blockRepo.issuersFrameFromTo(current - range, current);
 
             //issuersFrameX.setAutoRanging(false);
@@ -238,7 +238,7 @@ public class Network extends AbstractJuniterFX implements Initializable {
 
 
         Platform.runLater(() -> {
-            var current = Bindings.currenBlock.get().getNumber();
+            var current = JuniterBindings.currenBlock.get().getNumber();
             var issuersPoints = blockRepo.issuersFrameFromTo(current - range, current);
 
             //issuersFrameX.setAutoRanging(false);
@@ -263,7 +263,7 @@ public class Network extends AbstractJuniterFX implements Initializable {
         });
 
         Platform.runLater(() -> {
-            var current = Bindings.currenBlock.get().getNumber();
+            var current = JuniterBindings.currenBlock.get().getNumber();
             var issuersPoints = blockRepo.issuersFrameFromTo(current - range, current);
             Long prev = null;
             for (IssuersFrameDTO ifd : issuersPoints) {

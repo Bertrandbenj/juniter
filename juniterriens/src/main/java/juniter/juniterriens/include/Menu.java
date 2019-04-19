@@ -1,7 +1,6 @@
 package juniter.juniterriens.include;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -33,12 +32,12 @@ public class Menu extends AbstractJuniterFX implements Initializable {
 
     private static final Logger LOG = LogManager.getLogger(Menu.class);
 
-    private final String CSS_FOLDER = "/juniterriens/css/";
+
+    private Image DEFAULT_LOGO, MAIN_LOGO, GRAPH_LOGO, NETWORK_LOGO, DATABASE_LOGO, SPARK_LOGO, NOTARY_LOGO;
 
 
     @FXML
     public VBox vMenu;
-
     @FXML
     private ImageView logoMain;
     @FXML
@@ -51,8 +50,11 @@ public class Menu extends AbstractJuniterFX implements Initializable {
     private ImageView logoDatabase;
     @FXML
     private ImageView logoSpark;
+    @FXML
+    private ComboBox<Locale> LANG_COMBO;
+    @FXML
+    private ComboBox<String> THEME_COMBO;
 
-    public Image DEFAULT_LOGO, MAIN_LOGO, GRAPH_LOGO, NETWORK_LOGO, DATABASE_LOGO, SPARK_LOGO, NOTARY_LOGO;
 
     public Menu() {
     }
@@ -89,9 +91,6 @@ public class Menu extends AbstractJuniterFX implements Initializable {
     }
 
 
-
-
-
     @Override
     public void start(Stage primaryStage) {
 //        AnchorPane page = (AnchorPane) load("/juniterriens/include/Menu.fxml");
@@ -102,14 +101,11 @@ public class Menu extends AbstractJuniterFX implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // LOG.info(getClass().getResource("/juniterriens/Spark.fxml") + "  " +  vMenu.getChildren().getSize() );
         if (getClass().getResource("/juniterriens/Spark.fxml") == null) {
-            var removed = vMenu.getChildren().remove(6);
+            vMenu.getChildren().remove(6); // dirty hack
         }
-        vMenu.getChildren().addAll(translateCB(),themeCB());
-        // vMenu.getChildren().forEach(LOG::info);
-        DEFAULT_LOGO = new Image("/juniterriens/images/logo.png");
 
+        DEFAULT_LOGO = new Image("/juniterriens/images/logo.png");
         MAIN_LOGO = new Image("/juniterriens/images/whiterabbit.jpg");
         GRAPH_LOGO = new Image("/juniterriens/images/dotex.png");
         NETWORK_LOGO = new Image("/juniterriens/images/network.png");
@@ -117,49 +113,8 @@ public class Menu extends AbstractJuniterFX implements Initializable {
         SPARK_LOGO = new Image("/juniterriens/images/spark.png");
         NOTARY_LOGO = new Image("/juniterriens/images/keep_calm_im_the_notary_puzzle.jpg");
 
-
-        LANG_COMBO.setOnAction(ev -> {
-            I18N.setLocale(LANG_COMBO.getSelectionModel().getSelectedItem());
-            viewGeneric("Main", "/juniterriens/FrontPage.fxml" ,  (Stage) vMenu.getScene().getWindow());
-        });
-
-     }
-
-    private void viewGeneric(String name, String fxml, Stage current) {
-        BorderPane page = (BorderPane) load(fxml );
-        page.setPrefSize(current.getScene().getWidth(), current.getScene().getHeight());
-
-        Scene scene = new Scene(page);
-        current.setTitle("Juniter - " + name);
-        scene.getStylesheets().setAll(Bindings.selectedTheme.getValue());
-
-        logoMain.setImage("Main".equals(name) ? MAIN_LOGO : DEFAULT_LOGO);
-        logoGraphs.setImage("Graphs".equals(name) ? GRAPH_LOGO : DEFAULT_LOGO);
-        logoNotary.setImage("Notary".equals(name) ? NOTARY_LOGO : DEFAULT_LOGO);
-        logoNetwork.setImage("Network".equals(name) ? NETWORK_LOGO : DEFAULT_LOGO);
-        logoDatabase.setImage("Database".equals(name) ? DATABASE_LOGO : DEFAULT_LOGO);
-        logoSpark.setImage("Spark".equals(name) ? SPARK_LOGO : DEFAULT_LOGO);
-
-
-
-        current.setScene(scene);
-        current.show();
-    }
-
-    private void viewGeneric(String name, String fxml, ActionEvent event) {
-        LOG.info(" view " + name + " - " + event.getEventType());
-        Stage current = (Stage) ((Node) event.getSource()).getScene().getWindow();
-
-        viewGeneric(name,fxml,current);
-    }
-
-
-    private ComboBox<Locale> LANG_COMBO  ;
-
-    private ComboBox<Locale> translateCB() {
-        LANG_COMBO = new ComboBox<>();
-        ObservableList<Locale> options = FXCollections.observableArrayList(I18N.getSupportedLocales());
-        LANG_COMBO.setItems(options);
+        // ============ SET LANG COMBO =============
+        LANG_COMBO.setItems(JuniterBindings.langs);
         LANG_COMBO.setConverter(new StringConverter<>() {
             @Override
             public String toString(Locale object) {
@@ -174,7 +129,105 @@ public class Menu extends AbstractJuniterFX implements Initializable {
         LANG_COMBO.setCellFactory(param -> new LanguageListCell());
         LANG_COMBO.getSelectionModel().select(Locale.getDefault());
 
-        return LANG_COMBO;
+        LANG_COMBO.setOnAction(ev -> {
+            I18N.setLocale(LANG_COMBO.getSelectionModel().getSelectedItem());
+
+//            JuniterBindings.screenController.getScreenMap().values().forEach(x-> x.requestLayout());
+
+            JuniterBindings.screenController.removeScreens();
+//            preload();
+        });
+
+
+        // ============ SET THEME COMBO =============
+        THEME_COMBO.setItems(JuniterBindings.themes);
+        THEME_COMBO.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(String object) {
+                var split = object.split("/");
+                var file = split[split.length - 1];
+                return file.replaceAll(".css", "");
+            }
+
+            @Override
+            public String fromString(String string) {
+                return null;
+            }
+        });
+
+        THEME_COMBO.getSelectionModel().select(JuniterBindings.selectedTheme.getValue());
+
+        THEME_COMBO.setOnAction(event -> {
+            LOG.info("THEME_COMBO.setOnAction");
+            var theme = THEME_COMBO.getSelectionModel().getSelectedItem();
+            JuniterBindings.selectedTheme.setValue(theme);
+            JuniterBindings.screenController.getMain().getStylesheets().setAll(theme);
+            LOG.info("THEME_COMBO.setOnAction " + theme);
+
+        });
+
+
+        preload();
+
+    }
+
+    private void preload() {
+        // Preload
+        Platform.runLater(() -> {
+            Scene sc = THEME_COMBO.getScene();
+            if(sc == null )
+                sc = JuniterBindings.screenController.getMain();
+            Stage s = (Stage) sc.getWindow();
+
+            viewGeneric("Graphs", "/juniterriens/GraphPanel.fxml", s);
+            viewGeneric("Notary", "/juniterriens/Notary.fxml", s);
+            viewGeneric("Network", "/juniterriens/Network.fxml", s);
+            viewGeneric("Database", "/juniterriens/Database.fxml", s);
+            if (getClass().getResource("/juniterriens/Spark.fxml") != null) {
+                viewGeneric("Spark", "/juniterriens/Spark.fxml", s);
+            }
+
+            viewGeneric("Main", "/juniterriens/FrontPage.fxml", s);
+
+        });
+    }
+
+    private void viewGeneric(String name, String fxml, Stage current) {
+
+        if (JuniterBindings.screenController.hasScreen(name)) {
+            JuniterBindings.screenController.activate(name);
+        } else {
+            BorderPane page = (BorderPane) load(fxml);
+            JuniterBindings.screenController.addScreen(name, page);
+            page.setPrefSize(current.getScene().getWidth(), current.getScene().getHeight());
+        }
+
+        Scene scene = JuniterBindings.screenController.getMain();
+
+        scene.getStylesheets().setAll(JuniterBindings.selectedTheme.getValue());
+
+        logoMain.setImage("Main".equals(name) ? MAIN_LOGO : DEFAULT_LOGO);
+        logoGraphs.setImage("Graphs".equals(name) ? GRAPH_LOGO : DEFAULT_LOGO);
+        logoNotary.setImage("Notary".equals(name) ? NOTARY_LOGO : DEFAULT_LOGO);
+        logoNetwork.setImage("Network".equals(name) ? NETWORK_LOGO : DEFAULT_LOGO);
+        logoDatabase.setImage("Database".equals(name) ? DATABASE_LOGO : DEFAULT_LOGO);
+        logoSpark.setImage("Spark".equals(name) ? SPARK_LOGO : DEFAULT_LOGO);
+
+
+        current.setOnHidden(e -> Platform.exit());
+        current.setOnCloseRequest(t -> System.exit(0));
+
+        current.getIcons().add(new Image("/juniterriens/images/logo.png"));
+        current.setTitle("Juniter - " + name);
+        current.setScene(scene);
+        current.show();
+    }
+
+    private void viewGeneric(String name, String fxml, ActionEvent event) {
+        LOG.info(" view " + name + " - " + event.getEventType());
+        Stage current = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+        viewGeneric(name, fxml, current);
     }
 
 
@@ -187,38 +240,6 @@ public class Menu extends AbstractJuniterFX implements Initializable {
             }
         }
     }
-
-
-
-    private ComboBox<String> themeCB() {
-        ComboBox<String> comboBox = new ComboBox<>();
-        ObservableList<String> options = FXCollections.observableArrayList(CSS_FOLDER + "dark-theme.css", CSS_FOLDER + "no-theme.css");
-        comboBox.setItems(options);
-        comboBox.setMaxWidth(100);
-        comboBox.setConverter(new StringConverter<>() {
-            @Override
-            public String toString(String object) {
-                var split = object.split("/");
-                var file = split[split.length-1];
-                return file.replaceAll(".css", "");
-            }
-
-            @Override
-            public String fromString(String string) {
-                return null;
-            }
-        });
-
-        comboBox.getSelectionModel().select(Bindings.selectedTheme.getValue());
-
-        comboBox.setOnAction(event ->  {
-           var theme =  comboBox.getSelectionModel().getSelectedItem();
-            Bindings.selectedTheme.setValue(theme);
-            comboBox.getScene().getStylesheets().setAll(theme);
-        });
-        return comboBox;
-    }
-
 
 
 }

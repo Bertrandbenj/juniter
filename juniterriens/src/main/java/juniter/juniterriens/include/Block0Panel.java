@@ -257,7 +257,7 @@ public class Block0Panel implements Initializable {
         );
 
 
-        Bindings.rawDocument.setValue(block.toDUP(true, true));
+        JuniterBindings.rawDocument.setValue(block.toDUP(true, true));
     }
 
     private String pubkeyOf(String huhu) {

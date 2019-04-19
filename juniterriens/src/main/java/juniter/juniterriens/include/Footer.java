@@ -32,24 +32,24 @@ public class Footer implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         LOG.debug("initialize Footer.fxml");
         // bind indicators
-        indexIndic.progressProperty().bind(Bindings.currentBindex.divide(Bindings.maxBindex));
-        downloadIndic.progressProperty().bind(Bindings.currentDBBlock.divide(Bindings.maxPeerBlock));
+        indexIndic.progressProperty().bind(JuniterBindings.currentBindex.divide(JuniterBindings.maxBindex));
+        downloadIndic.progressProperty().bind(JuniterBindings.currentDBBlock.divide(JuniterBindings.maxPeerBlock));
 
         // bind logger
 
 
         indexLog.textProperty().bind(new SimpleStringProperty("Index : ")
-                .concat(javafx.beans.binding.Bindings.format("%,.2f", Bindings.currentBindex.multiply(100).divide(Bindings.currentDBBlock)))
-                .concat("% - HEAD: ").concat(Bindings.currentBindex)
-                .concat(" - DB: ").concat(Bindings.currentDBBlock)
-                .concat(" - ").concat(Bindings.indexLogMessage));
+                .concat(javafx.beans.binding.Bindings.format("%,.2f", JuniterBindings.currentBindex.multiply(100).divide(JuniterBindings.currentDBBlock)))
+                .concat("% - HEAD: ").concat(JuniterBindings.currentBindex)
+                .concat(" - DB: ").concat(JuniterBindings.currentDBBlock)
+                .concat(" - ").concat(JuniterBindings.indexLogMessage));
         peerLog.textProperty().bind(new SimpleStringProperty("Peers : ")
-                .concat(Bindings.maxPeerBlock)
-                .concat(" - ").concat(Bindings.peerLogMessage));
+                .concat(JuniterBindings.maxPeerBlock)
+                .concat(" - ").concat(JuniterBindings.peerLogMessage));
         memoryLog.textProperty().bind(new SimpleStringProperty("Memory : ")
-                .concat(Bindings.memoryLogMessage).concat(" - "));
+                .concat(JuniterBindings.memoryLogMessage).concat(" - "));
         docPoolLog.textProperty().bind(new SimpleStringProperty("Pools : ")
-                .concat(" - ").concat(Bindings.docPoolLogMessage));
+                .concat(" - ").concat(JuniterBindings.docPoolLogMessage));
     }
 
 }

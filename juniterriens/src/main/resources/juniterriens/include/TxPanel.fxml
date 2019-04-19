@@ -9,7 +9,8 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<ScrollPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.juniterriens.include.TxPanel">
+<ScrollPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="juniter.juniterriens.include.TxPanel" fx:id="pane">
    <content>
    
            <HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">

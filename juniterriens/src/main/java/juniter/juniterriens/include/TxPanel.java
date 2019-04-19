@@ -4,10 +4,7 @@ import com.google.common.collect.Lists;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import juniter.core.crypto.SecretBox;
@@ -34,6 +31,7 @@ import java.util.stream.Collectors;
 public class TxPanel implements Initializable {
 
     private static final Logger LOG = LogManager.getLogger(TxPanel.class);
+    public ScrollPane pane;
     @FXML
     private TextField pkDest;
     @FXML
@@ -85,10 +83,15 @@ public class TxPanel implements Initializable {
     }
 
 
+    public TxPanel(Transaction tx) {
+        this.tx = tx;
+    }
+
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         fieldVersion.setText(Notary.PROTOCOL_VERSION + "");
-        fieldBlockstamp.setText(Bindings.currenBlock.get().bstamp());
+        fieldBlockstamp.setText(JuniterBindings.currenBlock.get().bstamp());
     }
 
     @FXML
@@ -112,7 +115,7 @@ public class TxPanel implements Initializable {
     public void refresh() {
 
         Platform.runLater(() -> {
-            var b = Bindings.currenBlock.get();
+            var b = JuniterBindings.currenBlock.get();
 
             tx = new Transaction(null,
                     Integer.parseInt(fieldVersion.getText()),
@@ -207,7 +210,7 @@ public class TxPanel implements Initializable {
             );
 
 
-            Bindings.rawDocument.setValue(tx.toDUPdoc(true));
+            JuniterBindings.rawDocument.setValue(tx.toDUPdoc(true));
 
         });
 
