@@ -1,5 +1,6 @@
 package juniter.repository.jpa.index;
 
+import juniter.core.model.dbo.index.Account;
 import juniter.core.model.dbo.index.SINDEX;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -74,14 +75,6 @@ public interface SINDEXRepository extends JpaRepository<SINDEX, Long> {
 
     }
 
-
-//    @Query("SELECT conditions, SUM ( case WHEN consumed THEN ( 0 - s.amount ) ELSE s.amount end )   " +
-//            "  FROM SINDEX s " +
-//           // " -- where consumed = false  " +
-//            " GROUP BY conditions " +
-//            " HAVING  SUM ( case WHEN s.consumed THEN ( 0 - amount ) ELSE s.amount end ) < 100 " +
-//            " ORDER BY conditions ")
-//    Stream<Account> lowAccounts();
 
 
 }

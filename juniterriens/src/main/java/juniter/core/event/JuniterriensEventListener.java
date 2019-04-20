@@ -1,8 +1,8 @@
 package juniter.core.event;
 
 import javafx.application.Platform;
-import juniter.juniterriens.Network;
-import juniter.juniterriens.include.JuniterBindings;
+import juniter.gui.Network;
+import juniter.gui.include.JuniterBindings;
 import juniter.service.bma.PeerService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

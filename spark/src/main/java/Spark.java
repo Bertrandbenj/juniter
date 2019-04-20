@@ -9,7 +9,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-import juniter.juniterriens.include.AbstractJuniterFX;
+import juniter.gui.include.AbstractJuniterFX;
 import juniter.service.UtilsService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

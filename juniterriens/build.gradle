@@ -42,13 +42,13 @@ springBoot {
 }
 
 task filepermission(type: Exec) {
-    commandLine 'chmod', '700', 'build/libs/juniterriens-0.1.0.jar'
+    commandLine 'chmod', '700', 'build/libs/gui-0.1.0.jar'
 }
 
 bootJar {
     mainClassName = 'juniter.GUIApplication'
     enabled = true
-    baseName = 'juniterriens'
+    baseName = 'gui'
     version =  '0.1.0'
 
     manifest.attributes(

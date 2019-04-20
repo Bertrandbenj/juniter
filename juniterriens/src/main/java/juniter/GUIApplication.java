@@ -1,7 +1,7 @@
 package juniter;
 
 import com.sun.javafx.tk.Toolkit;
-import juniter.juniterriens.FrontPage;
+import juniter.gui.FrontPage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.boot.SpringApplication;
@@ -13,8 +13,6 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
-
-import java.util.logging.Level;
 
 
 @EnableJpaRepositories("juniter.repository")

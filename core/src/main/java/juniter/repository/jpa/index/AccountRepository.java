@@ -17,6 +17,8 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     @Query("SELECT a from Account a where bSum < 100 AND bSum > 0")
     List<Account> lowAccounts();
 
+    @Query("SELECT a from Account a where conditions LIKE CONCAT('%',?1,'%')")
+    Account accountOf(String pubkey);
 
 }
 
