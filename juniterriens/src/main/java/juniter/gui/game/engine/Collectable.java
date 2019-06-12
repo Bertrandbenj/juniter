@@ -12,6 +12,8 @@ public interface Collectable {
 
     Rectangle2D getBoundary();
 
-    public void render(GraphicsContext gc);
+    void render(GraphicsContext gc);
+
+    void render();
 
 }

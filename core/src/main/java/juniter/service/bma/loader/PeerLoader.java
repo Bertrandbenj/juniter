@@ -95,7 +95,7 @@ public class PeerLoader {
     }
 
     @Async
-    @Scheduled(fixedDelay = 10 * 60 * 1000, initialDelay = 10 * 60 * 1000)
+    @Scheduled(fixedDelay = 10 * 60 * 1000)
     public void runPeerCheck() {
 
         LOG.info("@Scheduled runPeerCheck ");

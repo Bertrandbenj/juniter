@@ -12,9 +12,12 @@ import java.util.HashMap;
 @Getter
 @Setter
 public class ScreenController {
-    private HashMap<String, Pane> screenMap = new HashMap<>();
-    private Scene main;
+
     private static final Logger LOG = LogManager.getLogger(ScreenController.class);
+
+    private HashMap<String, Pane> screenMap = new HashMap<>();
+
+    private Scene main;
 
 
     public ScreenController() {
@@ -32,6 +35,7 @@ public class ScreenController {
 
     public void removeScreens( ) {
         screenMap.clear();
+        main = null;
     }
 
     public void activate(String name) {

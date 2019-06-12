@@ -64,10 +64,11 @@ public class Game implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         gc = canvas.getGraphicsContext2D();
 
-        Platform.runLater(() -> JuniterBindings.playing.addListener((o, v, n) -> {
-
-            LOG.info(n);
-            if (n) canvas.requestFocus();
+        Platform.runLater(() -> JuniterBindings.playing.addListener(observable -> {
+            if (JuniterBindings.playing.get()) {
+                LOG.info("focus on game ");
+                canvas.requestFocus();
+            }
         }));
 
         backgroundMusic = new MediaPlayer(new Media(getClass().getResource("/gui/game/listen/save.mp3").toExternalForm()));

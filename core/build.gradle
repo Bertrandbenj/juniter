@@ -47,6 +47,9 @@ configurations {
     all*.exclude group: "ch.qos.logback"
     all*.exclude group: "org.slf4j", module: "log4j-over-slf4j" // allow using log4j 2.x
     all*.exclude group: "org.slf4j", module: "slf4j-simple"     // log4j is the configured backend
+//    all*.exclude group: "com.github.multiformats", module :"java-multibase"
+//    all*.exclude group: "com.github.multiformats", module :"java-multihash"
+
 }
 
 
@@ -183,6 +186,13 @@ dependencies {
 
     runtime 'org.hsqldb:hsqldb:2.4.0'
     //compile 'org.springframework.boot:spring-boot-starter-jetty'
+
+
+    // IPFS
+//    compile 'com.github.ipfs:java-ipfs-http-client:1.2.3'
+//    compile 'com.github.multiformats:java-multibase:v1.0.1'
+//    compile 'com.github.multiformats:java-multihash:v1.2.0'
+    compile group: 'com.github.ipfs', name: 'java-ipfs-api', version: 'v1.2.2'
 }
 
 

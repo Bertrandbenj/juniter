@@ -70,7 +70,6 @@ public class WhiteRabbit extends ImageView {
                 setViewport(clips[index + currentClip]);
             }
 
-
         };
         animation.setInterpolator(Interpolator.LINEAR);
         animation.setCycleCount(Animation.INDEFINITE);

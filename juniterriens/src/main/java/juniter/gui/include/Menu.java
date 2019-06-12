@@ -33,7 +33,7 @@ public class Menu extends AbstractJuniterFX implements Initializable {
     private static final Logger LOG = LogManager.getLogger(Menu.class);
 
 
-    private Image DEFAULT_LOGO, MAIN_LOGO, GRAPH_LOGO, NETWORK_LOGO, DATABASE_LOGO, SPARK_LOGO, NOTARY_LOGO;
+    public Image DEFAULT_LOGO, MAIN_LOGO, GRAPH_LOGO, NETWORK_LOGO, DATABASE_LOGO, SPARK_LOGO, NOTARY_LOGO;
 
 
     @FXML
@@ -130,12 +130,20 @@ public class Menu extends AbstractJuniterFX implements Initializable {
         LANG_COMBO.getSelectionModel().select(Locale.getDefault());
 
         LANG_COMBO.setOnAction(ev -> {
+            LOG.info("LANG_COMBO.setOnAction");
+
             I18N.setLocale(LANG_COMBO.getSelectionModel().getSelectedItem());
 
 //            JuniterBindings.screenController.getScreenMap().values().forEach(x-> x.requestLayout());
 
-            JuniterBindings.screenController.removeScreens();
-//            preload();
+            //JuniterBindings.screenController.removeScreens();
+
+            //viewMain(ev);
+            try {
+                //LANG_COMBO.getScene().init();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         });
 
 
@@ -166,45 +174,61 @@ public class Menu extends AbstractJuniterFX implements Initializable {
 
         });
 
-
         preload();
+
+
+        //viewGeneric("Main", "/gui/FrontPage.fxml", (Stage) THEME_COMBO.getScene().getWindow());
+
 
     }
 
     private void preload() {
         // Preload
         Platform.runLater(() -> {
-            Scene sc = THEME_COMBO.getScene();
-            if(sc == null )
-                sc = JuniterBindings.screenController.getMain();
-            Stage s = (Stage) sc.getWindow();
 
-            viewGeneric("Graphs", "/gui/GraphPanel.fxml", s);
-            viewGeneric("Notary", "/gui/Notary.fxml", s);
-            viewGeneric("Network", "/gui/Network.fxml", s);
-            viewGeneric("Database", "/gui/Database.fxml", s);
-            if (getClass().getResource("/gui/Spark.fxml") != null) {
-                viewGeneric("Spark", "/gui/Spark.fxml", s);
+            try {
+                Thread.sleep(2000);
+                Scene sc = THEME_COMBO.getScene();
+                if (sc == null)
+                    sc = JuniterBindings.screenController.getMain();
+                Stage s = (Stage) sc.getWindow();
+
+//            viewGeneric("Graphs", "/gui/GraphPanel.fxml", s);
+//            viewGeneric("Notary", "/gui/Notary.fxml", s);
+//            viewGeneric("Network", "/gui/Network.fxml", s);
+//            viewGeneric("Database", "/gui/Database.fxml", s);
+//            if (getClass().getResource("/gui/Spark.fxml") != null) {
+//                viewGeneric("Spark", "/gui/Spark.fxml", s);
+//            }
+
+                viewGeneric("Main", "/gui/FrontPage.fxml", s);
+
+            } catch (Exception e) {
+                LOG.error("error", e);
             }
-
-            viewGeneric("Main", "/gui/FrontPage.fxml", s);
-
         });
     }
 
     private void viewGeneric(String name, String fxml, Stage current) {
 
+        Scene scene;
+
+
         if (JuniterBindings.screenController.hasScreen(name)) {
             JuniterBindings.screenController.activate(name);
         } else {
             BorderPane page = (BorderPane) load(fxml);
-            JuniterBindings.screenController.addScreen(name, page);
             page.setPrefSize(current.getScene().getWidth(), current.getScene().getHeight());
+
+            JuniterBindings.screenController.addScreen(name, page);
+            JuniterBindings.screenController.setMain(current.getScene());
+            JuniterBindings.screenController.activate(name);
+
         }
 
-        Scene scene = JuniterBindings.screenController.getMain();
-
+        scene = JuniterBindings.screenController.getMain();
         scene.getStylesheets().setAll(JuniterBindings.selectedTheme.getValue());
+
 
         logoMain.setImage("Main".equals(name) ? MAIN_LOGO : DEFAULT_LOGO);
         logoGraphs.setImage("Graphs".equals(name) ? GRAPH_LOGO : DEFAULT_LOGO);
@@ -219,6 +243,7 @@ public class Menu extends AbstractJuniterFX implements Initializable {
 
         current.getIcons().add(new Image("/gui/images/logo.png"));
         current.setTitle("Juniter - " + name);
+//        if(current.getScene()!=null)current.getScene().disposePeer();
         current.setScene(scene);
         current.show();
     }
@@ -226,7 +251,7 @@ public class Menu extends AbstractJuniterFX implements Initializable {
     private void viewGeneric(String name, String fxml, ActionEvent event) {
         LOG.info(" view " + name + " - " + event.getEventType());
         Stage current = (Stage) ((Node) event.getSource()).getScene().getWindow();
-
+//        ((Node) event.getSource()).getScene().disposePeer();
         viewGeneric(name, fxml, current);
     }
 

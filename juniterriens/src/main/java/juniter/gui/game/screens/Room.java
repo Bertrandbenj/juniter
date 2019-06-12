@@ -11,12 +11,14 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.util.Duration;
 import juniter.gui.game.GameBindings;
-import juniter.gui.include.JuniterBindings;
 import juniter.gui.game.characters.Player;
+import juniter.gui.game.characters.WhiteRabbit;
 import juniter.gui.game.engine.Collectable;
+import juniter.gui.game.engine.Curiosity;
 import juniter.gui.game.engine.Gate;
 import juniter.gui.game.objects.Coins;
 import juniter.gui.game.objects.Items;
+import juniter.gui.include.JuniterBindings;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
@@ -36,8 +38,7 @@ public abstract class Room implements Initializable {
 
     protected static final Logger LOG = LogManager.getLogger(Room.class);
 
-    protected Boolean txOpen = false;
-
+    public static Boolean popupOpen = false;
 
     public static Canvas canvas;
 
@@ -45,10 +46,12 @@ public abstract class Room implements Initializable {
 
     protected ArrayList<Collectable> collectables = new ArrayList<>();
 
+    protected ArrayList<Curiosity> curiosities = new ArrayList<>();
+
     protected List<Gate> gates = new ArrayList<>();
 
     protected Timeline timeline = new Timeline();
-
+    protected WhiteRabbit bunny;
 
 //    static public Room singleton(Class<? extends Room> x) {
 //
@@ -63,10 +66,9 @@ public abstract class Room implements Initializable {
 //        return singleton;
 //    }
 
-    protected GraphicsContext gc(){
+    protected GraphicsContext gc() {
         return canvas.getGraphicsContext2D();
     }
-
 
 
     @Override
@@ -74,8 +76,9 @@ public abstract class Room implements Initializable {
 
     }
 
-    public void run( ) {
-
+    public void run() {
+        if (bunny == null)
+            bunny = new WhiteRabbit();
         LOG.info("Entering Room " + this.getClass().getSimpleName());
         var boundsInScene = canvas.localToScene(canvas.getBoundsInLocal(), true);
         var gc = canvas.getGraphicsContext2D();
@@ -86,12 +89,12 @@ public abstract class Room implements Initializable {
             gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
             // render gates
-            gates.forEach(g->{
+            gates.forEach(g -> {
                 if (g.intersects(Player.get())) {
                     timeline.stop();
-                    LOG.info("Leaving room "+ this.getClass().getSimpleName());
+                    LOG.info("Leaving room " + this.getClass().getSimpleName());
 
-                    Player.get().setPosition(g.getInitPlayerX(),g.getInitPlayerY());
+                    Player.get().setPosition(g.getInitPlayerX(), g.getInitPlayerY());
                     g.getRoom().run();
                 } else {
                     g.render(gc);
@@ -100,37 +103,40 @@ public abstract class Room implements Initializable {
 
             // Handle player actions
 //            if(JuniterBindings.input.isEmpty()){
-                Player.get().setVelocity(0,0);
+            Player.get().setVelocity(0, 0);
+            bunny.setVelocity(0, 0);
 //            }
             if (JuniterBindings.input.contains("LEFT")) {
                 Player.get().addVelocity(-1, 0, boundsInScene);
-//                bunny.addVelocity(-speed, 0, boundsInScene);
+                bunny.addVelocity(-200, 0, boundsInScene);
             }
             if (JuniterBindings.input.contains("RIGHT")) {
                 Player.get().addVelocity(1, 0, boundsInScene);
-//                bunny.addVelocity(speed, 0, boundsInScene);
+                bunny.addVelocity(200, 0, boundsInScene);
             }
             if (JuniterBindings.input.contains("UP")) {
                 Player.get().addVelocity(0, -1, boundsInScene);
-//                bunny.addVelocity(0, -speed, boundsInScene);
+                bunny.addVelocity(0, -200, boundsInScene);
             }
             if (JuniterBindings.input.contains("DOWN")) {
                 Player.get().addVelocity(0, 1, boundsInScene);
-//                bunny.addVelocity(0, speed, boundsInScene);
+                bunny.addVelocity(0, 200, boundsInScene);
             }
             if (JuniterBindings.input.contains("SPACE") && Player.get().getScore() > 0) {
                 collectables.add(Player.get().payment());
                 Player.get().score--;
             }
 
-            Player.get().update(0.01);
+            // render map items
+            curiosities.forEach(Curiosity::render);
+
 
             // collision detection
 
             Iterator<Collectable> collectableIter = collectables.iterator();
             while (collectableIter.hasNext()) {
                 var collectable = collectableIter.next();
-                if ( Player.get().intersects(collectable)) {
+                if (Player.get().intersects(collectable)) {
                     if (collectable instanceof Items) {
                         Player.get().takeItem((Items) collectable);
 
@@ -142,10 +148,19 @@ public abstract class Room implements Initializable {
                 }
             }
 
-
             roomSpecific();
 
+            // spend coins if any
+            collectables.removeIf(col -> curiosities.stream().anyMatch(cur -> cur.intersects(col)));
+
+            // render coins
+            collectables.forEach(Collectable::render);
+
+            Player.get().update(0.01);
             Player.get().render(gc);
+            bunny.update(0.01);
+            bunny.render(gc);
+            bunny.getAnimation().play();
 
             // render score
             var theFont = Font.font("Helvetica", FontWeight.BOLD, 24);
@@ -167,16 +182,20 @@ public abstract class Room implements Initializable {
 
     abstract void preset();
 
-    protected void setCoins(){
+    protected void setCoins() {
         collectables.clear();
         for (int i = 0; i < 5; i++) {
             Coins coin = new Coins();
 
-            double px = (canvas.getWidth() - 50) * Math.random() + 25;
-            double py = (canvas.getHeight() - 50) * Math.random() + 25;
-            coin.setPosition(px, py);
+            do {
+                var px = (canvas.getWidth() - 50) * Math.random() + 25;
+                var py = (canvas.getHeight() - 50) * Math.random() + 25;
+                coin.setPosition(px, py);
+            } while (coin.intersects(Player.get()) || curiosities.stream().anyMatch(c -> c.intersects(coin)));
+
             collectables.add(coin);
+
+
         }
     }
-
 }

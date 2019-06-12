@@ -6,6 +6,8 @@ import juniter.gui.game.engine.Curiosity;
 import juniter.gui.game.engine.Gate;
 import juniter.gui.include.I18N;
 
+import java.util.List;
+
 public class SandOfKronos extends Room {
 
     private Image sc = new Image("/gui/game/img/SandClock.png");
@@ -31,7 +33,9 @@ public class SandOfKronos extends Room {
     void preset() {
         gates.add(new Gate(new Neighbourhood(), canvas.getWidth() / 2, 0, canvas.getWidth() / 2, canvas.getHeight() - 100));
 
-        einstein = new Curiosity("/gui/game/img/einstein.png", I18N.get("game.einstein.mercury"), canvas.getWidth() - 200, canvas.getHeight() - 100);
-        einstein.setLabelPos(new Point2D(500,canvas.getHeight() - 80));
+        einstein = new Curiosity("/gui/game/img/einstein.png",
+                List.of( I18N.get("game.einstein.mercury"), I18N.get("game.einstein.mercury2")),
+                canvas.getWidth() - 200, canvas.getHeight() - 100);
+        einstein.setLabelPos(new Point2D(400,canvas.getHeight() - 180));
     }
 }

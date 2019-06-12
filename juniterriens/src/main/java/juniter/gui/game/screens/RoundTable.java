@@ -1,6 +1,5 @@
 package juniter.gui.game.screens;
 
-import javafx.application.Platform;
 import javafx.geometry.Point2D;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
@@ -14,6 +13,8 @@ import juniter.gui.game.engine.Utils;
 import juniter.gui.include.I18N;
 import juniter.gui.include.TxBox;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class RoundTable extends Room {
@@ -44,8 +45,8 @@ public class RoundTable extends Room {
         gc().setFill(Color.GREEN);
         gc().setStroke(Color.BLACK);
         gc().setLineWidth(1);
-        gc().fillText("Unus pro omnibus", 133, canvas.getHeight() / 2 - 20);
-        gc().fillText("omnes pro uno", 133, canvas.getHeight() / 2 + 20);
+        gc().fillText("Unus pro omnibus", 170, canvas.getHeight() / 2 - 20);
+        gc().fillText("omnes pro uno", 185, canvas.getHeight() / 2 + 20);
 
 
         for (Collectable moneybag : collectables)
@@ -53,15 +54,15 @@ public class RoundTable extends Room {
 
         collectables.forEach(x -> {
 
-            if(!txOpen){
-                if (moul.intersects(x)){
-                    txOpen = true;
-                    Platform.runLater(() -> txOpen = TxBox.display("JT:TKS:PASSEUR", "GfKERHnJTYzKhKUma5h1uWhetbA8yHKymhVH2raf2aCP"));
+            if (!popupOpen) {
+                if (moul.intersects(x)) {
+                    popupOpen = true;
+                    popupOpen = TxBox.display("JT:TKS:PASSEUR", "GfKERHnJTYzKhKUma5h1uWhetbA8yHKymhVH2raf2aCP");
                 }
 
-                if (gerard.intersects(x)){
-                    txOpen = true;
-                    Platform.runLater(() -> txOpen = TxBox.display("JT:TKS:WOTWIZARD", "CRBxCJrTA6tmHsgt9cQh9SHcCc8w8q95YTp38CPHx2Uk"));
+                if (gerard.intersects(x)) {
+                    popupOpen = true;
+                    popupOpen = TxBox.display("JT:TKS:WOTWIZARD", "CRBxCJrTA6tmHsgt9cQh9SHcCc8w8q95YTp38CPHx2Uk");
                 }
             }
         });
@@ -77,10 +78,11 @@ public class RoundTable extends Room {
 
         gates.add(new Gate(new TheBeginning(), canvas.getWidth() / 2, 0, canvas.getWidth() / 2, canvas.getHeight() - 100));
 
-        moul = new Curiosity("/gui/game/img/blueWizard.png", Game.expiryList, canvas.getWidth() / 2, canvas.getHeight() - 50);
-        moul.setLabelPos(new Point2D(canvas.getWidth() / 2 + 50, canvas.getHeight() - (50 + 20 * Game.expiryList.size())));
+        moul = new Curiosity("/gui/game/img/blueWizard.png", Game.expiryList, canvas.getWidth() / 2 + 100, canvas.getHeight() - 100);
+        moul.setLabelPos(new Point2D(canvas.getWidth() / 2 + 150, canvas.getHeight() - (100 + 20 * Game.expiryList.size())));
 
-        gerard = new Curiosity("/gui/game/img/redWizard.png", I18N.get("game.gerard.hi"), canvas.getWidth() - 150, canvas.getHeight() / 2);
+        gerard = new Curiosity("/gui/game/img/wizardgrow.png", List.of(I18N.get("game.gerard.ww"), I18N.get("game.gerard.hi")), canvas.getWidth() - 150, canvas.getHeight() / 2, new Point2D(5, 1));
+
         gerard.setLabelPos(new Point2D(canvas.getWidth() - 400, canvas.getHeight() / 2 + 50));
 
         setCoins();

@@ -1,67 +1,135 @@
 package juniter.gui.include;
 
-import javafx.geometry.Pos;
+import com.google.common.util.concurrent.AtomicDouble;
+import javafx.application.Platform;
+import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import juniter.core.model.dbo.tx.Transaction;
 import juniter.core.model.dbo.tx.TxInput;
 import juniter.core.model.dbo.tx.TxOutput;
 import juniter.core.model.dbo.tx.TxUnlock;
 import juniter.core.model.dto.raw.WrapperResponse;
 import juniter.core.model.dto.raw.WrapperTransaction;
+import juniter.gui.game.screens.Room;
+import juniter.service.bma.PeerService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.ArrayList;
+import java.net.URL;
 import java.util.Collections;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-public class TxBox {
-    private static final Logger LOG = LogManager.getLogger(TxBox.class);
+@Component
 
+public class TxBox extends AbstractJuniterFX implements Initializable {
+    private static final Logger LOG = LogManager.getLogger(TxBox.class);
+    public TextField amount;
+    public VBox outputs;
+    public TextArea doc;
+    public Label targetPubkey;
+    public TextField comment;
+    public Button ok;
+    public Button cancel;
+
+
+    public static boolean displayLater(String prefix, String targetPubkey) {
+        Platform.runLater(() -> Room.popupOpen = TxBox.display(prefix, targetPubkey));
+        return false;
+
+    }
 
     public static boolean display(String prefix, String targetPubkey) {
-        var userPub = JuniterBindings.secretBox.get().getPublicKey();
 
-        Transaction tx = new Transaction();
+        LOG.info("Opening txBox for pub " + targetPubkey + " on prefix " + prefix);
+
+        JuniterBindings.targetComment.setValue(prefix);
+
+        JuniterBindings.targetPubkey.setValue(targetPubkey);
+
+        var userPub = JuniterBindings.secretBox.get().getPublicKey();
+        var tx = new TxBox();
+
+        var stage = new Stage(StageStyle.UNDECORATED);
+        stage.setTitle("Tax panel");
+
+        try {
+
+            tx.start(stage);
+            tx.init();
+
+            //stage.showAndWait();
+        } catch (Exception e) {
+            LOG.error(e);
+        }
+        stage.show();
+
+        return false;
+    }
+
+
+    @Override
+    public void start(Stage window) throws Exception {
+
+        window.setOnCloseRequest(e -> Room.popupOpen = false);
+
+        window.getIcons().add(new Image("/gui/images/tx.png"));
+        window.initModality(Modality.APPLICATION_MODAL);
+
+
+        window.setMinWidth(700);
+        window.setMinHeight(400);
+
+        var page = (BorderPane) load("/gui/include/TxBox.fxml");
+
+        Scene scene = new Scene(page);
+        window.setScene(scene);
+        window.show();
+
+    }
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+
+        cancel.setCancelButton(true);
+        cancel.setOnAction(e -> ((Stage) cancel.getScene().getWindow()).close());
+
+        var tx = new Transaction();
 
         tx.setCurrency("g1");
-        tx.setComment(prefix);
-        tx.setBlockstamp(JuniterBindings.currenBlock.get().bStamp());
-
-
-        tx.setIssuers(List.of(userPub));
         tx.setLocktime(0);
         tx.setVersion(10);
 
+        tx.setBlockstamp(JuniterBindings.currenBlock.get().bStamp());
+        tx.setIssuers(List.of(targetPubkey.getText()));
+        tx.setComment("");
 
-        Stage window = new Stage();
-        window.initModality(Modality.APPLICATION_MODAL);
-        window.setMinWidth(700);
-
-        TextField amount = new TextField();
-        Label pubkey = new Label(userPub);
-        Label doc = new Label();
-        List<Label> outputs = new ArrayList<>();
-
+        targetPubkey.textProperty().bind(JuniterBindings.targetPubkey);
+        comment.textProperty().bind(JuniterBindings.targetComment);
 
         amount.setOnAction(al -> {
             LOG.info("onAction");
 
-            Integer amo = Integer.parseInt(amount.getText());
+            var amo = Integer.parseInt(amount.getText());
 
             //set inputs
             AtomicInteger ai = new AtomicInteger(0);
@@ -76,15 +144,21 @@ public class TxBox {
 
 
             // set tax outputs
+            AtomicDouble perc = new AtomicDouble(0);
             JuniterBindings.tax.forEach((k, v) -> {
-                if (k.equals(targetPubkey))
-                    return;
+                if (k.equals(targetPubkey.getText()))
+                    return; // break if taxed address is an output
 
+                var rate = v * JuniterBindings.overallTaxRate.get() / 100;
+
+
+                perc.addAndGet(rate);
                 var to = new TxOutput();
                 to.setBase(0);
-                to.setAmount((int) Math.ceil(amo * v));
+                to.setAmount((int) Math.ceil(amo * rate));
                 to.setCondition("SIG(" + k + ")");
                 tx.getOutputs().add(to);
+                outputs.getChildren().add(new Label((100 * rate) + "% - " + to.getAmount() + " - " + k));
             });
 
 
@@ -92,16 +166,17 @@ public class TxBox {
             var amountLeft = amo - tx.getOutputs().stream().mapToInt(TxOutput::getAmount).sum();
             var to = new TxOutput();
             to.setBase(0);
-            to.setAmount((int) Math.ceil(amountLeft));
-            to.setCondition("SIG(" + targetPubkey + ")");
+            to.setAmount(amountLeft);
+            to.setCondition("SIG(" + targetPubkey.getText() + ")");
             tx.getOutputs().add(to);
+            outputs.getChildren().add(new Label((100 * (1 - perc.get())) + "% - " + to.getAmount() + " - " + targetPubkey));
 
 
             // set rest output
             var rest = new TxOutput();
             rest.setBase(0);
             rest.setAmount(tx.getInputs().stream().mapToInt(TxInput::getAmount).sum() - amo);
-            rest.setCondition("SIG(" + userPub + ")");
+            rest.setCondition("SIG(" + targetPubkey.getText() + ")");
             tx.getOutputs().add(rest);
 
 
@@ -112,61 +187,52 @@ public class TxBox {
 
         });
 
-
-        //Create two buttons
-        Button send = new Button("Send");
-
         //Clicking will set answer and close window
-        send.setOnAction(e -> {
+        ok.setOnAction(e -> {
 
             var dest = "tx/process";
             var reqBodyData = new WrapperTransaction(tx.toDUPdoc(true));
 
-            HttpHeaders headers = new HttpHeaders();
+            var headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            LOG.info("send tx {}", reqBodyData);
 
 
-            try {
-                //objectMapper.writeValueAsString(reqBodyData);
-                var reqURL = JuniterBindings.peers.get().nextHost().get().getHost();
-                reqURL += (reqURL.endsWith("/") ? "" : "/") + dest;
+            JuniterBindings.peers.get().nextHosts(5)
+                    .stream().parallel()
+                    .map(PeerService.NetStats::getHost)
+                    .forEach(reqURL -> {
 
-                LOG.info("sendDoc posting {} {}", reqURL, reqBodyData);
+                        try {
+                            //objectMapper.writeValueAsString(reqBodyData);
+                            //var reqURL = JuniterBindings.peers.get().nextHost().get().getHost();
+                            reqURL += (reqURL.endsWith("/") ? "" : "/") + dest;
 
-                var request = new HttpEntity<>(reqBodyData, headers);
+                            LOG.info("sent Tx to {}", reqURL);
 
-                var response = new RestTemplate().postForEntity(reqURL, request, WrapperResponse.class);
+                            var request = new HttpEntity<>(reqBodyData, headers);
 
-                LOG.info("sendDoc response {}", response);
+                            var response = new RestTemplate().postForEntity(reqURL, request, WrapperResponse.class);
 
-                if (response.getStatusCodeValue() != 200)
-                    throw new AssertionError("post doc status code {} " + response);
-                else
-                    LOG.info("sendDoc response : {}", response);
+                            LOG.info("sendDoc response {}", response);
 
-                window.close();
+                            if (response.getStatusCodeValue() != 200)
+                                throw new AssertionError("post doc status code {} " + response);
+                            else
+                                LOG.info("sendDoc response : {}", response);
 
-            } catch (Exception | AssertionError ex) {
-                StringWriter sw = new StringWriter();
-                ex.printStackTrace(new PrintWriter(sw));
-                LOG.error("sendDoc Error ", ex);
-            }
+//                            window.close();
+
+                        } catch (Exception | AssertionError ex) {
+                            StringWriter sw = new StringWriter();
+                            ex.printStackTrace(new PrintWriter(sw));
+                            LOG.error("sendDoc Error ", ex);
+                        }
+
+                    });
 
         });
 
-        VBox layout = new VBox(10);
-
-        //Add buttons
-        layout.getChildren().addAll(amount, pubkey);
-        layout.getChildren().addAll(outputs);
-        layout.getChildren().addAll(doc, send);
-        layout.setAlignment(Pos.CENTER);
-        Scene scene = new Scene(layout);
-        window.setScene(scene);
-        window.showAndWait();
-
-        return false;
     }
-
 }

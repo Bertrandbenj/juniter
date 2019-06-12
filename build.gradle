@@ -27,6 +27,8 @@ allprojects {
     group 'org.duniter'
     version '1.0.0-SNAPSHOT'
 
+   // maven { url 'https://jitpack.io' }
+
     task hello << { task -> println "I'm project $task.project.name" }
 }
 
@@ -45,6 +47,8 @@ subprojects {
         mavenCentral()
         mavenLocal()
         jcenter()
+        maven { url 'https://jitpack.io' }
+
     }
 }
 

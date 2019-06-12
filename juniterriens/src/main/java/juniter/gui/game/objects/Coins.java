@@ -1,5 +1,7 @@
 package juniter.gui.game.objects;
 
+import juniter.gui.game.Game;
+import juniter.gui.game.characters.Player;
 import juniter.gui.game.engine.Collectable;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
@@ -7,6 +9,8 @@ import javafx.scene.image.Image;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
+import juniter.gui.game.screens.Room;
+import juniter.gui.include.JuniterBindings;
 
 public class Coins implements Collectable {
 
@@ -52,6 +56,11 @@ public class Coins implements Collectable {
 
     public void render(GraphicsContext gc) {
         gc.drawImage(image, positionX, positionY, width, height);
+    }
+
+    @Override
+    public void render() {
+        render(Room.canvas.getGraphicsContext2D());
     }
 
     public Rectangle2D getBoundary() {

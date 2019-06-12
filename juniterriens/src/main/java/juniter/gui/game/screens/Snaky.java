@@ -1,6 +1,5 @@
 package juniter.gui.game.screens;
 
-import javafx.application.Platform;
 import javafx.scene.image.Image;
 import juniter.gui.game.engine.Collectable;
 import juniter.gui.game.engine.Curiosity;
@@ -21,7 +20,7 @@ public class Snaky extends Room {
     void roomSpecific() {
 
         var displayW = canvas.getHeight() * sc.getWidth() / sc.getHeight();
-        gc().drawImage(sc, 300, 0, displayW, canvas.getHeight());
+        gc().drawImage(sc, 350, 0, displayW, canvas.getHeight());
 
 
         sakia.render();
@@ -34,15 +33,15 @@ public class Snaky extends Room {
 
         collectables.forEach(x -> {
 
-            if (!txOpen) {
+            if (!popupOpen) {
                 if (sakia.intersects(x)) {
-                    txOpen = true;
-                    Platform.runLater(() -> txOpen = TxBox.display("JT:TKS:SAKIA", "5cnvo5bmR8QbtyNVnkDXWq6n5My6oNLd1o6auJApGCsv"));
+                    popupOpen = true;
+                    popupOpen = TxBox.display("JT:TKS:SAKIA", "5cnvo5bmR8QbtyNVnkDXWq6n5My6oNLd1o6auJApGCsv");
                 }
 
                 if (silkaj.intersects(x)) {
-                    txOpen = true;
-                    Platform.runLater(() -> txOpen = TxBox.display("JT:TKS:SILKAJ", "GfKERHnJTYzKhKUma5h1uWhetbA8yHKymhVH2raf2aCP"));
+                    popupOpen = true;
+                    popupOpen = TxBox.display("JT:TKS:SILKAJ", "GfKERHnJTYzKhKUma5h1uWhetbA8yHKymhVH2raf2aCP");
                 }
             }
         });
@@ -56,8 +55,8 @@ public class Snaky extends Room {
         gates.add(new Gate(new TheBeginning(), 0, canvas.getHeight() / 2, canvas.getWidth() - 50, canvas.getHeight() / 2));
 
 
-        sakia = new Curiosity("/gui/game/img/sakia.png", "", 200, 200);
-        silkaj = new Curiosity("/gui/game/img/silkaj.png", "", canvas.getWidth() - 200, 200);
+        sakia = new Curiosity("/gui/game/img/sakia.png", "Sakia", 485, 28);
+        silkaj = new Curiosity("/gui/game/img/silkaj.png", "Silkaj", 602, canvas.getHeight()-80);
 
         setCoins();
     }

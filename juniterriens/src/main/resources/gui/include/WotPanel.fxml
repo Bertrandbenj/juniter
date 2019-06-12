@@ -147,6 +147,15 @@
                                        </VBox>
                                        <VBox fx:id="boxCertification" minWidth="0.0" prefWidth="500.0" HBox.hgrow="ALWAYS">
                                            <children>
+                                    <HBox spacing="20.0">
+                                       <children>
+                                          <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="%notary.receiver" />
+                                          <ComboBox fx:id="cbReceiver" editable="true" prefWidth="150.0" />
+                                       </children>
+                                       <padding>
+                                          <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                       </padding>
+                                    </HBox>
                                                <HBox spacing="20.0">
                                                    <children>
                                                        <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="%notary.idtyIssuer" />

@@ -6,6 +6,7 @@ import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.util.Duration;
 import juniter.gui.game.Game;
+import juniter.gui.game.characters.Player;
 import juniter.gui.game.screens.Room;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -36,6 +37,10 @@ public class Boat extends Curiosity {
         speed = 30 + rand.nextInt(70);
      }
     private static final Logger LOG = LogManager.getLogger(Game.class);
+
+    public boolean contains(Player p){
+        return new Rectangle2D(pos.getX(),pos.getY(),displaySize.getX(),displaySize.getY()).contains(p.getPos());
+    }
 
     public void update(double time) {
         var up = new Transition() {

@@ -2,18 +2,24 @@ package juniter.gui.include;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.VBox;
 import juniter.core.crypto.SecretBox;
+import juniter.core.model.dbo.index.IINDEX;
 import juniter.grammar.*;
 import juniter.gui.Notary;
+import juniter.repository.jpa.index.BINDEXRepository;
+import juniter.repository.jpa.index.IINDEXRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
+import java.util.Comparator;
+import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 /**
  * inspiration here https://github.com/buckyroberts/Source-Code-from-Tutorials
@@ -24,6 +30,8 @@ public class WotPanel implements Initializable {
 
 
 
+    @FXML
+    private ComboBox<IINDEX> cbReceiver;
     @FXML
     private VBox boxIdty;
     @FXML
@@ -84,6 +92,10 @@ public class WotPanel implements Initializable {
     private TextField idtyUniqueIDRev;
 
 
+
+    @Autowired
+    private IINDEXRepository iRepo;
+
     private Document doc;
 
 
@@ -106,6 +118,23 @@ public class WotPanel implements Initializable {
 
         switchIdty();
 
+        cbReceiver.getItems().setAll(iRepo.findAll().stream()
+                .filter(i->i.getUid()!=null)
+                .sorted(Comparator.comparing(IINDEX::getUid)).collect(Collectors.toList()));
+
+        cbReceiver.setCellFactory(t-> new IdentityListCell());
+
+
+    }
+
+    class IdentityListCell extends ListCell<IINDEX> {
+        @Override
+        protected void updateItem(IINDEX item, boolean empty) {
+            super.updateItem(item, empty);
+            if (item != null) {
+                setText(item.getUid()+" / "+ item.getPub());
+            }
+        }
     }
 
     @FXML

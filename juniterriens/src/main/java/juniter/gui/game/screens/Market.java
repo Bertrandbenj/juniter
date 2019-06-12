@@ -1,6 +1,7 @@
 package juniter.gui.game.screens;
 
 import javafx.geometry.Point2D;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.paint.Color;
 import juniter.gui.include.I18N;
 import juniter.gui.game.Game;
@@ -33,6 +34,8 @@ public class Market extends Room {
 
     @Override
     void roomSpecific() {
+        var boundsInScene = canvas.localToScene(canvas.getBoundsInLocal(), true);
+
         gc().setFill(Color.LIGHTBLUE);
         gc().fillRect(0,130, gc().getCanvas().getWidth(),200);
         π.render(gc(), π.intersects(Player.get()));
@@ -41,10 +44,18 @@ public class Market extends Room {
         boats.forEach(b -> b.update(0.01));
         boats.forEach(b -> b.render(gc(), b.intersects(Player.get())));
         boats.forEach(b -> {
-            if(b.intersects(Player.get())){
-                Player.get().setVelocity(b.left?-b.speed:b.speed,0);
+            if(b.contains(Player.get())){
+                Player.get().addVelocity(b.left?-b.speed:b.speed,0);
             }
         });
+
+        if(boats.stream().noneMatch(b->b.intersect(Player.get())) &&
+                new Rectangle2D(0,130, gc().getCanvas().getWidth(),200).contains(Player.get().getBoundary()) ){
+
+            gc().setFill(Color.LIGHTBLUE);
+            gc().fillText("Try again",500, 100);
+            Player.get().setPosition(canvas.getWidth()/2,canvas.getHeight()-100);
+        }
     }
 
 

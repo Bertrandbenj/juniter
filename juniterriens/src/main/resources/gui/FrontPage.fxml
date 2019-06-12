@@ -18,6 +18,7 @@
                         <ProgressBar fx:id="loadBar" maxWidth="1.7976931348623157E308" progress="0.0" HBox.hgrow="ALWAYS" />
                         <Button mnemonicParsing="false" onAction="#bulkLoad" text="%front.bulk" />
                         <Button mnemonicParsing="false" onAction="#loadMissing" text="%front.missing" />
+                  <Button mnemonicParsing="false" onAction="#ipfs" text="ipfs" />
                     </children>
                 </HBox>
                 <HBox focusTraversable="true" prefHeight="100.0" prefWidth="200.0">

@@ -1,5 +1,8 @@
 package juniter.conf;
 
+import io.ipfs.api.IPFS;
+import io.ipfs.multiaddr.MultiAddress;
+import io.ipfs.multihash.Multihash;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
@@ -14,17 +17,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.client.RestTemplate;
 
-import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.concurrent.Executor;
 import java.util.stream.Stream;
@@ -41,16 +40,33 @@ public class AppConfig {
     private String dataPath;
 
     @Bean
-    public Path workingDir()  {
+    public IPFS ipfs() {
+        var ipfs = new IPFS(new MultiAddress("/ip4/127.0.0.1/tcp/5001"));
+
+        LOG.info(" ==== IPFS INIT =====");
+        try {
+            ipfs.config.show().forEach((k, v) -> LOG.info("  --  kv: " + k + " : " + v));
+            ipfs.pin.add(Multihash.fromBase58("QmUhVpSmXnTTnpyRivjYADjBEG5MYtr4eP4JEE2qxfVjMd"));
+
+        } catch (IOException e) {
+            LOG.error("Initializing IPFS ", e);
+        }
+
+        return ipfs;
+    }
+
+
+    @Bean
+    public Path workingDir() {
 
         LOG.info("Setting workingDir to " + dataPath);
 
         var res = Path.of(dataPath);
 
-        if(res.toFile().mkdirs()){
+        if (res.toFile().mkdirs()) {
             LOG.info("The data directory didn't exists, just created it ");
         }
-        Stream.of("bindex", "blockchain", "blocks", "cindex", "dot", "dump", "duniter", "iindex", "json", "mindex", "parquets", "sindex" )
+        Stream.of("bindex", "blockchain", "blocks", "cindex", "dot", "dump", "duniter", "iindex", "json", "mindex", "parquets", "sindex")
                 .map(dir -> res.resolve(dir).toFile())
                 .forEach(File::mkdir);
         return res;
@@ -123,8 +139,6 @@ public class AppConfig {
                 .persistenceUnit("juniter")
                 .build();
     }
-
-
 
 
 }

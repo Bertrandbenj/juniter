@@ -16,12 +16,16 @@ import java.util.*;
 public interface JuniterBindings {
 
     String BLANK_THEME = "/gui/css/no-theme.css";
-    String DARK_THEME = "/gui/css/dark-theme.css";
+    String DARK_THEME = "/gui/css/clair-de-june.css";
+
+    DoubleProperty overallTaxRate = new SimpleDoubleProperty(20.);
+
 
     Map<String, Double> tax = Map.of(
-            "TENGx7WtzFsTXwnbrPEvb6odX2WnqYcnnrjiiLvp1mS", 0.1, // remuniter
-            "78ZwwgpgdH5uLZLbThUQH7LKwPgjMunYfLiCfUCySkM8", 0.1, // developpeurs
-            "2ny7YAdmzReQxAayyJZsyVYwYhVyax2thKcGknmQy5nQ", 0.2 // cgeek
+            "TENGx7WtzFsTXwnbrPEvb6odX2WnqYcnnrjiiLvp1mS", 0.2, // remuniter
+            "78ZwwgpgdH5uLZLbThUQH7LKwPgjMunYfLiCfUCySkM8", 0.2, // developpeurs
+            "77UVGVmbBLyh5gM51X8tbMtQSvnMwps2toB67qHn32aC", 0.3, // junidev
+            "2ny7YAdmzReQxAayyJZsyVYwYhVyax2thKcGknmQy5nQ", 0.3 // cgeek 5000 × 2(DU/Euro) × 12 × 4 = 480.000 DU cap
     );
 
     ScreenController screenController = new ScreenController();
@@ -53,6 +57,9 @@ public interface JuniterBindings {
     ObservableList<String> themes = FXCollections.observableArrayList(DARK_THEME, BLANK_THEME);
     ObservableList<Locale> langs = FXCollections.observableArrayList(I18N.getSupportedLocales());
     ObjectProperty<ResourceBundle> resources = new SimpleObjectProperty<>();
+    StringProperty targetPubkey = new SimpleStringProperty();
+    StringProperty targetComment = new SimpleStringProperty();
+
 
     default StringBinding getStringBinding(String key) {
         return new StringBinding() {

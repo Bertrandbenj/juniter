@@ -41,6 +41,8 @@ public class Player extends ImageView {
     protected Point2D velocity;
     protected Point2D displaySize;
 
+
+
     public int score;
 
     private final int speed = 150;
@@ -99,11 +101,16 @@ public class Player extends ImageView {
 
     public void setPosition(double x, double y) {
         pos = new Point2D(x, y);
-    }
+     }
 
     public void setVelocity(double x, double y) {
         velocity = new Point2D(x, y);
     }
+
+    public void addVelocity(double x, double y) {
+        velocity = velocity.add(x, y);
+    }
+
 
     public void addVelocity(double x, double y, Bounds frame) {
 

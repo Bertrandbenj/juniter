@@ -40,10 +40,10 @@ public abstract class AbstractJuniterFX extends Application {
 
     protected Object load(String url) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(url));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(url),
+                    ResourceBundle.getBundle("Internationalization", I18N.getLocale()));
             loader.setControllerFactory(aClass -> applicationContext.getBean(aClass));
 
-            loader.setResources(ResourceBundle.getBundle("Internationalization", I18N.getLocale()));
 
             return loader.load();
         } catch (Exception e) {

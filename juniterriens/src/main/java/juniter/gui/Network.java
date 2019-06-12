@@ -16,7 +16,7 @@ import juniter.core.model.dto.node.IssuersFrameDTO;
 import juniter.core.validation.BlockLocalValid;
 import juniter.gui.include.AbstractJuniterFX;
 import juniter.gui.include.JuniterBindings;
-import juniter.gui.include.ConfirmBox;
+import juniter.gui.include.AlertBox;
 import juniter.repository.jpa.block.BlockRepository;
 import juniter.service.bma.PeerService;
 import juniter.service.bma.loader.PeerLoader;
@@ -157,12 +157,12 @@ public class Network extends AbstractJuniterFX implements Initializable {
                             BlockLocalValid.Static.assertBlock(block);
 
                         } catch (AssertionError ea) {
-                            result = ConfirmBox.display("AssertionError", ea.getMessage());
+                            result = AlertBox.display("AssertionError", ea.getMessage());
                         }
                         LOG.info("testing Block # " + result);
                     });
                 });
-        ConfirmBox.display("All good", "repository node is local valid  ");
+        AlertBox.display("All good", "repository node is local valid  ");
 
     }
 

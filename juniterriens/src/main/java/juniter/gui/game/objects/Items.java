@@ -10,6 +10,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.util.Duration;
+import juniter.gui.game.screens.Room;
 
 public class Items extends ImageView implements Collectable {
     private Image image;
@@ -26,21 +27,21 @@ public class Items extends ImageView implements Collectable {
     private final IntegerProperty frameCounter = new SimpleIntegerProperty(0);
 
 
-    public boolean is(String test){
-        if(test!=null && name != null ){
-            return name .equals(test);
+    public boolean is(String test) {
+        if (test != null && name != null) {
+            return name.equals(test);
         }
 
         return false;
     }
 
-    public  Items(String name) {
+    public Items(String name) {
         this.name = name;
         setPosition(0, 0);
     }
 
 
-    public  Items(String name, String img, int rows, int col) {
+    public Items(String name, String img, int rows, int col) {
         this(name);
 
         image = new Image(img);
@@ -66,7 +67,7 @@ public class Items extends ImageView implements Collectable {
     }
 
 
-    public  void setPosition(double x, double y) {
+    public void setPosition(double x, double y) {
         positionX = x;
         positionY = y;
     }
@@ -75,6 +76,11 @@ public class Items extends ImageView implements Collectable {
     public void render(GraphicsContext gc) {
         var v = getViewport();
         gc.drawImage(image, v.getMinX(), v.getMinY(), v.getWidth(), v.getHeight(), positionX, positionY, v.getWidth(), v.getHeight());
+    }
+
+    @Override
+    public void render() {
+        render(Room.canvas.getGraphicsContext2D());
     }
 
     public Rectangle2D getBoundary() {

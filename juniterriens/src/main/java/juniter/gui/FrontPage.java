@@ -1,5 +1,7 @@
 package juniter.gui;
 
+import io.ipfs.cid.Cid;
+import javafx.application.Platform;
 import javafx.application.Preloader;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -18,6 +20,9 @@ import juniter.repository.jpa.index.BINDEXRepository;
 import juniter.service.bma.PeerService;
 import juniter.service.bma.loader.BlockLoader;
 import juniter.service.bma.loader.MissingBlocksLoader;
+import juniter.service.ipfs.Interplanetary;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
@@ -34,8 +39,11 @@ import java.util.ResourceBundle;
 @Component
 public class FrontPage extends AbstractJuniterFX implements Initializable {
 
+    private static final Logger LOG = LogManager.getLogger(FrontPage.class);
+
+
     @FXML
-    private  HBox canvasRoot;
+    private HBox canvasRoot;
     @FXML
     private Label size;
 
@@ -70,6 +78,9 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
     @Autowired
     private PeerService peers;
 
+    @Autowired
+    private Interplanetary ipfs;
+
     public FrontPage() {
     }
 
@@ -93,17 +104,18 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
     @Override
     public void start(Stage primaryStage) {
 
-
         notifyPreloader(new Preloader.StateChangeNotification(Preloader.StateChangeNotification.Type.BEFORE_START));
 
         if (null == blockRepo) {
             throw new IllegalStateException("BlockRepository was not injected properly");
         }
 
-        BorderPane page = (BorderPane) load("/gui/FrontPage.fxml");
-        JuniterBindings.screenController.addScreen("Main", page);
-
-        Scene scene = JuniterBindings.screenController.getMain()==null?new Scene(page):JuniterBindings.screenController.getMain();
+        var scene = JuniterBindings.screenController.getMain();
+        if (JuniterBindings.screenController.getMain() == null) {
+            BorderPane page = (BorderPane) load("/gui/FrontPage.fxml");
+            JuniterBindings.screenController.addScreen("Main", page);
+            scene = new Scene(page);
+        }
 
         JuniterBindings.screenController.setMain(scene);
 
@@ -145,6 +157,21 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
         number.setText(JuniterBindings.currenBlock.get().getNumber() + "");
         // test.setText(txRepo.transactionsOfIssuer_("4weakHxDBMJG9NShULG1g786eeGh7wwntMeLZBDhJFni").singleton(0).getWrittenOn()+"");
 
+
     }
 
+
+    @FXML
+    public void ipfs() {
+
+        var cid = Cid.decode("zdpuAxYnYpkMaexd43pLJscsPiUBRpZ3PXgi9XXU2MboiHVEE");
+
+        Platform.runLater(() -> ipfs.resolve(cid));
+
+        Platform.runLater(() -> ipfs.publish(cid));
+
+        Platform.runLater(() -> ipfs.IPFSBlock(1));
+
+
+    }
 }
