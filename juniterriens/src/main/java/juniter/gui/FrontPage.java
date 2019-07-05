@@ -1,7 +1,5 @@
 package juniter.gui;
 
-import io.ipfs.cid.Cid;
-import javafx.application.Platform;
 import javafx.application.Preloader;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -27,9 +25,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.ResourceBundle;
 
 /**
@@ -79,7 +79,7 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
     private PeerService peers;
 
     @Autowired
-    private Interplanetary ipfs;
+    private Interplanetary interplanetary;
 
     public FrontPage() {
     }
@@ -161,17 +161,18 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
     }
 
 
+
+
     @FXML
     public void ipfs() {
 
-        var cid = Cid.decode("zdpuAxYnYpkMaexd43pLJscsPiUBRpZ3PXgi9XXU2MboiHVEE");
-
-        Platform.runLater(() -> ipfs.resolve(cid));
-
-        Platform.runLater(() -> ipfs.publish(cid));
-
-        Platform.runLater(() -> ipfs.IPFSBlock(1));
-
-
+//        var cid = Cid.decode("zdpuAxYnYpkMaexd43pLJscsPiUBRpZ3PXgi9XXU2MboiHVEE");
+//
+//        Platform.runLater(() -> interplanetary.resolve(cid));
+//
+//        Platform.runLater(() -> interplanetary.publish(cid));
+interplanetary.dumpChain();
     }
+
+
 }

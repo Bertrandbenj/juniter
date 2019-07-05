@@ -170,7 +170,6 @@ public class BlockLoader implements BlockLocalValid {
 
         }
 
-
         return body;
     }
 

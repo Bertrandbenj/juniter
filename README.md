@@ -54,9 +54,9 @@ CREATE SCHEMA testdb;
 CREATE DATABASE testdb;
 GRANT ALL ON SCHEMA testdb TO testuser;
 \q to exit
-
-#  Alternatively
-
+```
+###  Alternatively
+```
 su - postgres
 psql
 psql -U postgres -c "drop database testdb"
@@ -64,7 +64,13 @@ psql -U postgres -c "CREATE USER testuser PASSWORD 'junipass';"
 psql -U postgres -c "CREATE SCHEMA testdb;"
 psql -U postgres -c "CREATE DATABASE testdb;"
 psql -U postgres -c "GRANT ALL ON SCHEMA testdb TO testuser;"
+```
 
+### get current index  
+```
+sudo -u postgres psql
+\c testdb;
+SELECT MAX(number) FROM bindex;
 ```
 
 ## Configuration

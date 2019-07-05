@@ -170,7 +170,7 @@ public class BlockchainService {
      * @return A Wrapped List of Blocks
      */
     @CrossOrigin(origins = "*")
-    @GetMapping(value = "/with/{what}")
+    @GetMapping(value = "/with/{what}" ,name = "newcomers,certs,actives,revoked,leavers,excluded,ud,tx")
     @Transactional(readOnly = true)
     public WithDTO with(@PathVariable("what") String what) {
 
@@ -210,34 +210,34 @@ public class BlockchainService {
 
     @Transactional(readOnly = true)
     @GetMapping(value = "/memberships/{search}")
-    Stream<MINDEX> memberships(@PathVariable("search") String search) {
+    public Stream<MINDEX> memberships(@PathVariable("search") String search) {
         return mRepo.search(search);
     }
 
 
     @CrossOrigin(origins = "*")
     @GetMapping(value = "/parameters")
-    ChainParametersDTO parameters() {
+    public ChainParametersDTO parameters() {
         return modelMapper.map(new ChainParameters(), ChainParametersDTO.class);
     }
 
     @CrossOrigin(origins = "*")
     @Transactional(readOnly = true)
     @GetMapping(value = "/difficulties")
-    DifficultiesDTO difficulties() {
+    public DifficultiesDTO difficulties() {
         return new DifficultiesDTO(blockRepo.currentBlockNumber(), List.of(new Difficulty("", 99)));
     }
 
     @CrossOrigin(origins = "*")
     @Transactional(readOnly = true)
     @GetMapping(value = "/hardship")
-    HardshipDTO hardship() {
+    public HardshipDTO hardship() {
         return new HardshipDTO(blockRepo.currentBlockNumber(), 99);
     }
 
 
     @GetMapping(value = "/branches")
-    List<Block> branches() {
+    public List<Block> branches() {
         return List.of();
     }
 
@@ -245,7 +245,7 @@ public class BlockchainService {
     // ======= POST =======
 
     @PostMapping(value = "/membership")
-    ResponseEntity<MembershipDTO> membership(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<MembershipDTO> membership(HttpServletRequest request, HttpServletResponse response) {
 
         LOG.info("POSTING /blockchain/membership ..." + request.getRemoteHost());
 
@@ -264,7 +264,7 @@ public class BlockchainService {
 
 
     @PostMapping(value = "/block")
-    ResponseEntity<DBBlock> block(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<DBBlock> block(HttpServletRequest request, HttpServletResponse response) {
 
         LOG.info("POSTING /blockchain/block ..." + request.getRemoteHost());
 

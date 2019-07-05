@@ -54,7 +54,6 @@ import java.util.stream.Collectors;
         @UniqueConstraint(columnNames = {"number", "hash"})
 })
 @JsonIgnoreProperties(ignoreUnknown = true)
-//@IdClass(BStamp.class)
 public class DBBlock implements DUPDocument, Serializable {
 
     private static final long serialVersionUID = -4464417074968456696L;
@@ -252,6 +251,7 @@ public class DBBlock implements DUPDocument, Serializable {
             return null;
         return previousHash;
     }
+
 
     /**
      * The only occasion previousBlock may be Null is if we are dealing with the
