@@ -11,7 +11,9 @@ buildscript {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:2.0.2.RELEASE")
         classpath 'org.hidetake:gradle-ssh-plugin:2.9.0'
         classpath('se.transmode.gradle:gradle-docker:1.2')
-       // classpath("com.github.honourednihilist:gradle-postgresql-embedded:0.4.0")
+        classpath "com.netflix.nebula:gradle-ospackage-plugin:6.2.1"
+
+        // classpath("com.github.honourednihilist:gradle-postgresql-embedded:0.4.0")
     }
 
 }
@@ -28,6 +30,9 @@ apply plugin: 'io.spring.dependency-management'
 apply plugin: 'application'
 apply plugin: 'docker'
 //apply plugin: 'docker-spring-boot-application'
+apply plugin: "nebula.ospackage"
+
+
 
 dependencies {
     compile project(":core")
@@ -60,8 +65,12 @@ jar {
     version  = "0.0.1-SNAPSHOT"
     mainClassName =  'juniter.Application'
 
-    //manifest { attributes "Main-Class": group + ".juniter.Application" }
-}
+    enabled = true
+    manifest {
+        attributes(
+                'Main-Class': 'juniter.Application'
+        )
+    }}
 
 docker {
     //baseImage "frolvlad/alpine-openjdk11:stretch"
@@ -93,3 +102,90 @@ bootRun {
 //    stopWhenBuildFinished = true
 //    timeoutMillisBeforeStop = 0
 //}
+
+
+// ===================================================================================
+// =                                  .deb    .rpm                                   =
+// ===================================================================================
+
+
+buildDeb {
+
+//    user "juniter"
+//    permissionGroup "juniter"
+
+    requires('graphviz', '2.40.1', GREATER | EQUAL)
+    requires('postgresql')
+    requires('libsodium-dev', '1.0.16', GREATER | EQUAL)
+    requires('openjdk-11-jdk', '11.0.3', GREATER | EQUAL)
+
+    link('/lib/systemd/system/juniter.service', "/opt/${project.name}/bin/service/juniter.service")
+    link('/lib/systemd/system/ipfs-cluster.service', "/opt/${project.name}/bin/service/ipfs-custer.service")
+    link('/lib/systemd/system/ipfs.service', "/opt/${project.name}/bin/service/ipfs.service")
+
+     link('/usr/local/bin/junigeek', "/opt/${project.name}//bin/junigeek.sh")
+
+}
+
+
+ospackage {
+    packageName = "${project.name}"
+    version = '1.0.0'
+    release = 'beta'
+    type = BINARY
+//  arch = I386
+    os = LINUX
+
+    installUtils file('../scripts/rpm/utils.sh')
+    preInstall file('../scripts/rpm/preInstall.sh')
+    postInstall file('../scripts/rpm/postInstall.sh')
+//  preUninstall 'touch /tmp/myfile'java -Dfile.encoding=UTF-8 -cp "/opt/juniterriens/lib/*" juniter.GUIApplication
+
+    postUninstall file('../scripts/rpm/postUninstall.sh')
+
+    //requires('qux')
+
+    into "/opt/${project.name}"
+//    user "juniter"
+//    permissionGroup "juniter"
+
+
+    from(jar.outputs.files) {
+        into 'lib'
+    }
+    from(configurations.runtime) {
+        into 'lib'
+    }
+    from('lib') {
+        into 'lib'
+    }
+    from('../scripts') {
+        into 'bin'
+        exclude 'database'
+        fileMode = 0550
+    }
+
+    from('src/main/resources') {
+        fileType CONFIG | NOREPLACE
+        into 'conf'
+    }
+
+    from('home') {
+        // Creating directory entries (or not) in the RPM is normally left up to redline-rpm library.
+        // Use this to explicitly create an entry -- for setting directory fileMode on system directories.
+        createDirectoryEntry = true
+        fileMode = 0500
+        into 'home'
+    }
+    from('endorsed') {
+        // Will tell redline-rpm not to auto create directories, which
+        // is sometimes necessary to avoid rpm directory conflicts
+        addParentDirs = false
+        into '/usr/share/tomcat/endorsed'
+    }
+
+//    from ( "${project.buildDir}/libs" ){
+//        into 'lib'
+//    }
+
+}

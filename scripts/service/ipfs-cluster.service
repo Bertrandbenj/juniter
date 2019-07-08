@@ -1,0 +1,14 @@
+[Unit]
+Description=ipfs-cluster-service daemon
+Requires=ipfs.service
+After=ipfs.service
+
+[Service]
+ExecStart=/bin/ipfs-cluster-service daemon
+Restart=always
+User=root
+Group=root
+Environment="IPFS_CLUSTER_PATH=~/.ipfs-cluster/data/ipfs-cluster"
+
+[Install]
+WantedBy=multi-user.target

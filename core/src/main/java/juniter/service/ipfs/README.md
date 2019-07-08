@@ -70,4 +70,7 @@ netstat -pltn
 rm -r ipfs-cluster*
  ```
  
- 
+## files to edit 
+``` 
+sudo gedit /lib/systemd/system/ipfs* .ipfs-cluster/peerstore .ipfs-cluster/service.json &
+```

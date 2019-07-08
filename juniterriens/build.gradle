@@ -7,17 +7,26 @@ buildscript {
         jcenter()
 
     }
-
+    ext {
+        lombokVersion = '1.18.4'
+    }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:2.0.2.RELEASE")
         classpath 'org.openjfx:javafx-plugin:0.0.7'
+        classpath "com.netflix.nebula:gradle-ospackage-plugin:6.2.1"
     }
 }
+
+//plugins {
+//    id "nebula.deb" version "6.2.1"
+//}
 
 apply plugin: 'java'
 apply plugin: 'org.openjfx.javafxplugin'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
+apply plugin: "nebula.ospackage"
+
 
 //https://openjfx.io/openjfx-docs/#gradle
 javafx {
@@ -30,10 +39,20 @@ dependencies {
     compile project(":core")
     testCompile group: 'junit', name: 'junit', version: '4.12'
     compileOnly 'org.projectlombok:lombok:1.18.4'
+    annotationProcessor 'org.projectlombok:lombok:1.18.4'
+
     // compile 'org.openjfx:javafx-plugin:0.0.7'
     //compile("org.apache.logging.log4j:log4j-core")
     compile("org.apache.logging.log4j:log4j-api:2.10.0")
     compile 'com.jfoenix:jfoenix:9.0.8' // Java 9
+
+
+    compile group: 'org.openjfx', name: 'javafx-controls', version: '11.0.2'
+    compile group: 'org.openjfx', name: 'javafx-base', version: '11.0.2'
+    compile group: 'org.openjfx', name: 'javafx-fxml', version: '11.0.2'
+    compile group: 'org.openjfx', name: 'javafx-web', version: '11.0.2'
+    compile group: 'org.openjfx', name: 'javafx-media', version: '11.0.2'
+    compile group: 'org.openjfx', name: 'javafx-graphics', version: '11.0.2'
 
 
 }
@@ -47,30 +66,129 @@ springBoot {
 }
 
 task filepermission(type: Exec) {
-    commandLine 'chmod', '700', 'build/libs/gui-0.1.0.jar'
+    commandLine 'chmod', '700', "build/libs/${project.name}-0.1.0.jar"
 }
 
 bootJar {
     mainClassName = 'juniter.GUIApplication'
     enabled = true
-    baseName = 'gui'
+    baseName = "${project.name}"
     version = '0.1.0'
 
     manifest.attributes(
             'Multi-Release': 'true'
     )
 
-    doLast {
-        filepermission.execute()
-    }
+//    doLast {
+//        filepermission.execute()
+//    }s
 
 }
 
 jar {
-    enabled = false
+    enabled = true
+    manifest {
+        attributes( 
+                'Main-Class': 'juniter.GUIApplication'
+        )
+    }
 }
 
 bootRun {
     enableAssertions = true // !!  BR_G[0-108] assertion
     //jvmArgs = ["-agentlib:jdwp=transport=dt_socket,server=y,address=5005,suspend=y"]
+}
+
+// ===================================================================================
+// =                                  .deb    .rpm                                   =
+// ===================================================================================
+
+buildRpm {
+//    user "juniter"
+//    permissionGroup "juniter"
+
+    requires('graphviz', '2.40.1', GREATER | EQUAL)
+    requires('postgresql', '10.9', GREATER | EQUAL)
+    requires('libsodium-dev', '1.0.16', GREATER | EQUAL)
+    requires('openjdk-11-jdk', '11.0.3', GREATER | EQUAL)
+    requires('openjfx', '11.0.2', GREATER | EQUAL)
+
+
+    link('/usr/local/bin/juniterriens', '/opt/juniter/bin/juniterriens.sh')
+}
+
+buildDeb {
+
+//    user "juniter"
+//    permissionGroup "juniter"
+
+    requires('graphviz', '2.40.1', GREATER | EQUAL)
+    requires('postgresql')
+    requires('libsodium-dev', '1.0.16', GREATER | EQUAL)
+    requires('openjdk-11-jdk', '11.0.3', GREATER | EQUAL)
+    requires('openjfx', '11.0.2', GREATER | EQUAL)
+
+    link("/usr/local/bin/${project.name}", "/opt/${project.name}/bin/juniterriens.sh")
+
+}
+
+ospackage {
+    packageName = "${project.name}"
+    version = '1.0.0'
+    release = 'beta'
+    type = BINARY
+//  arch = I386
+    os = LINUX
+
+    installUtils file('../scripts/rpm/utils.sh')
+    preInstall file('../scripts/rpm/preInstall.sh')
+    postInstall file('../scripts/rpm/postInstall.sh')
+//  preUninstall 'touch /tmp/myfile'
+    postUninstall file('../scripts/rpm/postUninstall.sh')
+
+    //requires('qux')
+
+    into "/opt/${project.name}"
+//    user "juniter"
+//    permissionGroup "juniter"
+
+
+    from(jar.outputs.files) {
+        into 'lib'
+    }
+    from(configurations.runtime) {
+        into 'lib'
+    }
+    from('lib') {
+        into 'lib'
+    }
+    from('../scripts') {
+        into 'bin'
+        exclude 'database'
+        fileMode = 0550
+    }
+
+    from('src/main/resources') {
+        fileType CONFIG | NOREPLACE
+        into 'conf'
+    }
+
+    from('home') {
+        // Creating directory entries (or not) in the RPM is normally left up to redline-rpm library.
+        // Use this to explicitly create an entry -- for setting directory fileMode on system directories.
+        createDirectoryEntry = true
+        fileMode = 0500
+        into 'home'
+    }
+    from('endorsed') {
+        // Will tell redline-rpm not to auto create directories, which
+        // is sometimes necessary to avoid rpm directory conflicts
+        addParentDirs = false
+        into '/usr/share/tomcat/endorsed'
+    }
+
+//    from ( "${project.buildDir}/libs" ){
+//        into 'lib'
+//    }
+
 }

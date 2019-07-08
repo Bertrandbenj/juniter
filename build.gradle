@@ -29,7 +29,7 @@ allprojects {
 
    // maven { url 'https://jitpack.io' }
 
-    task hello << { task -> println "I'm project $task.project.name" }
+//    task hello << { task -> println "I'm project $task.project.name" }
 }
 
 subprojects {
@@ -50,7 +50,12 @@ subprojects {
         maven { url 'https://jitpack.io' }
 
     }
+    
+    
 }
+
+
+
 
 //task buildAll {
 //    dependsOn gradle.includedBuilds*.task(':buildAll')
@@ -69,18 +74,18 @@ remotes {
     }
 }
 
-task deploy(dependsOn: ':core:bootJar') << {
-    ssh.run {
-        session(remotes.juniter) {
-            //execute 'killall java'
-
-            put from: 'build/libs/juniter-0.1.0.jar', into: '/home/ben'
-
-            //execute 'sudo service tomcat restart'
-            execute 'java -jar juniter-0.1.0.jar -Djuniter.useJavaFX=false --headless '
-        }
-    }
-}
+//task deploy(dependsOn: ':core:bootJar') << {
+//    ssh.run {
+//        session(remotes.juniter) {
+//            //execute 'killall java'
+//
+//            put from: 'build/libs/juniter-0.1.0.jar', into: '/home/ben'
+//
+//            //execute 'sudo service tomcat restart'
+//            execute 'java -jar juniter-0.1.0.jar -Djuniter.useJavaFX=false --headless '
+//        }
+//    }
+//}
 
 task checkServer {
     doLast {
