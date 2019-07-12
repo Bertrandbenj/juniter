@@ -55,6 +55,13 @@ springBoot {
 bootJar {
     mainClassName = 'juniter.Application'
     enabled = true
+
+    baseName = "${project.name}"
+    version = "${project.version}-boot"
+
+    manifest.attributes(
+            'Multi-Release': 'true'
+    )
 }
 
 
@@ -62,7 +69,7 @@ bootJar {
 jar {
     baseName = "junigeek"
     //group    = "juniter"
-    version  = "0.0.1-SNAPSHOT"
+    version = "${project.version}"
     mainClassName =  'juniter.Application'
 
     enabled = true
@@ -130,8 +137,8 @@ buildDeb {
 
 ospackage {
     packageName = "${project.name}"
-    version = '1.0.0'
-    release = 'beta'
+    version = "${project.version}"
+//    release = 'beta'
     type = BINARY
 //  arch = I386
     os = LINUX
@@ -156,6 +163,7 @@ ospackage {
     from(configurations.runtime) {
         into 'lib'
     }
+
     from('lib') {
         into 'lib'
     }
@@ -189,3 +197,56 @@ ospackage {
 //    }
 
 }
+
+
+
+
+//
+// ==================== servers =======================
+//
+
+//https://gradle-ssh-plugin.github.io/docs/
+remotes {
+    juniter {
+        role 'masterNode'
+        host = 'g1.bertrandbenjamin.com'
+        user = 'ben'
+        agent = true 	// If this is set, Putty Agent or ssh-agent will be used on authentication
+        identity = file("${System.getProperty('user.home')}/.ssh/id_rsa")
+    }
+}
+
+//task deploy{
+//    ssh.run {
+//        session(remotes.juniter) {
+//            //execute 'killall java'
+//
+//            put from: "build/libs/junigeek-${project.version}.jar", into: '/home/ben'
+//
+//            //execute 'sudo service tomcat restart'
+//            execute "java -jar junigeek-${project.version}.jar -Djuniter.useJavaFX=false --headless "
+//        }
+//    }
+//}
+
+task checkServer {
+    doLast {
+        ssh.run {
+            session(remotes.juniter) {
+
+                def result = execute 'ls -al' // Execute a command for fun
+
+                // Any Gradle methods or properties are available in a session closure "$buildDir/tmp"
+                copy {
+                    from "docs/"
+                    into "/tmp"
+                }
+
+                // Also Groovy methods or properties are available in a session closure
+                println result
+            }
+        }
+    }
+}
+
+

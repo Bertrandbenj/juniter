@@ -15,6 +15,7 @@ juniter:
   useGVA: true      # FIXME:  dependencies ?
   useBMA: true
   useWS2P: false
+  useIPFS: false
   utils.enabled: false
   useJavaFX: true
   useSpark: true
@@ -103,7 +104,7 @@ server:
 
 
 ##
-## =========================== GraphQL ===========================
+## =================<========== GraphQL ===========================
 ##
 
 graphql:

@@ -14,7 +14,8 @@ juniter:
   useGraphViz: true
   useGVA: true      # FIXME:  dependencies ?
   useBMA: true
-  useWS2P: false
+  #useWS2P: true
+  useIPFS: true
   utils.enabled: false
   #useJavaFX: false
   #useSpark: false
@@ -27,7 +28,7 @@ juniter:
 spark:
   master: spark://ben:7077
   app.name: juniter
-  home: /home/ben/spark-2.4.0-bin-hadoop2.7/
+  home: ~/spark-2.4.0-bin-hadoop2.7/
 
 
 ##

@@ -32,6 +32,7 @@ apply plugin: "nebula.ospackage"
 javafx {
     modules = ['javafx.controls', 'javafx.fxml', 'javafx.web', 'javafx.media', 'javafx.graphics']
     // version = "11.0.2"
+    
 }
 
 
@@ -66,14 +67,14 @@ springBoot {
 }
 
 task filepermission(type: Exec) {
-    commandLine 'chmod', '700', "build/libs/${project.name}-0.1.0.jar"
+    commandLine 'chmod', '700', "build/libs/${project.name}-${project.version}.jar"
 }
 
 bootJar {
     mainClassName = 'juniter.GUIApplication'
     enabled = true
     baseName = "${project.name}"
-    version = '0.1.0'
+    version = "${project.version}-boot"
 
     manifest.attributes(
             'Multi-Release': 'true'
@@ -88,7 +89,7 @@ bootJar {
 jar {
     enabled = true
     manifest {
-        attributes( 
+        attributes(
                 'Main-Class': 'juniter.GUIApplication'
         )
     }
@@ -134,8 +135,8 @@ buildDeb {
 
 ospackage {
     packageName = "${project.name}"
-    version = '1.0.0'
-    release = 'beta'
+    version = "${project.version}"
+//    release = 'beta'
     type = BINARY
 //  arch = I386
     os = LINUX
