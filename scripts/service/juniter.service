@@ -1,0 +1,14 @@
+[Unit]
+Description=Juniter daemon
+Requires=ipfs-cluster.service
+
+
+[Service]
+ExecStart=/usr/local/bin/juniterriens
+Restart=always
+User=juniter
+Group=juniter
+Environment="IPFS_PATH=~/.ipfs/data/ipfs"
+
+[Install]
+WantedBy=multi-user.target

@@ -32,7 +32,6 @@ apply plugin: "nebula.ospackage"
 javafx {
     modules = ['javafx.controls', 'javafx.fxml', 'javafx.web', 'javafx.media', 'javafx.graphics']
     // version = "11.0.2"
-
 }
 
 
@@ -76,6 +75,7 @@ dependencies {
 //    ]
 //}
 //
+
 
 repositories {
     maven { url 'https://jitpack.io' }

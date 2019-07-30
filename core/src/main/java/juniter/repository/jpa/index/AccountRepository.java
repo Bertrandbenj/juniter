@@ -22,8 +22,6 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     Account accountOf(String pubkey);
 
 
-
-
 }
 
 	

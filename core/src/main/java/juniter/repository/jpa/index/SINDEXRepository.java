@@ -1,5 +1,6 @@
 package juniter.repository.jpa.index;
 
+import juniter.core.model.dbo.index.Account;
 import juniter.core.model.dbo.index.SINDEX;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
