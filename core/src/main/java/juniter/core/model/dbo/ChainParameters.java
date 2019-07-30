@@ -18,7 +18,7 @@ import javax.persistence.*;
 @Data
  @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "chainParams", schema = "public")
+@Table(name = "chainParam", schema = "public")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ChainParameters implements DUPDocument {
 

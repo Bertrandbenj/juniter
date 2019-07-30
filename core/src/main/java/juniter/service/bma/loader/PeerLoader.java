@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.annotation.Order;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -59,7 +60,6 @@ public class PeerLoader {
     @Autowired
     private BlockLoader blockLoader;
 
-
     @Autowired
     private BlockRepository blockRepo;
 
@@ -69,9 +69,9 @@ public class PeerLoader {
     @Autowired
     private EndPointsRepository endPointRepo;
 
-
     @Autowired
     private ModelMapper modelMapper;
+
     @Value("${juniter.network.bulkSize:200}")
     private Integer bulkSize;
 
@@ -95,7 +95,7 @@ public class PeerLoader {
     }
 
     @Async
-    @Scheduled(fixedDelay = 10 * 60 * 1000, initialDelay = 10 * 60 * 1000)
+    @Scheduled(fixedDelay = 10 * 60 * 1000)
     public void runPeerCheck() {
 
         LOG.info("@Scheduled runPeerCheck ");
@@ -112,13 +112,11 @@ public class PeerLoader {
                 blacklistHosts.add(host.get());
                 try {
                     peersDTO = fetchPeers(host.get());
-                    LOG.info("fetched " + peersDTO.getPeers().size() + " peers from " + host);
 
                     var maxBlockPeer = peersDTO.getPeers().stream()
                             .map(pdto -> modelMapper.map(pdto, Peer.class))
                             .map(Peer::getBlock)
-                            .map(b -> b.split("-")[0])
-                            .mapToLong(Long::parseLong)
+                            .mapToLong(BStamp::getNumber)
                             .max();
 
                     var maxBlockDB = blockRepo.currentBlockNumber();
@@ -146,13 +144,12 @@ public class PeerLoader {
                     return;
 
                 } catch (Exception e) {
-                    LOG.error("Retrying : Net error accessing node " + host + " " + e.getMessage());
+                    LOG.warn("Retrying on " + host + " " + e.getMessage());
                 }
 
             } else {
                 LOG.error("Please, connect to the internet and provide BMA configuredNodes ");
-                System.exit(1);
-
+                break;
             }
 
         }
@@ -180,7 +177,7 @@ public class PeerLoader {
         var asBMA = new PeerBMA(peer.toDUP(true));
 
         peerRepo.peerWithBlock(max.toString())
-                .flatMap(b -> b.endpoints().stream())
+                .flatMap(p -> p.endpoints().stream())
                 .filter(Objects::nonNull)
                 .forEach(ep -> {
                     if (ep.api() == EndPointType.BMAS) {
@@ -248,7 +245,7 @@ public class PeerLoader {
         try {
             var peers = restTpl.getForObject(url, Peer.class);
 
-            var bstamp = new BStamp(peers.getBlock());
+            var bstamp = peers.getBlock();
 
             blockLoader.fetchBlocks(100, bstamp.getNumber() - 100)
                     //.flatMap(Collection::stream) // blocks individually
@@ -266,35 +263,47 @@ public class PeerLoader {
     }
 
 
-    public PeersDTO fetchPeers(String nodeURL) {
+    private PeersDTO fetchPeers(String nodeURL) {
 
+        LOG.info("fetching peers from " + nodeURL + "network/peers");
 
-        var responseEntity = restTpl.exchange(nodeURL + "/network/peers",
+        var responseEntity = restTpl.exchange(nodeURL + "network/peers",
                 HttpMethod.GET, null, new ParameterizedTypeReference<PeersDTO>() {
                 });
 
         final var peers = responseEntity.getBody();
         final var contentType = responseEntity.getHeaders().getContentType();
         final var statusCode = responseEntity.getStatusCode();
-        save(peers);
 
         LOG.info("Found peers: " + peers.getPeers().size() + ", status : " + statusCode.getReasonPhrase()
-                + ", ContentType: " + contentType.toString());
+                + ", ContentType: " + contentType);
+
+        LOG.info(" - " + peers.getPeers());
+
+
+        save(peers);
 
 
         return peers;
+        //return peers.getPeers().stream().map(b -> modelMapper.map(b, Peer.class)).collect(Collectors.toList());
     }
 
     private void save(PeersDTO peers) {
-        peers.getPeers().stream() // parsed peers
+        peers.getPeers()
+                .stream() // parsed peers
                 .map(pdto -> modelMapper.map(pdto, Peer.class))
-                .forEach(p -> {
-                    peerRepo.saveAndFlush(p); // save the peer object
-                    p.endpoints().stream() // iterate endpoints
-                            .map(ep -> endPointRepo.findByPeerAndEndpoint(p, ep.getEndpoint()).orElse(ep.linkPeer(p))) // fetchTrimmed
-                            // existing
-                            .forEach(ep -> endPointRepo.saveAndFlush(ep)); // save individual endpoints
-                });
+                .filter(p -> p.getBlock().getNumber() > blockRepo.currentBlockNumber() - 500)
+                .filter(p-> "UP".equals(p.getStatus()))
+//                .peek(c -> LOG.info("saving " + c))
+                .forEach(p -> peerRepo.saveAndFlush(p));
+    }
+
+
+    @Transactional
+    @Modifying
+    @Scheduled(fixedRate = 10 * 60 * 1000)
+    public void cleanup() {
+        peerRepo.cleanup(blockRepo.currentBlockNumber());
     }
 
 

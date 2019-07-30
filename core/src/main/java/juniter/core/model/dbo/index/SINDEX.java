@@ -2,6 +2,7 @@ package juniter.core.model.dbo.index;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import juniter.core.model.dbo.BStamp;
+import juniter.core.model.dbo.tx.TxType;
 import juniter.service.gva.Source;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -197,6 +198,11 @@ public class SINDEX implements Comparable<SINDEX> {
         return conditions;
     }
 
+
+    public TxType type() {
+        return tx == null ? TxType.D : TxType.T;
+
+    }
 
     public Source asSourceGVA() {
         return new Source(

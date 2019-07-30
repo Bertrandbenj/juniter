@@ -79,6 +79,11 @@ public interface TxRepository extends JpaRepository<Transaction, Long> {
     @Query("SELECT t FROM Transaction t INNER JOIN t.outputs o WHERE o.condition LIKE CONCAT('%',:pubkey,'%')")
     Stream<Transaction> transactionsOfReceiver(@Param("pubkey") String pubkey);
 
+
+    @Query("SELECT t FROM Transaction t INNER JOIN t.outputs o WHERE o.condition LIKE CONCAT('%',:pubkey,'%')")
+    List<Transaction> transactionsOfReceiver_(@Param("pubkey") String pubkey);
+
+
     @Query("SELECT t FROM Transaction t INNER JOIN t.issuers i WHERE i = ?1 ")
     Stream<Transaction> transactionsOfIssuer(Object pubkey);
 

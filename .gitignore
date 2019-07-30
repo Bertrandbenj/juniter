@@ -16,3 +16,8 @@ src/main/resources/static/dot/*
 /.cache-main
 /.cache-tests
 /.attach_pid*
+/core/out/
+/juniterriens/out/
+/junigeek/out/
+/junigeek/owl2vowl_logs/
+/juniterriens/db/

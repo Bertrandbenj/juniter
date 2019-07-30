@@ -170,7 +170,6 @@ public class BlockLoader implements BlockLocalValid {
 
         }
 
-
         return body;
     }
 
@@ -250,7 +249,7 @@ public class BlockLoader implements BlockLocalValid {
 
         while (block == null) {
 
-            final var host = peerService.nextHost().map(h -> h.getHost());
+            final var host = peerService.nextHost().map(PeerService.NetStats::getHost);
             if (host.isPresent()) {
                 try {
                     url = host.get() + "blockchain/" + id;

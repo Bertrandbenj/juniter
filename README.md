@@ -54,21 +54,29 @@ CREATE SCHEMA testdb;
 CREATE DATABASE testdb;
 GRANT ALL ON SCHEMA testdb TO testuser;
 \q to exit
+```
+###  Alternatively
+```
 
-#  Alternatively
+ 
+sudo -u postgres psql -U postgres -c "drop database testdb"
+sudo -u postgres psql -U postgres -c "CREATE USER testuser PASSWORD 'junipass';"
+sudo -u postgres psql -U postgres -c "CREATE SCHEMA testdb;"
+sudo -u postgres psql -U postgres -c "CREATE DATABASE testdb;"
+sudo -u postgres psql -U postgres -c "GRANT ALL ON SCHEMA testdb TO testuser;"
+```
 
-su - postgres
-psql
-psql -U postgres -c "drop database testdb"
-psql -U postgres -c "CREATE USER testuser PASSWORD 'junipass';"
-psql -U postgres -c "CREATE SCHEMA testdb;"
-psql -U postgres -c "CREATE DATABASE testdb;"
-psql -U postgres -c "GRANT ALL ON SCHEMA testdb TO testuser;"
-
+### get current index  
+```
+sudo -u postgres psql
+\c testdb;
+SELECT MAX(number) FROM bindex;
 ```
 
 ## Configuration
-Check [application.yml](src/main/resources/application.yml) and overwrite it or set individual properties
+Check [application.yml](src/main/resources/application.yml) and
+overwrite it or set individual properties.
+
 ``` 
 juniter:
   network:
@@ -86,14 +94,19 @@ juniter:
   ... 
 ```
 
-Command line override
+### default location
+``` 
+/opt/juniter/conf/application.yml
+``` 
+
+### Command line override
 ```bash
 -Djuniter.network.webSocketPoolSize=15 -Dproperty2=value ...
 ```
 
 
 
-SSL Certifications
+## SSL Certifications
 ```
 keytool -genkey -alias juniter -storetype PKCS12 -keyalg RSA -keysize 2048 -keystore keystore.p12 -validity 3650
 ```

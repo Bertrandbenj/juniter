@@ -3,11 +3,13 @@ package juniter.service.bma;
 import juniter.core.crypto.SecretBox;
 import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dbo.net.EndPoint;
+import juniter.core.model.dbo.net.EndPointType;
 import juniter.core.model.dbo.net.Peer;
 import juniter.core.model.dto.net.*;
 import juniter.repository.jpa.block.BlockRepository;
 import juniter.repository.jpa.net.EndPointsRepository;
 import juniter.repository.jpa.net.PeersRepository;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
@@ -20,8 +22,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,6 +36,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -76,10 +82,83 @@ public class NetworkService {
     public List<String> index() {
         LOG.info("Entering /network/ ... ");
         return peerRepo.streamAllPeers()
-                .flatMap(p-> p.getUris().stream())
+                .flatMap(p -> getUris(p).stream())
                 .map(URI::toString)
                 .collect(Collectors.toList());
     }
+
+    public List<URI> getUris(Peer peer) {
+
+
+        var uriList = new ArrayList<URI>();
+        if (!"UP".equals(peer.getStatus()))
+            return uriList;
+
+        var builder = new DefaultUriBuilderFactory().builder();
+
+
+        Map<String, String> apis = peer.getEndpoints().stream()
+                .map(ep -> {
+                    var x = "1";
+                    if (ep.getApi().equals(EndPointType.WS2P))
+                        x = ep.getTree();
+                    else if (ep.getOther() != null)
+                        x = ep.getOther();
+
+                    return new BasicNameValuePair(ep.getApi().toString(), x); // + "=" + x;
+                })
+                .distinct()
+                .collect(Collectors.toMap(bnvp -> bnvp.getName(), o -> o.getValue()));
+
+
+        MultiValueMap<String, String> mvm = new LinkedMultiValueMap<>();
+        apis.forEach((k, v) -> mvm.add(k, v));
+
+
+        var domains = peer.getEndpoints().stream()
+                .map(ep -> {
+                    var dom = ep.getDomain() != null ? ep.getDomain()
+                            : ep.getIp4() != null ? ep.getIp4()
+                            : ep.getIp6() != null ? ep.getIp6()
+                            : "";
+                    return dom + (ep.getPort() != null ? ":" + ep.getPort() : "");
+                })
+                .distinct()
+                .collect(Collectors.toList());
+
+
+        var status = "&status=" + peer.getStatus();
+        //var node = "&node=" + getBlock();
+        var sign = peer.getSignature();
+        var pub = peer.getPubkey();
+
+
+        for (String domain : domains) {
+
+            try {
+                uriList.add(builder
+                        .scheme("http" + (domain.endsWith("443") || apis.containsKey("BMAS") ? "s" : ""))
+                        //.setUserInfo(pubkey)//,signature)
+                        .host(domain)
+                        .path((domain.endsWith("/") ? "" : "/") + peer.getStatus() + "/" + peer.getBlock().getNumber() + "/" + peer.getBlock().getHash())
+                        .queryParams(mvm)
+                        .build());
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+
+
+        var cnt1 = uriList.stream().mapToInt(u -> u.toASCIIString().length()).sum();
+        var cnt2 = peer.toDUP(true).length();
+        // LOG.info(" getUris " + cnt1 + "  -  " + cnt2 + "\n" + uriList.stream().map(URI::toString).collect(Collectors.joining("\n")));
+
+
+        return uriList;
+    }
+
 
     @CrossOrigin(origins = "*")
     @Transactional(readOnly = true)
@@ -89,7 +168,7 @@ public class NetworkService {
         LOG.info("Entering /network/peers ...");
 
         try (var peers = peerRepo.streamAllPeers()) {
-            final var peerL = peers.map(p-> modelMapper.map(p, PeerDTO.class)).collect(Collectors.toList());
+            final var peerL = peers.map(p -> modelMapper.map(p, PeerDTO.class)).collect(Collectors.toList());
             return new PeersDTO(peerL);
         } catch (final Exception e) {
             LOG.error("NetworkService.peers() peerRepo.streamAllPeers ->  ", e);
@@ -107,12 +186,12 @@ public class NetworkService {
     public WS2PHeads wsHeads() {
 
         LOG.info("Entering /ws2p/heads ...");
-       // peerRepo.streamAllPeers().flatMap(p-> p.endpoints().stream())
-        var response = restTemplate.getForObject("https://g1.duniter.fr/network/ws2p/heads",WS2PHeads.class);
+        // peerRepo.streamAllPeers().flatMap(p-> p.endpoints().stream())
+        var response = restTemplate.getForObject("https://g1.duniter.fr/network/ws2p/heads", WS2PHeads.class);
 
 
         //LOG.info("  ..." + response );
-return response ;
+        return response;
 //        var res =  WS2PHeads.builder()
 //                .heads(List.of(HeadDTO.builder()
 //                        .message("message")
@@ -147,7 +226,7 @@ return response ;
     public Peer endPointPeer(Integer number) {
         LOG.info("endPointPeer " + number);
 
-        DBBlock current = blockRepo.block(number).or (()->blockRepo.current()).orElseThrow();
+        DBBlock current = blockRepo.block(number).or(() -> blockRepo.current()).orElseThrow();
         var peer = new Peer();
         peer.setVersion(10);
         peer.setBlock(current.bstamp());

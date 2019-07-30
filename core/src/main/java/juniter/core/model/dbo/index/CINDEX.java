@@ -41,7 +41,7 @@ import java.util.function.BinaryOperator;
         @Index(columnList = "createdOn"),
         @Index(columnList = "written_number")
 }, uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"receiver", "issuer", "written_number"})
+       // @UniqueConstraint(columnNames = {"receiver", "issuer", "written_number"})
 })
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CINDEX implements Comparable<CINDEX> {

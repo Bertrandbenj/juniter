@@ -14,15 +14,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.client.RestTemplate;
 
-import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import java.io.File;
 import java.nio.file.Path;
@@ -40,17 +35,18 @@ public class AppConfig {
     @Value("${juniter.dataPath:${user.home}/.config/juniter/data/}")
     private String dataPath;
 
+
     @Bean
-    public Path workingDir()  {
+    public Path workingDir() {
 
         LOG.info("Setting workingDir to " + dataPath);
 
         var res = Path.of(dataPath);
 
-        if(res.toFile().mkdirs()){
+        if (res.toFile().mkdirs()) {
             LOG.info("The data directory didn't exists, just created it ");
         }
-        Stream.of("bindex", "blockchain", "blocks", "cindex", "dot", "dump", "duniter", "iindex", "json", "mindex", "parquets", "sindex" )
+        Stream.of("bindex", "blockchain", "blocks", "cindex", "dot", "dump", "duniter", "iindex", "json", "mindex", "parquets", "sindex")
                 .map(dir -> res.resolve(dir).toFile())
                 .forEach(File::mkdir);
         return res;
@@ -123,8 +119,6 @@ public class AppConfig {
                 .persistenceUnit("juniter")
                 .build();
     }
-
-
 
 
 }

@@ -45,16 +45,15 @@ import java.util.stream.Collectors;
 @Data
 @NoArgsConstructor
 @Table(name = "block", schema = "public", indexes = {
-        @Index(  columnList = "number"),
-        @Index(  columnList = "hash"),
-        @Index(  columnList = "dividend"),
-        @Index(  columnList = "size"),
-        @Index(  columnList = "medianTime")
+        @Index(columnList = "number"),
+        @Index(columnList = "hash"),
+        @Index(columnList = "dividend"),
+        @Index(columnList = "size"),
+        @Index(columnList = "medianTime")
 }, uniqueConstraints = {
         @UniqueConstraint(columnNames = {"number", "hash"})
 })
 @JsonIgnoreProperties(ignoreUnknown = true)
-//@IdClass(BStamp.class)
 public class DBBlock implements DUPDocument, Serializable {
 
     private static final long serialVersionUID = -4464417074968456696L;
@@ -252,6 +251,7 @@ public class DBBlock implements DUPDocument, Serializable {
             return null;
         return previousHash;
     }
+
 
     /**
      * The only occasion previousBlock may be Null is if we are dealing with the

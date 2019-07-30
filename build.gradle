@@ -27,8 +27,15 @@ allprojects {
     group 'org.duniter'
     version '1.0.0-SNAPSHOT'
 
-    task hello << { task -> println "I'm project $task.project.name" }
+
+   // maven { url 'https://jitpack.io' }
+
+//    task hello << { task -> println "I'm project $task.project.name" }
 }
+
+//task wrapper(type: Wrapper) {
+//    gradleVersion = '5.5' //version required
+//}
 
 subprojects {
     //apply plugin: "java"
@@ -45,56 +52,9 @@ subprojects {
         mavenCentral()
         mavenLocal()
         jcenter()
+        maven { url 'https://jitpack.io' }
+
     }
-}
 
-//task buildAll {
-//    dependsOn gradle.includedBuilds*.task(':buildAll')
-//}
-
-
-
-//https://gradle-ssh-plugin.github.io/docs/
-remotes {
-    juniter {
-        role 'masterNode'
-        host = 'juniter.bnimajneb.online'
-        user = 'ben'
-        agent = true 	// If this is set, Putty Agent or ssh-agent will be used on authentication
-        identity = file("${System.getProperty('user.home')}/.ssh/id_rsa")
-    }
-}
-
-task deploy(dependsOn: ':core:bootJar') << {
-    ssh.run {
-        session(remotes.juniter) {
-            //execute 'killall java'
-
-            put from: 'build/libs/juniter-0.1.0.jar', into: '/home/ben'
-
-            //execute 'sudo service tomcat restart'
-            execute 'java -jar juniter-0.1.0.jar -Djuniter.useJavaFX=false --headless '
-        }
-    }
-}
-
-task checkServer {
-    doLast {
-        ssh.run {
-            session(remotes.juniter) {
-
-                def result = execute 'ls -al' // Execute a command for fun
-
-                // Any Gradle methods or properties are available in a session closure "$buildDir/tmp"
-                copy {
-                    from "docs/"
-                    into "/tmp"
-                }
-
-                // Also Groovy methods or properties are available in a session closure
-                println result
-            }
-        }
-    }
 }
 

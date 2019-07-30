@@ -37,13 +37,13 @@ public interface CINDEXRepository extends JpaRepository<CINDEX, Long> {
     @Query("select cert from CINDEX cert WHERE issuer = ?1 AND receiver = ?2")
     List<CINDEX> getCert(String issuer, String receiver);
 
-    @Query(value = "SELECT cert from CINDEX cert WHERE  written.number = ?1 AND  written.hash = ?2 ")
+    @Query("SELECT cert from CINDEX cert WHERE  written.number = ?1 AND  written.hash = ?2 ")
     List<CINDEX> writtenOn(Integer writtenOn, String writtenHash);
 
-    @Query(value = "SELECT cert from CINDEX cert WHERE receiver LIKE CONCAT('%',?1,'%') OR issuer LIKE CONCAT('%',?1,'%')")
+    @Query("SELECT cert from CINDEX cert WHERE receiver LIKE CONCAT('%',?1,'%') OR issuer LIKE CONCAT('%',?1,'%')")
     List<CINDEX> search(String search);
 
-    @Query(value = "SELECT COUNT(receiver) from CINDEX cert WHERE issuer = ?1 AND expired_on = 0 AND expires_on >= ?2 ")
+    @Query("SELECT COUNT(receiver) from CINDEX cert WHERE issuer = ?1 AND expired_on = 0 AND expires_on >= ?2 ")
     Integer certStock(String issuer, Long asOf);
 
     @Transactional
@@ -51,7 +51,7 @@ public interface CINDEXRepository extends JpaRepository<CINDEX, Long> {
     @Query("DELETE from CINDEX cert WHERE op = 'pings'")
     void trim(int bIndexSize);
 
-    @Query(value = "SELECT cert from CINDEX cert WHERE expires_on < ?1")
+    @Query("SELECT cert from CINDEX cert WHERE expires_on < ?1")
     List<CINDEX> findCertsThatShouldExpire(Long mTime);
 
     @Query("SELECT c FROM CINDEX c ")

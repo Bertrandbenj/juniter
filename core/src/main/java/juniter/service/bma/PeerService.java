@@ -74,10 +74,10 @@ public class PeerService {
     }
 
 
-    @Scheduled(initialDelay = 60 * 1000, fixedDelay = 1000 * 60 * 60)
+    @Scheduled(initialDelay = 30 * 1000, fixedDelay = 1000 * 60 * 60)
     public void pings() {
 
-        while (!nextHost().isPresent()) {
+        while (nextHost().isEmpty()) {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
@@ -117,16 +117,6 @@ public class PeerService {
     public void load() {
         synchronized (hosts) {
             var urls = endPointRepo.endpointssBMAS().stream()
-                    .filter(ep -> {
-                        try{
-                            var split = ep.getPeer().getBlock().split("-");
-                            var parse = Integer.parseInt(split[0]);
-                            return parse < blockRepo.currentBlockNumber() - 100;
-                        }catch(Exception e ){
-                            return false;
-                        }
-
-                    })
                     .map(EndPoint::url)
                     .collect(Collectors.toList());
             urls.addAll(configuredNodes);
@@ -164,6 +154,38 @@ public class PeerService {
         load();
         LOG.error("no peers found in hosts[" + hosts.size() + "]");
         return Optional.empty();
+    }
+
+    @Transactional(readOnly = true)
+    public List<NetStats> nextHosts(int nb) {
+
+        List<NetStats> res = new ArrayList<>(nb);
+
+        var rand = Math.random();
+
+        //hosts.values().stream().min(Comparator.naturalOrder()).ifPresent(top -> LOG.info("Min Found " + top));
+        //
+        synchronized (hosts) {
+            for(int x = nb; x>0 ;x--) {
+
+                var normalizeAggregate = 0.;
+
+                for (Map.Entry<String, NetStats> h : hosts.entrySet()) {
+                    normalizeAggregate += h.getValue().getLastNormalizedScore();
+
+                    if (normalizeAggregate >= rand) {
+                        //LOG.info("normalizeAggregate " + normalizeAggregate);
+
+                        h.getValue().count.incrementAndGet();
+                        res.add(h.getValue());
+                    }
+                }
+            }
+        }
+
+        load();
+        LOG.error("no peers found in hosts[" + hosts.size() + "]");
+        return res;
     }
 
     @Transactional

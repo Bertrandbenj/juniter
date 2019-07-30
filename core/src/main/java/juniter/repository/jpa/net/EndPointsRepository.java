@@ -28,13 +28,14 @@ public interface EndPointsRepository extends JpaRepository<EndPoint, Long> {
 		return endpointsBMAS().filter(ep -> ep.getDomain() != null).map(ep -> ep.url()).collect(Collectors.toList());
 	}
 
-	Optional<EndPoint> findByPeerAndEndpoint(Peer pubkey, String ep_string);
+	@Query("select ep from EndPoint ep where peer = '%1' AND endpoint = '%2'  ")
+	Optional<EndPoint> findByPeerAndEndpoint(String pubkey, String endpoint);
 
-	@Override
-	<S extends EndPoint> S save(S endpoint);
-
-	@Override
-	<S extends EndPoint> List<S> saveAll(Iterable<S> entities);
+//	@Override
+//	<S extends EndPoint> S save(S endpoint);
+//
+//	@Override
+//	<S extends EndPoint> List<S> saveAll(Iterable<S> entities);
 //	@Override
 //	default <S extends EndPoint> List<S> saveAll(Iterable<S> entities){
 //		NetworkService.LOG.info("Saving stuff ");

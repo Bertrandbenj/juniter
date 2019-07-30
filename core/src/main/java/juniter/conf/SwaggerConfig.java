@@ -15,14 +15,6 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import static juniter.conf.StaticHTMLConfig.CLASSPATH_RESOURCE_LOCATIONS;
 
-//@EnableWebMvc
-//@EnableSwagger //Enable swagger 1.2 spec
-//@Import({springfox.documentation.spring.data.rest.configuration.SpringDataRestConfiguration.class})
-//@ComponentScan(basePackageClasses = BlockchainController.class)
-//@Import(Swagger2DocumentationConfiguration.class)
-
-
-
 @EnableSwagger2
 @Configuration
 public class SwaggerConfig extends WebMvcConfigurationSupport {
@@ -44,8 +36,9 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
         return new Docket(DocumentationType.SWAGGER_2)
                 .groupName("Juniter' extras")
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("juniter.service.rdf"))
-                .paths(PathSelectors.any())
+                .apis(RequestHandlerSelectors.any())//.basePackage("juniter.service.rdf"))
+                .paths(PathSelectors.regex("/api.*"))
+                //.paths(PathSelectors.any())
                 .build()
                 .apiInfo(metaData())
 //                .useDefaultResponseMessages(false)

@@ -47,6 +47,14 @@ configurations {
     all*.exclude group: "ch.qos.logback"
     all*.exclude group: "org.slf4j", module: "log4j-over-slf4j" // allow using log4j 2.x
     all*.exclude group: "org.slf4j", module: "slf4j-simple"     // log4j is the configured backend
+
+
+    all*.exclude group: "com.github.multiformats", module: "java-multibase"
+    all*.exclude group: "com.github.multiformats", module: "java-multihash"
+    all*.exclude group: "com.github.multiformats", module: "java-multiaddr"
+    all*.exclude group: "com.github.ipld", module: "cid"
+
+
 }
 
 
@@ -64,6 +72,7 @@ dependencies {
 
     //compile("org.springframework.boot:spring-boot-starter-web")	
     compile("org.springframework.boot:spring-boot-starter-data-jpa")
+    compile("org.springframework.data:spring-data-rest-webmvc")
     compile("org.springframework.boot:spring-boot-configuration-processor")
     compile("org.springframework.boot:spring-boot-starter-freemarker")
     compile("org.springframework.boot:spring-boot-starter-websocket")
@@ -75,7 +84,6 @@ dependencies {
     compile("com.graphql-java:graphiql-spring-boot-starter:3.6.0")
     compile("io.leangen.graphql:spqr:0.9.7")
     compile 'org.springframework.boot:spring-boot-starter-mail:2.0.1.RELEASE'
-
 
 
 //websocket client
@@ -125,6 +133,8 @@ dependencies {
 
     // PRE COMPILE
     compileOnly 'org.projectlombok:lombok:1.18.4'
+    annotationProcessor 'org.projectlombok:lombok:1.18.4'
+
     antlr "org.antlr:antlr4:4.7.1"
 
 
@@ -169,12 +179,12 @@ dependencies {
     compile 'io.springfox:springfox-swagger-ui:2.9.2'
     //compile 'io.springfox:springfox-data-rest:2.9.2'
     ////compile 'io.springfox:springfox-bean-validators:2.8.0
-    
+
     // CACHING 
     compile 'com.github.ben-manes.caffeine:caffeine:2.5.5'
 
     //compile "org.xerial:sqlite-jdbc:3.23.1"
- 
+
 
     compile 'org.javassist:javassist:3.23.1-GA'
     // https://stackoverflow.com/questions/18125587/hibernate-mapping-exception-could-not-get-constructor-for-org-hibernate-entity
@@ -183,6 +193,22 @@ dependencies {
 
     runtime 'org.hsqldb:hsqldb:2.4.0'
     //compile 'org.springframework.boot:spring-boot-starter-jetty'
+
+
+    // IPFS
+//    compile 'com.github.ipfs:java-ipfs-http-client:1.2.3'
+//    compile 'com.github.multiformats:java-multibase:v1.0.1'
+//    compile 'com.github.multiformats:java-multihash:v1.0.0'
+//    compile 'com.github.multiformats:java-multiaddr:v1.3.1'
+//    compile 'com.github.ipld:java-cid:v1.1.1'
+
+    compile files(projectDir.toString() + "/../lib/multihash.jar".toString())
+    compile files(projectDir.toString() + "/../lib/multibase.jar".toString())
+    compile files(projectDir.toString() + "/../lib/multiaddr.jar".toString())
+    compile files(projectDir.toString() + "/../lib/cid.jar".toString())
+
+
+    compile group: 'com.github.ipfs', name: 'java-ipfs-http-client', version: '1.2.3'
 }
 
 

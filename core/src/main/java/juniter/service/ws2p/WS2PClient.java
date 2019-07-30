@@ -10,13 +10,13 @@ import juniter.core.model.wso.ResponseBlock;
 import juniter.core.model.wso.ResponseBlocks;
 import juniter.core.model.wso.ResponseWotPending;
 import juniter.grammar.JuniterGrammar;
+import juniter.repository.jpa.block.BlockRepository;
 import org.antlr.v4.runtime.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft;
 import org.java_websocket.handshake.ServerHandshake;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
 import java.net.URI;
@@ -30,174 +30,175 @@ import java.util.Map;
  */
 public class WS2PClient extends WebSocketClient {
 
-	private static final Logger LOG = LogManager.getLogger(WS2PClient.class);
-	Map<String, Request> sentRequests = new HashMap<String, Request>();
+    private static final Logger LOG = LogManager.getLogger(WS2PClient.class);
+    private Map<String, Request> sentRequests = new HashMap<String, Request>();
 
-	@Value("${juniter.network.webSocketPoolSize:5}")
-	private Integer webSocketPoolSize;
+    private ObjectMapper jsonMapper;
 
-//	ConnectionPool connectionPool;
+    private BlockRepository blockRepo;
 
-	final ObjectMapper jsonMapper = new ObjectMapper();
+    public WS2PClient(URI serverURI, ObjectMapper jsonMapper, BlockRepository blockRepo) {
+        super(serverURI);
+        this.jsonMapper = jsonMapper;
+        this.blockRepo = blockRepo;
+    }
 
-	public WS2PClient(URI serverURI) {
-		super(serverURI);
+//    public WS2PClient(URI serverUri, Draft draft) {
+//        super(serverUri, draft);
+//    }
+//
+//    public WS2PClient(URI serverUri, Map<String, String> httpHeaders) {
+//        super(serverUri, httpHeaders);
+//    }
 
-//		this.connectionPool = connectionPool;
-	}
+    private void actionOnConnect() {
+        send(new Request().getBlock(3));
+        send(new Request().getBlocks(2, 3));
+        send(new Request().getCurrent());
+        send(new Request().getRequirementsPending(5));
 
-	public WS2PClient(URI serverUri, Draft draft) {
-		super(serverUri, draft);
-	}
+    }
 
-	public WS2PClient(URI serverUri, Map<String, String> httpHeaders) {
-		super(serverUri, httpHeaders);
-	}
+    private void handleChallenge(String message) {
 
-	private void actionOnConnect() {
-		send(new Request().getBlock(3));
-		send(new Request().getBlocks(2, 3));
-		send(new Request().getCurrent());
-		send(new Request().getRequirementsPending(5));
+        try {
 
-	}
+            final var challenge = jsonMapper.readValue(message, Connect.class);
 
-	private void handleChallenge(String message) {
+            LOG.debug("Challenge ... " + challenge);
 
-		try {
+            if (challenge.isACK()) {
+                send(challenge.okJson());
+                LOG.info("ACK, sending OK ");
+                return;
+            }
 
-			final var challenge = jsonMapper.readValue(message, Connect.class);
+            if (challenge.isConnect()) {
+                send(challenge.ackJson());
+                LOG.info("CONNECT, sent ACK ");
+                return;
+            }
 
-			LOG.debug("Challenge ... " + challenge);
+            if (challenge.isOK()) {
+                LOG.info("OK, connected !! ");
+                actionOnConnect();
+                return;
+            }
+        } catch (final Exception e) {
+            LOG.error("Exception ", e);
+        }
 
-			if (challenge.isACK()) {
-				send(challenge.okJson());
-				LOG.info("ACK, sending OK ");
-				return;
-			}
+        return;
 
-			if (challenge.isConnect()) {
-				send(challenge.ackJson());
-				LOG.info("CONNECT, sending ACK ");
-				return;
-			}
+    }
 
-			if (challenge.isOK()) {
-				LOG.info("OK, connected !! ");
-				actionOnConnect();
-				return;
-			}
-		} catch (final Exception e) {
-			LOG.error("Exception ", e);
-		}
+    void handleDUP(String message) {
+        LOG.info("handle Document");
+        final var parser = juniterParser(CharStreams.fromString(message));
+        final var doc = new JuniterGrammar().visitDoc(parser.doc());
 
-		return;
+    }
 
-	}
+    private void handleRequest(String message) {
+        LOG.info("handle Request");
+        try {
+            final var request = jsonMapper.readValue(message, Request.class);
+            // TODO respond
+        } catch (final JsonParseException e) {
+            LOG.error("handleRequest JSON parsing error ", e);
+        } catch (final JsonMappingException e) {
+            LOG.error("handleRequest JSON mapping error ", e);
+        } catch (final IOException e) {
+            LOG.error("handleRequest IO mapping error ", e);
+        }
+    }
 
-	void handleDUP(String message) {
-		LOG.info("handle Document");
-		final var parser = juniterParser(CharStreams.fromString(message));
-		final var doc = new JuniterGrammar().visitDoc(parser.doc());
+    private void handleResponse(String message) {
+        LOG.info("handle Response");
+        try {
+            final var resid = message.substring(10, 18);
 
-	}
+            final var req = sentRequests.remove(resid);
+            final var params = req.getBody().getParams();
 
-	private void handleRequest(String message) {
-		LOG.info("handle Request");
-		try {
-			final var request = jsonMapper.readValue(message, Request.class);
-			// TODO respond
-		} catch (final JsonParseException e) {
-			LOG.error("handleRequest JSON parsing error ", e);
-		} catch (final JsonMappingException e) {
-			LOG.error("handleRequest JSON mapping error ", e);
-		} catch (final IOException e) {
-			LOG.error("handleRequest IO mapping error ", e);
-		}
-	}
+            switch (req.getBody().getName()) {
+                case "BLOCK_BY_NUMBER":
+                    final var block = jsonMapper.readValue(message, ResponseBlock.class);
+                    LOG.info("BLOCK_BY_NUMBER " + block.getBody());
+                    break;
+                case "BLOCKS_CHUNK":
+                    final var blocks = jsonMapper.readValue(message, ResponseBlocks.class);
+                    LOG.info("BLOCKS_CHUNK " + blocks.getBody());
+                    break;
+                case "CURRENT":
+                    final var current = jsonMapper.readValue(message, ResponseBlock.class);
+                    LOG.info("CURRENT " + current.getBody());
+                    blockRepo.localSave(current.getBody());
+                    LOG.info("SAVED # " + current.getBody().getNumber());
+                    break;
+                case "WOT_REQUIREMENTS_OF_PENDING":
+                    final var wot = jsonMapper.readValue(message, ResponseWotPending.class);
+                    LOG.info("WOT_REQUIREMENTS_OF_PENDING " + wot.getBody());
+                    break;
+                default:
+                    LOG.warn("Unknown Response Name " + req.getBody().getName());
+            }
+        } catch (final JsonParseException e) {
+            LOG.error("handleResponse JSON parsing error ", e);
+        } catch (final JsonMappingException e) {
+            LOG.error("handleResponse JSON mapping error ", e);
+        } catch (final IOException e) {
+            LOG.error("handleResponse IO mapping error ", e);
+        }
+    }
 
-	private void handleResponse(String message) {
-		LOG.info("handle Response");
-		try {
-			final var resid = message.substring(10, 18);
+    private JuniterParser juniterParser(CharStream file) {
+        final JuniterLexer l = new JuniterLexer(file);
+        final JuniterParser p = new JuniterParser(new CommonTokenStream(l));
 
-			final var req = sentRequests.remove(resid);
-			final var params = req.getBody().getParams();
+        p.addErrorListener(new BaseErrorListener() {
+            @Override
+            public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line,
+                                    int charPositionInLine, String msg, RecognitionException e) {
+                throw new IllegalStateException("failed to parse at line " + line + " due to " + msg, e);
+            }
+        });
 
-			switch (req.getBody().getName()) {
-			case "BLOCK_BY_NUMBER":
-				final var block = jsonMapper.readValue(message, ResponseBlock.class);
-				LOG.info("BLOCK_BY_NUMBER " + block.getBody());
-				break;
-			case "BLOCKS_CHUNK":
-				final var blocks = jsonMapper.readValue(message, ResponseBlocks.class);
-				LOG.info("BLOCKS_CHUNK " + blocks.getBody());
-				break;
-			case "CURRENT":
-				final var current = jsonMapper.readValue(message, ResponseBlock.class);
-				LOG.info("CURRENT " + current.getBody());
-				break;
-			case "WOT_REQUIREMENTS_OF_PENDING":
-				final var wot = jsonMapper.readValue(message, ResponseWotPending.class);
-				LOG.info("WOT_REQUIREMENTS_OF_PENDING " + wot.getBody());
+        return p;
+    }
 
-				break;
-			}
-		} catch (final JsonParseException e) {
-			LOG.error("handleResponse JSON parsing error ", e);
-		} catch (final JsonMappingException e) {
-			LOG.error("handleResponse JSON mapping error ", e);
-		} catch (final IOException e) {
-			LOG.error("handleResponse IO mapping error ", e);
-		}
-	}
+    @Override
+    public void onClose(int code, String reason, boolean remote) {
+        // The codecodes are documented in class org.java_websocket.framing.CloseFrame
+        LOG.info("Connection closed by " + (remote ? "remote peer" : "us") + " Code: " + code + " on URI " + getURI() + " Reason: " + reason);
+    }
 
-	private JuniterParser juniterParser(CharStream file) {
-		final JuniterLexer l = new JuniterLexer(file);
-		final JuniterParser p = new JuniterParser(new CommonTokenStream(l));
+    @Override
+    public void onError(Exception ex) {
+        LOG.error("WS onError " + getURI(), ex);
+        // if the error is fatal then onClose will be called additionally
+    }
 
-		p.addErrorListener(new BaseErrorListener() {
-			@Override
-			public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line,
-					int charPositionInLine, String msg, RecognitionException e) {
-				throw new IllegalStateException("failed to parse at line " + line + " due to " + msg, e);
-			}
-		});
+    @Override
+    public void onMessage(String message) {
+        LOG.info("received: " + message.substring(0, 50) + "...");
 
-		return p;
-	}
+        if (message.startsWith("{\"auth\":")) {
+            handleChallenge(message);
+        } else if (message.startsWith("{\"resId")) {
+            handleResponse(message);
+        } else if (message.startsWith("{\"reqId")) {
+            handleRequest(message);
+        } else if (message.startsWith("Version:")) {
+            handleDUP(message);
+        } else {
+            LOG.warn("received unknown message: " + message);
+        }
+    }
 
-	@Override
-	public void onClose(int code, String reason, boolean remote) {
-		// The codecodes are documented in class org.java_websocket.framing.CloseFrame
-		LOG.info("Connection closed by " + (remote ? "remote peer" : "us") + " Code: " + code + " Reason: " + reason);
-	}
-
-	@Override
-	public void onError(Exception ex) {
-		LOG.error(ex);
-		// if the error is fatal then onClose will be called additionally
-	}
-
-	@Override
-	public void onMessage(String message) {
-		LOG.info("received: " + message);
-
-		if (message.startsWith("{\"auth\":")) {
-			handleChallenge(message);
-		} else if (message.startsWith("{\"resId")) {
-			handleResponse(message);
-		} else if (message.startsWith("{\"reqId")) {
-			handleRequest(message);
-		} else if (message.startsWith("Version:")) {
-			handleDUP(message);
-		}
-
-	}
-
-	@Override
-	public void onOpen(ServerHandshake handshakedata) {
-		LOG.info("opened connection " + handshakedata.getHttpStatus());
+    @Override
+    public void onOpen(ServerHandshake handshakedata) {
+        LOG.info("opened connection " + handshakedata.getHttpStatus());
 
 //		while (true) {
 //			try {
@@ -210,27 +211,28 @@ public class WS2PClient extends WebSocketClient {
 //				close(1000, "InterruptedException ");
 //			}
 //		}
-		// final var sendChallenge = Connect.make().connectJson();
-		// send(sendChallenge);
+        // final var sendChallenge = Connect.make().connectJson();
+        // send(sendChallenge);
 
-		// LOG.info("sent " + sendChallenge);
-		// if you plan to refuse connection based on ip or httpfields overload:
-		// onWebsocketHandshakeReceivedAsClient
-	}
+        // LOG.info("sent " + sendChallenge);
+        // if you plan to refuse connection based on ip or httpfields overload:
+        // onWebsocketHandshakeReceivedAsClient
+    }
 
-	void send(Request req) {
-		try {
-			sentRequests.put(req.getReqId(), req); // save for reuse
-			send(jsonMapper.writeValueAsString(req));
-		} catch (NotYetConnectedException | JsonProcessingException e) {
-			e.printStackTrace();
-		}
-	}
+    void send(Request req) {
+        try {
+            sentRequests.put(req.getReqId(), req); // save for reuse
 
-	@Override
-	public void send(String text) throws NotYetConnectedException {
-		LOG.info("sending : " + text);
-		super.send(text);
-	}
+            send(jsonMapper.writeValueAsString(req));
+        } catch (NotYetConnectedException | JsonProcessingException e) {
+            LOG.error(e);
+        }
+    }
+
+    @Override
+    public void send(String text) throws NotYetConnectedException {
+        LOG.info("sending : " + text);
+        super.send(text);
+    }
 
 }

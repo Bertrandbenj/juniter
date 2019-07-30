@@ -20,6 +20,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Set;
@@ -65,13 +68,32 @@ public class Index implements GlobalValid {
     @Value("${juniter.startIndex:false}")
     private boolean startIndex;
 
+    @PersistenceContext
+    private EntityManager entityManager;
 
-    @Scheduled(initialDelay = 1000 * 60, fixedRate = 1000 * 60 * 5)
-    void launchIndexing() {
-        if (startIndex) {
-            indexUntil(blockRepo.currentBlockNumber(), false);
+    /**
+     * hack to create account VIEW after SQL table's init.
+     * TODO: might not work on every SQL backend, please adapt
+     */
+    @PostConstruct
+    public void createAccountView() {
+        try {
+            entityManager.createNativeQuery("CREATE OR REPLACE " +
+                    "VIEW accounts AS " +
+                    "SELECT conditions, sum(case WHEN consumed THEN 0-amount ELSE amount end) bSum " +
+                    "FROM sindex " +
+                    "GROUP BY conditions " +
+                    "ORDER by conditions;")
+                    .executeUpdate();
+
+            LOG.info("Successfully added Account view ");
+        } catch (Exception e) {
+            LOG.error("Error creating Account view ", e);
+
         }
+
     }
+
 
     @Transactional
     @Counted(absolute = true)
@@ -260,7 +282,7 @@ public class Index implements GlobalValid {
 
         int bellow = Math.max(0, head.getNumber() - bIndexSize);
 
-        LOG.info("Trimming " + bIndexSize + " at " + head.getNumber());
+        LOG.debug("Trimming " + bIndexSize + " at " + head.getNumber());
         bRepo.trim(bIndexSize);
         sRepo.trim(bellow);
         //iRepo.trimRecords(bellow);

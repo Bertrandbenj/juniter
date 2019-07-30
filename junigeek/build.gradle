@@ -11,7 +11,9 @@ buildscript {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:2.0.2.RELEASE")
         classpath 'org.hidetake:gradle-ssh-plugin:2.9.0'
         classpath('se.transmode.gradle:gradle-docker:1.2')
-       // classpath("com.github.honourednihilist:gradle-postgresql-embedded:0.4.0")
+        classpath "com.netflix.nebula:gradle-ospackage-plugin:6.2.1"
+
+        // classpath("com.github.honourednihilist:gradle-postgresql-embedded:0.4.0")
     }
 
 }
@@ -28,6 +30,9 @@ apply plugin: 'io.spring.dependency-management'
 apply plugin: 'application'
 apply plugin: 'docker'
 //apply plugin: 'docker-spring-boot-application'
+apply plugin: "nebula.ospackage"
+
+
 
 dependencies {
     compile project(":core")
@@ -50,6 +55,13 @@ springBoot {
 bootJar {
     mainClassName = 'juniter.Application'
     enabled = true
+
+    baseName = "${project.name}"
+    version = "${project.version}-boot"
+
+    manifest.attributes(
+            'Multi-Release': 'true'
+    )
 }
 
 
@@ -57,11 +69,15 @@ bootJar {
 jar {
     baseName = "junigeek"
     //group    = "juniter"
-    version  = "0.0.1-SNAPSHOT"
+    version = "${project.version}"
     mainClassName =  'juniter.Application'
 
-    //manifest { attributes "Main-Class": group + ".juniter.Application" }
-}
+    enabled = true
+    manifest {
+        attributes(
+                'Main-Class': 'juniter.Application'
+        )
+    }}
 
 docker {
     //baseImage "frolvlad/alpine-openjdk11:stretch"
@@ -93,3 +109,144 @@ bootRun {
 //    stopWhenBuildFinished = true
 //    timeoutMillisBeforeStop = 0
 //}
+
+
+// ===================================================================================
+// =                                  .deb    .rpm                                   =
+// ===================================================================================
+
+
+buildDeb {
+
+//    user "juniter"
+//    permissionGroup "juniter"
+
+    requires('graphviz', '2.40.1', GREATER | EQUAL)
+    requires('postgresql')
+    requires('libsodium-dev', '1.0.16', GREATER | EQUAL)
+    requires('openjdk-11-jdk', '11.0.3', GREATER | EQUAL)
+
+    link('/lib/systemd/system/juniter.service', "/opt/${project.name}/bin/service/juniter.service")
+    link('/lib/systemd/system/ipfs-cluster.service', "/opt/${project.name}/bin/service/ipfs-custer.service")
+    link('/lib/systemd/system/ipfs.service', "/opt/${project.name}/bin/service/ipfs.service")
+
+     link('/usr/local/bin/junigeek', "/opt/${project.name}//bin/junigeek.sh")
+
+}
+
+
+ospackage {
+    packageName = "${project.name}"
+    version = "${project.version}"
+//    release = 'beta'
+    type = BINARY
+//  arch = I386
+    os = LINUX
+
+    installUtils file('../scripts/rpm/utils.sh')
+    preInstall file('../scripts/rpm/preInstall.sh')
+    postInstall file('../scripts/rpm/postInstall.sh')
+//  preUninstall 'touch /tmp/myfile'java -Dfile.encoding=UTF-8 -cp "/opt/juniterriens/lib/*" juniter.GUIApplication
+
+    postUninstall file('../scripts/rpm/postUninstall.sh')
+
+    //requires('qux')
+
+    into "/opt/${project.name}"
+//    user "juniter"
+//    permissionGroup "juniter"
+
+
+    from(jar.outputs.files) {
+        into 'lib'
+    }
+    from(configurations.runtime) {
+        into 'lib'
+    }
+
+    from('lib') {
+        into 'lib'
+    }
+    from('../scripts') {
+        into 'bin'
+        exclude 'database'
+        fileMode = 0550
+    }
+
+    from('src/main/resources') {
+        fileType CONFIG | NOREPLACE
+        into 'conf'
+    }
+
+    from('home') {
+        // Creating directory entries (or not) in the RPM is normally left up to redline-rpm library.
+        // Use this to explicitly create an entry -- for setting directory fileMode on system directories.
+        createDirectoryEntry = true
+        fileMode = 0500
+        into 'home'
+    }
+    from('endorsed') {
+        // Will tell redline-rpm not to auto create directories, which
+        // is sometimes necessary to avoid rpm directory conflicts
+        addParentDirs = false
+        into '/usr/share/tomcat/endorsed'
+    }
+
+//    from ( "${project.buildDir}/libs" ){
+//        into 'lib'
+//    }
+
+}
+
+
+
+
+//
+// ==================== servers =======================
+//
+
+//https://gradle-ssh-plugin.github.io/docs/
+remotes {
+    juniter {
+        role 'masterNode'
+        host = 'g1.bertrandbenjamin.com'
+        user = 'ben'
+        agent = true 	// If this is set, Putty Agent or ssh-agent will be used on authentication
+        identity = file("${System.getProperty('user.home')}/.ssh/id_rsa")
+    }
+}
+
+//task deploy{
+//    ssh.run {
+//        session(remotes.juniter) {
+//            //execute 'killall java'
+//
+//            put from: "build/libs/junigeek-${project.version}.jar", into: '/home/ben'
+//
+//            //execute 'sudo service tomcat restart'
+//            execute "java -jar junigeek-${project.version}.jar -Djuniter.useJavaFX=false --headless "
+//        }
+//    }
+//}
+
+task checkServer {
+    doLast {
+        ssh.run {
+            session(remotes.juniter) {
+
+                def result = execute 'ls -al' // Execute a command for fun
+
+                // Any Gradle methods or properties are available in a session closure "$buildDir/tmp"
+                copy {
+                    from "docs/"
+                    into "/tmp"
+                }
+
+                // Also Groovy methods or properties are available in a session closure
+                println result
+            }
+        }
+    }
+}
+
+
