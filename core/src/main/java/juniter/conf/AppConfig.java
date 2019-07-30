@@ -39,7 +39,9 @@ public class AppConfig {
     @Value("${juniter.dataPath:${user.home}/.config/juniter/data/}")
     private String dataPath;
 
+
     @Bean
+
     public IPFS ipfs() {
         var ipfs = new IPFS(new MultiAddress("/ip4/127.0.0.1/tcp/5001"));
 
@@ -60,7 +62,7 @@ public class AppConfig {
 
 
     @Bean
-    public Path workingDir() {
+  public Path workingDir() {
 
         LOG.info("Setting workingDir to " + dataPath);
 

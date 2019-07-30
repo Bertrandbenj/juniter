@@ -13,7 +13,7 @@ public enum EndPointType {
 	ES_USER_API("ES_USER_API"), //
 	ES_SUBSCRIPTION_API("ES_SUBSCRIPTION_API"), //
 	GCHANGE_API("GCHANGE_API"), //
-	BMA("BMA");
+	;
 
 	private final String ENDPOINT_TYPE;
 

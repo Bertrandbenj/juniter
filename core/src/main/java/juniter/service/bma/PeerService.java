@@ -117,16 +117,6 @@ public class PeerService {
     public void load() {
         synchronized (hosts) {
             var urls = endPointRepo.endpointssBMAS().stream()
-                    .filter(ep -> {
-                        try{
-                            var split = ep.getPeer().getBlock().split("-");
-                            var parse = Integer.parseInt(split[0]);
-                            return parse < blockRepo.currentBlockNumber() - 100;
-                        }catch(Exception e ){
-                            return false;
-                        }
-
-                    })
                     .map(EndPoint::url)
                     .collect(Collectors.toList());
             urls.addAll(configuredNodes);

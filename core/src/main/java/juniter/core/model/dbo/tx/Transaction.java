@@ -65,32 +65,32 @@ public class Transaction implements DUPDocument, Serializable {
     @Valid
     @LazyCollection(LazyCollectionOption.FALSE)
     @ElementCollection
-    @CollectionTable(name = "tx_issuers", joinColumns = @JoinColumn(name = "tx_id"))
+    @CollectionTable(name = "tx_issuer", joinColumns = @JoinColumn(name = "tx_id"))
     private List<@Size(max = 45) @Pattern(regexp = Constants.Regex.PUBKEY)
             String> issuers = new ArrayList<>();
 
     @Valid
     @LazyCollection(LazyCollectionOption.FALSE)
     @ElementCollection
-    @CollectionTable(name = "tx_inputs", joinColumns = @JoinColumn(name = "tx_id"))
+    @CollectionTable(name = "tx_input", joinColumns = @JoinColumn(name = "tx_id"))
     private List<TxInput> inputs = new ArrayList<>();
 
     @Valid
     @LazyCollection(LazyCollectionOption.FALSE)
     @ElementCollection
-    @CollectionTable(name = "tx_outputs", joinColumns = @JoinColumn(name = "tx_id"))
+    @CollectionTable(name = "tx_output", joinColumns = @JoinColumn(name = "tx_id"))
     private List<TxOutput> outputs = new ArrayList<>();
 
     @Valid
     @LazyCollection(LazyCollectionOption.FALSE)
     @ElementCollection
-    @CollectionTable(name = "tx_unlocks", joinColumns = @JoinColumn(name = "tx_id"))
+    @CollectionTable(name = "tx_unlock", joinColumns = @JoinColumn(name = "tx_id"))
     private List<TxUnlock> unlocks = new ArrayList<>();
 
     @Valid
     @LazyCollection(LazyCollectionOption.FALSE)
     @ElementCollection
-    @CollectionTable(name = "tx_signatures", joinColumns = @JoinColumn(name = "tx_id"))
+    @CollectionTable(name = "tx_signature", joinColumns = @JoinColumn(name = "tx_id"))
     private List<@Size(max = 88) @Pattern(regexp = Constants.Regex.SIGNATURE)
             String> signatures = new ArrayList<>();
 

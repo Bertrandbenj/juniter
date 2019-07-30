@@ -1,5 +1,6 @@
 package juniter.service.bma.loader;
 
+import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.net.Peer;
 import juniter.core.utils.TimeUtils;
 import juniter.repository.jpa.block.BlockRepository;
@@ -48,7 +49,7 @@ public class MissingBlocksLoader {
 
         final var currentNumber = peerRepo.findAll().stream()
                 .map(Peer::getBlock)
-                .mapToInt(b -> Integer.parseInt(b.split("-")[0]))
+                .mapToInt(BStamp::getNumber)
                 .max()
                 .orElse(blockRepo.currentBlockNumber());
 

@@ -33,6 +33,10 @@ allprojects {
 //    task hello << { task -> println "I'm project $task.project.name" }
 }
 
+//task wrapper(type: Wrapper) {
+//    gradleVersion = '5.5' //version required
+//}
+
 subprojects {
     //apply plugin: "java"
     //apply plugin: 'application'

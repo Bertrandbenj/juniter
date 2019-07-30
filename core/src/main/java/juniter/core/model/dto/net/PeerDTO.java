@@ -1,5 +1,6 @@
 package juniter.core.model.dto.net;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import juniter.core.model.dbo.net.EndPoint;
 import lombok.Data;
 
@@ -26,10 +27,9 @@ public class PeerDTO {
 
     private String signature;
 
-    private List<String> endpoints;
+    private List<EndPoint> endpoints;
 
-    public void setEndpoints(List<EndPoint> eps ){
-        endpoints = eps.stream().map(EndPoint::getEndpoint).collect(Collectors.toList());
-    }
-
+//    public List<String> getEndpoints() {
+//        return endpoints.stream().map(EndPoint::getEndpoint).collect(Collectors.toList());
+//    }
 }

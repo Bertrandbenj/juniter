@@ -32,7 +32,6 @@ apply plugin: "nebula.ospackage"
 javafx {
     modules = ['javafx.controls', 'javafx.fxml', 'javafx.web', 'javafx.media', 'javafx.graphics']
     // version = "11.0.2"
-    
 }
 
 
@@ -55,8 +54,28 @@ dependencies {
     compile group: 'org.openjfx', name: 'javafx-media', version: '11.0.2'
     compile group: 'org.openjfx', name: 'javafx-graphics', version: '11.0.2'
 
+    //compile group: 'org.controlsfx', name: 'controlsfx', version: '11.0.0'
+    compile 'org.jfxtras:jmetro:5.3'
+
 
 }
+
+//application {
+//    applicationDefaultJvmArgs =  [
+//            "--add-opens=javafx.base/com.sun.javafx.runtime=org.controlsfx.controls",
+//            "--add-opens=javafx.base/com.sun.javafx.collections=org.controlsfx.controls",
+//            "--add-opens=javafx.graphics/com.sun.javafx.css=org.controlsfx.controls",
+//            "--add-opens=javafx.graphics/com.sun.javafx.scene=org.controlsfx.controls",
+//            "--add-opens=javafx.graphics/com.sun.javafx.scene.traversal=org.controlsfx.controls",
+//            "--add-opens=javafx.graphics/javafx.scene=org.controlsfx.controls",
+//            "--add-opens=javafx.controls/com.sun.javafx.scene.control=org.controlsfx.controls",
+//            "--add-opens=javafx.controls/com.sun.javafx.scene.control.behavior=org.controlsfx.controls",
+//            "--add-opens=javafx.controls/javafx.scene.control.skin=org.controlsfx.controls",
+//            "--add-opens=javafx.graphics/com.sun.javafx.css=ALL-UNNAMED"
+//    ]
+//}
+//
+
 
 repositories {
     maven { url 'https://jitpack.io' }

@@ -45,11 +45,11 @@ import java.util.stream.Collectors;
 @Data
 @NoArgsConstructor
 @Table(name = "block", schema = "public", indexes = {
-        @Index(  columnList = "number"),
-        @Index(  columnList = "hash"),
-        @Index(  columnList = "dividend"),
-        @Index(  columnList = "size"),
-        @Index(  columnList = "medianTime")
+        @Index(columnList = "number"),
+        @Index(columnList = "hash"),
+        @Index(columnList = "dividend"),
+        @Index(columnList = "size"),
+        @Index(columnList = "medianTime")
 }, uniqueConstraints = {
         @UniqueConstraint(columnNames = {"number", "hash"})
 })

@@ -14,11 +14,10 @@ juniter:
   useGraphViz: true
   useGVA: true      # FIXME:  dependencies ?
   useBMA: true
-  #useWS2P: true
+  useWS2P: true
   useIPFS: true
   utils.enabled: false
-  #useJavaFX: false
-  #useSpark: false
+  #useSpark: true
   indexer: true
   startIndex: true
 
@@ -39,23 +38,31 @@ spring:
   session.store-type: none # jdbc|mongo|none|redis|hazelcast
 
   datasource:
-    url: jdbc:postgresql://localhost/testdb
-    username: testuser
+    url: jdbc:postgresql://localhost/junidb
+    username: juniterrien
     password: junipass
     driverClassName: org.postgresql.Driver
-    jdbcUrl: jdbc:postgresql://localhost/testdb
+    jdbcUrl: jdbc:postgresql://localhost/junidb
 
   jpa:
     database: default
     generate-ddl: true
     show-sql: false
-    hibernate.ddl-auto: create-drop
-    properties.hibernate.jdbc:
-      lob.non_contextual_creation: true # disable an ugly exception at start
+    hibernate:
+      ddl-auto: update # create-drop
+#      naming.implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyComponentPathImpl
+#      naming.physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    properties.hibernate:
+      jdbc:
+        lob.non_contextual_creation: true # disable an ugly exception at start
+        format_sql: true
+      #schema_update.unique_constraint_strategy: RECREATE_QUIETLY
 
-    properties:
-      hibernate:
-        format_sql : true
+
+  cache:
+    cache-names: instruments, directory
+    caffeine:
+      spec: maximumSize=500, expireAfterAccess=30s
 
   mvc.static-path-pattern: /resources/**
 
@@ -81,12 +88,12 @@ spring:
 ## =========================== Web Server Configs ===========================
 ##
 server:
-  port: 443
+  port: 8443
   ssl:
-    key-store: ../core/keystore.p12
+    key-store: /opt/juniterriens/conf/keystore.p12
     key-store-password: ouvresToi
     keyStoreType: PKCS12
-    keyAlias: juniter2
+    keyAlias: juniter
   compression:
     enabled: true
     mime-types: application/json,application/xml,text/html,text/xml,text/plain,application/javascript,text/css,image/svg+xml
