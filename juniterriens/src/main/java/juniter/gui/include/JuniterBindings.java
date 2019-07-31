@@ -15,7 +15,9 @@ import java.util.*;
 
 public interface JuniterBindings {
 
-    String BLANK_THEME = "/gui/css/no-theme.css";
+     String JMetroBase = "/gui/css/JMetroBase.css";
+    String BLANK_THEME = "/gui/css/JMetroDarkTheme.css";
+
     String DARK_THEME = "/gui/css/clair-de-june.css";
 
     DoubleProperty overallTaxRate = new SimpleDoubleProperty(20.);

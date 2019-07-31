@@ -18,7 +18,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -78,6 +80,30 @@ public class Interplanetary {
 
     @Autowired
     private BlockLoader blockLoader;
+
+
+    @PostConstruct
+    public IPFS ipfs() {
+        IPFS ipfs = null;
+        try {
+//            ipfs = new IPFS(new MultiAddress("/ip4/127.0.0.1/tcp/5001"));
+//            LOG.info(" ==== IPFS INIT =====");
+
+            ipfs.config.show().forEach((k, v) -> LOG.info("  --  kv: " + k + " : " + v));
+//            ipfs.pin.add(Multihash.fromBase58("QmUhVpSmXnTTnpyRivjYADjBEG5MYtr4eP4JEE2qxfVjMd"));
+//            ipfs.pin.add(Multihash.fromBase58("QmRBFKnivhKQxy3kZ4vZUCEGMtrckdu9GMeNjkcM497P9z"));
+//            ipfs.pin.add(Multihash.fromBase58("QmNqToxUD8nUh476UsFyMUiSTTSgH2WAAnrSR3qL95iHXK"));
+//            ipfs.pin.add(Multihash.fromBase58("QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn"));
+
+        } catch (RuntimeException e) {
+            LOG.error("Connecting to IPFS ", e);
+        } catch (IOException e) {
+            LOG.error("Initializing IPFS ", e);
+        }
+
+        return ipfs;
+    }
+
 
     private void mkdirs() {
 
@@ -155,7 +181,7 @@ public class Interplanetary {
 //            while ((line = input.readLine()) != null  )
 //                LOG.info(" -- pin stdout: " + line);
 
-            return process.waitFor(1   , TimeUnit.SECONDS);
+            return process.waitFor(1, TimeUnit.SECONDS);
 
         } catch (Exception e) {
             LOG.error(e);
@@ -408,7 +434,8 @@ public class Interplanetary {
 
             if (format(timeT1) != date) {
                 // Handle block
-                dailyBuffer.put( i+"", bl);
+
+                dailyBuffer.put(i + "", bl);
                 cp(summarize(dailyBuffer), DAILY_DIR + "/" + date);
                 dailyBuffer.clear();
             }

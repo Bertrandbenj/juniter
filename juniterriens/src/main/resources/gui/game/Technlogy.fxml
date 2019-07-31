@@ -1,0 +1,502 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.media.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.layout.*?>
+<?import java.lang.*?>
+<?import javafx.scene.shape.*?>
+
+<AnchorPane stylesheets="@../css/search.css" xmlns="http://javafx.com/javafx/8"
+            xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <BorderPane layoutX="712.0" layoutY="366.0" style="-fx-border-style: ;" styleClass="technology">
+         <top>
+            <VBox BorderPane.alignment="CENTER">
+               <children>
+                  <ProgressBar prefWidth="200.0" progress="0.08" styleClass="yellow-bar" stylesheets="@../css/search.css" />
+                  <ProgressBar prefWidth="200.0" progress="0.46" />
+               </children>
+            </VBox>
+         </top>
+         <bottom>
+            <Label styleClass="boxtitle" text="SIG Transactions" BorderPane.alignment="CENTER">
+               <font>
+                  <Font size="16.0" />
+               </font>
+               <padding>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </padding>
+            </Label>
+         </bottom>
+         <center>
+            <VBox maxHeight="1.7976931348623157E308" spacing="10.0" style="border: block;" styleClass="checklist" BorderPane.alignment="TOP_LEFT">
+               <children>
+                  <CheckBox mnemonicParsing="false" selected="true" text="1 to 1 TX" />
+                  <CheckBox mnemonicParsing="false" text="1 to many TX" />
+                  <CheckBox mnemonicParsing="false" text="many to many TX" />
+                  <CheckBox mnemonicParsing="false" text="Tests" />
+                  <CheckBox mnemonicParsing="false" text="Document" />
+               </children>
+            </VBox>
+         </center>
+      </BorderPane>
+      <BorderPane layoutX="1012.0" layoutY="505.0" styleClass="technology">
+         <bottom>
+            <Label styleClass="boxtitle" text="Advandced Transactions" wrapText="true" BorderPane.alignment="CENTER">
+               <font>
+                  <Font size="16.0" />
+               </font>
+               <padding>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </padding>
+            </Label>
+         </bottom>
+         <top>
+            <VBox maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">
+               <children>
+                  <ProgressBar maxWidth="1.7976931348623157E308" progress="0.18" styleClass="yellow-bar" VBox.vgrow="ALWAYS" />
+                  <ProgressBar maxWidth="1.7976931348623157E308" progress="0.0" VBox.vgrow="ALWAYS" />
+               </children>
+            </VBox>
+         </top>
+         <center>
+            <VBox spacing="10.0" styleClass="checklist" BorderPane.alignment="CENTER">
+               <children>
+                  <CheckBox mnemonicParsing="false" text="XHX" />
+                  <CheckBox mnemonicParsing="false" text="CSV " />
+                  <CheckBox mnemonicParsing="false" text="CLTV" />
+               </children>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+            </VBox>
+         </center>
+      </BorderPane>
+      <BorderPane layoutX="712.0" layoutY="51.0" styleClass="technology">
+         <bottom>
+            <Label styleClass="boxtitle" text="Indexation" BorderPane.alignment="CENTER">
+               <font>
+                  <Font size="16.0" />
+               </font>
+               <padding>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </padding>
+            </Label>
+         </bottom>
+         <center>
+            <VBox maxHeight="1.7976931348623157E308" spacing="10.0" styleClass="checklist" BorderPane.alignment="TOP_LEFT">
+               <children>
+                  <CheckBox mnemonicParsing="false" text="BINDEX" />
+                  <CheckBox mnemonicParsing="false" text="SINDEX" />
+                  <CheckBox mnemonicParsing="false" selected="true" text="MINDEX" />
+                  <CheckBox mnemonicParsing="false" selected="true" text="IINDEX" />
+                  <CheckBox mnemonicParsing="false" selected="true" text="CINDEX" />
+                  <CheckBox mnemonicParsing="false" text="Tests" />
+                  <CheckBox mnemonicParsing="false" text="Document" />
+                  <CheckBox mnemonicParsing="false" text="Licence" />
+               </children>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+            </VBox>
+         </center>
+         <top>
+            <VBox BorderPane.alignment="CENTER">
+               <children>
+                  <ProgressBar prefWidth="200.0" progress="0.06" styleClass="yellow-bar" />
+                  <ProgressBar prefWidth="200.0" progress="0.43" />
+               </children>
+            </VBox>
+         </top>
+      </BorderPane>
+      <BorderPane layoutX="408.0" layoutY="344.0" style="-fx-border-style: ;" styleClass="technology">
+         <bottom>
+            <Label styleClass="boxtitle" text="Verify Grammar " BorderPane.alignment="CENTER">
+               <font>
+                  <Font size="16.0" />
+               </font>
+               <padding>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </padding>
+            </Label>
+         </bottom>
+         <center>
+            <VBox maxHeight="1.7976931348623157E308" spacing="10.0" style="border: block;" styleClass="checklist" BorderPane.alignment="TOP_LEFT">
+               <children>
+                  <CheckBox mnemonicParsing="false" selected="true" text="Identity" />
+                  <CheckBox mnemonicParsing="false" selected="true" text="Revocation" />
+                  <CheckBox mnemonicParsing="false" selected="true" text="Membership" />
+                  <CheckBox mnemonicParsing="false" text="Transaction" />
+                  <CheckBox mnemonicParsing="false" text="Block" />
+                  <CheckBox mnemonicParsing="false" selected="true" text="Peer" />
+                  <CheckBox mnemonicParsing="false" text="Tests" />
+                  <CheckBox mnemonicParsing="false" text="Document" />
+                  <CheckBox mnemonicParsing="false" text="Licence" />
+               </children>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+            </VBox>
+         </center>
+         <top>
+            <VBox BorderPane.alignment="CENTER">
+               <children>
+                  <ProgressBar prefWidth="200.0" progress="0.08" styleClass="yellow-bar" stylesheets="@../css/search.css" />
+                  <ProgressBar prefWidth="200.0" progress="0.73" />
+               </children>
+            </VBox>
+         </top>
+      </BorderPane>
+      <BorderPane layoutX="106.0" layoutY="413.0" style="-fx-border-style: ;" styleClass="technology">
+         <bottom>
+            <Label styleClass="boxtitle" text="Read WoT Documents" BorderPane.alignment="CENTER">
+               <font>
+                  <Font size="16.0" />
+               </font>
+               <padding>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </padding>
+            </Label>
+         </bottom>
+         <center>
+            <VBox maxHeight="1.7976931348623157E308" spacing="10.0" styleClass="checklist" BorderPane.alignment="TOP_LEFT">
+               <children>
+                  <CheckBox mnemonicParsing="false" selected="true" text="Membership" />
+                  <CheckBox mnemonicParsing="false" selected="true" text="Revocation" />
+                  <CheckBox mnemonicParsing="false" selected="true" text="Identity" />
+                  <CheckBox mnemonicParsing="false" selected="true" text="Certification" />
+                  <CheckBox mnemonicParsing="false" text="Tests" />
+                  <CheckBox mnemonicParsing="false" text="Document" />
+               </children>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+            </VBox>
+         </center>
+         <top>
+            <VBox BorderPane.alignment="CENTER">
+               <children>
+                  <ProgressBar maxWidth="1.7976931348623157E308" progress="0.08" styleClass="yellow-bar" stylesheets="@../css/search.css" />
+                  <ProgressBar maxWidth="1.7976931348623157E308" progress="0.91" />
+               </children>
+            </VBox>
+         </top>
+      </BorderPane>
+      <BorderPane layoutX="408.0" layoutY="41.0" style="-fx-border-style: ;" styleClass="technology">
+         <bottom>
+            <Label styleClass="boxtitle" text="Store" BorderPane.alignment="CENTER">
+               <font>
+                  <Font size="16.0" />
+               </font>
+               <padding>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </padding>
+            </Label>
+         </bottom>
+         <center>
+            <VBox maxHeight="1.7976931348623157E308" spacing="10.0" style="border: block;" styleClass="checklist" BorderPane.alignment="TOP_LEFT">
+               <children>
+                  <CheckBox mnemonicParsing="false" selected="true" text="Postgres" />
+                  <CheckBox mnemonicParsing="false" selected="true" text="JPA" />
+                  <CheckBox mnemonicParsing="false" text="Mysql" />
+                  <CheckBox mnemonicParsing="false" text="..." />
+                  <CheckBox mnemonicParsing="false" text="Tests" />
+                  <CheckBox mnemonicParsing="false" text="Document" />
+                  <CheckBox mnemonicParsing="false" text="Licence" />
+               </children>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+            </VBox>
+         </center>
+         <top>
+            <VBox BorderPane.alignment="CENTER">
+               <children>
+                  <ProgressBar prefWidth="200.0" progress="0.08" styleClass="yellow-bar" stylesheets="@../css/search.css" />
+                  <ProgressBar prefWidth="200.0" progress="0.91" />
+               </children>
+            </VBox>
+         </top>
+      </BorderPane>
+      <BorderPane layoutX="111.0" layoutY="715.0" style="-fx-border-style: ;" styleClass="technology">
+         <bottom>
+            <Label styleClass="boxtitle" text="Crypto" BorderPane.alignment="CENTER">
+               <font>
+                  <Font size="16.0" />
+               </font>
+               <padding>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </padding>
+            </Label>
+         </bottom>
+         <center>
+            <VBox styleClass="checklist" BorderPane.alignment="TOP_LEFT">
+               <children>
+                  <CheckBox mnemonicParsing="false" selected="true" text="Hash" />
+                  <CheckBox mnemonicParsing="false" selected="true" text="Sign" />
+                  <CheckBox mnemonicParsing="false" selected="true" text="Verify Signature" />
+                  <CheckBox mnemonicParsing="false" selected="true" text="InnerHash " />
+                  <CheckBox mnemonicParsing="false" text="Tests" />
+               </children>
+            </VBox>
+         </center>
+         <top>
+            <VBox BorderPane.alignment="CENTER">
+               <children>
+                  <ProgressBar prefWidth="200.0" progress="0.08" styleClass="yellow-bar" stylesheets="@../css/search.css" />
+                  <ProgressBar prefWidth="200.0" progress="0.91" />
+               </children>
+            </VBox>
+         </top>
+      </BorderPane>
+      <BorderPane layoutX="1338.0" layoutY="300.0" styleClass="technology">
+         <bottom>
+            <Label styleClass="boxtitle" text="Forks" BorderPane.alignment="CENTER">
+               <font>
+                  <Font size="16.0" />
+               </font>
+               <padding>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </padding>
+            </Label>
+         </bottom>
+         <center>
+            <VBox maxHeight="1.7976931348623157E308" spacing="10.0" styleClass="checklist" BorderPane.alignment="TOP_LEFT">
+               <children>
+                  <CheckBox mnemonicParsing="false" text="Revert indexes" />
+                  <CheckBox mnemonicParsing="false" text="Graphic representation" />
+                  <CheckBox mnemonicParsing="false" text="Live switch branches " />
+                  <CheckBox mnemonicParsing="false" text="Tests" />
+                  <CheckBox mnemonicParsing="false" text="Document" />
+                  <CheckBox mnemonicParsing="false" text="Licence" />
+               </children>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+            </VBox>
+         </center>
+         <top>
+            <VBox BorderPane.alignment="CENTER">
+               <children>
+                  <ProgressBar prefWidth="200.0" progress="0.06" styleClass="yellow-bar" />
+                  <ProgressBar prefWidth="200.0" progress="0.0" />
+               </children>
+            </VBox>
+         </top>
+      </BorderPane>
+      <BorderPane layoutX="1044.0" layoutY="74.0" styleClass="technology">
+         <bottom>
+            <Label styleClass="boxtitle" text="Spark" BorderPane.alignment="CENTER">
+               <font>
+                  <Font size="16.0" />
+               </font>
+               <padding>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </padding>
+            </Label>
+         </bottom>
+         <center>
+            <VBox maxHeight="1.7976931348623157E308" spacing="10.0" styleClass="checklist" BorderPane.alignment="TOP_LEFT">
+               <children>
+                  <CheckBox mnemonicParsing="false" selected="true" text="Extract " />
+                  <CheckBox mnemonicParsing="false" text="Load" />
+                  <CheckBox mnemonicParsing="false" text="Transform" />
+                  <CheckBox mnemonicParsing="false" text="Analyze" />
+                  <CheckBox mnemonicParsing="false" text="Predict" />
+                  <CheckBox mnemonicParsing="false" text="Verify " />
+                  <CheckBox mnemonicParsing="false" text="Publish" />
+               </children>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+            </VBox>
+         </center>
+         <top>
+            <VBox BorderPane.alignment="CENTER">
+               <children>
+                  <ProgressBar prefWidth="200.0" progress="0.06" styleClass="yellow-bar" />
+                  <ProgressBar prefWidth="200.0" progress="0.14" />
+               </children>
+            </VBox>
+         </top>
+      </BorderPane>
+      <BorderPane layoutX="417.0" layoutY="794.0" styleClass="technology">
+         <bottom>
+            <Label styleClass="boxtitle" text="Service layer " wrapText="true" BorderPane.alignment="CENTER">
+               <font>
+                  <Font size="16.0" />
+               </font>
+               <padding>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </padding>
+            </Label>
+         </bottom>
+         <center>
+            <VBox spacing="10.0" styleClass="checklist" BorderPane.alignment="CENTER">
+               <children>
+                  <CheckBox mnemonicParsing="false" text="GraphViz view" />
+                  <CheckBox mnemonicParsing="false" text="Database visualisation" />
+                  <CheckBox mnemonicParsing="false" selected="true" text="BMA" />
+                  <CheckBox mnemonicParsing="false" selected="true" text="GVA" />
+                  <CheckBox mnemonicParsing="false" text="WS2P" />
+                  <CheckBox mnemonicParsing="false" text="Graphic Interface" />
+                  <CheckBox mnemonicParsing="false" text="Tests" />
+                  <CheckBox mnemonicParsing="false" text="Document" />
+               </children>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+            </VBox>
+         </center>
+         <top>
+            <VBox maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">
+               <children>
+                  <ProgressBar maxWidth="1.7976931348623157E308" progress="0.18" styleClass="yellow-bar" VBox.vgrow="ALWAYS" />
+                  <ProgressBar maxWidth="1.7976931348623157E308" progress="0.63" VBox.vgrow="ALWAYS" />
+               </children>
+            </VBox>
+         </top>
+      </BorderPane>
+      <BorderPane layoutX="712.0" layoutY="658.0" styleClass="technology">
+         <bottom>
+            <Label styleClass="boxtitle" text="Network" BorderPane.alignment="CENTER">
+               <font>
+                  <Font size="16.0" />
+               </font>
+               <padding>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </padding>
+            </Label>
+         </bottom>
+         <center>
+            <VBox maxHeight="1.7976931348623157E308" spacing="10.0" styleClass="checklist" BorderPane.alignment="TOP_LEFT">
+               <children>
+                  <CheckBox mnemonicParsing="false" text="Strategies" />
+                  <CheckBox mnemonicParsing="false" text="WS2P" />
+                  <CheckBox mnemonicParsing="false" text="TOR" />
+                  <CheckBox mnemonicParsing="false" text="Cesium+" />
+                  <CheckBox mnemonicParsing="false" text="..." />
+                  <CheckBox mnemonicParsing="false" text="Tests" />
+                  <CheckBox mnemonicParsing="false" text="Document" />
+                  <CheckBox mnemonicParsing="false" text="Licence" />
+               </children>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+            </VBox>
+         </center>
+         <top>
+            <VBox BorderPane.alignment="CENTER">
+               <children>
+                  <ProgressBar prefWidth="200.0" progress="0.06" styleClass="yellow-bar" />
+                  <ProgressBar prefWidth="200.0" progress="0.0" />
+               </children>
+            </VBox>
+         </top>
+      </BorderPane>
+      <BorderPane layoutX="1595.0" layoutY="583.0" styleClass="technology">
+         <bottom>
+            <Label styleClass="boxtitle" text="Inifnity and beyond" BorderPane.alignment="CENTER">
+               <font>
+                  <Font size="16.0" />
+               </font>
+               <padding>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </padding>
+            </Label>
+         </bottom>
+         <center>
+            <VBox maxHeight="1.7976931348623157E308" spacing="10.0" styleClass="checklist" BorderPane.alignment="TOP_LEFT">
+               <children>
+                  <CheckBox mnemonicParsing="false" text="Nanocryk's source algorithm" />
+                  <CheckBox mnemonicParsing="false" text="Block#0 juniter-test" />
+                  <CheckBox mnemonicParsing="false" text="Live switch branches " />
+                  <CheckBox mnemonicParsing="false" text="Legiferate" />
+               </children>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+            </VBox>
+         </center>
+         <top>
+            <VBox BorderPane.alignment="CENTER">
+               <children>
+                  <ProgressBar maxWidth="1.7976931348623157E308" progress="0.06" styleClass="yellow-bar" />
+                  <ProgressBar maxWidth="1.7976931348623157E308" progress="0.0" />
+               </children>
+            </VBox>
+         </top>
+      </BorderPane>
+      <BorderPane layoutX="1033.0" layoutY="854.0" styleClass="technology">
+         <bottom>
+            <Label styleClass="boxtitle" text="Deployement" wrapText="true" BorderPane.alignment="CENTER">
+               <font>
+                  <Font size="16.0" />
+               </font>
+               <padding>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </padding>
+            </Label>
+         </bottom>
+         <center>
+            <VBox spacing="10.0" styleClass="checklist" BorderPane.alignment="CENTER">
+               <children>
+                  <CheckBox mnemonicParsing="false" selected="true" text="Desktop flavour" />
+                  <CheckBox mnemonicParsing="false" selected="true" text="Server Flavour" />
+                  <CheckBox mnemonicParsing="false" text="Death star flavour " />
+                  <CheckBox mnemonicParsing="false" text="Administrate" />
+               </children>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+            </VBox>
+         </center>
+         <top>
+            <VBox maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">
+               <children>
+                  <ProgressBar maxWidth="1.7976931348623157E308" progress="0.18" styleClass="yellow-bar" VBox.vgrow="ALWAYS" />
+                  <ProgressBar maxWidth="1.7976931348623157E308" progress="0.63" VBox.vgrow="ALWAYS" />
+               </children>
+            </VBox>
+         </top>
+      </BorderPane>
+      <BorderPane layoutX="1602.0" layoutY="94.0" styleClass="technology">
+         <bottom>
+            <Label styleClass="boxtitle" text="General Purpose Chain " BorderPane.alignment="CENTER">
+               <font>
+                  <Font size="16.0" />
+               </font>
+               <padding>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </padding>
+            </Label>
+         </bottom>
+         <center>
+            <VBox maxHeight="1.7976931348623157E308" spacing="10.0" styleClass="checklist" BorderPane.alignment="TOP_LEFT">
+               <children>
+                  <CheckBox mnemonicParsing="false" text="EDI" />
+                  <CheckBox mnemonicParsing="false" text="g1 colis " />
+                  <CheckBox mnemonicParsing="false" text="g1 covoit" />
+               </children>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+            </VBox>
+         </center>
+         <top>
+            <VBox BorderPane.alignment="CENTER">
+               <children>
+                  <ProgressBar maxWidth="1.7976931348623157E308" progress="0.06" styleClass="yellow-bar" />
+                  <ProgressBar maxWidth="1.7976931348623157E308" progress="0.0" />
+               </children>
+            </VBox>
+         </top>
+      </BorderPane>
+   </children>
+   <padding>
+      <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+   </padding>
+</AnchorPane>

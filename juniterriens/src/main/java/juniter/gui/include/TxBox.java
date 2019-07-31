@@ -70,7 +70,7 @@ public class TxBox extends AbstractJuniterFX implements Initializable {
         var tx = new TxBox();
 
         var stage = new Stage(StageStyle.UNDECORATED);
-        stage.setTitle("Tax panel");
+         stage.setTitle("Tax panel");
 
         try {
 

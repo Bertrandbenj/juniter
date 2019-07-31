@@ -5,7 +5,11 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
+<<<<<<< HEAD
+<BorderPane prefHeight="600.0" prefWidth="800.0" stylesheets="@../css/technotree.css" xmlns="http://javafx.com/javafx/8"
+=======
 <BorderPane prefHeight="600.0" prefWidth="800.0" stylesheets="@../css/search.css" xmlns="http://javafx.com/javafx/8"
+>>>>>>> origin/clean
             xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.gui.include.Technology">
 
     <center>
@@ -13,12 +17,20 @@
             <content>
                 <AnchorPane>
                     <children>
+<<<<<<< HEAD
+                        <BorderPane layoutX="712.0" layoutY="366.0" styleClass="technology">
+                            <top>
+                                <VBox BorderPane.alignment="CENTER">
+                                    <children>
+                                        <ProgressBar prefWidth="200.0" progress="0.08" styleClass="yellow-bar" />
+=======
                         <BorderPane layoutX="712.0" layoutY="366.0" style="-fx-border-style: ;" styleClass="technology">
                             <top>
                                 <VBox BorderPane.alignment="CENTER">
                                     <children>
                                         <ProgressBar prefWidth="200.0" progress="0.08" styleClass="yellow-bar"
                                                      stylesheets="@../css/search.css"/>
+>>>>>>> origin/clean
                                         <ProgressBar prefWidth="200.0" progress="0.46"/>
                                     </children>
                                 </VBox>
@@ -152,8 +164,12 @@
                             <top>
                                 <VBox BorderPane.alignment="CENTER">
                                     <children>
+<<<<<<< HEAD
+                                        <ProgressBar prefWidth="200.0" progress="0.08" styleClass="yellow-bar" />
+=======
                                         <ProgressBar prefWidth="200.0" progress="0.08" styleClass="yellow-bar"
                                                      stylesheets="@../css/search.css"/>
+>>>>>>> origin/clean
                                         <ProgressBar prefWidth="200.0" progress="0.73"/>
                                     </children>
                                 </VBox>
@@ -190,7 +206,11 @@
                                 <VBox BorderPane.alignment="CENTER">
                                     <children>
                                         <ProgressBar maxWidth="1.7976931348623157E308" progress="0.08"
+<<<<<<< HEAD
+                                                     styleClass="yellow-bar" />
+=======
                                                      styleClass="yellow-bar" stylesheets="@../css/search.css"/>
+>>>>>>> origin/clean
                                         <ProgressBar maxWidth="1.7976931348623157E308" progress="0.91"/>
                                     </children>
                                 </VBox>
@@ -227,8 +247,12 @@
                             <top>
                                 <VBox BorderPane.alignment="CENTER">
                                     <children>
+<<<<<<< HEAD
+                                        <ProgressBar prefWidth="200.0" progress="0.08" styleClass="yellow-bar" />
+=======
                                         <ProgressBar prefWidth="200.0" progress="0.08" styleClass="yellow-bar"
                                                      stylesheets="@../css/search.css"/>
+>>>>>>> origin/clean
                                         <ProgressBar prefWidth="200.0" progress="0.91"/>
                                     </children>
                                 </VBox>
@@ -259,8 +283,12 @@
                             <top>
                                 <VBox BorderPane.alignment="CENTER">
                                     <children>
+<<<<<<< HEAD
+                                        <ProgressBar prefWidth="200.0" progress="0.08" styleClass="yellow-bar" />
+=======
                                         <ProgressBar prefWidth="200.0" progress="0.08" styleClass="yellow-bar"
                                                      stylesheets="@../css/search.css"/>
+>>>>>>> origin/clean
                                         <ProgressBar prefWidth="200.0" progress="0.91"/>
                                     </children>
                                 </VBox>
