@@ -1,8 +1,6 @@
 package juniter.conf;
 
 import io.ipfs.api.IPFS;
-import io.ipfs.multiaddr.MultiAddress;
-import io.ipfs.multihash.Multihash;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
@@ -23,7 +21,6 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.sql.DataSource;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.concurrent.Executor;
 import java.util.stream.Stream;
@@ -43,26 +40,26 @@ public class AppConfig {
     @Bean
 
     public IPFS ipfs() {
-        var ipfs = new IPFS(new MultiAddress("/ip4/127.0.0.1/tcp/5001"));
+//        var ipfs = new IPFS(new MultiAddress("/ip4/127.0.0.1/tcp/5001"));
 
         LOG.info(" ==== IPFS INIT =====");
         try {
-            ipfs.config.show().forEach((k, v) -> LOG.info("  --  kv: " + k + " : " + v));
+//            ipfs.config.show().forEach((k, v) -> LOG.info("  --  kv: " + k + " : " + v));
 //            ipfs.pin.add(Multihash.fromBase58("QmUhVpSmXnTTnpyRivjYADjBEG5MYtr4eP4JEE2qxfVjMd"));
 //            ipfs.pin.add(Multihash.fromBase58("QmRBFKnivhKQxy3kZ4vZUCEGMtrckdu9GMeNjkcM497P9z"));
 //            ipfs.pin.add(Multihash.fromBase58("QmNqToxUD8nUh476UsFyMUiSTTSgH2WAAnrSR3qL95iHXK"));
 //            ipfs.pin.add(Multihash.fromBase58("QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn"));
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOG.error("Initializing IPFS ", e);
         }
 
-        return ipfs;
+        return null;
     }
 
 
     @Bean
-  public Path workingDir() {
+    public Path workingDir() {
 
         LOG.info("Setting workingDir to " + dataPath);
 

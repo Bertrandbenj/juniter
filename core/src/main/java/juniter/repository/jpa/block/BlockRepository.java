@@ -144,7 +144,7 @@ public interface BlockRepository extends JpaRepository<DBBlock, Long>, BlockLoca
 
 
         // Do the saving after some checks
-        if (checkBlockIsLocalValid(block)) {
+        if (checkBlockIsLocalValid(block) && block(block.getNumber(),block.getHash()).isEmpty()) {
 
             try {
                 return Optional.of(save(block));
