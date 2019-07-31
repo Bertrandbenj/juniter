@@ -16,7 +16,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -78,17 +77,21 @@ public class Index implements GlobalValid {
     @PostConstruct
     public void createAccountView() {
         try {
-            entityManager.createNativeQuery("CREATE OR REPLACE " +
-                    "VIEW accounts AS " +
-                    "SELECT conditions, sum(case WHEN consumed THEN 0-amount ELSE amount end) bSum " +
-                    "FROM sindex " +
-                    "GROUP BY conditions " +
-                    "ORDER by conditions;")
-                    .executeUpdate();
 
-            LOG.info("Successfully added Account view ");
+            if (accountRepo.count() <= 0) {
+                entityManager.createNativeQuery("CREATE OR REPLACE " +
+                        "VIEW accounts AS " +
+                        "SELECT conditions, sum(case WHEN consumed THEN 0-amount ELSE amount end) bSum " +
+                        "FROM sindex " +
+                        "GROUP BY conditions " +
+                        "ORDER by conditions;")
+                        .executeUpdate();
+
+                LOG.info("Successfully added Account view ");
+            }
+
         } catch (Exception e) {
-            LOG.error("Error creating Account view ", e);
+            LOG.warn("Error creating Account view ", e.getLocalizedMessage());
 
         }
 

@@ -29,8 +29,9 @@ public class TheBeginning extends Room {
     void roomSpecific() {
 
         var theFont = Font.font("Helvetica", FontWeight.BOLD, 24);
+
         gc().setFill(Color.valueOf("F4F4F4"));
-        gc().setFont(theFont);
+         gc().setFont(theFont);
         gc().fillText(I18N.get("game.pi.rule5"), canvas.getWidth() / 2, canvas.getHeight() / 2);
 
         if (JuniterBindings.selectedTheme.getValue().equals(JuniterBindings.DARK_THEME)) {
@@ -52,9 +53,8 @@ public class TheBeginning extends Room {
 
                 if (techtree.intersects(x)) {
                     popupOpen = true;
-
-                    Stage stage = new Stage(StageStyle.UNDECORATED);
-                    stage.setTitle(I18N.get("vocab.technologies"));
+                     Stage stage = new Stage(StageStyle.UNDECORATED);
+                     stage.setTitle(I18N.get("vocab.technologies"));
                     try {
                         var tech = new Technology();
                         tech.start(stage);

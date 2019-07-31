@@ -5,20 +5,20 @@ import antlr.generated.JuniterParser;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import juniter.core.model.wso.ResponseBlock;
 import juniter.core.model.wso.ResponseBlocks;
 import juniter.core.model.wso.ResponseWotPending;
 import juniter.grammar.JuniterGrammar;
-import juniter.repository.jpa.block.BlockRepository;
 import org.antlr.v4.runtime.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.java_websocket.client.WebSocketClient;
-import org.java_websocket.drafts.Draft;
 import org.java_websocket.handshake.ServerHandshake;
 
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLHandshakeException;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.URI;
 import java.nio.channels.NotYetConnectedException;
 import java.util.HashMap;
@@ -33,14 +33,13 @@ public class WS2PClient extends WebSocketClient {
     private static final Logger LOG = LogManager.getLogger(WS2PClient.class);
     private Map<String, Request> sentRequests = new HashMap<String, Request>();
 
-    private ObjectMapper jsonMapper;
 
-    private BlockRepository blockRepo;
+    private WebSocketPool webSocketPool;
 
-    public WS2PClient(URI serverURI, ObjectMapper jsonMapper, BlockRepository blockRepo) {
-        super(serverURI);
-        this.jsonMapper = jsonMapper;
-        this.blockRepo = blockRepo;
+
+    public WS2PClient(URI uri, WebSocketPool webSocketPool) {
+        super(uri);
+        this.webSocketPool = webSocketPool;
     }
 
 //    public WS2PClient(URI serverUri, Draft draft) {
@@ -52,10 +51,19 @@ public class WS2PClient extends WebSocketClient {
 //    }
 
     private void actionOnConnect() {
-        send(new Request().getBlock(3));
+        send(new Request().getBlock(1));
         send(new Request().getBlocks(2, 3));
-        send(new Request().getCurrent());
+        //send(new Request().getCurrent());
         send(new Request().getRequirementsPending(5));
+
+        while (true) {
+            try {
+                Thread.sleep(3 * 60 * 1000);
+                send(new Request().getCurrent());
+            } catch (Exception e) {
+                LOG.error(e);
+            }
+        }
 
     }
 
@@ -63,7 +71,7 @@ public class WS2PClient extends WebSocketClient {
 
         try {
 
-            final var challenge = jsonMapper.readValue(message, Connect.class);
+            final var challenge = webSocketPool.jsonMapper.readValue(message, Connect.class);
 
             LOG.debug("Challenge ... " + challenge);
 
@@ -81,6 +89,7 @@ public class WS2PClient extends WebSocketClient {
 
             if (challenge.isOK()) {
                 LOG.info("OK, connected !! ");
+                webSocketPool.clients.offer(this);
                 actionOnConnect();
                 return;
             }
@@ -100,9 +109,9 @@ public class WS2PClient extends WebSocketClient {
     }
 
     private void handleRequest(String message) {
-        LOG.info("handle Request");
+        LOG.info("handle Request " + webSocketPool.status());
         try {
-            final var request = jsonMapper.readValue(message, Request.class);
+            final var request = webSocketPool.jsonMapper.readValue(message, Request.class);
             // TODO respond
         } catch (final JsonParseException e) {
             LOG.error("handleRequest JSON parsing error ", e);
@@ -120,6 +129,7 @@ public class WS2PClient extends WebSocketClient {
 
             final var req = sentRequests.remove(resid);
             final var params = req.getBody().getParams();
+            final var jsonMapper = webSocketPool.jsonMapper;
 
             switch (req.getBody().getName()) {
                 case "BLOCK_BY_NUMBER":
@@ -133,7 +143,7 @@ public class WS2PClient extends WebSocketClient {
                 case "CURRENT":
                     final var current = jsonMapper.readValue(message, ResponseBlock.class);
                     LOG.info("CURRENT " + current.getBody());
-                    blockRepo.localSave(current.getBody());
+                    webSocketPool.blockRepo.localSave(current.getBody());
                     LOG.info("SAVED # " + current.getBody().getNumber());
                     break;
                 case "WOT_REQUIREMENTS_OF_PENDING":
@@ -170,13 +180,26 @@ public class WS2PClient extends WebSocketClient {
     @Override
     public void onClose(int code, String reason, boolean remote) {
         // The codecodes are documented in class org.java_websocket.framing.CloseFrame
-        LOG.info("Connection closed by " + (remote ? "remote peer" : "us") + " Code: " + code + " on URI " + getURI() + " Reason: " + reason);
+        LOG.info("Connection closed by " + (remote ? "remote peer" : "us") + " Code: " + code + " on URI " + getURI());
+        LOG.info(" - Reason: " + reason);
+        LOG.info(" - " + webSocketPool.status());
+
+        webSocketPool.clients.remove(this);
+
     }
 
     @Override
     public void onError(Exception ex) {
-        LOG.error("WS onError " + getURI(), ex);
-        // if the error is fatal then onClose will be called additionally
+        if (ex instanceof SSLException) {
+            LOG.warn("WS SSL onError " + getURI() + ex);
+        } else if (ex instanceof SSLHandshakeException) {
+            LOG.warn("WS SSL Handshake onError " + getURI() + ex);
+        } else if (ex instanceof ConnectException) {
+            LOG.warn("WS ConnectException onError " + getURI() + ex);
+        } else {
+            LOG.error("WS onError " + getURI(), ex);
+
+        }
     }
 
     @Override
@@ -198,7 +221,7 @@ public class WS2PClient extends WebSocketClient {
 
     @Override
     public void onOpen(ServerHandshake handshakedata) {
-        LOG.info("opened connection " + handshakedata.getHttpStatus());
+        LOG.info("WS connection - http " + handshakedata.getHttpStatus() + " - " + webSocketPool.status());
 
 //		while (true) {
 //			try {
@@ -223,7 +246,7 @@ public class WS2PClient extends WebSocketClient {
         try {
             sentRequests.put(req.getReqId(), req); // save for reuse
 
-            send(jsonMapper.writeValueAsString(req));
+            send(webSocketPool.jsonMapper.writeValueAsString(req));
         } catch (NotYetConnectedException | JsonProcessingException e) {
             LOG.error(e);
         }

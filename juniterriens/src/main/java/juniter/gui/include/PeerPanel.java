@@ -149,8 +149,9 @@ public class PeerPanel implements Initializable {
 
         peer = netService.endPointPeer(JuniterBindings.currenBlock.get().getNumber());
         sessid.setText(getRandomHexString(8));
-        block.setText(peer.getBlock());
-        pubkey.setText(peer.getPubkey());
+        block.setText(peer.getBlock().stamp());
+
+         pubkey.setText(peer.getPubkey());
         version.setText(peer.getVersion() + "");
         currency.setText(peer.getCurrency());
 

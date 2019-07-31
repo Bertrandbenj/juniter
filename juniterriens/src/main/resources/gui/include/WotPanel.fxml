@@ -8,11 +8,19 @@
 <?import javafx.scene.Group?>
 <?import javafx.scene.layout.*?>
 
+<<<<<<< HEAD
+<AnchorPane styleClass="pane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.gui.include.WotPanel">
+   <children>
+       <Group>
+           <children>
+               <VBox styleClass="pane">
+=======
 <AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.gui.include.WotPanel">
    <children>
        <Group>
            <children>
                <VBox>
+>>>>>>> origin/clean
                    <children>
                        <VBox>
                            <children>

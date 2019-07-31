@@ -1,5 +1,7 @@
 package juniter.gui;
 
+
+import javafx.application.Platform;
 import javafx.application.Preloader;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -25,11 +27,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 /**
@@ -79,7 +80,8 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
     private PeerService peers;
 
     @Autowired
-    private Interplanetary interplanetary;
+    private Optional<Interplanetary> interplanetary;
+//    private Interplanetary interplanetary;
 
     public FrontPage() {
     }
@@ -115,6 +117,9 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
             BorderPane page = (BorderPane) load("/gui/FrontPage.fxml");
             JuniterBindings.screenController.addScreen("Main", page);
             scene = new Scene(page);
+            JuniterBindings.screenController.setMain(scene);
+            JuniterBindings.screenController.activate("Main");
+
         }
 
         JuniterBindings.screenController.setMain(scene);
@@ -161,17 +166,14 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
     }
 
 
-
-
     @FXML
     public void ipfs() {
 
-//        var cid = Cid.decode("zdpuAxYnYpkMaexd43pLJscsPiUBRpZ3PXgi9XXU2MboiHVEE");
-//
-//        Platform.runLater(() -> interplanetary.resolve(cid));
-//
-//        Platform.runLater(() -> interplanetary.publish(cid));
-interplanetary.dumpChain();
+        Platform.runLater(() ->
+                interplanetary.ifPresent(Interplanetary::dumpChain)
+        );
+
+
     }
 
 

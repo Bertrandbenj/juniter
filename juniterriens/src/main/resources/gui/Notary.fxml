@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<<<<<<< HEAD
+=======
 <!--stylesheets="@./css/clair-de-june.css"-->
 
+>>>>>>> origin/clean
 <?import java.lang.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.text.*?>
@@ -10,13 +13,22 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 
+<<<<<<< HEAD
+<BorderPane styleClass="pane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.gui.Notary">
+=======
 <BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.gui.Notary">
+>>>>>>> origin/clean
     <right>
         <VBox alignment="CENTER" BorderPane.alignment="CENTER">
             <children>
                 <fx:include fx:id="menu" source="include/Menu.fxml" />
             </children>
+<<<<<<< HEAD
+        </VBox>
+    </right>
+=======
         </VBox>    </right>
+>>>>>>> origin/clean
     <bottom>
         <fx:include source="include/Footer.fxml" />
     </bottom>

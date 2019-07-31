@@ -23,6 +23,7 @@ import java.net.URL;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+
 /**
  * inspiration here https://github.com/buckyroberts/Source-Code-from-Tutorials
  */
@@ -169,8 +170,11 @@ public class Menu extends AbstractJuniterFX implements Initializable {
             LOG.info("THEME_COMBO.setOnAction");
             var theme = THEME_COMBO.getSelectionModel().getSelectedItem();
             JuniterBindings.selectedTheme.setValue(theme);
-            JuniterBindings.screenController.getMain().getStylesheets().setAll(theme);
+            JuniterBindings.screenController.getMain().getStylesheets().setAll(JuniterBindings.JMetroBase, theme);
+            //new JMetro(JMetro.Style.LIGHT).applyTheme(JuniterBindings.screenController.getMain());
             LOG.info("THEME_COMBO.setOnAction " + theme);
+
+
 
         });
 
@@ -227,8 +231,8 @@ public class Menu extends AbstractJuniterFX implements Initializable {
         }
 
         scene = JuniterBindings.screenController.getMain();
-        scene.getStylesheets().setAll(JuniterBindings.selectedTheme.getValue());
-
+        scene.getStylesheets().setAll(JuniterBindings.JMetroBase, JuniterBindings.selectedTheme.getValue());
+        // new JMetro(JMetro.Style.LIGHT).applyTheme(scene);
 
         logoMain.setImage("Main".equals(name) ? MAIN_LOGO : DEFAULT_LOGO);
         logoGraphs.setImage("Graphs".equals(name) ? GRAPH_LOGO : DEFAULT_LOGO);

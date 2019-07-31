@@ -9,6 +9,13 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.web.WebView?>
 
+<<<<<<< HEAD
+<BorderPane styleClass="pane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.gui.GraphPanel">
+    <right>
+        <VBox alignment="CENTER" BorderPane.alignment="CENTER">
+            <children>
+                <fx:include fx:id="menu" source="include/Menu.fxml" />
+=======
 <BorderPane
         xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
         fx:controller="juniter.gui.GraphPanel">
@@ -16,11 +23,22 @@
         <VBox alignment="CENTER" BorderPane.alignment="CENTER">
             <children>
                 <fx:include fx:id="menu" source="include/Menu.fxml"/>
+>>>>>>> origin/clean
             </children>
         </VBox>
     </right>
 
     <bottom>
+<<<<<<< HEAD
+        <fx:include source="include/Footer.fxml" />
+    </bottom>
+    <center>
+        <TabPane prefHeight="200.0" prefWidth="200.0" styleClass="pane" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+            <tabs>
+                <Tab text="GraphViz">
+                    <content>
+                        <WebView fx:id="SVGAnchor" prefHeight="200.0" prefWidth="200.0" />
+=======
         <fx:include source="include/Footer.fxml"/>
     </bottom>
     <center>
@@ -29,36 +47,59 @@
                 <Tab text="GraphViz">
                     <content>
                         <WebView fx:id="SVGAnchor" prefHeight="200.0" prefWidth="200.0"/>
+>>>>>>> origin/clean
                     </content>
                 </Tab>
                 <Tab text="Cesium">
                     <graphic>
                         <ImageView fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
                             <image>
+<<<<<<< HEAD
+                                <Image url="@images/cesium.png" />
+                            </image>
+                            <viewport>
+                                <Rectangle2D />
+=======
                                 <Image url="@images/cesium.png"/>
                             </image>
                             <viewport>
                                 <Rectangle2D/>
+>>>>>>> origin/clean
                             </viewport>
                         </ImageView>
                     </graphic>
                     <content>
+<<<<<<< HEAD
+                        <WebView fx:id="CesiumAnchor" prefHeight="200.0" prefWidth="200.0" />
+=======
                         <WebView fx:id="CesiumAnchor" prefHeight="200.0" prefWidth="200.0"/>
+>>>>>>> origin/clean
                     </content>
 
                 </Tab>
                 <Tab text="WotMap">
                     <content>
+<<<<<<< HEAD
+                        <WebView fx:id="WotMapAnchor" prefHeight="200.0" prefWidth="200.0" />
+=======
                         <WebView fx:id="WotMapAnchor" prefHeight="200.0" prefWidth="200.0"/>
+>>>>>>> origin/clean
                     </content>
                 </Tab>
                 <Tab>
                     <content>
+<<<<<<< HEAD
+                        <WebView fx:id="SVGAnchor111" prefHeight="200.0" prefWidth="200.0" />
+                    </content>
+                    <graphic>
+                        <TextField fx:id="uri" alignment="CENTER" onAction="#go" prefHeight="24.0" prefWidth="250.0" promptText="https://forum.monnaie-libre.fr/" />
+=======
                         <WebView fx:id="SVGAnchor111" prefHeight="200.0" prefWidth="200.0"/>
                     </content>
                     <graphic>
                         <TextField fx:id="uri" alignment="CENTER" prefHeight="24.0" prefWidth="250.0"
                                    promptText="https://forum.monnaie-libre.fr/" onAction="#go"/>
+>>>>>>> origin/clean
                     </graphic>
                 </Tab>
             </tabs>

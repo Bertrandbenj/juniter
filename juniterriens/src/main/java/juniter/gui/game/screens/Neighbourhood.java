@@ -45,7 +45,7 @@ public class Neighbourhood extends Room {
 
 
                     Stage stage = new Stage(StageStyle.UNDECORATED);
-                    stage.setTitle("Tax panel");
+                     stage.setTitle("Tax panel");
                     try {
                         var tax = new TaxPanel();
                         tax.start(stage);
