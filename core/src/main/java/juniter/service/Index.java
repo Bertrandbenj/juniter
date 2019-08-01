@@ -311,7 +311,7 @@ public class Index implements GlobalValid {
     @Timed(longTask = true, histogram = true)
     public void indexUntil(int syncUntil, boolean quick) {
 
-        LOG.info("Testing the local repository ");
+        LOG.info("indexUntil local repository "+syncUntil + " , quick? "+ quick);
         init(false);
         var baseTime = System.currentTimeMillis();
         var time = System.currentTimeMillis();

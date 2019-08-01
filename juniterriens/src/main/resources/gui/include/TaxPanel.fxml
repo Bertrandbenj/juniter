@@ -60,12 +60,8 @@
                      </BorderPane.margin></Text>
                </left>
             </BorderPane>
-<<<<<<< HEAD
-            <BorderPane prefHeight="200.0" prefWidth="200.0"   HBox.hgrow="ALWAYS">
-=======
             <BorderPane prefHeight="200.0" prefWidth="200.0" style="fx-border-width: 2px; -fx-border-colorr: grey;" HBox.hgrow="ALWAYS">
->>>>>>> origin/clean
-               <center>
+                <center>
                   <Slider fx:id="sliderDevs" blockIncrement="5.0" majorTickUnit="3.0" max="15.0" maxWidth="-Infinity" minorTickCount="15" orientation="VERTICAL" showTickLabels="true" value="2.0" BorderPane.alignment="CENTER" />
                </center>
                <top>
@@ -84,11 +80,7 @@
                      </BorderPane.margin></Text>
                </left>
             </BorderPane>
-<<<<<<< HEAD
-            <BorderPane prefHeight="200.0" prefWidth="200.0" >
-=======
             <BorderPane prefHeight="200.0" prefWidth="200.0" style="fx-border-width: 2px; -fx-border-colorr: grey;">
->>>>>>> origin/clean
                <center>
                   <Slider fx:id="sliderJunidev" blockIncrement="5.0" majorTickUnit="3.0" max="15.0" maxWidth="-Infinity" minorTickCount="15" orientation="VERTICAL" showTickLabels="true" value="2.0" BorderPane.alignment="CENTER" />
                </center>
@@ -110,12 +102,8 @@
                   </Label>
                </top>
             </BorderPane>
-<<<<<<< HEAD
-            <BorderPane prefHeight="200.0" prefWidth="200.0"  HBox.hgrow="ALWAYS">
-=======
             <BorderPane prefHeight="200.0" prefWidth="200.0" style="-fx-border-width: 2px; -fx-border-colorr: grey;" HBox.hgrow="ALWAYS">
->>>>>>> origin/clean
-               <top>
+                <top>
                   <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Education" BorderPane.alignment="CENTER">
                      <BorderPane.margin>
                         <Insets />
@@ -137,11 +125,7 @@
                   <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
                </opaqueInsets>
             </BorderPane>
-<<<<<<< HEAD
-            <BorderPane prefHeight="200.0" prefWidth="200.0" >
-=======
             <BorderPane prefHeight="200.0" prefWidth="200.0" style="-fx-border-width: 2px; -fx-border-colorr: grey;">
->>>>>>> origin/clean
                <center>
                   <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Care for your loved ones " wrappingWidth="150.0" BorderPane.alignment="CENTER">
                      <BorderPane.margin>

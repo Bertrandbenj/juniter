@@ -1,21 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<<<<<<< HEAD
-<?import java.lang.*?>
+ <?import java.lang.*?>
 <?import javafx.geometry.*?>
-=======
->>>>>>> origin/clean
+
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.chart.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<<<<<<< HEAD
 
-<BorderPane fx:id="contentPane" styleClass="pane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.gui.Network">
-=======
 <BorderPane fx:id="contentPane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.gui.Network">
->>>>>>> origin/clean
-    <right>
+     <right>
         <VBox alignment="CENTER" BorderPane.alignment="CENTER">
             <children>
                 <fx:include fx:id="menu" source="include/Menu.fxml" />

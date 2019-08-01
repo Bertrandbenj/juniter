@@ -12,18 +12,11 @@
     -fx-color-1:#1976D2;
 }
 
-<<<<<<< HEAD
-/*
-.root{
-    -fx-background-color: -fx-primary;
-}
-*/
-=======
+
 .root{
     -fx-background-color: -fx-primary;
 }
 
->>>>>>> origin/clean
 .glyph-icon
 {
     -fx-fill: -fx-primarytext;

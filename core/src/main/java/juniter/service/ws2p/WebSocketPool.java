@@ -1,6 +1,7 @@
 package juniter.service.ws2p;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import juniter.core.model.dbo.net.EndPoint;
 import juniter.repository.jpa.block.BlockRepository;
 import juniter.repository.jpa.net.EndPointsRepository;
 import juniter.service.bma.loader.PeerLoader;
@@ -19,7 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.PostConstruct;
 import java.net.URI;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.stream.Collectors;
 
 /**
  * read https://git.duniter.org/nodes/common/doc/blob/master/rfc/0004_ws2p_v1.md
@@ -60,39 +64,64 @@ public class WebSocketPool {
     public BlockRepository blockRepo;
 
 
+    ExecutorService pool = Executors.newCachedThreadPool();
+
     @PostConstruct
     public void start() {
         clients = new LinkedBlockingDeque<>(WEB_SOCKET_POOL_SIZE);
 
+//        for (int i = 1; i <= 4; i++) {
+//            final int id = i;
+//            Runnable run = () -> {
+//                try {
+//                    send(id);
 //
-//        // Init consumers
-//        for (int i = 0; i < WEB_SOCKET_POOL_SIZE; i++) {
-//            new Thread(consumer, "WebSock-" + i).start();
+//                } catch (URISyntaxException | InterruptedException e) {
+//                    LOG.error(e, e);
+//                }
+//
+//            };
+//
+//            pool.execute(run);
 //        }
+//        pool.shutdown();
     }
 
 
     @Async
     @Transactional
-    @Scheduled(fixedDelay = 1 * 60 * 1000)//, initialDelay = 10 * 60 * 1000)
-    public void startWebSockets() {
+    @Scheduled(initialDelay = 2 * 60 * 1000, fixedDelay = 2 * 60 * 1000)//, initialDelay = 10 * 60 * 1000)
+    public void reconnectWebSockets() {
 
-        LOG.info("Starting WebSocketPool on wss://" + host + ":" + port +" "+ status());
+        LOG.info("Starting WebSocketPool on wss://" + host + ":" + port
+                + " " + clients.remainingCapacity() + " " + status());
 
         endPointRepo.endpointsWS2P()
-
-                .peek(c -> LOG.info("pushing client endpoint " + c.toString()))
-                .map(ep -> new WS2PClient(URI.create(ep.url()), this))
-//                .peek(client-> clients.offer(client))
-                .peek(WebSocketClient::connect)
-                .forEach(client -> LOG.info("Connecting to : " + client.getURI() + status()))
+                .map(EndPoint::url)
+                .distinct()
+                .map(url -> new WS2PClient(URI.create(url), this))
+                .peek(ep -> LOG.info("Connecting to WS endpoint " + ep.getURI()))
+                .forEach(this::connectTo)
         ;
 
+    }
+
+    public void connectTo(WS2PClient client) {
+
+        if (!(clients.remainingCapacity() > 0))
+            return;
+
+        try {
+            client.connect();
+        } catch (Exception e) {
+            LOG.error("reconnectWebSockets ", e);
+        }
 
     }
 
     public String status() {
-        return " Pool status : " + clients.size() + "/" + WEB_SOCKET_POOL_SIZE;
+        return " Pool status : " + clients.size() + "/" + WEB_SOCKET_POOL_SIZE + " - " + clients.remainingCapacity()
+                + " - " + clients.stream().map(WebSocketClient::getURI).collect(Collectors.toList());
     }
 
 

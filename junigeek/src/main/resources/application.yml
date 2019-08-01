@@ -15,7 +15,8 @@ juniter:
   useGVA: true      # FIXME:  dependencies ?
   useBMA: true
   useWS2P: true
-  useIPFS: true
+  useIPFS: false
+  useRobot: true
   utils.enabled: false
   #useSpark: true
   indexer: true

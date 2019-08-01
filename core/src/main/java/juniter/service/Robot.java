@@ -10,12 +10,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import javax.persistence.PostLoad;
-import java.awt.*;
 
 @Service
 @ConditionalOnExpression("${juniter.useRobot:false}")
-
 public class Robot {
     private static final Logger LOG = LogManager.getLogger(Robot.class);
 
@@ -28,11 +25,13 @@ public class Robot {
     @Autowired
     private WebSocketPool websockets;
 
-    @PostLoad
+    @PostConstruct
     public void init(){
         LOG.info("Init Robot");
-        Toolkit.getDefaultToolkit();
-        index.indexUntil(blockRepo.currentBlockNumber(), false);
+
+//        websockets.reconnectWebSockets();
+
+//         index.indexUntil(blockRepo.currentBlockNumber(), false);
     }
 
 }

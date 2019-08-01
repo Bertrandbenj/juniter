@@ -8,12 +8,8 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 
-<<<<<<< HEAD
-<VBox prefHeight="401.0" prefWidth="880.0" styleClass="pane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.gui.include.PeerPanel">
-=======
-<VBox prefHeight="401.0" prefWidth="880.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.gui.include.PeerPanel">
->>>>>>> origin/clean
 
+<VBox prefHeight="401.0" prefWidth="880.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.gui.include.PeerPanel">
     <children>
         <VBox prefHeight="200.0" prefWidth="100.0">
             <children>

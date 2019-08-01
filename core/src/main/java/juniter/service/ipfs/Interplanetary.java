@@ -15,6 +15,7 @@ import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -73,9 +74,6 @@ public class Interplanetary {
     private BlockchainService blockchainService;
 
     @Autowired
-    private IPFS ipfs;
-
-    @Autowired
     private BlockRepository blockRepo;
 
     @Autowired
@@ -87,6 +85,7 @@ public class Interplanetary {
         IPFS ipfs = null;
         try {
 //            ipfs = new IPFS(new MultiAddress("/ip4/127.0.0.1/tcp/5001"));
+            ipfs = new IPFS("/ip4/127.0.0.1/tcp/5001");
 //            LOG.info(" ==== IPFS INIT =====");
 
             ipfs.config.show().forEach((k, v) -> LOG.info("  --  kv: " + k + " : " + v));

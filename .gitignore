@@ -5,7 +5,6 @@ src/main/resources/static/dot/*
 /exec.log
 *.class
 /build/
-/docs/javadoc/
 /.gradle/
 /bin/
 *.interp

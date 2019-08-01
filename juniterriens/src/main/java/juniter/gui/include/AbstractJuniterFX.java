@@ -3,6 +3,9 @@ package juniter.gui.include;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
+import juniter.GUIApplication;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +19,9 @@ public abstract class AbstractJuniterFX extends Application {
 
     private static ConfigurableApplicationContext applicationContext;
 
+    private static final Logger LOG = LogManager.getLogger(GUIApplication.class);
+
+
     @Override
     public void init() throws Exception {
         super.init();
@@ -27,6 +33,7 @@ public abstract class AbstractJuniterFX extends Application {
     @Override
     public void stop() throws Exception {
         super.stop();
+        LOG.info("Stopping JavaFX & Java");
         applicationContext.close();
         Platform.exit();
         System.exit(0);

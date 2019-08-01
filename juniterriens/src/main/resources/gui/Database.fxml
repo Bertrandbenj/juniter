@@ -9,12 +9,9 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 
-<<<<<<< HEAD
-<BorderPane styleClass="pane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.gui.Database">
-=======
+
 <BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.gui.Database">
->>>>>>> origin/clean
-    <right>
+     <right>
         <VBox alignment="CENTER" BorderPane.alignment="CENTER">
             <children>
                 <fx:include fx:id="menu" source="include/Menu.fxml" />

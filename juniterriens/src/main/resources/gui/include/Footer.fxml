@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<<<<<<< HEAD
 <?import java.lang.*?>
 <?import javafx.scene.text.*?>
-=======
->>>>>>> origin/clean
+
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
-<<<<<<< HEAD
+
 
 <HBox alignment="CENTER" styleClass="pane" BorderPane.alignment="CENTER" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.gui.include.Footer">
     <children>
@@ -17,61 +14,19 @@
             <children>
                 <ProgressIndicator fx:id="downloadIndic" progress="0.0" HBox.hgrow="ALWAYS">
                     <tooltip>
-                        <Tooltip text="Downloaded" />
-=======
-<HBox alignment="CENTER" BorderPane.alignment="CENTER" xmlns="http://javafx.com/javafx/8"
-      xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="juniter.gui.include.Footer">
-    <children>
-        <HBox alignment="CENTER" prefHeight="75.0" prefWidth="121.0" HBox.hgrow="NEVER">
-            <children>
-                <ProgressIndicator fx:id="downloadIndic" progress="0.0" HBox.hgrow="ALWAYS">
-                    <tooltip>
+
                         <Tooltip text="Downloaded"/>
->>>>>>> origin/clean
-                    </tooltip>
+                     </tooltip>
                 </ProgressIndicator>
                 <ProgressIndicator fx:id="indexIndic" progress="0.0" HBox.hgrow="ALWAYS">
                     <tooltip>
-<<<<<<< HEAD
-                        <Tooltip text="Indexed" />
-=======
+
                         <Tooltip text="Indexed"/>
->>>>>>> origin/clean
-                    </tooltip>
+                     </tooltip>
                 </ProgressIndicator>
             </children>
             <padding>
-<<<<<<< HEAD
-                <Insets bottom="10.0" left="5.0" right="10.0" top="5.0" />
-            </padding>
-        </HBox>
-        <VBox alignment="CENTER" spacing="2.0" styleClass="pane" HBox.hgrow="ALWAYS">
-            <children>
-                <Label fx:id="indexLog" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Label" VBox.vgrow="ALWAYS">
-                    <font>
-                        <Font name="FreeMono Bold" size="12.0" />
-                    </font>
-                    <padding>
-                        <Insets left="5.0" right="5.0" />
-                    </padding>
-                </Label>
-                <Label fx:id="peerLog" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Label" VBox.vgrow="ALWAYS">
-                    <font>
-                        <Font name="FreeMono Bold" size="12.0" />
-                    </font>
-                    <padding>
-                        <Insets left="5.0" right="5.0" />
-                    </padding>
-                </Label>
-                <Label fx:id="memoryLog" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Label" VBox.vgrow="ALWAYS">
-                    <font>
-                        <Font name="FreeMono Bold" size="12.0" />
-                    </font>
-                    <padding>
-                        <Insets left="5.0" right="5.0" />
-=======
-                <Insets bottom="10.0" left="5.0" right="10.0" top="5.0"/>
+                 <Insets bottom="10.0" left="5.0" right="10.0" top="5.0" />
             </padding>
         </HBox>
         <VBox alignment="CENTER" spacing="2.0" HBox.hgrow="ALWAYS">
@@ -101,32 +56,20 @@
                     </font>
                     <padding>
                         <Insets left="5.0" right="5.0"/>
->>>>>>> origin/clean
-                    </padding>
+                     </padding>
                 </Label>
                 <Label fx:id="docPoolLog" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Label">
                     <font>
-<<<<<<< HEAD
-                        <Font name="FreeMono Bold" size="12.0" />
-                    </font>
-                    <padding>
-                        <Insets left="5.0" right="5.0" />
-=======
-                        <Font name="FreeMono Bold" size="12.0"/>
+                         <Font name="FreeMono Bold" size="12.0" />
                     </font>
                     <padding>
                         <Insets left="5.0" right="5.0"/>
->>>>>>> origin/clean
-                    </padding>
+                     </padding>
                 </Label>
             </children>
         </VBox>
     </children>
     <padding>
-<<<<<<< HEAD
-        <Insets left="10.0" />
-=======
-        <Insets left="10.0"/>
->>>>>>> origin/clean
+         <Insets left="10.0" />
     </padding>
 </HBox>
