@@ -2,9 +2,9 @@ package juniter.service.web;
 
 import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dbo.tx.*;
-import juniter.repository.jpa.block.BlockRepository;
 import juniter.repository.jpa.block.CertsRepository;
 import juniter.repository.jpa.block.TxRepository;
+import juniter.service.BlockService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -88,7 +91,7 @@ public class GraphvizService {
     private CertsRepository certsRepo;
 
     @Autowired
-    private BlockRepository blockRepo;
+    private BlockService blockService;
 
     @Autowired
     private TxRepository txRepo;
@@ -138,7 +141,7 @@ public class GraphvizService {
 
         List<DBBlock> blocks = null;
 
-        try (var bl = blockRepo.streamBlocksFromTo(blockNumber - RANGE, blockNumber + RANGE + 1)) {
+        try (var bl = blockService.streamBlocksFromTo(blockNumber - RANGE, blockNumber + RANGE + 1)) {
             blocks = bl.sorted(Comparator.comparing(DBBlock::getNumber))
                     .collect(toList());
         } catch (final Exception e) {
@@ -181,7 +184,7 @@ public class GraphvizService {
 
             var deltaTime = "N/A";
             if (b.getNumber() > 0) {
-                final var delta = -blockRepo
+                final var delta = -blockService
                         .block(b.getNumber() - 1)
                         .map(bb -> b.getMedianTime() - bb.getMedianTime())
                         .orElse(0L);
@@ -265,13 +268,13 @@ public class GraphvizService {
 
         res += IntStream.range(blockNumber - RANGE, blockNumber + RANGE)//
                 .filter(i -> i >= 0) //
-                .filter(i -> i <= blockRepo.currentBlockNumber()) //
+                .filter(i -> i <= blockService.currentBlockNumber()) //
                 .mapToObj(i -> "_" + i + "hash -> _" + (i + 1) + "phash [weight=0, style=dotted];")//
                 .collect(joining("\n\t"));
         res += "\n\t";
         res += IntStream.range(blockNumber - RANGE, blockNumber + RANGE)//
                 .filter(i -> i >= 0) //
-                .filter(i -> i <= blockRepo.currentBlockNumber()) //
+                .filter(i -> i <= blockService.currentBlockNumber()) //
                 .mapToObj(i -> "_" + i + "issuer -> _" + (i + 1) + "pissuer [weight=0, style=dotted];")//
                 .collect(joining("\n\t"));
         res += "\n\n\t";
@@ -280,7 +283,7 @@ public class GraphvizService {
 
         // print the edges
         res += IntStream.range(blockNumber - RANGE, blockNumber + RANGE)//
-                .filter(i -> i >= 0).limit(blockRepo.currentBlockNumber())
+                .filter(i -> i >= 0).limit(blockService.currentBlockNumber())
                 .mapToObj(i -> "_" + i + " -> _" + (i + 1) + " [weight=10];")//
                 .collect(joining("\n\t\t"));
 

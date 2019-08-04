@@ -4,7 +4,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import juniter.core.model.dbo.DBBlock;
-import juniter.repository.jpa.block.BlockRepository;
 import juniter.service.bma.loader.BlockLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 public class CachedBlock {
 
     @Autowired
-    private BlockRepository blockRepo;
+    private BlockService blockService;
 
     @Autowired
     private BlockLoader blockLoader;
@@ -30,14 +29,12 @@ public class CachedBlock {
             .expireAfterWrite(10, TimeUnit.MINUTES)
             .build(new CacheLoader<>() {
                 public DBBlock load(Integer key) {
-                    return blockRepo.block(key).orElseGet(()->blockLoader.fetchAndSaveBlock(key));
+                    return blockService.block(key).orElseGet(() -> blockLoader.fetchAndSaveBlock(key));
                 }
             });
 
 
-
-
-    DBBlock cachedBlock(Integer bstamp) {
+    private DBBlock cachedBlock(Integer bstamp) {
 
         try {
             return cache.get(bstamp);
@@ -50,13 +47,13 @@ public class CachedBlock {
 
     public DBBlock getCurrent() {
         if (current == null)
-            current = blockRepo.current().orElse(  blockLoader.fetchAndSaveBlock("/current"));
+            current = blockService.current().orElse(blockLoader.fetchAndSaveBlock("/current"));
         return current;
     }
 
     Integer currentBlockNumber() {
 
-        return blockRepo.currentBlockNumber();
+        return blockService.currentBlockNumber();
     }
 
 

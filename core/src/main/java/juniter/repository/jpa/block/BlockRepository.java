@@ -27,11 +27,9 @@ import java.util.stream.Stream;
  * Repository to manage {@link DBBlock} instances.
  */
 @Repository
-public interface BlockRepository extends JpaRepository<DBBlock, Long>, BlockLocalValid {
+public interface BlockRepository extends JpaRepository<DBBlock, Long> {
     Logger LOG = LogManager.getLogger(BlockRepository.class);
 
-    @Override
-    void delete(DBBlock entity);
 
     //@Cacheable(value = "blocks")//, unless="#getSize()<1")
     @Query("SELECT b from DBBlock b WHERE number = ?1")
@@ -40,10 +38,6 @@ public interface BlockRepository extends JpaRepository<DBBlock, Long>, BlockLoca
 
     @Query("SELECT b from DBBlock b WHERE number = ?1")
     List<DBBlock> block_(Integer number);
-
-
-    @Override
-    List<DBBlock> findAll();
 
 
     //@Cacheable(value = "blocks", key = "#number" )
@@ -64,19 +58,6 @@ public interface BlockRepository extends JpaRepository<DBBlock, Long>, BlockLoca
     @Query("SELECT number FROM DBBlock WHERE number NOT IN :notIn")
     List<Integer> blockNumbers(List<Integer> notIn);
 
-    /**
-     * highest block by block number in base
-     *
-     * @return Optional<DBBlock>
-     */
-    default Optional<DBBlock> current() {
-        return findTop1ByOrderByNumberDesc();
-    }
-
-
-    default Integer currentBlockNumber() {
-        return current().map(DBBlock::getNumber).orElse(0);
-    }
 
 
     @Override
@@ -100,68 +81,6 @@ public interface BlockRepository extends JpaRepository<DBBlock, Long>, BlockLoca
     // Generic function to concatenate multiple lists in Java
 
 
-    default Optional<DBBlock> localSave(DBBlock block) throws AssertionError {
-        //LOG.error("localsavng  "+node.getNumber());
-        block.getSize();
-
-        // Denormalized Fields !
-        for (Transaction tx : block.getTransactions()) {
-            tx.setWritten(block.bStamp());
-            tx.getHash();
-        }
-
-        for (Identity ident : block.getIdentities()) {
-            ident.setWritten(block.bStamp());
-        }
-
-        for (Certification cert : block.getCertifications()) {
-            cert.setWritten(block.bStamp());
-        }
-
-        for (Member m : block.getRenewed()) {
-            m.setWritten(block.bStamp());
-        }
-
-        for (Member m : block.getRevoked()) {
-            m.setWritten(block.bStamp());
-        }
-
-        for (Member m : block.getJoiners()) {
-            m.setWritten(block.bStamp());
-        }
-
-        for (Member m : block.getExcluded()) {
-            m.setWritten(block.bStamp());
-        }
-
-        for (Member m : block.getMembers()) {
-            m.setWritten(block.bStamp());
-        }
-
-        for (Member m : block.getLeavers()) {
-            m.setWritten(block.bStamp());
-        }
-
-
-        // Do the saving after some checks
-        if (checkBlockIsLocalValid(block) && block(block.getNumber(),block.getHash()).isEmpty()) {
-
-            try {
-                return Optional.of(save(block));
-            } catch (Exception e) {
-                LOG.error("Error localSave block " + block.getNumber(), e);
-                return Optional.empty();
-            }
-        } else {
-            LOG.error("Error localSave block " + block.getNumber());
-
-        }
-
-
-        return Optional.empty();
-    }
-
-
     default <S extends DBBlock> DBBlock override(S block) {
         final var existingBlock = findTop1ByNumber(block.getNumber());
         final var bl = existingBlock.orElse(block);
@@ -182,12 +101,6 @@ public interface BlockRepository extends JpaRepository<DBBlock, Long>, BlockLoca
 
     @Query("SELECT c FROM DBBlock c WHERE number >= ?1 AND number < ?2 ")
     Stream<DBBlock> streamBlocksFromTo(int from, int to);
-
-    default Stream<DBBlock> with(Predicate<DBBlock> predicate) {
-        return streamAllBlocks()
-                .filter(predicate)
-                .sorted();
-    }
 
 
     @Query("SELECT number FROM DBBlock c WHERE dividend IS NOT NULL ORDER BY number")

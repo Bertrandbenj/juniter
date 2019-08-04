@@ -1,16 +1,17 @@
 package juniter.service.bma;
 
-import juniter.core.event.CoreEventBus;
+import juniter.core.event.RenormalizedNet;
 import juniter.core.model.dbo.net.EndPoint;
 import juniter.core.model.dto.node.NodeSummaryDTO;
-import juniter.repository.jpa.block.BlockRepository;
 import juniter.repository.jpa.net.EndPointsRepository;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -33,7 +34,9 @@ public class PeerService {
     public static final Logger LOG = LogManager.getLogger(PeerService.class);
 
     @Autowired
-    private CoreEventBus coreEventBus;
+    private ApplicationEventPublisher coreEventBus;
+
+
 
     @Autowired
     private EndPointsRepository endPointRepo;
@@ -42,8 +45,7 @@ public class PeerService {
 
     public BlockingQueue<NetStats> pingingQueue = new LinkedBlockingDeque<>(20);
 
-    @Autowired
-    private BlockRepository blockRepo;
+
     @Autowired
     private RestTemplate restTemplate;
 
@@ -203,10 +205,10 @@ public class PeerService {
                     .map(NetStats::getHost)
                     .collect(Collectors.joining(",")));
 
-            coreEventBus.sendEventRenormalizedPeer(hosts.values().stream()
+            coreEventBus.publishEvent(new RenormalizedNet(hosts.values().stream()
                     .sorted(Comparator.reverseOrder())
                     .filter(ns -> ns.lastNormalizedScore > 0.001 && ns.success.get() > 1)
-                    .collect(Collectors.toList()));
+                    .collect(Collectors.toList())));
 
             for (Map.Entry<String, NetStats> h : hosts.entrySet()) {
                 h.getValue().normalizedScore(sum);

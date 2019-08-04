@@ -24,6 +24,9 @@ public interface EndPointsRepository extends JpaRepository<EndPoint, Long> {
 	@Query("select ep from EndPoint ep where api = 'WS2P'  ")
 	Stream<EndPoint> endpointsWS2P();
 
+	@Query("select ep from EndPoint ep where api = 'WS2P'  ")
+	List<EndPoint> endpointssWS2P();
+
 	default List<String> enpointsURL() {
 		return endpointsBMAS().filter(ep -> ep.getDomain() != null).map(ep -> ep.url()).collect(Collectors.toList());
 	}

@@ -15,9 +15,9 @@ import javafx.stage.Stage;
 import juniter.core.model.dto.node.IssuersFrameDTO;
 import juniter.core.validation.BlockLocalValid;
 import juniter.gui.include.AbstractJuniterFX;
-import juniter.gui.include.JuniterBindings;
 import juniter.gui.include.AlertBox;
-import juniter.repository.jpa.block.BlockRepository;
+import juniter.gui.include.JuniterBindings;
+import juniter.service.BlockService;
 import juniter.service.bma.PeerService;
 import juniter.service.bma.loader.PeerLoader;
 import org.apache.logging.log4j.LogManager;
@@ -106,7 +106,7 @@ public class Network extends AbstractJuniterFX implements Initializable {
     private PeerService peerService;
 
     @Autowired
-    private BlockRepository blockRepo;
+    private BlockService blockService;
 
 
     public static ObservableList<PeerService.NetStats> observableList = FXCollections.observableArrayList();
@@ -137,7 +137,7 @@ public class Network extends AbstractJuniterFX implements Initializable {
                 .forEach(id -> {
                     LOG.info("deleting Blocks # " + id);
 
-                    blockRepo.block_(id).forEach(block -> blockRepo.delete(block));
+                    blockService.blocks(id).forEach(block -> blockService.delete(block));
                 });
     }
 
@@ -151,7 +151,7 @@ public class Network extends AbstractJuniterFX implements Initializable {
                 .forEach(id -> {
                     LOG.info("testing Blocks # " + id);
 
-                    blockRepo.block(id).ifPresent(block -> {
+                    blockService.block(id).ifPresent(block -> {
                         boolean result = false;
                         try {
                             BlockLocalValid.Static.assertBlock(block);
@@ -188,7 +188,7 @@ public class Network extends AbstractJuniterFX implements Initializable {
 
         Platform.runLater(() -> {
             var current = JuniterBindings.currenBlock.get().getNumber();
-            var issuersPoints = blockRepo.issuersFrameFromTo(current - range, current);
+            var issuersPoints = blockService.issuersFrameFromTo(current - range, current);
 
 
             //issuersFrameVarX.setAutoRanging(false);
@@ -212,7 +212,7 @@ public class Network extends AbstractJuniterFX implements Initializable {
 
         Platform.runLater(() -> {
             var current = JuniterBindings.currenBlock.get().getNumber();
-            var issuersPoints = blockRepo.issuersFrameFromTo(current - range, current);
+            var issuersPoints = blockService.issuersFrameFromTo(current - range, current);
 
             //issuersFrameX.setAutoRanging(false);
             issuersFrameX.setTickUnit(tick);
@@ -239,7 +239,7 @@ public class Network extends AbstractJuniterFX implements Initializable {
 
         Platform.runLater(() -> {
             var current = JuniterBindings.currenBlock.get().getNumber();
-            var issuersPoints = blockRepo.issuersFrameFromTo(current - range, current);
+            var issuersPoints = blockService.issuersFrameFromTo(current - range, current);
 
             //issuersFrameX.setAutoRanging(false);
             powX.setTickUnit(tick);
@@ -264,7 +264,7 @@ public class Network extends AbstractJuniterFX implements Initializable {
 
         Platform.runLater(() -> {
             var current = JuniterBindings.currenBlock.get().getNumber();
-            var issuersPoints = blockRepo.issuersFrameFromTo(current - range, current);
+            var issuersPoints = blockService.issuersFrameFromTo(current - range, current);
             Long prev = null;
             for (IssuersFrameDTO ifd : issuersPoints) {
                 if (prev != null) {

@@ -1,16 +1,18 @@
 package juniter.service.bma.loader;
 
-import juniter.core.event.CoreEventBus;
+import juniter.core.event.CurrentBNUM;
+import juniter.core.event.DecrementCurrent;
 import juniter.core.model.dbo.DBBlock;
 import juniter.core.utils.TimeUtils;
 import juniter.core.validation.BlockLocalValid;
-import juniter.repository.jpa.block.BlockRepository;
+import juniter.service.BlockService;
 import juniter.service.bma.PeerService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
@@ -21,7 +23,10 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -60,12 +65,15 @@ public class BlockLoader implements BlockLocalValid {
 
     @Autowired
     private RestTemplate restTemplate;
+//
+//    @Autowired
+//    private CoreEventLOG coreEventBus;
 
     @Autowired
-    private CoreEventBus coreEventBus;
+    private ApplicationEventPublisher applicationEventPublisher;
 
     @Autowired
-    private BlockRepository blockRepo;
+    private BlockService blockService;
 
     @Value("#{'${juniter.network.trusted}'.split(',')}")
     private List<String> configuredNodes;
@@ -82,7 +90,7 @@ public class BlockLoader implements BlockLocalValid {
         Runnable cons = () -> {
             while (true) {
 
-                getBlocks().forEach(b -> blockRepo.localSave(b));
+                getBlocks().forEach(b -> blockService.localSave(b));
 
                 try {
                     Thread.sleep(100);
@@ -107,7 +115,8 @@ public class BlockLoader implements BlockLocalValid {
         resetBlockinDB();
         final var currentNumber = fetchAndSaveBlock("current").getNumber();
 
-        coreEventBus.sendEventCurrent (blockRepo.count() );
+
+        applicationEventPublisher.publishEvent(new CurrentBNUM((int) blockService.count()));
 
         final var nbPackage = Integer.divideUnsigned(currentNumber, bulkSize);
 
@@ -157,7 +166,9 @@ public class BlockLoader implements BlockLocalValid {
 
                     LOG.info("getBlocks " + body.size() + " from: " + url + "... Status: " + statusCode + " : " + contentType);
                     peerService.reportSuccess(host);
-                    coreEventBus.sendEventCurrent(body.get(body.size()-1).getNumber());
+
+                    applicationEventPublisher.publishEvent(new CurrentBNUM(body.get(body.size() - 1).getNumber()));
+
                     return body;
 
                 } catch (final RestClientException e) {
@@ -188,13 +199,13 @@ public class BlockLoader implements BlockLocalValid {
 
         final var start = System.nanoTime();
         final var currentNumber = fetchAndSaveBlock("current").getNumber();
-        if (blockRepo.count() > currentNumber * 0.9) {
-            LOG.warn(" = Ignore bulk loading " + blockRepo.count() + " blocks");
+        if (blockService.count() > currentNumber * 0.9) {
+            LOG.warn(" = Ignore bulk loading " + blockService.count() + " blocks");
             bulkLoadOn = false;
             return;
         }
 
-        LOG.info(" ======== Start BulkLoading ======== " + blockRepo.count() + " blocks");
+        LOG.info(" ======== Start BulkLoading ======== " + blockService.count() + " blocks");
 
         final var nbPackage = Integer.divideUnsigned(currentNumber, bulkSize);
         final AtomicInteger ai = new AtomicInteger(0);
@@ -206,7 +217,7 @@ public class BlockLoader implements BlockLocalValid {
                 // .parallel() // if needed
                 .map(i -> fetchBlocks(bulkSize, i)) // remote list of blocks
                 .flatMap(Collection::stream) // blocks individually
-                .forEach(b -> blockRepo.localSave(b));
+                .forEach(b -> blockService.localSave(b));
 
         final var elapsed = Long.divideUnsigned(System.nanoTime() - start, 1000000);
 
@@ -232,7 +243,7 @@ public class BlockLoader implements BlockLocalValid {
     public DBBlock fetchAndSaveBlock(String id) {
         var block = fetchBlock(id);
         LOG.info("  Saving ... : " + block.getNumber());
-        return blockRepo.localSave(block).orElse(block);
+        return blockService.localSave(block).orElse(block);
     }
 
 
@@ -328,14 +339,14 @@ public class BlockLoader implements BlockLocalValid {
 
     @Transactional
     private void resetBlockinDB() {
-        LOG.info(" === Reseting DB " + blockRepo.count());
+        LOG.info(" === Reseting DB " + blockService.count());
 
-        blockRepo.deleteAll();
-        blockRepo.truncate();
-        blockRepo.findAll().forEach(b -> {
-            blockRepo.delete(b);
+        blockService.deleteAll();
+        blockService.truncate();
+        blockService.findAll().forEach(b -> {
+            blockService.delete(b);
             //LOG.info("deleted " + b.getNumber());
-            coreEventBus.sendEventDecrementCurrentBlock();
+            applicationEventPublisher.publishEvent(new DecrementCurrent());
         });
 
         LOG.info(" === Reseting DB - DONE ");

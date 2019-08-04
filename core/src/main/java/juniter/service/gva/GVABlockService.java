@@ -3,8 +3,8 @@ package juniter.service.gva;
 import io.leangen.graphql.annotations.GraphQLArgument;
 import io.leangen.graphql.annotations.GraphQLNonNull;
 import io.leangen.graphql.annotations.GraphQLQuery;
-import juniter.repository.jpa.block.BlockRepository;
 import juniter.core.model.dto.node.Block;
+import juniter.service.BlockService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
@@ -22,10 +22,12 @@ public class GVABlockService {
 	private static final Logger LOG = LogManager.getLogger(GVABlockService.class);
 
 	@Autowired
-	private BlockRepository blockRepository;
+	private BlockService blockService;
+
+
 
 	@Autowired
-	ModelMapper modelMapper;
+	private ModelMapper modelMapper;
 
 
 	/**
@@ -39,9 +41,9 @@ public class GVABlockService {
 	public Optional<Block> block(@GraphQLArgument(name = "number") Integer number) {
 		LOG.info(" - /graphql/block/{number} ");
 		if(number==null){
-			return blockRepository.current().map(b -> modelMapper.map(b, Block.class));
+			return blockService.current().map(b -> modelMapper.map(b, Block.class));
 		}else{
-			return blockRepository.findTop1ByNumber(number).map(b -> modelMapper.map(b, Block.class));
+			return blockService.findTop1ByNumber(number).map(b -> modelMapper.map(b, Block.class));
 		}
 	}
 
@@ -52,7 +54,7 @@ public class GVABlockService {
 
 		LOG.info(" - /graphql/blocks/{batch}/{from} ");
 
-		try (var bl = blockRepository.streamBlocksFromTo(number, number + batchSize)) {
+		try (var bl = blockService.streamBlocksFromTo(number, number + batchSize)) {
 			return bl.map(b -> modelMapper.map(b, Block.class))
 					.collect(Collectors.toList());
 		} catch (final Exception e) {

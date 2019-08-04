@@ -5,6 +5,7 @@ import antlr.generated.JuniterParser;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import juniter.core.event.Indexing;
 import juniter.core.model.wso.ResponseBlock;
 import juniter.core.model.wso.ResponseBlocks;
 import juniter.core.model.wso.ResponseWotPending;
@@ -51,19 +52,11 @@ public class WS2PClient extends WebSocketClient {
 //    }
 
     private void actionOnConnect() {
-        send(new Request().getBlock(1));
-        send(new Request().getBlocks(2, 3));
-        //send(new Request().getCurrent());
-        send(new Request().getRequirementsPending(5));
+        //send(new Request().getBlock(1));
+        //send(new Request().getBlocks(2, 3));
+        send(new Request().getCurrent());
+        //send(new Request().getRequirementsPending(5));
 
-        while (true) {
-            try {
-                Thread.sleep(3 * 60 * 1000);
-                send(new Request().getCurrent());
-            } catch (Exception e) {
-                LOG.error(e);
-            }
-        }
 
     }
 
@@ -143,7 +136,11 @@ public class WS2PClient extends WebSocketClient {
                 case "CURRENT":
                     final var current = jsonMapper.readValue(message, ResponseBlock.class);
                     LOG.info("CURRENT " + current.getBody());
-                    webSocketPool.blockRepo.localSave(current.getBody());
+                    webSocketPool.applicationEventPublisher.publishEvent(new Indexing(true));
+
+                    webSocketPool.blockService.localSave(current.getBody());
+                    webSocketPool.index.indexUntil(Integer.MAX_VALUE, false);
+
                     LOG.info("SAVED # " + current.getBody().getNumber());
                     break;
                 case "WOT_REQUIREMENTS_OF_PENDING":

@@ -19,8 +19,8 @@ import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.index.*;
 import juniter.gui.include.AbstractJuniterFX;
 import juniter.gui.include.JuniterBindings;
-import juniter.repository.jpa.block.BlockRepository;
 import juniter.repository.jpa.index.*;
+import juniter.service.BlockService;
 import juniter.service.Index;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -243,7 +243,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
     private ProgressBar indexBar;
 
     @Autowired
-    private BlockRepository blockRepo;
+    private BlockService blockService;
 
 
     @FXML
@@ -262,7 +262,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
         try {
             until = Integer.parseInt(indexTil.getText());
         } catch (Exception e) {
-            until = blockRepo.currentBlockNumber();
+            until = blockService.currentBlockNumber();
         }
 
         JuniterBindings.maxBindex.setValue(until);
@@ -291,28 +291,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
         if (JuniterBindings.isIndexing.get())
             return;
 
-        bRepo.head().ifPresent(h -> {
-            bRepo.delete(h);
-
-            iRepo.deleteAll(
-                    iRepo.writtenOn(h.getNumber(), h.getHash())
-            );
-            mRepo.deleteAll(
-                    mRepo.writtenOn(h.getNumber(), h.getHash())
-            );
-            cRepo.deleteAll(
-                    cRepo.writtenOn(h.getNumber(), h.getHash())
-            );
-            sRepo.deleteAll(
-                    sRepo.writtenOn(h.getNumber(), h.getHash())
-            );
-
-
-            JuniterBindings.currentBindex.setValue(h.getNumber() - 1);
-            JuniterBindings.indexLogMessage.setValue("Reverted to " + JuniterBindings.currentBindex.intValue() + " from " + h);
-
-            index.reset(false);
-        });
+        index.revert1();
 
     }
 
@@ -737,8 +716,5 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
     }
 
-    public void button1() {
-
-    }
 
 }

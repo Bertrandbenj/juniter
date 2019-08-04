@@ -2,7 +2,7 @@ package juniter.service.ws2p;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import juniter.core.model.dto.node.Block;
-import juniter.repository.jpa.block.BlockRepository;
+import juniter.service.BlockService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
@@ -27,15 +27,14 @@ public class WSBlock extends TextWebSocketHandler {
     private ObjectMapper objectMapper;
 
     @Autowired
-    ModelMapper modelMapper;
+    private ModelMapper modelMapper;
 
     @Autowired
-    BlockRepository blockRepo;
+    private BlockService blockService;
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         LOG.info("afterConnectionEstablished" + session);
-
 
 
         // keep all sessions (for broadcast)
@@ -44,7 +43,7 @@ public class WSBlock extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        LOG.info("afterConnectionClosed " +status+" - "+ session);
+        LOG.info("afterConnectionClosed " + status + " - " + session);
         sessions.remove(session);
     }
 
@@ -52,18 +51,16 @@ public class WSBlock extends TextWebSocketHandler {
     protected void handleTextMessage(WebSocketSession session, TextMessage message) {
 
 
-
-        blockRepo.current().ifPresent(bl -> {
+        blockService.current().ifPresent(bl -> {
             try {
                 var block = modelMapper.map(bl, Block.class);
-                LOG.info("sending node " + block.getNumber() + " to "+ session );
+                LOG.info("sending node " + block.getNumber() + " to " + session);
                 var strBlock = objectMapper.writeValueAsString(block);
                 session.sendMessage(new TextMessage(strBlock));
             } catch (Exception e) {
                 LOG.error(e);
             }
         });
-
 
 
     }

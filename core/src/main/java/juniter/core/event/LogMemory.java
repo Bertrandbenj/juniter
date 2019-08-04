@@ -1,9 +1,18 @@
-package juniter.core.utils;
+package juniter.core.event;
+
+import juniter.core.event.CoreEvent;
 
 import java.text.NumberFormat;
 
-public class MemoryUtils {
-    public static String memInfo() {
+
+public class LogMemory extends CoreEvent<String> {
+
+    public LogMemory() {
+        super(memInfo(), "Current Block : ");
+        name = getClass().getSimpleName();
+    }
+
+    private static String memInfo() {
         NumberFormat format = NumberFormat.getInstance();
         StringBuilder sb = new StringBuilder();
         long maxMemory = Runtime.getRuntime().maxMemory();
@@ -20,7 +29,7 @@ public class MemoryUtils {
         sb.append(" - ");
         sb.append("Total free memory: ");
         sb.append(format.format((freeMemory + (maxMemory - allocatedMemory)) / 1024));
-       // sb.append(" - ");
+        // sb.append(" - ");
 
         Runtime.getRuntime().gc();
         return sb.toString();

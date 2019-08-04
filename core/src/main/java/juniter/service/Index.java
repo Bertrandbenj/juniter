@@ -2,19 +2,21 @@ package juniter.service;
 
 import com.codahale.metrics.annotation.Counted;
 import io.micrometer.core.annotation.Timed;
-import juniter.core.event.CoreEventBus;
+import juniter.core.event.CurrentBNUM;
+import juniter.core.event.LogIndex;
+import juniter.core.event.NewBINDEX;
 import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dbo.index.*;
 import juniter.core.utils.TimeUtils;
 import juniter.core.validation.GlobalValid;
-import juniter.repository.jpa.block.BlockRepository;
 import juniter.repository.jpa.index.*;
 import juniter.service.bma.loader.BlockLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,12 +37,14 @@ import java.util.stream.Stream;
  * @author BnimajneB
  */
 @Service
-public class Index implements GlobalValid {
+public class Index<isIndexing> implements GlobalValid {
 
     private static final Logger LOG = LogManager.getLogger(Index.class);
 
+
     @Autowired
-    private CoreEventBus coreEventBus;
+    private ApplicationEventPublisher coreEventBuss;
+
 
     @Autowired
     private CINDEXRepository cRepo;
@@ -61,7 +65,7 @@ public class Index implements GlobalValid {
     private AccountRepository accountRepo;
 
     @Autowired
-    private BlockRepository blockRepo;
+    private BlockService blockService;
 
 
     @Value("${juniter.startIndex:false}")
@@ -69,6 +73,8 @@ public class Index implements GlobalValid {
 
     @PersistenceContext
     private EntityManager entityManager;
+
+    private Boolean indexing;
 
     /**
      * hack to create account VIEW after SQL table's init.
@@ -95,6 +101,14 @@ public class Index implements GlobalValid {
 
         }
 
+    }
+
+    private synchronized Boolean isIndexing() {
+        return indexing;
+    }
+
+    private synchronized void setIndexing(Boolean id) {
+        indexing = id;
     }
 
 
@@ -135,14 +149,14 @@ public class Index implements GlobalValid {
     public Optional<DBBlock> createdOnBlock(BStamp bstamp) {
 
         if (bstamp.getNumber().equals(0))
-            return blockRepo.block(0);
-        return Optional.of(blockRepo.block(bstamp.getNumber())
+            return blockService.block(0);
+        return Optional.of(blockService.block(bstamp.getNumber())
                 .orElseGet(() -> blockLoader.fetchAndSaveBlock(bstamp.getNumber())));
     }
 
     @Override
     public Optional<DBBlock> createdOnBlock(Integer number) {
-        return blockRepo.block(number);
+        return blockService.block(number);
     }
 
     @Transactional
@@ -309,32 +323,42 @@ public class Index implements GlobalValid {
      */
     @Async
     @Timed(longTask = true, histogram = true)
-    public void indexUntil(int syncUntil, boolean quick) {
+    public synchronized void indexUntil(int syncUntil, boolean quick) {
 
-        LOG.info("indexUntil local repository "+syncUntil + " , quick? "+ quick);
+        LOG.info("indexUntil local repository " + syncUntil + " , quick? " + quick);
         init(false);
         var baseTime = System.currentTimeMillis();
         var time = System.currentTimeMillis();
         long delta;
+        int reverted = 0;
 
-        for (int i = head().map(h -> h.getNumber() + 1).orElse(0); i <= syncUntil && coreEventBus.isIndexing(); i++) { // && Bus.isIndexing.get()
-            final int finali = i;
+        for (int bnum = head().map(h -> h.getNumber() + 1).orElse(0); bnum <= syncUntil && isIndexing(); bnum++) { // && Bus.isIndexing.get()
+            final int finalBnum = bnum;
 
 
-            final var block = blockRepo.block(i).orElseGet(() -> blockLoader.fetchAndSaveBlock(finali));
+            final var block = blockService.block(finalBnum).orElseGet(() -> blockLoader.fetchAndSaveBlock(finalBnum));
 
             try {
                 if (completeGlobalScope(block, !quick)) {
                     LOG.debug("Validated " + block);
-                    coreEventBus.sendEventCurrentBindex(finali);
+                    coreEventBuss.publishEvent(new NewBINDEX(head().orElseThrow(), "Validated "));
+//                    coreEventBus.sendEventCurrentBindex(finalBnum);
                 } else {
-                    coreEventBus.sendEventIndexLogMessage("NOT Validated " + block);
+                    coreEventBuss.publishEvent(new LogIndex("NOT Validated " + block));
 
                     break;
                 }
             } catch (AssertionError | Exception e) {
-                coreEventBus.sendEventIndexLogMessage("ERROR Validating " + block + " - " + e.getMessage());
+                coreEventBuss.publishEvent(new LogIndex("ERROR Validating " + block + " - " + e.getMessage()));
                 LOG.error("ERROR Validating " + block + " - " + e.getMessage(), e);
+
+                if (reverted < 100) {
+                    blockService.listBlocksFromTo(finalBnum - reverted, finalBnum).forEach(b -> blockService.delete(b));
+                    for (int i = 0; i < reverted; i++)
+                        revert1();
+                    reverted++;
+                }
+
 
                 break;
             }
@@ -349,18 +373,44 @@ public class Index implements GlobalValid {
                 var log = "Validation : elapsed time " + TimeUtils.format(baseDelta) + " which is " + perBlock
                         + " ms per node, estimating: " + TimeUtils.format(estimate) + "left";
 
-                coreEventBus.sendEventIndexLogMessage(log);
+                coreEventBuss.publishEvent(new LogIndex(log));
                 time = newTime;
             }
         }
 
         delta = System.currentTimeMillis() - time;
         LOG.info("Finished validation, took :  " + TimeUtils.format(delta));
-        coreEventBus.sendEventIsIndexing(false);
 
+        setIndexing(false);
     }
 
     public void reset(boolean resetDB) {
         init(resetDB);
+    }
+
+    public void revert1() {
+        bRepo.head().ifPresent(h -> {
+            bRepo.delete(h);
+
+            iRepo.deleteAll(
+                    iRepo.writtenOn(h.getNumber(), h.getHash())
+            );
+            mRepo.deleteAll(
+                    mRepo.writtenOn(h.getNumber(), h.getHash())
+            );
+            cRepo.deleteAll(
+                    cRepo.writtenOn(h.getNumber(), h.getHash())
+            );
+            sRepo.deleteAll(
+                    sRepo.writtenOn(h.getNumber(), h.getHash())
+            );
+
+
+            coreEventBuss.publishEvent(new CurrentBNUM(h.getNumber() - 1));
+
+            coreEventBuss.publishEvent(new LogIndex("Reverted to " + h.getNumber() + " from " + h));
+
+            reset(false);
+        });
     }
 }

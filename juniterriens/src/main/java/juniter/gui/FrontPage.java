@@ -15,8 +15,8 @@ import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dbo.index.BINDEX;
 import juniter.gui.include.AbstractJuniterFX;
 import juniter.gui.include.JuniterBindings;
-import juniter.repository.jpa.block.BlockRepository;
 import juniter.repository.jpa.index.BINDEXRepository;
+import juniter.service.BlockService;
 import juniter.service.bma.PeerService;
 import juniter.service.bma.loader.BlockLoader;
 import juniter.service.bma.loader.MissingBlocksLoader;
@@ -75,7 +75,7 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
     private BINDEXRepository bRepo;
 
     @Autowired
-    private BlockRepository blockRepo;
+    private BlockService blockService;
     @Autowired
     private PeerService peers;
 
@@ -108,8 +108,8 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
 
         notifyPreloader(new Preloader.StateChangeNotification(Preloader.StateChangeNotification.Type.BEFORE_START));
 
-        if (null == blockRepo) {
-            throw new IllegalStateException("BlockRepository was not injected properly");
+        if (null == blockService) {
+            throw new IllegalStateException("BlockService was not injected properly");
         }
 
         var scene = JuniterBindings.screenController.getMain();
@@ -134,11 +134,11 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
 
         loadBar.progressProperty().bind(JuniterBindings.currentDBBlock.divide(JuniterBindings.maxPeerBlock));
-        JuniterBindings.maxBindex.setValue(blockRepo.currentBlockNumber());
-        JuniterBindings.currentDBBlock.setValue(blockRepo.count());
+        JuniterBindings.maxBindex.setValue(blockService.currentBlockNumber());
+        JuniterBindings.currentDBBlock.setValue(blockService.currentBlockNumber());
         JuniterBindings.currentBindex.setValue(bRepo.head().map(BINDEX::getNumber).orElse(0));
-        JuniterBindings.maxDBBlock.setValue(blockRepo.currentBlockNumber());
-        JuniterBindings.currenBlock.setValue(blockRepo.current().orElseGet(() -> blockLoader.fetchAndSaveBlock("current")));
+        JuniterBindings.maxDBBlock.setValue(blockService.currentBlockNumber());
+        JuniterBindings.currenBlock.setValue(blockService.current().orElseGet(() -> blockLoader.fetchAndSaveBlock("current")));
 
         JuniterBindings.peers.set(peers);
 
@@ -146,7 +146,7 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
 
 
         var mc = JuniterBindings.currenBlock.get().getMembersCount();
-        var h24 = blockRepo.block(JuniterBindings.currenBlock.get().getNumber() - 288)
+        var h24 = blockService.block(JuniterBindings.currenBlock.get().getNumber() - 288)
                 .map(DBBlock::getMembersCount)
                 .map(x -> mc - x)
                 .orElse(0);

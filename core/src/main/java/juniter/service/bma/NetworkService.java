@@ -6,9 +6,9 @@ import juniter.core.model.dbo.net.EndPoint;
 import juniter.core.model.dbo.net.EndPointType;
 import juniter.core.model.dbo.net.Peer;
 import juniter.core.model.dto.net.*;
-import juniter.repository.jpa.block.BlockRepository;
 import juniter.repository.jpa.net.EndPointsRepository;
 import juniter.repository.jpa.net.PeersRepository;
+import juniter.service.BlockService;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -67,7 +67,7 @@ public class NetworkService {
     private EndPointsRepository endPointRepo;
 
     @Autowired
-    private BlockRepository blockRepo;
+    private BlockService blockService;
 
 
     @Autowired
@@ -213,7 +213,7 @@ public class NetworkService {
 
         LOG.info("Entering /network/peering ... " + remote);
 
-        return endPointPeer(blockRepo.currentBlockNumber());
+        return endPointPeer(blockService.currentBlockNumber());
 
     }
 
@@ -226,7 +226,7 @@ public class NetworkService {
     public Peer endPointPeer(Integer number) {
         LOG.info("endPointPeer " + number);
 
-        DBBlock current = blockRepo.block(number).or(() -> blockRepo.current()).orElseThrow();
+        DBBlock current = blockService.block(number).or(() -> blockService.current()).orElseThrow();
         var peer = new Peer();
         peer.setVersion(10);
         peer.setBlock(current.bstamp());

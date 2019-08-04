@@ -12,6 +12,7 @@ import juniter.core.model.dto.net.HardshipDTO;
 import juniter.core.model.dto.wot.MembershipDTO;
 import juniter.repository.jpa.block.*;
 import juniter.repository.jpa.index.MINDEXRepository;
+import juniter.service.BlockService;
 import juniter.service.bma.loader.BlockLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -70,7 +71,7 @@ public class BlockchainService {
     private static final Logger LOG = LogManager.getLogger(BlockchainService.class);
 
     @Autowired
-    private BlockRepository blockRepo;
+    private BlockService blockService;
 
     @Autowired
     private CertsRepository certRepo;
@@ -96,7 +97,7 @@ public class BlockchainService {
 
         LOG.info("Entering /blockchain/all");
 
-        try (Stream<DBBlock> items = blockRepo.findTop10ByOrderByNumberDesc()) {
+        try (Stream<DBBlock> items = blockService.lastBlocks()) {
             return items.collect(toList());
         } catch (final Exception e) {
             LOG.error(e);
@@ -109,8 +110,8 @@ public class BlockchainService {
     public Block block(@PathVariable("id") Integer id) {
 
         LOG.info("Entering /blockchain/block/{number=" + id + "}");
-        final var block = blockRepo
-                .findTop1ByNumber(id)
+        final var block = blockService
+                .block(id)
                 .orElseGet(() -> defaultLoader.fetchAndSaveBlock(id));
 
         return modelMapper.map(block, Block.class);
@@ -126,7 +127,7 @@ public class BlockchainService {
         final List<Integer> blocksToFind = IntStream.range(from, from + count).boxed().collect(toList());
         LOG.debug("---blocksToFind: " + blocksToFind);
 
-        final List<DBBlock> knownBlocks = blockRepo.findByNumberIn(blocksToFind).collect(toList());
+        final List<DBBlock> knownBlocks = blockService.blocksIn(blocksToFind).collect(toList());
         LOG.debug("---known blocks: " + knownBlocks.stream().map(DBBlock::getNumber).collect(toList()));
 
         final List<DBBlock> blocksToSave = blocksToFind.stream()
@@ -136,7 +137,7 @@ public class BlockchainService {
         LOG.debug("---fetchTrimmed blocks: " + Stream.concat(blocksToSave.stream(), knownBlocks.stream())
                 .map(b -> b.getNumber().toString()).collect(joining(",")));
 
-        blockRepo.saveAll(blocksToSave);
+        blockService.saveAll(blocksToSave);
 
         return Stream.concat(blocksToSave.stream(), knownBlocks.stream()) //
                 .map(b -> modelMapper.map(b, Block.class)) //
@@ -149,7 +150,7 @@ public class BlockchainService {
     @GetMapping(value = "/current")
     public Block current() {
         LOG.info("Entering /blockchain/current");
-        final var b = blockRepo.current()
+        final var b = blockService.current()
                 .orElse(defaultLoader.fetchAndSaveBlock("current"));
 
         return modelMapper.map(b, Block.class);
@@ -191,12 +192,12 @@ public class BlockchainService {
             case "excluded":
                 return new WithDTO(memberRepo.withExcluded());
             case "ud":
-                return new WithDTO(blockRepo.withUD());
+                return new WithDTO(blockService.withUD());
             case "tx":
                 return new WithDTO(txRepo.withTx());
 
             default:
-                st = blockRepo.with(block -> !block.getTransactions().isEmpty());
+                st = blockService.with(block -> !block.getTransactions().isEmpty());
         }
 
         try (Stream<Integer> items = st.map(DBBlock::getNumber)) {
@@ -225,14 +226,14 @@ public class BlockchainService {
     @Transactional(readOnly = true)
     @GetMapping(value = "/difficulties")
     public DifficultiesDTO difficulties() {
-        return new DifficultiesDTO(blockRepo.currentBlockNumber(), List.of(new Difficulty("", 99)));
+        return new DifficultiesDTO(blockService.currentBlockNumber(), List.of(new Difficulty("", 99)));
     }
 
     @CrossOrigin(origins = "*")
     @Transactional(readOnly = true)
     @GetMapping(value = "/hardship")
     public HardshipDTO hardship() {
-        return new HardshipDTO(blockRepo.currentBlockNumber(), 99);
+        return new HardshipDTO(blockService.currentBlockNumber(), 99);
     }
 
 

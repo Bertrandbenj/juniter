@@ -1,16 +1,18 @@
 package juniter.service.bma.loader;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import juniter.core.event.CoreEventBus;
+import juniter.core.event.LogNetwork;
+import juniter.core.event.MaxDBBlock;
+import juniter.core.event.MaxPeerBlock;
 import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.net.EndPointType;
 import juniter.core.model.dbo.net.Peer;
 import juniter.core.model.dto.net.PeerBMA;
 import juniter.core.model.dto.net.PeersDTO;
 import juniter.core.utils.TimeUtils;
-import juniter.repository.jpa.block.BlockRepository;
 import juniter.repository.jpa.net.EndPointsRepository;
 import juniter.repository.jpa.net.PeersRepository;
+import juniter.service.BlockService;
 import juniter.service.bma.NetworkService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,6 +20,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.jpa.repository.Modifying;
@@ -45,7 +48,7 @@ import java.util.*;
 public class PeerLoader {
 
     @Autowired
-    private CoreEventBus coreEventBus;
+    private ApplicationEventPublisher coreEventBus;
     public static final Logger LOG = LogManager.getLogger(PeerLoader.class);
 
     @Autowired
@@ -61,7 +64,7 @@ public class PeerLoader {
     private BlockLoader blockLoader;
 
     @Autowired
-    private BlockRepository blockRepo;
+    private BlockService blockService;
 
     @Autowired
     private NetworkService netService;
@@ -119,19 +122,20 @@ public class PeerLoader {
                             .mapToLong(BStamp::getNumber)
                             .max();
 
-                    var maxBlockDB = blockRepo.currentBlockNumber();
+                    var maxBlockDB = blockService.currentBlockNumber();
 
-                    coreEventBus.sendEventSetMaxDBBlock(maxBlockDB);
+                    coreEventBus.publishEvent(new MaxDBBlock(maxBlockDB));
 
-                    coreEventBus.sendEventPeerLogMessage(host.orElse(""));
+
+                    coreEventBus.publishEvent(new LogNetwork(host.orElse("")));
 
 
                     if (maxBlockPeer.isPresent()) {
-                        coreEventBus.sendEventSetMaxPeerBlock(maxBlockPeer.getAsLong());
+                        coreEventBus.publishEvent(new MaxPeerBlock((int) maxBlockPeer.getAsLong()));
 
                         if (maxBlockDB < maxBlockPeer.getAsLong()) {
                             blockLoader.fetchBlocks(bulkSize, (int) (maxBlockPeer.getAsLong() - bulkSize))
-                                    .forEach(b -> blockRepo.save(b));
+                                    .forEach(b -> blockService.save(b));
                         }
                     }
 
@@ -249,7 +253,7 @@ public class PeerLoader {
 
             blockLoader.fetchBlocks(100, bstamp.getNumber() - 100)
                     //.flatMap(Collection::stream) // blocks individually
-                    .forEach(b -> blockRepo//
+                    .forEach(b -> blockService//
                             .localSave(b) //
                             .ifPresent(bl -> LOG.debug(" saved node : " + bl)));
 
@@ -292,8 +296,8 @@ public class PeerLoader {
         peers.getPeers()
                 .stream() // parsed peers
                 .map(pdto -> modelMapper.map(pdto, Peer.class))
-                .filter(p -> p.getBlock().getNumber() > blockRepo.currentBlockNumber() - 500)
-                .filter(p-> "UP".equals(p.getStatus()))
+                .filter(p -> p.getBlock().getNumber() > blockService.currentBlockNumber() - 500)
+                .filter(p -> "UP".equals(p.getStatus()))
 //                .peek(c -> LOG.info("saving " + c))
                 .forEach(p -> peerRepo.saveAndFlush(p));
     }
@@ -303,7 +307,7 @@ public class PeerLoader {
     @Modifying
     @Scheduled(fixedRate = 10 * 60 * 1000)
     public void cleanup() {
-        peerRepo.cleanup(blockRepo.currentBlockNumber());
+        peerRepo.cleanup(blockService.currentBlockNumber());
     }
 
 

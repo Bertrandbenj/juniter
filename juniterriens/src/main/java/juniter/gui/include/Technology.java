@@ -27,8 +27,8 @@ public class Technology extends AbstractJuniterFX implements Initializable {
     public void start(Stage primaryStage) throws Exception {
         notifyPreloader(new Preloader.StateChangeNotification(Preloader.StateChangeNotification.Type.BEFORE_START));
 
-//        if (null == blockRepo) {
-//            throw new IllegalStateException("BlockRepository was not injected properly");
+//        if (null == blockService) {
+//            throw new IllegalStateException("BlockService was not injected properly");
 //        }
         primaryStage.setOnCloseRequest(e-> Room.popupOpen = false);
         var page = (BorderPane) load("/gui/game/Technology.fxml");

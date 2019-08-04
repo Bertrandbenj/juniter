@@ -87,7 +87,7 @@ public class Request {
 			final int myRandomNumber = rand.nextInt(16); // Generates a random number between 0x10 and 0x20
 			res += charset[myRandomNumber]; // Random hex number in result
 		}
-		LOG.info("randomReqId " + res);
+//		LOG.info("randomReqId " + res);
 
 		return res;
 	}

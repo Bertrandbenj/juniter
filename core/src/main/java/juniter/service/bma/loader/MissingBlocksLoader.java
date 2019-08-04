@@ -3,8 +3,8 @@ package juniter.service.bma.loader;
 import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.net.Peer;
 import juniter.core.utils.TimeUtils;
-import juniter.repository.jpa.block.BlockRepository;
 import juniter.repository.jpa.net.PeersRepository;
+import juniter.service.BlockService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,10 +36,10 @@ public class MissingBlocksLoader {
 
 
     @Autowired
-    BlockRepository blockRepo;
+    private BlockService blockService;
 
     @Autowired
-    BlockLoader defaultLoader;
+    private BlockLoader defaultLoader;
 
     @Autowired
     private PeersRepository peerRepo;
@@ -51,11 +51,11 @@ public class MissingBlocksLoader {
                 .map(Peer::getBlock)
                 .mapToInt(BStamp::getNumber)
                 .max()
-                .orElse(blockRepo.currentBlockNumber());
+                .orElse(blockService.currentBlockNumber());
 
-        final var numbers = blockRepo.blockNumbers();
+        final var numbers = blockService.blockNumbers();
 
-        if (currentNumber > blockRepo.currentBlockNumber()) {
+        if (currentNumber > blockService.currentBlockNumber()) {
             return IntStream
                     .range(0, currentNumber)
                     .boxed()
@@ -94,7 +94,7 @@ public class MissingBlocksLoader {
             if (bulkStart == -1) {
                 bulkStart = miss;
                 cntI++;
-            } else if (cntI >= 50 || missing.indexOf(miss) == missing.size()-1) {
+            } else if (cntI >= 50 || missing.indexOf(miss) == missing.size() - 1) {
                 map.put(bulkStart, cntI);
                 bulkStart = miss;
                 cntI = 0;
@@ -103,7 +103,7 @@ public class MissingBlocksLoader {
                 bulkStart = miss;
                 cntI = 1;
 
-            }else{
+            } else {
                 cntI++;
             }
             prev = miss;
@@ -114,7 +114,7 @@ public class MissingBlocksLoader {
 
 //		missing.forEach(n -> {
 //defaultLoader.fetchBlocks(entry.getValue(), entry.getKey())
-//                            .forEach(b -> blockRepo//
+//                            .forEach(b -> blockService//
 //                                    .localSave(b) //
 //                                    .ifPresent(bl -> LOG.debug("saved missing node " + bl))
 //			if(!blackList.contains(n)){

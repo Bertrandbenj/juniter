@@ -2,8 +2,8 @@ package juniter.service.ws2p;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import juniter.core.model.dbo.index.BINDEX;
-import juniter.repository.jpa.block.BlockRepository;
 import juniter.repository.jpa.index.BINDEXRepository;
+import juniter.service.BlockService;
 import juniter.service.bma.NetworkService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,12 +27,6 @@ public class WSPeer extends TextWebSocketHandler {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Autowired
-    ModelMapper modelMapper;
-
-    @Autowired
-    BlockRepository blockRepo;
-
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
@@ -43,10 +37,9 @@ public class WSPeer extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        LOG.info("afterConnectionClosed" +status+" - "+ session);
+        LOG.info("afterConnectionClosed" + status + " - " + session);
         sessions.remove(session);
     }
-
 
 
     @Autowired

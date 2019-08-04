@@ -1,10 +1,10 @@
 package juniter.conf;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import juniter.core.model.dto.node.Block;
 import juniter.core.model.dbo.index.BINDEX;
-import juniter.repository.jpa.block.BlockRepository;
+import juniter.core.model.dto.node.Block;
 import juniter.repository.jpa.index.BINDEXRepository;
+import juniter.service.BlockService;
 import juniter.service.bma.NetworkService;
 import juniter.service.gva.GVASubscriptionHandler;
 import juniter.service.ws2p.WSBlock;
@@ -28,6 +28,7 @@ import org.springframework.web.socket.server.HandshakeInterceptor;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+
 @EnableWebSocket
 @Configuration
 public class GVAConf implements WebSocketConfigurer {
@@ -40,7 +41,7 @@ public class GVAConf implements WebSocketConfigurer {
     private ModelMapper modelMapper;
 
     @Autowired
-    private BlockRepository blockRepo;
+    private BlockService blockService;
 
     @Autowired
     private NetworkService netService;
@@ -98,7 +99,7 @@ public class GVAConf implements WebSocketConfigurer {
 
         if (request.getURI().getPath().endsWith("/ws/block") || request.getURI().getPath().endsWith("/block")) {
 
-            blockRepo.current().ifPresent(bl -> {
+            blockService.current().ifPresent(bl -> {
                 try {
                     var block = modelMapper.map(bl, Block.class);
 

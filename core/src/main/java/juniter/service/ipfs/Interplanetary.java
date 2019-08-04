@@ -7,7 +7,7 @@ import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dto.net.DifficultiesDTO;
 import juniter.core.model.dto.node.Block;
 import juniter.core.model.dto.node.WithDTO;
-import juniter.repository.jpa.block.BlockRepository;
+import juniter.service.BlockService;
 import juniter.service.bma.BlockchainService;
 import juniter.service.bma.loader.BlockLoader;
 import org.apache.logging.log4j.LogManager;
@@ -15,7 +15,6 @@ import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
-import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -74,7 +73,7 @@ public class Interplanetary {
     private BlockchainService blockchainService;
 
     @Autowired
-    private BlockRepository blockRepo;
+    private BlockService blockService;
 
     @Autowired
     private BlockLoader blockLoader;
@@ -422,10 +421,10 @@ public class Interplanetary {
         //saveWith("ud", WITH_UD_FILE);
 
 
-        for (int i = 0; i < blockRepo.currentBlockNumber(); i++) {
+        for (int i = 0; i < blockService.currentBlockNumber(); i++) {
 
             int finalI = i;
-            var b = blockRepo.block(i).orElseGet(() -> blockLoader.fetchAndSaveBlock(finalI));
+            var b = blockService.block(i).orElseGet(() -> blockLoader.fetchAndSaveBlock(finalI));
 
             var bl = saveIPFSBlock(b);
 

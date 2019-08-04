@@ -2,7 +2,6 @@ import juniter.core.model.ChainParameters;
 import juniter.core.model.DBBlock;
 import juniter.core.model.dbo.index.*;
 import juniter.core.utils.TimeUtils;
-import juniter.repository.jpa.BlockRepository;
 import juniter.repository.jpa.index.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,7 +30,7 @@ public class SparkService {
     SparkSession spark;
 
     @Autowired
-    BlockRepository blockRepo;
+    BlockService blockService;
 
     @Autowired
     BINDEXRepository bindexRepo;
@@ -481,7 +480,7 @@ public class SparkService {
 
     private void stuff() {
         var df = spark.createDataFrame(
-                blockRepo.blocksFromTo(0, 52)
+                blockService.blocksFromTo(0, 52)
                         .stream()
 //                        .map(b -> {
 //                            // modelMapper.map(b, juniter.Block.class)

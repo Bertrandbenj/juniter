@@ -1,7 +1,7 @@
 package juniter.repository;
 
 import juniter.core.utils.TimeUtils;
-import juniter.repository.jpa.block.BlockRepository;
+import juniter.service.BlockService;
 import juniter.service.Index;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,51 +19,51 @@ import java.text.DecimalFormat;
 @DataJpaTest
 public class TestRepoBlockchain {
 
-	private static final Logger LOG = LogManager.getLogger(TestRepoBlockchain.class);
+    private static final Logger LOG = LogManager.getLogger(TestRepoBlockchain.class);
 
-	@Autowired
-	public BlockRepository blockRepo;
+    @Autowired
+    public BlockService blockService;
 
-	private Index idx = new Index();
-
-
-	@Test
-	public void test() {
-		LOG.info("Testing the local repository ");
-
-		final long time = System.currentTimeMillis();
-		long delta = System.currentTimeMillis() - time;
-		final var current = blockRepo.currentBlockNumber();
-		final DecimalFormat decimalFormat = new DecimalFormat("##.###%");
+    private Index idx = new Index();
 
 
-		for (int i = 0; i < 52; i++) {
+    @Test
+    public void test() {
+        LOG.info("Testing the local repository ");
 
-			final var block = blockRepo.block(i).get();
+        final long time = System.currentTimeMillis();
+        long delta = System.currentTimeMillis() - time;
+        final var current = blockService.currentBlockNumber();
+        final DecimalFormat decimalFormat = new DecimalFormat("##.###%");
 
-			if (idx.completeGlobalScope(block, true)) {
-				LOG.info("Validated " + block);
-			} else {
-				LOG.warn("NOT Valid " + block.toDUP());
-				return;
-			}
 
-			if (i > 0 && i % 100 == 0) {
-				delta = System.currentTimeMillis() - time;
+        for (int i = 0; i < 52; i++) {
 
-				final var perBlock = delta / i;
-				final var estimate = current * perBlock;
-				final String perc = decimalFormat.format(1.0 * i / current);
+            final var block = blockService.block(i).get();
 
-				LOG.info(perc + ", elapsed time " + TimeUtils.format(delta) + " which is " + perBlock
-						+ " ms per node validated, estimating: " + TimeUtils.format(estimate) + " total");
-			}
-		}
+            if (idx.completeGlobalScope(block, true)) {
+                LOG.info("Validated " + block);
+            } else {
+                LOG.warn("NOT Valid " + block.toDUP());
+                return;
+            }
 
-		delta = System.currentTimeMillis() - time;
-		LOG.info("Finished validation, took :  " + TimeUtils.format(delta));
+            if (i > 0 && i % 100 == 0) {
+                delta = System.currentTimeMillis() - time;
 
-	}
+                final var perBlock = delta / i;
+                final var estimate = current * perBlock;
+                final String perc = decimalFormat.format(1.0 * i / current);
+
+                LOG.info(perc + ", elapsed time " + TimeUtils.format(delta) + " which is " + perBlock
+                        + " ms per node validated, estimating: " + TimeUtils.format(estimate) + " total");
+            }
+        }
+
+        delta = System.currentTimeMillis() - time;
+        LOG.info("Finished validation, took :  " + TimeUtils.format(delta));
+
+    }
 
 
 }
