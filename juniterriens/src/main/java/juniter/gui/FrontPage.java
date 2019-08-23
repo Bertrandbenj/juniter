@@ -3,6 +3,7 @@ package juniter.gui;
 
 import javafx.application.Platform;
 import javafx.application.Preloader;
+import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
@@ -32,6 +33,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Optional;
 import java.util.ResourceBundle;
+
+import static juniter.gui.include.JuniterBindings.*;
 
 /**
  * inspiration here https://github.com/buckyroberts/Source-Code-from-Tutorials
@@ -76,6 +79,7 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
 
     @Autowired
     private BlockService blockService;
+
     @Autowired
     private PeerService peers;
 
@@ -90,7 +94,7 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
     @FXML
     public void bulkLoad() {
 
-        if (JuniterBindings.isDownloading.getValue()) {
+        if (isDownloading.getValue()) {
             return;
         }
         blockLoader.bulkLoad2();
@@ -112,17 +116,17 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
             throw new IllegalStateException("BlockService was not injected properly");
         }
 
-        var scene = JuniterBindings.screenController.getMain();
-        if (JuniterBindings.screenController.getMain() == null) {
+        var scene = screenController.getMain();
+        if (screenController.getMain() == null) {
             BorderPane page = (BorderPane) load("/gui/FrontPage.fxml");
-            JuniterBindings.screenController.addScreen("Main", page);
+            screenController.addScreen("Main", page);
             scene = new Scene(page);
-            JuniterBindings.screenController.setMain(scene);
-            JuniterBindings.screenController.activate("Main");
+            screenController.setMain(scene);
+            screenController.activate("Main");
 
         }
 
-        JuniterBindings.screenController.setMain(scene);
+        screenController.setMain(scene);
 
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -133,33 +137,46 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-        loadBar.progressProperty().bind(JuniterBindings.currentDBBlock.divide(JuniterBindings.maxPeerBlock));
-        JuniterBindings.maxBindex.setValue(blockService.currentBlockNumber());
-        JuniterBindings.currentDBBlock.setValue(blockService.currentBlockNumber());
-        JuniterBindings.currentBindex.setValue(bRepo.head().map(BINDEX::getNumber).orElse(0));
-        JuniterBindings.maxDBBlock.setValue(blockService.currentBlockNumber());
-        JuniterBindings.currenBlock.setValue(blockService.current().orElseGet(() -> blockLoader.fetchAndSaveBlock("current")));
+        loadBar.progressProperty().bind(currentDBBlock.divide(maxPeerBlock));
+        maxBindex.setValue(blockService.currentBlockNumber());
+        currentDBBlock.setValue(blockService.currentBlockNumber());
+        currentBindex.setValue(bRepo.head().map(BINDEX::getNumber).orElse(0));
+        maxDBBlock.setValue(blockService.currentBlockNumber());
+        currenBlock.setValue(blockService.current().orElseGet(() -> blockLoader.fetchAndSaveBlock("current")));
 
         JuniterBindings.peers.set(peers);
 
-        m.setText(JuniterBindings.currenBlock.get().getMonetaryMass() + "");
+        m.textProperty().bind(Bindings.createObjectBinding(() ->
+                String.format("%,.2f", currenBlock.get().getMonetaryMass()/100.)));
 
 
-        var mc = JuniterBindings.currenBlock.get().getMembersCount();
-        var h24 = blockService.block(JuniterBindings.currenBlock.get().getNumber() - 288)
+        var mc = currenBlock.get().getMembersCount();
+        var h24 = blockService.block(currenBlock.get().getNumber() - 288)
                 .map(DBBlock::getMembersCount)
                 .map(x -> mc - x)
                 .orElse(0);
 
-        n.setText(mc + " " + (h24 == 0 ? "" : (h24 > 0 ? "+" : "-") + h24));
+        n.textProperty().bind(Bindings.createObjectBinding(() ->
+                mc + " " + (h24 == 0 ? "" : (h24 > 0 ? "+" : "-") + h24)));
 
-        Date date = new Date(JuniterBindings.currenBlock.get().getMedianTime() * 1000L);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        sdf.setTimeZone(java.util.TimeZone.getTimeZone("GMT+1"));
-        String formattedDate = sdf.format(date);
-        median.setText(formattedDate);
-        size.setText(JuniterBindings.currenBlock.get().getSize() + "");
-        number.setText(JuniterBindings.currenBlock.get().getNumber() + "");
+
+        median.textProperty().bind(Bindings.createObjectBinding(() -> {
+                    var date = new Date(currenBlock.get().getMedianTime() * 1000L);
+                    var sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    sdf.setTimeZone(java.util.TimeZone.getTimeZone("GMT+1"));
+                    var formattedDate = sdf.format(date);
+                    return formattedDate;
+                }
+                , currenBlock));
+
+
+        size.textProperty().bind(Bindings.createObjectBinding(() ->
+                currenBlock.get().getSize().toString(), currenBlock));
+
+
+        number.textProperty().bind(Bindings.createObjectBinding(() ->
+                currenBlock.get().getNumber().toString(), currenBlock));
+
         // test.setText(txRepo.transactionsOfIssuer_("4weakHxDBMJG9NShULG1g786eeGh7wwntMeLZBDhJFni").singleton(0).getWrittenOn()+"");
 
 

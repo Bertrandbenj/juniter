@@ -166,12 +166,12 @@
     arrow_pressed_color: #111;
 }
 
-/**************************** Scroll Pane *************************************/
+/**************************** Scroll Pane **********************************
 
 .scroll-pane {
-    background_color: #29292a;
+    background_color: background_color;
 }
-
+***/
 /*******************************************************************************
  *                                                                             *
  * Combo Box                                                                   *
@@ -452,10 +452,12 @@
 .table-view .column-header .label{
     -fx-text-fill: text_color;
     -fx-font-family: "Segoe UI SemiBold";
-    -fx-font-size: 1.166667em;  /* 14 */
+    /* -fx-font-size: 1.166667em;  14
+      -fx-padding: 0.666666em 2em 0.666666em 2em;
+     */
     -fx-alignment: center-left;
 
-    -fx-padding: 0.666666em 2em 0.666666em 2em;
+
 }
 
 .table-view .column-header:hover{
@@ -482,9 +484,11 @@
 .table-cell {
     -fx-border-color: transparent transparent transparent transparent;
     -fx-font-family: "Segoe UI";
-    -fx-font-size: 1.166667em;  /* 14 */
+   /* -fx-font-size: 1.166667em;   14
+   -fx-padding: 0.833333em 2em 0.5em 2em;
+   */
     -fx-alignment: center-left;
-    -fx-padding: 0.833333em 2em 0.5em 2em;
+
 }
 
 .table-cell:last-visible {
@@ -601,6 +605,9 @@
     tab_selected_background_color: #1e1e1e;
     tab_selected_border_color: #1e1e1e;
 }
+
+
+
 
 /*******************************************************************************
  *                                                                             *
@@ -1330,7 +1337,15 @@
 
 
 
-//.scroll-pane > .viewport  { -fx-background-color: background_color; }
+.scroll-pane > .viewport  { -fx-background-color: background_color; }
+.scroll-pane  { -fx-background-color: background_color; }
+
+.tab-pane > .viewport  { -fx-background-color: background_color; }
+.tab-pane  { -fx-background-color: background_color; }
 
 .pane { -fx-background-color: background_color; }
 .pane > .viewport  { -fx-background-color: background_color; }
+
+.split{
+    -fx-box-border: transparent;
+}

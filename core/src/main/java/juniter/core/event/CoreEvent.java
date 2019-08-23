@@ -1,9 +1,11 @@
 package juniter.core.event;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.context.ApplicationEvent;
 
 @Data
+@EqualsAndHashCode(callSuper=false)
 public class CoreEvent<T> extends ApplicationEvent {
 
     private T what;

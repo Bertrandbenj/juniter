@@ -14,6 +14,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import juniter.core.model.dbo.NetStats;
+import juniter.core.model.dbo.net.EndPointType;
 import juniter.core.model.dbo.tx.Transaction;
 import juniter.core.model.dbo.tx.TxInput;
 import juniter.core.model.dbo.tx.TxOutput;
@@ -21,7 +23,6 @@ import juniter.core.model.dbo.tx.TxUnlock;
 import juniter.core.model.dto.raw.WrapperResponse;
 import juniter.core.model.dto.raw.WrapperTransaction;
 import juniter.gui.game.screens.Room;
-import juniter.service.bma.PeerService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpEntity;
@@ -199,9 +200,9 @@ public class TxBox extends AbstractJuniterFX implements Initializable {
             LOG.info("send tx {}", reqBodyData);
 
 
-            JuniterBindings.peers.get().nextHosts(5)
+            JuniterBindings.peers.get().nextHosts(EndPointType.BASIC_MERKLED_API,5)
                     .stream().parallel()
-                    .map(PeerService.NetStats::getHost)
+                    .map(NetStats::getHost)
                     .forEach(reqURL -> {
 
                         try {

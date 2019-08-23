@@ -41,7 +41,7 @@
 
 .root {
 
-    accent_color: #0078d7;
+        accent_color: #0078d7;
     background_hover_color: accent_color;
     background_pressed_color:accent_color;
     background_color:grey;
@@ -605,7 +605,7 @@
     -fx-background-color: arrow_pressed_color;
 }
 
-/**************************** Scroll Pane *************************************/
+/**************************** Scroll Pane ***************************************/
 
 .scroll-pane {
     -fx-background-color: transparent, transparent;
@@ -1786,8 +1786,8 @@
  ******************************************************************************/
 
 .tab-pane {
-    -fx-tab-min-height: 2.91666375em; /* 34 */
-    -fx-tab-max-height: 2.91666375em; /* 34 */
+    /*-fx-tab-min-height: 2.91666375em; /* 34 */
+    /*-fx-tab-max-height: 2.91666375em;  34 */
 }
 
 .tab-pane > .tab-header-area {
@@ -1807,7 +1807,7 @@
 
 .tab-pane > .tab-header-area > .headers-region > .tab > .tab-container > .tab-label {
     -fx-text-fill: tab_text_color;
-    -fx-font-size: 1.333333em; /* 16 */
+    -fx-font-size: 14px;
     -fx-font-family: "Segoe UI";
 }
 

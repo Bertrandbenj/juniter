@@ -269,7 +269,7 @@ public class PeerLoader {
 
     private PeersDTO fetchPeers(String nodeURL) {
 
-        LOG.info("fetching peers from " + nodeURL + "network/peers");
+        LOG.info("fetching peers using BMA at " + nodeURL + "network/peers");
 
         var responseEntity = restTpl.exchange(nodeURL + "network/peers",
                 HttpMethod.GET, null, new ParameterizedTypeReference<PeersDTO>() {

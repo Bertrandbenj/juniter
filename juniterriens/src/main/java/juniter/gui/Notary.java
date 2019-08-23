@@ -8,6 +8,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
+import juniter.core.model.dbo.net.EndPointType;
 import juniter.core.model.dto.raw.*;
 import juniter.grammar.JuniterGrammar;
 import juniter.gui.include.AbstractJuniterFX;
@@ -130,7 +131,7 @@ public class Notary extends AbstractJuniterFX implements Initializable {
 
         try {
             //objectMapper.writeValueAsString(reqBodyData);
-            var reqURL = peers.nextHost().get().getHost() ;
+            var reqURL = peers.nextHost(EndPointType.BASIC_MERKLED_API).get().getHost() ;
             reqURL += (reqURL.endsWith("/")?"":"/") + dest;
 
             LOG.info("sendDoc posting {} {}", reqURL,  reqBodyData);

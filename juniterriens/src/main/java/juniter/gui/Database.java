@@ -568,6 +568,8 @@ public class Database extends AbstractJuniterFX implements Initializable {
         tableM.setItems(sortedM);
         tableC.setItems(sortedC);
         tableS.setItems(sortedS);
+
+        Platform.runLater(this::reload);
     }
 
     private String hsvGradient(double ratio) {

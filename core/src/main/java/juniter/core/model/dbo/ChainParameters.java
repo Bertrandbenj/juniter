@@ -16,7 +16,7 @@ import javax.persistence.*;
 
 @Entity
 @Data
- @AllArgsConstructor
+@AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "chainParam", schema = "public")
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -25,7 +25,7 @@ public class ChainParameters implements DUPDocument {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id  ;
+    private Long id;
 
     /**
      * The %growth of the UD every [dt] period
@@ -125,7 +125,7 @@ public class ChainParameters implements DUPDocument {
     /**
      * Time period between two re-evaluation of the UD.
      */
-    private long dtReeval = 15778800; // 182 days, 15 hours
+    private long dtReeval = 15778800; // 182 days, 15 hours => 22464000 = 260 days
 
 
     /**
@@ -184,8 +184,8 @@ public class ChainParameters implements DUPDocument {
     }
 
     @Override
-    public String toDUP(){
-        return  c+":"+dt+":"+ud0+":"+sigPeriod+":"+sigStock+":"+sigWindow+":"+sigValidity+":"+sigQty+":"+idtyWindow+":"+msWindow+":"+xpercent+":"+msValidity+":"+stepMax+":"+medianTimeBlocks+":"+avgGenTime+":"+dtDiffEval+":"+percentRot+":"+udTime0+":"+udReevalTime0+":"+dtReeval;
+    public String toDUP() {
+        return c + ":" + dt + ":" + ud0 + ":" + sigPeriod + ":" + sigStock + ":" + sigWindow + ":" + sigValidity + ":" + sigQty + ":" + idtyWindow + ":" + msWindow + ":" + xpercent + ":" + msValidity + ":" + stepMax + ":" + medianTimeBlocks + ":" + avgGenTime + ":" + dtDiffEval + ":" + percentRot + ":" + udTime0 + ":" + udReevalTime0 + ":" + dtReeval;
     }
 
     public double maxAcceleration() {

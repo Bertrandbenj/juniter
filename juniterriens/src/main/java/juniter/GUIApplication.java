@@ -2,6 +2,7 @@ package juniter;
 
 import com.sun.javafx.tk.Toolkit;
 import juniter.gui.FrontPage;
+import juniter.gui.include.AbstractJuniterFX;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.boot.SpringApplication;
@@ -38,7 +39,7 @@ public class GUIApplication {
         var context = SpringApplication.run(GUIApplication.class, args);
 
         LOG.info("!!! FrontPage.launching GUI !!!");
-        FrontPage.launchGUI(FrontPage.class, context);
+        AbstractJuniterFX.launchGUI(FrontPage.class, context);
 
     }
 

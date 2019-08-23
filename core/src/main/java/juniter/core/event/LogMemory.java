@@ -1,7 +1,5 @@
 package juniter.core.event;
 
-import juniter.core.event.CoreEvent;
-
 import java.text.NumberFormat;
 
 

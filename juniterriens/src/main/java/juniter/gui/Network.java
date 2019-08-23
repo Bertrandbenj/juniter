@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.*;
@@ -12,6 +13,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.stage.Stage;
+import juniter.core.model.dbo.NetStats;
 import juniter.core.model.dto.node.IssuersFrameDTO;
 import juniter.core.validation.BlockLocalValid;
 import juniter.gui.include.AbstractJuniterFX;
@@ -20,6 +22,7 @@ import juniter.gui.include.JuniterBindings;
 import juniter.service.BlockService;
 import juniter.service.bma.PeerService;
 import juniter.service.bma.loader.PeerLoader;
+import juniter.service.ws2p.WebSocketPool;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +41,8 @@ public class Network extends AbstractJuniterFX implements Initializable {
 
     private static final Logger LOG = LogManager.getLogger(Network.class);
 
+    @FXML
+    public CheckBox ws2p;
 
     @FXML
     private ComboBox<String> period;
@@ -109,7 +114,7 @@ public class Network extends AbstractJuniterFX implements Initializable {
     private BlockService blockService;
 
 
-    public static ObservableList<PeerService.NetStats> observableList = FXCollections.observableArrayList();
+    public static ObservableList<NetStats> observableList = FXCollections.observableArrayList();
     private static ObservableList<String> periodList = FXCollections.observableArrayList("Day", "Week", "Month", "Equinox", "Year", "All");
     private static ObservableList<PieChart.Data> pieChartData =
             FXCollections.observableArrayList(
@@ -329,6 +334,9 @@ public class Network extends AbstractJuniterFX implements Initializable {
         });
     }
 
+    @Autowired
+    private WebSocketPool webSocketPool;
+
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -337,7 +345,18 @@ public class Network extends AbstractJuniterFX implements Initializable {
 
         netstats.dataProperty().setValue(pieChartData);
 
-        observableList.addListener((ListChangeListener<PeerService.NetStats>) c -> {
+        ws2p.selectedProperty().addListener(l -> {
+            LOG.info("WS2P: running? " + ws2p.isSelected());
+
+            if (ws2p.isSelected()) {
+                webSocketPool.restart();
+            }else{
+                webSocketPool.stop();
+            }
+
+        });
+
+        observableList.addListener((ListChangeListener<NetStats>) c -> {
             pieChartData.setAll(
                     c.getList().stream()
                             .map(ns -> {
@@ -396,5 +415,8 @@ public class Network extends AbstractJuniterFX implements Initializable {
     @FXML
     public void ping() {
         peerService.pings();
+    }
+
+    public void ws2p(ActionEvent actionEvent) {
     }
 }

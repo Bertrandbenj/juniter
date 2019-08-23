@@ -11,12 +11,10 @@
 
  <BorderPane styleClass="pane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.gui.GraphPanel">
     <right>
-        <VBox alignment="CENTER" BorderPane.alignment="CENTER">
-            <children>
+
                 <fx:include fx:id="menu" source="include/Menu.fxml" />
 
-            </children>
-        </VBox>
+
     </right>
 
     <bottom>
@@ -24,7 +22,7 @@
         <fx:include source="include/Footer.fxml"/>
     </bottom>
     <center>
-        <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+        <TabPane prefHeight="200.0"  prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
             <tabs>
                 <Tab text="GraphViz">
                     <content>

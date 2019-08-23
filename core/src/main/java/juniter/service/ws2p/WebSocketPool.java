@@ -1,10 +1,10 @@
 package juniter.service.ws2p;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import juniter.core.model.dbo.net.EndPoint;
-import juniter.repository.jpa.net.EndPointsRepository;
+import juniter.core.model.dbo.net.EndPointType;
 import juniter.service.BlockService;
 import juniter.service.Index;
+import juniter.service.bma.PeerService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.java_websocket.client.WebSocketClient;
@@ -13,14 +13,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.annotation.Order;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import java.net.URI;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 /**
@@ -29,11 +32,14 @@ import java.util.stream.Collectors;
  * @author ben
  */
 @ConditionalOnExpression("${juniter.useWS2P:false}")
-@Component
+@Service
 @Order(10)
 public class WebSocketPool {
 
     private static final Logger LOG = LogManager.getLogger(WebSocketPool.class);
+
+
+    private AtomicBoolean running = new AtomicBoolean(true);
 
 
     @Value("${juniter.network.webSocketPoolSize:5}")
@@ -42,20 +48,14 @@ public class WebSocketPool {
     BlockingQueue<WS2PClient> clients = new LinkedBlockingDeque<>();
 
 
-    @Value("${server.port:8443}")
-    private Integer port;
-
-    @Value("${server.name:localhost}")
-    private String host;
-
     @Autowired
-    private EndPointsRepository endPointRepo;
+    private PeerService peerService;
 
     @Autowired
     public ObjectMapper jsonMapper;
 
     @Autowired
-    public ApplicationEventPublisher applicationEventPublisher;
+    public ApplicationEventPublisher coreEventBus;
 
     @Autowired
     public BlockService blockService;
@@ -67,94 +67,63 @@ public class WebSocketPool {
     @PostConstruct
     public void start() {
         clients = new LinkedBlockingDeque<>(WEB_SOCKET_POOL_SIZE);
-
-//        for (int i = 1; i <= 4; i++) {
-//            final int id = i;
-//            Runnable run = () -> {
-//                try {
-//                    send(id);
-//
-//                } catch (URISyntaxException | InterruptedException e) {
-//                    LOG.error(e, e);
-//                }
-//
-//            };
-//
-//            pool.execute(run);
-//        }
-//        pool.shutdown();
     }
 
+    @Async
+    public void restart() {
+        running.lazySet(true);
+        reconnectWebSockets();
+    }
+
+
     @Transactional
-    @Scheduled(initialDelay = 3 * 60 * 1000, fixedDelay = 30 * 1000)
+    @Scheduled(initialDelay = 3 * 60 * 1000, fixedDelay = 20 * 1000)
     public void refreshCurrents() {
 
-        if (clients.remainingCapacity() > 0)
-            reconnectWebSockets();
+        if (running.get())
+            clients.stream()
+                    .peek(c -> LOG.info("Refreshing Current "
+                            + running + " on wss://" + c.getURI()
+                            + " " + clients.remainingCapacity() + " " + status()))
+                    .forEach(c -> c.send(new Request().getCurrent()));
+    }
 
-        clients.stream().forEach(c -> {
-
-            LOG.info("Starting WebSocketPool on wss://" + host + ":" + port
-                    + " " + clients.remainingCapacity() + " " + status());
-
-            c.send(new Request().getCurrent());
-
-
-        });
+    @Async
+    public void stop() {
+        LOG.info("Stopping websockets");
+        running.set(false);
+        clients.forEach(c -> c.close(1000, "Cause I decided to "));
     }
 
 
     @Transactional
-//    @Scheduled(initialDelay = 2 * 60 * 1000, fixedDelay = 2 * 60 * 1000)//, initialDelay = 10 * 60 * 1000)
-    @PostConstruct
-    private void reconnectWebSockets() {
+    @Scheduled(initialDelay = 60 * 1000, fixedDelay = 10 * 1000)//, initialDelay = 10 * 60 * 1000)
+    public void reconnectWebSockets() {
 
-        LOG.info("Starting WebSocketPool on wss://" + host + ":" + port
-                + " " + clients.remainingCapacity() + " " + status());
+        while (clients.remainingCapacity() > 0 && running.get()) {
+            peerService.nextHost(EndPointType.WS2P).ifPresent(ep -> {
+                var client = new WS2PClient(URI.create(ep.getHost()), this);
+                LOG.debug("Connecting to WS endpoint " + client.getURI());
 
-        endPointRepo.endpointssWS2P().stream()
-                .map(EndPoint::url)
-                .distinct()
-                .map(url -> new WS2PClient(URI.create(url), this))
-                .peek(ep -> LOG.info("Connecting to WS endpoint " + ep.getURI()))
-                .forEach(this::connectTo)
-        ;
+                try {
+                    client.connectBlocking(10, TimeUnit.SECONDS);
+                } catch (InterruptedException e) {
+                    if (running.get())
+                        LOG.error("reconnectWebSockets ", e);
+                    else
+                        LOG.warn("reconnectWebSockets "); // may be ignored
 
-    }
-
-    private void connectTo(WS2PClient client) {
-
-        if (!(clients.remainingCapacity() > 0))
-            return;
-
-        try {
-            client.connect();
-        } catch (Exception e) {
-            LOG.error("reconnectWebSockets ", e);
+                }
+            });
         }
 
     }
+
 
     public String status() {
         return " Pool status : " + clients.size() + "/" + WEB_SOCKET_POOL_SIZE + " - " + clients.remainingCapacity()
                 + " - " + clients.stream().map(WebSocketClient::getURI).collect(Collectors.toList());
     }
-
-
-    private Runnable consumer = () -> {
-        while (true) {
-
-            try {
-                clients.take().connect();
-                Thread.sleep(1000);
-
-            } catch (Exception e) {
-                LOG.error(e, e);
-                break;
-            }
-
-        }
-    };
 
 
 }

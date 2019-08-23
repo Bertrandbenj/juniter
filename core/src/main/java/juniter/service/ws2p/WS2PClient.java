@@ -5,7 +5,7 @@ import antlr.generated.JuniterParser;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import juniter.core.event.Indexing;
+import juniter.core.event.NewBlock;
 import juniter.core.model.wso.ResponseBlock;
 import juniter.core.model.wso.ResponseBlocks;
 import juniter.core.model.wso.ResponseWotPending;
@@ -71,33 +71,28 @@ public class WS2PClient extends WebSocketClient {
             if (challenge.isACK()) {
                 send(challenge.okJson());
                 LOG.info("ACK, sending OK ");
-                return;
-            }
 
-            if (challenge.isConnect()) {
+            } else if (challenge.isConnect()) {
                 send(challenge.ackJson());
                 LOG.info("CONNECT, sent ACK ");
-                return;
-            }
 
-            if (challenge.isOK()) {
+            } else if (challenge.isOK()) {
                 LOG.info("OK, connected !! ");
                 webSocketPool.clients.offer(this);
                 actionOnConnect();
-                return;
+
             }
         } catch (final Exception e) {
             LOG.error("Exception ", e);
         }
 
-        return;
-
     }
 
-    void handleDUP(String message) {
+    private void handleDUP(String message) {
         LOG.info("handle Document");
         final var parser = juniterParser(CharStreams.fromString(message));
         final var doc = new JuniterGrammar().visitDoc(parser.doc());
+        LOG.debug(doc);
 
     }
 
@@ -105,6 +100,7 @@ public class WS2PClient extends WebSocketClient {
         LOG.info("handle Request " + webSocketPool.status());
         try {
             final var request = webSocketPool.jsonMapper.readValue(message, Request.class);
+            LOG.debug(request);
             // TODO respond
         } catch (final JsonParseException e) {
             LOG.error("handleRequest JSON parsing error ", e);
@@ -136,12 +132,7 @@ public class WS2PClient extends WebSocketClient {
                 case "CURRENT":
                     final var current = jsonMapper.readValue(message, ResponseBlock.class);
                     LOG.info("CURRENT " + current.getBody());
-                    webSocketPool.applicationEventPublisher.publishEvent(new Indexing(true));
-
-                    webSocketPool.blockService.localSave(current.getBody());
-                    webSocketPool.index.indexUntil(Integer.MAX_VALUE, false);
-
-                    LOG.info("SAVED # " + current.getBody().getNumber());
+                    webSocketPool.coreEventBus.publishEvent(new NewBlock(current.getBody()));
                     break;
                 case "WOT_REQUIREMENTS_OF_PENDING":
                     final var wot = jsonMapper.readValue(message, ResponseWotPending.class);
@@ -176,10 +167,13 @@ public class WS2PClient extends WebSocketClient {
 
     @Override
     public void onClose(int code, String reason, boolean remote) {
-        // The codecodes are documented in class org.java_websocket.framing.CloseFrame
-        LOG.info("Connection closed by " + (remote ? "remote peer" : "us") + " Code: " + code + " on URI " + getURI());
-        LOG.info(" - Reason: " + reason);
-        LOG.info(" - " + webSocketPool.status());
+        if (webSocketPool.clients.contains(this)) {
+            // The codecodes are documented in class org.java_websocket.framing.CloseFrame
+            LOG.info("Connection closed by " + (remote ? "remote peer" : "us") + " Code: " + code + " on URI " + getURI());
+            LOG.info(" - Reason: " + reason);
+            LOG.info(" - " + webSocketPool.status());
+        }
+
 
         webSocketPool.clients.remove(this);
 
@@ -187,15 +181,14 @@ public class WS2PClient extends WebSocketClient {
 
     @Override
     public void onError(Exception ex) {
-        if (ex instanceof SSLException) {
-            LOG.warn("WS SSL onError " + getURI() + ex);
-        } else if (ex instanceof SSLHandshakeException) {
+        if (ex instanceof SSLHandshakeException) {
             LOG.warn("WS SSL Handshake onError " + getURI() + ex);
+        } else if (ex instanceof SSLException) {
+            LOG.warn("WS SSL onError " + getURI() + ex);
         } else if (ex instanceof ConnectException) {
             LOG.warn("WS ConnectException onError " + getURI() + ex);
         } else {
-            LOG.error("WS onError " + getURI(), ex);
-
+            LOG.error("WS unknown onError " + getURI(), ex);
         }
     }
 

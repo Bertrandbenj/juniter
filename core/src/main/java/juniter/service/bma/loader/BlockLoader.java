@@ -2,7 +2,9 @@ package juniter.service.bma.loader;
 
 import juniter.core.event.CurrentBNUM;
 import juniter.core.event.DecrementCurrent;
+import juniter.core.model.dbo.NetStats;
 import juniter.core.model.dbo.DBBlock;
+import juniter.core.model.dbo.net.EndPointType;
 import juniter.core.utils.TimeUtils;
 import juniter.core.validation.BlockLocalValid;
 import juniter.service.BlockService;
@@ -61,22 +63,14 @@ public class BlockLoader implements BlockLocalValid {
     private BlockingQueue<String> blockingQueue = new LinkedBlockingDeque<>(200);
 
 
-    private AtomicInteger rotator = new AtomicInteger();
-
     @Autowired
     private RestTemplate restTemplate;
-//
-//    @Autowired
-//    private CoreEventLOG coreEventBus;
 
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
 
     @Autowired
     private BlockService blockService;
-
-    @Value("#{'${juniter.network.trusted}'.split(',')}")
-    private List<String> configuredNodes;
 
     @Autowired
     private PeerService peerService;
@@ -144,7 +138,7 @@ public class BlockLoader implements BlockLocalValid {
             while (body == null || body.size() == 0) {
                 try {
 
-                    var host = peerService.nextHost().get().getHost();
+                    var host = peerService.nextHost(EndPointType.BASIC_MERKLED_API).get().getHost();
                     url = host + path;
                     final var responseEntity = restTemplate.exchange(url, HttpMethod.GET, null,
                             new ParameterizedTypeReference<List<DBBlock>>() {
@@ -165,7 +159,7 @@ public class BlockLoader implements BlockLocalValid {
 
 
                     LOG.info("getBlocks " + body.size() + " from: " + url + "... Status: " + statusCode + " : " + contentType);
-                    peerService.reportSuccess(host);
+                    peerService.reportSuccess(EndPointType.BASIC_MERKLED_API,host);
 
                     applicationEventPublisher.publishEvent(new CurrentBNUM(body.get(body.size() - 1).getNumber()));
 
@@ -260,7 +254,7 @@ public class BlockLoader implements BlockLocalValid {
 
         while (block == null) {
 
-            final var host = peerService.nextHost().map(PeerService.NetStats::getHost);
+            final var host = peerService.nextHost(EndPointType.BASIC_MERKLED_API).map(NetStats::getHost);
             if (host.isPresent()) {
                 try {
                     url = host.get() + "blockchain/" + id;
@@ -293,9 +287,9 @@ public class BlockLoader implements BlockLocalValid {
         final var blacklistHosts = new ArrayList<String>();
         String url = null;
         final var attempts = 0;
-        Optional<PeerService.NetStats> host;
-        peerService.load();
-        while (body == null && (host = peerService.nextHost()).isPresent()) {
+        Optional<NetStats> host;
+        peerService.reload(EndPointType.BASIC_MERKLED_API);
+        while (body == null && (host = peerService.nextHost(EndPointType.BASIC_MERKLED_API)).isPresent()) {
 
             try {
                 //var host = peerService.nextHost().get();
@@ -319,7 +313,7 @@ public class BlockLoader implements BlockLocalValid {
 
 
                 LOG.info("attempts: " + attempts + " to record " + body.size() + " from: " + url + "... Status: " + statusCode + " : " + contentType);
-                peerService.reportSuccess(host.get().getHost());
+                peerService.reportSuccess(EndPointType.BASIC_MERKLED_API,host.get().getHost());
                 return body;
 
             } catch (final RestClientException e) {

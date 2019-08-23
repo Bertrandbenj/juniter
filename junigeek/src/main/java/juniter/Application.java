@@ -12,9 +12,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
-//@Configuration
-//@EnableAutoConfiguration//(exclude = { DataSourceAutoConfiguration.class })
-//@ComponentScan
+
 @EnableJpaRepositories("juniter.repository")
 @SpringBootApplication
 @EnableAsync
@@ -30,12 +28,14 @@ public class Application {
 
         var context = SpringApplication.run(Application.class, args);
 
+        LOG.info("!!! SpringApplication context running ? " + context.isRunning());
 
     }
 
 
     /**
      * Required because WebSockets initialize its own task scheduler in a different way
+     *
      * @return taskScheduler
      */
     @Bean

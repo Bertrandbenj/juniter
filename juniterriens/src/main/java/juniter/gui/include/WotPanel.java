@@ -106,6 +106,11 @@ public class WotPanel implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
+        boxIdty.managedProperty().bind(boxIdty.visibleProperty());
+        boxCertification.managedProperty().bind(boxCertification.visibleProperty());
+        boxMembership.managedProperty().bind(boxMembership.visibleProperty());
+        boxRevocation.managedProperty().bind(boxRevocation.visibleProperty());
+
         version.setText(Notary.PROTOCOL_VERSION+"");
 
         var b = JuniterBindings.currenBlock.get();
@@ -212,10 +217,6 @@ public class WotPanel implements Initializable {
 
     @FXML
     public void switchIdty( ) {
-        boxMembership.setPrefWidth(0);
-        boxCertification.setPrefWidth(0);
-        boxIdty.setPrefWidth(500);
-        boxRevocation.setPrefWidth(0);
 
         boxIdty.setVisible(true);
         boxMembership.setVisible(false);
@@ -225,10 +226,7 @@ public class WotPanel implements Initializable {
 
     @FXML
     public void switchMembership( ) {
-        boxMembership.setPrefWidth(500);
-        boxCertification.setPrefWidth(0);
-        boxIdty.setPrefWidth(0);
-        boxRevocation.setPrefWidth(0);
+
 
         boxIdty.setVisible(false);
         boxMembership.setVisible(true);
@@ -240,10 +238,7 @@ public class WotPanel implements Initializable {
 
     @FXML
     public void switchCertif( ) {
-        boxMembership.setPrefWidth(0);
-        boxCertification.setPrefWidth(500);
-        boxIdty.setPrefWidth(0);
-        boxRevocation.setPrefWidth(0);
+
 
         boxIdty.setVisible(false);
         boxMembership.setVisible(false);
@@ -254,10 +249,7 @@ public class WotPanel implements Initializable {
 
     @FXML
     public void switchRevoc( ) {
-        boxMembership.setPrefWidth(0);
-        boxCertification.setPrefWidth(0);
-        boxIdty.setPrefWidth(0);
-        boxRevocation.setPrefWidth(500);
+
 
         boxIdty.setVisible(false);
         boxMembership.setVisible(false);

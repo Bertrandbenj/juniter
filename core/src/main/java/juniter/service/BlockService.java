@@ -14,6 +14,7 @@ import juniter.repository.jpa.block.BlockRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -97,6 +98,7 @@ public class BlockService implements BlockLocalValid {
                 .sorted();
     }
 
+    @Transactional(readOnly = true)
     public List<DBBlock> listBlocksFromTo(int i, int i1) {
         return blockRepo.streamBlocksFromTo(i, i1).collect(Collectors.toList());
     }
@@ -157,8 +159,16 @@ public class BlockService implements BlockLocalValid {
 
             try {
 
-                coreEventBus.publishEvent(new NewBlock(block));
-                return Optional.of(save(block));
+                var cur = blockRepo.findTop1ByOrderByNumberDesc();
+                var res = Optional.ofNullable(save(block));
+
+                if (res.isPresent() && cur.isPresent()) {
+                    if (cur.get().getNumber() < res.get().getNumber()) {
+                        coreEventBus.publishEvent(new NewBlock(res.get()));
+                    }
+                }
+
+                return res;
 
             } catch (Exception e) {
                 LOG.error("Error localSave block " + block.getNumber(), e);

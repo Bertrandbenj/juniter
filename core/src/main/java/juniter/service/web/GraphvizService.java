@@ -303,7 +303,7 @@ public class GraphvizService {
         String res = "digraph{\n\t" //
                 + "graph [rankdir=LR ]\n\n\t";
 
-        // load data
+        // reload data
         final var certified = certsRepo.streamCertifiedBy(pk).collect(toList());
         final var certifier = certsRepo.streamCertifiersOf(pk).collect(toList());
 

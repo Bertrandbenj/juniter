@@ -5,6 +5,7 @@ import io.micrometer.core.annotation.Timed;
 import juniter.core.event.CurrentBNUM;
 import juniter.core.event.LogIndex;
 import juniter.core.event.NewBINDEX;
+import juniter.core.event.PossibleFork;
 import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dbo.index.*;
@@ -37,7 +38,7 @@ import java.util.stream.Stream;
  * @author BnimajneB
  */
 @Service
-public class Index<isIndexing> implements GlobalValid {
+public class Index implements GlobalValid {
 
     private static final Logger LOG = LogManager.getLogger(Index.class);
 
@@ -68,13 +69,15 @@ public class Index<isIndexing> implements GlobalValid {
     private BlockService blockService;
 
 
+
+
     @Value("${juniter.startIndex:false}")
     private boolean startIndex;
 
     @PersistenceContext
     private EntityManager entityManager;
 
-    private Boolean indexing;
+    private Boolean indexing = false;
 
     /**
      * hack to create account VIEW after SQL table's init.
@@ -325,14 +328,14 @@ public class Index<isIndexing> implements GlobalValid {
     @Timed(longTask = true, histogram = true)
     public synchronized void indexUntil(int syncUntil, boolean quick) {
 
-        LOG.info("indexUntil local repository " + syncUntil + " , quick? " + quick);
+        LOG.info("indexUntil " + syncUntil + " , quick? " + quick);
         init(false);
         var baseTime = System.currentTimeMillis();
         var time = System.currentTimeMillis();
         long delta;
         int reverted = 0;
 
-        for (int bnum = head().map(h -> h.getNumber() + 1).orElse(0); bnum <= syncUntil && isIndexing(); bnum++) { // && Bus.isIndexing.get()
+        for (int bnum = head().map(h -> h.getNumber() + 1).orElse(0); bnum <= syncUntil; bnum++) { // && Bus.isIndexing.get()
             final int finalBnum = bnum;
 
 
@@ -341,8 +344,7 @@ public class Index<isIndexing> implements GlobalValid {
             try {
                 if (completeGlobalScope(block, !quick)) {
                     LOG.debug("Validated " + block);
-                    coreEventBuss.publishEvent(new NewBINDEX(head().orElseThrow(), "Validated "));
-//                    coreEventBus.sendEventCurrentBindex(finalBnum);
+                    coreEventBuss.publishEvent(new NewBINDEX(head_()));
                 } else {
                     coreEventBuss.publishEvent(new LogIndex("NOT Validated " + block));
 
@@ -350,15 +352,8 @@ public class Index<isIndexing> implements GlobalValid {
                 }
             } catch (AssertionError | Exception e) {
                 coreEventBuss.publishEvent(new LogIndex("ERROR Validating " + block + " - " + e.getMessage()));
+                coreEventBuss.publishEvent(new PossibleFork());
                 LOG.error("ERROR Validating " + block + " - " + e.getMessage(), e);
-
-                if (reverted < 100) {
-                    blockService.listBlocksFromTo(finalBnum - reverted, finalBnum).forEach(b -> blockService.delete(b));
-                    for (int i = 0; i < reverted; i++)
-                        revert1();
-                    reverted++;
-                }
-
 
                 break;
             }

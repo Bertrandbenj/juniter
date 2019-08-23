@@ -94,7 +94,7 @@ public class Menu extends AbstractJuniterFX implements Initializable {
 
     @Override
     public void start(Stage primaryStage) {
-//        AnchorPane page = (AnchorPane) load("/gui/include/Menu.fxml");
+//        AnchorPane page = (AnchorPane) reload("/gui/include/Menu.fxml");
 //        Scene scene = new Scene(page);
 //        primaryStage.setScene(scene);
 //        primaryStage.show();

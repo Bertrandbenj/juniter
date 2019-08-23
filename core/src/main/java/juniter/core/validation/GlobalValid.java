@@ -2587,109 +2587,114 @@ public interface GlobalValid {
         return Optional.empty();
     }
 
-    /**
-     * <pre>
-     *
-     *
-     *
-     * Each exclusion produces 1 new entry:
-     * IINDEX (
-     * op = 'UPDATE'
-     * uid = null
-     * pub = PUBLIC_KEY
-     * signed = null
-     * written = BLOCKSTAMP
-     * member = false
-     * wasMember = null
-     * kick = false
-     * )
-     *
-     *
-     * Each revocation produces 1 new entry:
-     *
-     * MINDEX (
-     * op = 'UPDATE'
-     * pub = PUBLIC_KEY
-     * signed = BLOCK_UID
-     * written = BLOCKSTAMP
-     * type = 'REV'
-     * expires_on = null
-     * revokes_on = null
-     * revoked = BLOCKSTAMP
-     * revocation = REVOCATION_SIG
-     * leaving = false
-     * )
-     *
-     *
-     *
-     * Leaver
-     *
-     * Each leaver produces 1 new entry:
-     *
-     * MINDEX (
-     * op = 'UPDATE'
-     * pub = PUBLIC_KEY
-     * signed = BLOCK_UID
-     * written = BLOCKSTAMP
-     * type = 'LEAVE'
-     * expires_on = null
-     * revokes_on = null
-     * revoked = null
-     * leaving = true
-     * )
-     *
-     *
-     * Sources
-     *
-     * Each transaction input produces 1 new entry:
-     *
-     * SINDEX (
-     * op = 'UPDATE'
-     * tx = TRANSACTION_HASH
-     * identifier = INPUT_IDENTIFIER
-     * pos = INPUT_INDEX
-     * signed = TX_BLOCKSTAMP
-     * written = BLOCKSTAMP
-     * amount = INPUT_AMOUNT
-     * base = INPUT_BASE
-     * conditions = null
-     * consumed = true
-     * )
-     * Each transaction output produces 1 new entry:
-     *
-     * SINDEX (
-     * op = 'CREATE'
-     * tx = TRANSACTION_HASH
-     * identifier = TRANSACTION_HASH
-     * pos = OUTPUT_INDEX_IN_TRANSACTION
-     * written = BLOCKSTAMP
-     * written_time = MedianTime
-     * amount = OUTPUT_AMOUNT
-     * base = OUTPUT_BASE
-     * locktime = LOCKTIME
-     * conditions = OUTPUT_CONDITIONS
-     * consumed = false
-     * )
-     *
-     * Each active produces 1 new entry:
-     *
-     * MINDEX (
-     * op = 'UPDATE'
-     * pub = PUBLIC_KEY
-     * signed = BLOCK_UID
-     * written = BLOCKSTAMP
-     * expires_on = MedianTime + msValidity
-     * revokes_on = MedianTime + msValidity*2
-     * chainable_on = MedianTime + msPeriod
-     * type = 'RENEW'
-     * revoked = null
-     * leaving = null
-     * )
-     *
-     * </pre>
-     *
-     * @param block :
-     */
+    default BINDEX head_() {
+        return head().orElseThrow();
+    }
+
+
+        /**
+         * <pre>
+         *
+         *
+         *
+         * Each exclusion produces 1 new entry:
+         * IINDEX (
+         * op = 'UPDATE'
+         * uid = null
+         * pub = PUBLIC_KEY
+         * signed = null
+         * written = BLOCKSTAMP
+         * member = false
+         * wasMember = null
+         * kick = false
+         * )
+         *
+         *
+         * Each revocation produces 1 new entry:
+         *
+         * MINDEX (
+         * op = 'UPDATE'
+         * pub = PUBLIC_KEY
+         * signed = BLOCK_UID
+         * written = BLOCKSTAMP
+         * type = 'REV'
+         * expires_on = null
+         * revokes_on = null
+         * revoked = BLOCKSTAMP
+         * revocation = REVOCATION_SIG
+         * leaving = false
+         * )
+         *
+         *
+         *
+         * Leaver
+         *
+         * Each leaver produces 1 new entry:
+         *
+         * MINDEX (
+         * op = 'UPDATE'
+         * pub = PUBLIC_KEY
+         * signed = BLOCK_UID
+         * written = BLOCKSTAMP
+         * type = 'LEAVE'
+         * expires_on = null
+         * revokes_on = null
+         * revoked = null
+         * leaving = true
+         * )
+         *
+         *
+         * Sources
+         *
+         * Each transaction input produces 1 new entry:
+         *
+         * SINDEX (
+         * op = 'UPDATE'
+         * tx = TRANSACTION_HASH
+         * identifier = INPUT_IDENTIFIER
+         * pos = INPUT_INDEX
+         * signed = TX_BLOCKSTAMP
+         * written = BLOCKSTAMP
+         * amount = INPUT_AMOUNT
+         * base = INPUT_BASE
+         * conditions = null
+         * consumed = true
+         * )
+         * Each transaction output produces 1 new entry:
+         *
+         * SINDEX (
+         * op = 'CREATE'
+         * tx = TRANSACTION_HASH
+         * identifier = TRANSACTION_HASH
+         * pos = OUTPUT_INDEX_IN_TRANSACTION
+         * written = BLOCKSTAMP
+         * written_time = MedianTime
+         * amount = OUTPUT_AMOUNT
+         * base = OUTPUT_BASE
+         * locktime = LOCKTIME
+         * conditions = OUTPUT_CONDITIONS
+         * consumed = false
+         * )
+         *
+         * Each active produces 1 new entry:
+         *
+         * MINDEX (
+         * op = 'UPDATE'
+         * pub = PUBLIC_KEY
+         * signed = BLOCK_UID
+         * written = BLOCKSTAMP
+         * expires_on = MedianTime + msValidity
+         * revokes_on = MedianTime + msValidity*2
+         * chainable_on = MedianTime + msPeriod
+         * type = 'RENEW'
+         * revoked = null
+         * leaving = null
+         * )
+         *
+         * </pre>
+         *
+         * @param block :
+         */
     default void indexBlock(DBBlock block) {
 
         final var written_on = block.bStamp();

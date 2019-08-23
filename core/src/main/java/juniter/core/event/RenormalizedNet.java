@@ -1,14 +1,13 @@
 package juniter.core.event;
 
-import juniter.core.event.CoreEvent;
-import juniter.service.bma.PeerService;
+import juniter.core.model.dbo.NetStats;
 
 import java.util.List;
 
 
-public class RenormalizedNet extends CoreEvent<List<PeerService.NetStats>> {
+public class RenormalizedNet extends CoreEvent<List<NetStats>> {
 
-    public RenormalizedNet(List<PeerService.NetStats> list ) {
+    public RenormalizedNet(List<NetStats> list) {
         super(list, "RenormalizedNet : ");
         name = getClass().getSimpleName();
     }

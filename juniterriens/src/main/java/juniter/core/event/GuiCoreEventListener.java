@@ -1,11 +1,11 @@
 package juniter.core.event;
 
 import javafx.application.Platform;
+import juniter.core.model.dbo.NetStats;
 import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dbo.index.BINDEX;
 import juniter.gui.Network;
 import juniter.gui.include.JuniterBindings;
-import juniter.service.bma.PeerService;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
 
@@ -49,7 +49,7 @@ public class GuiCoreEventListener implements ApplicationListener<CoreEvent> {
                 break;
 
             case "RenormalizedNet":
-                Platform.runLater(() -> Network.observableList.setAll((List<PeerService.NetStats>) event.getWhat()));
+                Platform.runLater(() -> Network.observableList.setAll((List<NetStats>) event.getWhat()));
                 break;
 
             case "LogNetwork":

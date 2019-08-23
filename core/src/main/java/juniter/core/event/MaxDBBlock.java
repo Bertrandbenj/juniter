@@ -1,8 +1,5 @@
 package juniter.core.event;
 
-import juniter.core.event.CoreEvent;
-
-
 public class MaxDBBlock extends CoreEvent<Integer> {
 
     public MaxDBBlock(Integer what, String message) {
@@ -10,7 +7,7 @@ public class MaxDBBlock extends CoreEvent<Integer> {
         name = getClass().getSimpleName();
     }
 
-    public MaxDBBlock(Integer what ) {
-        this(what,"maxDB");
+    public MaxDBBlock(Integer what) {
+        this(what, "maxDB");
     }
 }

@@ -6,7 +6,6 @@ import juniter.core.model.dbo.net.EndPoint;
 import juniter.core.model.dbo.net.EndPointType;
 import juniter.core.model.dbo.net.Peer;
 import juniter.core.model.dto.net.*;
-import juniter.repository.jpa.net.EndPointsRepository;
 import juniter.repository.jpa.net.PeersRepository;
 import juniter.service.BlockService;
 import org.apache.http.message.BasicNameValuePair;
@@ -63,8 +62,6 @@ public class NetworkService {
     @Autowired
     private PeersRepository peerRepo;
 
-    @Autowired
-    private EndPointsRepository endPointRepo;
 
     @Autowired
     private BlockService blockService;

@@ -8,7 +8,7 @@
       fx:controller="juniter.gui.include.LoginBox">
     <children>
         <VBox alignment="CENTER" minWidth="450.0" spacing="5.0" styleClass="loginBox" HBox.hgrow="ALWAYS">
-             <children>
+            <children>
                 <Label text="%login.login">
                     <font>
                         <Font size="24.0"/>
@@ -27,8 +27,8 @@
                 </PasswordField>
                 <HBox spacing="10.0">
                     <children>
-                        <Button fx:id="login" mnemonicParsing="false" onAction="#login" prefHeight="25.0"
-                                prefWidth="190.0" text="%login.loginButton"/>
+                        <Button fx:id="login" graphicTextGap="1.0" mnemonicParsing="false" onAction="#login"
+                                text="%login.loginButton" HBox.hgrow="SOMETIMES"/>
                         <Label fx:id="pubkey" alignment="CENTER" contentDisplay="TOP" maxHeight="1.7976931348623157E308"
                                maxWidth="1.7976931348623157E308" text="%login.pubkey" HBox.hgrow="ALWAYS">
                             <font>

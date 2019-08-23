@@ -26,8 +26,8 @@ public abstract class AbstractJuniterFX extends Application {
     public void init() throws Exception {
         super.init();
         applicationContext.getAutowireCapableBeanFactory().autowireBean(this);
-    }
 
+    }
 
 
     @Override
@@ -55,7 +55,7 @@ public abstract class AbstractJuniterFX extends Application {
             return loader.load();
         } catch (Exception e) {
 
-            throw new RuntimeException(String.format("Failed to load FXML file '%s' ", url) + getClass().getResource(url), e);
+            throw new RuntimeException(String.format("Failed to reload FXML file '%s' ", url) + getClass().getResource(url), e);
         }
     }
 
