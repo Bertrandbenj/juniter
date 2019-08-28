@@ -34,7 +34,7 @@ public interface BlockLocalValid extends LocalValid {
             assertBlockLocalValid(block, false);
             return true;
         } catch (final AssertionError ea) {
-            LOG.info("checkBlockIsLocalValid At block " + block.getNumber() + " - " + ea.getMessage());
+            LOG.info("check Block " + block.getNumber() + " is LocalValid - " + ea.getMessage());
         }
 
         return false;
@@ -42,8 +42,7 @@ public interface BlockLocalValid extends LocalValid {
 
 
     /**
-     *
-     * @param block : the block to validate
+     * @param block                : the block to validate
      * @param checkPowAndSignature : whether or not we should check the PoW and Signatures
      */
     default void assertBlockLocalValid(DBBlock block, boolean checkPowAndSignature) {
@@ -57,7 +56,7 @@ public interface BlockLocalValid extends LocalValid {
             checkTxSources(tx);
             checkTxIssuers(tx);
             checkTxRecipients(tx);
-            if(checkPowAndSignature)
+            if (checkPowAndSignature)
                 checkTxSignature(tx);
             checkTxVersion(tx);
         });
@@ -83,7 +82,7 @@ public interface BlockLocalValid extends LocalValid {
 
         checkBlockTimes(block);
 
-        if(checkPowAndSignature)
+        if (checkPowAndSignature)
             checkIdentitiesSignature(block);
 
         checkIdentitiesUserIDConflict(block);
@@ -98,7 +97,7 @@ public interface BlockLocalValid extends LocalValid {
 
         checkRevokedAreExcluded(block);
 
-        if(checkPowAndSignature)
+        if (checkPowAndSignature)
             checkMembershipsSignature(block);
 
         checkCertificationOneByIssuer(block);
@@ -218,8 +217,9 @@ public interface BlockLocalValid extends LocalValid {
 
 
     private void checkCertificationOneByIssuer(DBBlock block) {
-        assert block.getNumber() == 0 ^ block.getCertifications().stream().map(Certification::getCertifier).distinct().count() == block.getCertifications().size()
-                : "check only one certification by ";
+
+        assert block.getNumber() == 0 || block.getCertifications().stream().map(Certification::getCertifier).distinct().count() == block.getCertifications().size()
+                : "checkCertificationOneByIssuer";
     }
 
     private void checkCertificationUnicity(DBBlock block) {

@@ -15,7 +15,6 @@ import javafx.stage.Stage;
 import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dbo.index.BINDEX;
 import juniter.gui.include.AbstractJuniterFX;
-import juniter.gui.include.JuniterBindings;
 import juniter.repository.jpa.index.BINDEXRepository;
 import juniter.service.BlockService;
 import juniter.service.bma.PeerService;
@@ -35,6 +34,7 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 
 import static juniter.gui.include.JuniterBindings.*;
+import static juniter.gui.include.ScreenController.PanelName;
 
 /**
  * inspiration here https://github.com/buckyroberts/Source-Code-from-Tutorials
@@ -83,9 +83,6 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
     @Autowired
     private PeerService peers;
 
-    @Autowired
-    private Optional<Interplanetary> interplanetary;
-//    private Interplanetary interplanetary;
 
     public FrontPage() {
     }
@@ -119,10 +116,10 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
         var scene = screenController.getMain();
         if (screenController.getMain() == null) {
             BorderPane page = (BorderPane) load("/gui/FrontPage.fxml");
-            screenController.addScreen("Main", page);
+            screenController.addScreen(PanelName.MAIN, page);
             scene = new Scene(page);
             screenController.setMain(scene);
-            screenController.activate("Main");
+            screenController.activate(PanelName.MAIN);
 
         }
 
@@ -144,10 +141,10 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
         maxDBBlock.setValue(blockService.currentBlockNumber());
         currenBlock.setValue(blockService.current().orElseGet(() -> blockLoader.fetchAndSaveBlock("current")));
 
-        JuniterBindings.peers.set(peers);
+        peerProp.set(peers);
 
         m.textProperty().bind(Bindings.createObjectBinding(() ->
-                String.format("%,.2f", currenBlock.get().getMonetaryMass()/100.)));
+                String.format("%,.2f", currenBlock.get().getMonetaryMass() / 100.)));
 
 
         var mc = currenBlock.get().getMembersCount();
@@ -164,8 +161,7 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
                     var date = new Date(currenBlock.get().getMedianTime() * 1000L);
                     var sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     sdf.setTimeZone(java.util.TimeZone.getTimeZone("GMT+1"));
-                    var formattedDate = sdf.format(date);
-                    return formattedDate;
+                    return sdf.format(date);
                 }
                 , currenBlock));
 
@@ -182,16 +178,6 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
 
     }
 
-
-    @FXML
-    public void ipfs() {
-
-        Platform.runLater(() ->
-                interplanetary.ifPresent(Interplanetary::dumpChain)
-        );
-
-
-    }
 
 
 }

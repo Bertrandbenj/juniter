@@ -13,14 +13,36 @@ import juniter.service.bma.PeerService;
 
 import java.util.*;
 
+import static juniter.gui.include.JuniterBindings.Theme.*;
+
 public interface JuniterBindings {
 
-     String JMetroBase = "/gui/css/JMetroBase.css";
-    String BLANK_THEME = "/gui/css/JMetroDarkTheme.css";
 
-    String DARK_THEME = "/gui/css/clair-de-june.css";
+    enum Theme {
+        JMetroBase("/gui/css/JMetroBase.css"),
+        BLANK_THEME("/gui/css/JMetroBase.css"),
+        DARK_THEME("/gui/css/JMetroDarkTheme.css"),
+        LIGHT_THEME("/gui/css/JMetroLightTheme.css");
+
+
+        private final String THETHEME;
+
+        Theme(String ept) {
+            this.THETHEME = ept;
+        }
+
+        public String getTheme() {
+            return this.THETHEME;
+        }
+    }
+
+//    String JMetroBase = "/gui/css/JMetroBase.css";
+//    String BLANK_THEME = "/gui/css/clair-de-june.css";
+//    String DARK_THEME = "/gui/css/JMetroDarkTheme.css";
+//    String LIGHT_THEME = "/gui/css/JMetroLightTheme.css";
 
     DoubleProperty overallTaxRate = new SimpleDoubleProperty(20.);
+     DBBlock block_0 = new DBBlock();
 
 
     Map<String, Double> tax = Map.of(
@@ -46,7 +68,7 @@ public interface JuniterBindings {
 
     BooleanProperty isIndexing = new SimpleBooleanProperty(false);
     BooleanProperty isDownloading = new SimpleBooleanProperty(false);
-    StringProperty rawDocument = new SimpleStringProperty("here comes the Document in DUP format");
+    StringProperty rawDocument = new SimpleStringProperty("here comes the Document in DUPComponent format");
 
     StringProperty indexLogMessage = new SimpleStringProperty(" ... ");
     StringProperty peerLogMessage = new SimpleStringProperty(" ... ");
@@ -55,8 +77,8 @@ public interface JuniterBindings {
 
     ArrayList<String> input = new ArrayList<>();
 
-    StringProperty selectedTheme = new SimpleStringProperty(BLANK_THEME);
-    ObservableList<String> themes = FXCollections.observableArrayList(DARK_THEME, BLANK_THEME);
+    ObjectProperty<Theme> selectedTheme = new SimpleObjectProperty(DARK_THEME);
+    ObservableList<Theme> themes = FXCollections.observableArrayList(DARK_THEME, LIGHT_THEME, BLANK_THEME);
     ObservableList<Locale> langs = FXCollections.observableArrayList(I18N.getSupportedLocales());
     ObjectProperty<ResourceBundle> resources = new SimpleObjectProperty<>();
     StringProperty targetPubkey = new SimpleStringProperty();
@@ -83,7 +105,7 @@ public interface JuniterBindings {
     ObjectProperty<SecretBox> secretBox = new SimpleObjectProperty<>(new SecretBox("salt", "password"));
 
     List<TxInput> sources = new ArrayList<>();
-    ObjectProperty<PeerService> peers = new SimpleObjectProperty<>();
+    ObjectProperty<PeerService> peerProp = new SimpleObjectProperty<>();
 
     List<CINDEX> certsRelated = new ArrayList<>();
 

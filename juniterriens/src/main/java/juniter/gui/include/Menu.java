@@ -23,6 +23,10 @@ import java.net.URL;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import static juniter.gui.include.JuniterBindings.*;
+import static juniter.gui.include.JuniterBindings.Theme.JMetroBase;
+import static juniter.gui.include.ScreenController.*;
+
 
 /**
  * inspiration here https://github.com/buckyroberts/Source-Code-from-Tutorials
@@ -33,8 +37,7 @@ public class Menu extends AbstractJuniterFX implements Initializable {
 
     private static final Logger LOG = LogManager.getLogger(Menu.class);
 
-
-    public Image DEFAULT_LOGO, MAIN_LOGO, GRAPH_LOGO, NETWORK_LOGO, DATABASE_LOGO, SPARK_LOGO, NOTARY_LOGO;
+    private Image DEFAULT_LOGO, MAIN_LOGO, GRAPH_LOGO, NETWORK_LOGO, DATABASE_LOGO, SPARK_LOGO, NOTARY_LOGO, SETTINGS_LOGO;
 
 
     @FXML
@@ -52,9 +55,7 @@ public class Menu extends AbstractJuniterFX implements Initializable {
     @FXML
     private ImageView logoSpark;
     @FXML
-    private ComboBox<Locale> LANG_COMBO;
-    @FXML
-    private ComboBox<String> THEME_COMBO;
+    public ImageView logoSettings;
 
 
     public Menu() {
@@ -63,32 +64,36 @@ public class Menu extends AbstractJuniterFX implements Initializable {
 
     @FXML
     public void viewMain(ActionEvent event) {
-        viewGeneric("Main", "/gui/FrontPage.fxml", event);
+        viewGeneric(PanelName.MAIN, "/gui/FrontPage.fxml", event);
     }
 
     @FXML
     public void viewSVGGraph(ActionEvent event) {
-        viewGeneric("Graphs", "/gui/GraphPanel.fxml", event);
+        viewGeneric(PanelName.GRAPHS, "/gui/GraphPanel.fxml", event);
     }
 
     @FXML
     public void viewNotary(ActionEvent event) {
-        viewGeneric("Notary", "/gui/Notary.fxml", event);
+        viewGeneric(PanelName.NOTARY, "/gui/Notary.fxml", event);
     }
 
     @FXML
     public void viewNetwork(ActionEvent event) {
-        viewGeneric("Network", "/gui/Network.fxml", event);
+        viewGeneric(PanelName.NETWORK, "/gui/Network.fxml", event);
     }
 
     @FXML
     public void viewDatabase(ActionEvent event) {
-        viewGeneric("Database", "/gui/Database.fxml", event);
+        viewGeneric(PanelName.DATABASE, "/gui/Database.fxml", event);
     }
 
     @FXML
     public void viewSpark(ActionEvent event) {
-        viewGeneric("Spark", "/gui/Spark.fxml", event);
+        viewGeneric(PanelName.SPARK, "/gui/Spark.fxml", event);
+    }
+    @FXML
+    public void viewSettings(ActionEvent event) {
+        viewGeneric(PanelName.SETTINGS, "/gui/Settings.fxml", event);
     }
 
 
@@ -113,76 +118,9 @@ public class Menu extends AbstractJuniterFX implements Initializable {
         DATABASE_LOGO = new Image("/gui/images/database.png");
         SPARK_LOGO = new Image("/gui/images/spark.png");
         NOTARY_LOGO = new Image("/gui/images/keep_calm_im_the_notary_puzzle.jpg");
-
-        // ============ SET LANG COMBO =============
-        LANG_COMBO.setItems(JuniterBindings.langs);
-        LANG_COMBO.setConverter(new StringConverter<>() {
-            @Override
-            public String toString(Locale object) {
-                return object.getDisplayLanguage();
-            }
-
-            @Override
-            public Locale fromString(String string) {
-                return null;
-            }
-        });
-        LANG_COMBO.setCellFactory(param -> new LanguageListCell());
-        LANG_COMBO.getSelectionModel().select(Locale.getDefault());
-
-        LANG_COMBO.setOnAction(ev -> {
-            LOG.info("LANG_COMBO.setOnAction");
-
-            I18N.setLocale(LANG_COMBO.getSelectionModel().getSelectedItem());
-
-//            JuniterBindings.screenController.getScreenMap().values().forEach(x-> x.requestLayout());
-
-            //JuniterBindings.screenController.removeScreens();
-
-            //viewMain(ev);
-            try {
-                //LANG_COMBO.getScene().init();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-
-
-        // ============ SET THEME COMBO =============
-        THEME_COMBO.setItems(JuniterBindings.themes);
-        THEME_COMBO.setConverter(new StringConverter<>() {
-            @Override
-            public String toString(String object) {
-                var split = object.split("/");
-                var file = split[split.length - 1];
-                return file.replaceAll(".css", "");
-            }
-
-            @Override
-            public String fromString(String string) {
-                return null;
-            }
-        });
-
-        THEME_COMBO.getSelectionModel().select(JuniterBindings.selectedTheme.getValue());
-
-        THEME_COMBO.setOnAction(event -> {
-            LOG.info("THEME_COMBO.setOnAction");
-            var theme = THEME_COMBO.getSelectionModel().getSelectedItem();
-            JuniterBindings.selectedTheme.setValue(theme);
-            JuniterBindings.screenController.getMain().getStylesheets().setAll(JuniterBindings.JMetroBase, theme);
-            //new JMetro(JMetro.Style.LIGHT).applyTheme(JuniterBindings.screenController.getMain());
-            LOG.info("THEME_COMBO.setOnAction " + theme);
-
-
-
-        });
+        SETTINGS_LOGO=new Image("/gui/images/settings.png");
 
         preload();
-
-
-        //viewGeneric("Main", "/gui/FrontPage.fxml", (Stage) THEME_COMBO.getScene().getWindow());
-
 
     }
 
@@ -192,20 +130,13 @@ public class Menu extends AbstractJuniterFX implements Initializable {
 
             try {
                 Thread.sleep(2000);
-                Scene sc = THEME_COMBO.getScene();
+                Scene sc = vMenu.getScene();
                 if (sc == null)
-                    sc = JuniterBindings.screenController.getMain();
+                    sc = screenController.getMain();
                 Stage s = (Stage) sc.getWindow();
 
-//            viewGeneric("Graphs", "/gui/GraphPanel.fxml", s);
-//            viewGeneric("Notary", "/gui/Notary.fxml", s);
-//            viewGeneric("Network", "/gui/Network.fxml", s);
-//            viewGeneric("Database", "/gui/Database.fxml", s);
-//            if (getClass().getResource("/gui/Spark.fxml") != null) {
-//                viewGeneric("Spark", "/gui/Spark.fxml", s);
-//            }
 
-                viewGeneric("Main", "/gui/FrontPage.fxml", s);
+                viewGeneric(PanelName.MAIN, "/gui/FrontPage.fxml", s);
 
             } catch (Exception e) {
                 LOG.error("error", e);
@@ -213,33 +144,36 @@ public class Menu extends AbstractJuniterFX implements Initializable {
         });
     }
 
-    private void viewGeneric(String name, String fxml, Stage current) {
+    private void viewGeneric(PanelName name, String fxml, Stage current) {
 
         Scene scene;
 
 
-        if (JuniterBindings.screenController.hasScreen(name)) {
-            JuniterBindings.screenController.activate(name);
+        if (screenController.hasScreen(name)) {
+            screenController.activate(name);
         } else {
             BorderPane page = (BorderPane) load(fxml);
             page.setPrefSize(current.getScene().getWidth(), current.getScene().getHeight());
 
-            JuniterBindings.screenController.addScreen(name, page);
-            JuniterBindings.screenController.setMain(current.getScene());
-            JuniterBindings.screenController.activate(name);
+            screenController.addScreen(name, page);
+            screenController.setMain(current.getScene());
+            screenController.activate(name);
 
         }
 
-        scene = JuniterBindings.screenController.getMain();
-        scene.getStylesheets().setAll(JuniterBindings.JMetroBase, JuniterBindings.selectedTheme.getValue());
+        scene = screenController.getMain();
+        scene.getStylesheets().setAll(JMetroBase.getTheme(), selectedTheme.getValue().getTheme());
         // new JMetro(JMetro.Style.LIGHT).applyTheme(scene);
 
-        logoMain.setImage("Main".equals(name) ? MAIN_LOGO : DEFAULT_LOGO);
-        logoGraphs.setImage("Graphs".equals(name) ? GRAPH_LOGO : DEFAULT_LOGO);
-        logoNotary.setImage("Notary".equals(name) ? NOTARY_LOGO : DEFAULT_LOGO);
-        logoNetwork.setImage("Network".equals(name) ? NETWORK_LOGO : DEFAULT_LOGO);
-        logoDatabase.setImage("Database".equals(name) ? DATABASE_LOGO : DEFAULT_LOGO);
-        logoSpark.setImage("Spark".equals(name) ? SPARK_LOGO : DEFAULT_LOGO);
+
+
+        logoMain.setImage(PanelName.MAIN.equals(name) ? MAIN_LOGO : DEFAULT_LOGO);
+        logoGraphs.setImage(PanelName.GRAPHS.equals(name) ? GRAPH_LOGO : DEFAULT_LOGO);
+        logoNotary.setImage(PanelName.NOTARY.equals(name) ? NOTARY_LOGO : DEFAULT_LOGO);
+        logoNetwork.setImage(PanelName.NETWORK.equals(name) ? NETWORK_LOGO : DEFAULT_LOGO);
+        logoDatabase.setImage(PanelName.DATABASE.equals(name) ? DATABASE_LOGO : DEFAULT_LOGO);
+        logoSpark.setImage(PanelName.SPARK.equals(name) ? SPARK_LOGO : DEFAULT_LOGO);
+        logoSettings.setImage(PanelName.SETTINGS.equals(name) ? SETTINGS_LOGO : DEFAULT_LOGO);
 
 
         current.setOnHidden(e -> Platform.exit());
@@ -252,7 +186,7 @@ public class Menu extends AbstractJuniterFX implements Initializable {
         current.show();
     }
 
-    private void viewGeneric(String name, String fxml, ActionEvent event) {
+    private void viewGeneric(PanelName name, String fxml, ActionEvent event) {
         LOG.info(" view " + name + " - " + event.getEventType());
         Stage current = (Stage) ((Node) event.getSource()).getScene().getWindow();
 //        ((Node) event.getSource()).getScene().disposePeer();
@@ -260,15 +194,7 @@ public class Menu extends AbstractJuniterFX implements Initializable {
     }
 
 
-    class LanguageListCell extends ListCell<Locale> {
-        @Override
-        protected void updateItem(Locale item, boolean empty) {
-            super.updateItem(item, empty);
-            if (item != null) {
-                setText(item.getDisplayLanguage());
-            }
-        }
-    }
+
 
 
 }

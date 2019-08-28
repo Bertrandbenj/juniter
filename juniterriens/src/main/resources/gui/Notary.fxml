@@ -3,7 +3,6 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
 <BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.gui.Notary">
 
     <right>
@@ -17,10 +16,10 @@
         <SplitPane dividerPositions="0.6666" style="-fx-box-border: transparent;" styleClass="pane, split"
                    HBox.hgrow="ALWAYS">
             <items>
-                <TabPane tabClosingPolicy="UNAVAILABLE">
+                <TabPane tabClosingPolicy="UNAVAILABLE" fx:id="tabPane">
                     <tabs>
 
-                        <Tab text="%notary.wot">
+                        <Tab text="%notary.wot" fx:id="paneWOT">
                             <tooltip>
                                 <Tooltip text="Document signing about your identity"/>
                             </tooltip>
@@ -28,7 +27,7 @@
                                 <fx:include source="include/WotPanel.fxml"/>
                             </content>
                         </Tab>
-                        <Tab text="%notary.tx">
+                        <Tab text="%notary.tx" fx:id="paneTX">
                             <tooltip>
                                 <Tooltip text="Make transactions here "/>
                             </tooltip>
@@ -36,7 +35,7 @@
                                 <fx:include source="include/TxPanel.fxml"/>
                             </content>
                         </Tab>
-                        <Tab text="%notary.block0">
+                        <Tab text="%notary.block0" fx:id="paneBlock0">
                             <tooltip>
                                 <Tooltip text="What about starting another libre crypto currency  "/>
                             </tooltip>
@@ -44,7 +43,7 @@
                                 <fx:include source="include/Block0Panel.fxml"/>
                             </content>
                         </Tab>
-                        <Tab text="%notary.peer">
+                        <Tab text="%notary.peer" fx:id="panePeer">
                             <tooltip>
                                 <Tooltip text="This document help you connect"/>
                             </tooltip>
@@ -66,9 +65,7 @@
                     <children>
                         <Label text="%notary.rawDoc"/>
                         <TextArea fx:id="rawDoc" editable="false" promptText="%notary.rawph" VBox.vgrow="ALWAYS">
-                            <font>
-                                <Font size="10.0"/>
-                            </font>
+
                         </TextArea>
                         <HBox alignment="CENTER" spacing="40.0">
                             <children>
@@ -78,14 +75,11 @@
                             </children>
                         </HBox>
                         <TextArea fx:id="logLocalValid" editable="false" promptText="%notary.localph" wrapText="true">
-                            <font>
-                                <Font size="10.0"/>
-                            </font>
+
                         </TextArea>
-                        <TextArea fx:id="logGlobalValid" editable="false" promptText="%notary.globalph" wrapText="true">
-                            <font>
-                                <Font size="10.0"/>
-                            </font>
+                        <TextArea fx:id="logGlobalValid" editable="false" prefHeight="30.0"
+                                  promptText="%notary.globalph" wrapText="true">
+
                         </TextArea>
                     </children>
                     <padding>

@@ -13,9 +13,13 @@ import java.util.HashMap;
 @Setter
 public class ScreenController {
 
+    public enum PanelName {
+        MAIN, GRAPHS, NOTARY, NETWORK, DATABASE, SPARK, SETTINGS
+    }
+
     private static final Logger LOG = LogManager.getLogger(ScreenController.class);
 
-    private HashMap<String, Pane> screenMap = new HashMap<>();
+    private HashMap<PanelName, Pane> screenMap = new HashMap<>();
 
     private Scene main;
 
@@ -24,7 +28,7 @@ public class ScreenController {
 
     }
 
-    public void addScreen(String name, Pane pane) {
+    public void addScreen(PanelName name, Pane pane) {
         screenMap.put(name, pane);
         LOG.info("addScreen " + name + "  " + pane + " " + main);
 
@@ -39,11 +43,11 @@ public class ScreenController {
         main = null;
     }
 
-    public void activate(String name) {
+    public void activate(PanelName name) {
         main.setRoot(screenMap.get(name));
     }
 
-    public boolean hasScreen(String name) {
+    public boolean hasScreen(PanelName name) {
         return screenMap.containsKey(name);
     }
 }

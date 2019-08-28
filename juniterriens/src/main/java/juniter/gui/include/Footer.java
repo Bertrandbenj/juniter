@@ -13,6 +13,8 @@ import org.springframework.stereotype.Component;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import static juniter.gui.include.JuniterBindings.*;
+
 
 @ConditionalOnExpression("${juniter.useJavaFX:false}")
 @Component
@@ -32,24 +34,24 @@ public class Footer implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         LOG.debug("initialize Footer.fxml");
         // bind indicators
-        indexIndic.progressProperty().bind(JuniterBindings.currentBindex.divide(JuniterBindings.maxBindex));
-        downloadIndic.progressProperty().bind(JuniterBindings.currentDBBlock.divide(JuniterBindings.maxPeerBlock));
+        indexIndic.progressProperty().bind(currentBindex.divide(maxBindex));
+        downloadIndic.progressProperty().bind(currentDBBlock.divide(maxPeerBlock));
 
         // bind logger
 
 
         indexLog.textProperty().bind(new SimpleStringProperty("Index : ")
-                .concat(javafx.beans.binding.Bindings.format("%,.2f", JuniterBindings.currentBindex.multiply(100).divide(JuniterBindings.currentDBBlock)))
-                .concat("% - HEAD: ").concat(JuniterBindings.currentBindex)
-                .concat(" - DB: ").concat(JuniterBindings.currentDBBlock)
-                .concat(" - ").concat(JuniterBindings.indexLogMessage));
+                .concat(javafx.beans.binding.Bindings.format("%,.2f", currentBindex.multiply(100).divide(currentDBBlock)))
+                .concat("% - HEAD: ").concat(currentBindex)
+                .concat(" - DB: ").concat(currentDBBlock)
+                .concat(" - ").concat(indexLogMessage));
         peerLog.textProperty().bind(new SimpleStringProperty("Peers : ")
-                .concat(JuniterBindings.maxPeerBlock)
-                .concat(" - ").concat(JuniterBindings.peerLogMessage));
+                .concat(maxPeerBlock)
+                .concat(" - ").concat(peerLogMessage));
         memoryLog.textProperty().bind(new SimpleStringProperty("Memory : ")
-                .concat(JuniterBindings.memoryLogMessage).concat(" - "));
+                .concat(memoryLogMessage).concat(" - "));
         docPoolLog.textProperty().bind(new SimpleStringProperty("Pools : ")
-                .concat(" - ").concat(JuniterBindings.docPoolLogMessage));
+                .concat(" - ").concat(docPoolLogMessage));
     }
 
 }

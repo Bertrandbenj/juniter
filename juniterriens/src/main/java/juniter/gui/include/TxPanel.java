@@ -23,6 +23,8 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import static juniter.gui.include.JuniterBindings.*;
+
 /**
  * inspiration here https://github.com/buckyroberts/Source-Code-from-Tutorials
  */
@@ -90,8 +92,7 @@ public class TxPanel implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        fieldVersion.setText(Notary.PROTOCOL_VERSION + "");
-        fieldBlockstamp.setText(JuniterBindings.currenBlock.get().bstamp());
+         fieldBlockstamp.setText(currenBlock.get().bstamp());
     }
 
     @FXML
@@ -115,7 +116,7 @@ public class TxPanel implements Initializable {
     public void refresh() {
 
         Platform.runLater(() -> {
-            var b = JuniterBindings.currenBlock.get();
+            var b = currenBlock.get();
 
             tx = new Transaction(null,
                     Integer.parseInt(fieldVersion.getText()),
@@ -210,7 +211,7 @@ public class TxPanel implements Initializable {
             );
 
 
-            JuniterBindings.rawDocument.setValue(tx.toDUPdoc(true));
+            rawDocument.setValue(tx.toDUPdoc(true));
 
         });
 

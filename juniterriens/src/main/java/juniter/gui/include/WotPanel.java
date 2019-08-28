@@ -3,13 +3,10 @@ package juniter.gui.include;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.VBox;
 import juniter.core.crypto.SecretBox;
 import juniter.core.model.dbo.index.IINDEX;
 import juniter.grammar.*;
-import juniter.gui.Notary;
-import juniter.repository.jpa.index.BINDEXRepository;
 import juniter.repository.jpa.index.IINDEXRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -17,9 +14,11 @@ import org.springframework.stereotype.Component;
 
 import java.net.URL;
 import java.util.Comparator;
-import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
+
+import static juniter.gui.include.JuniterBindings.currenBlock;
+import static juniter.gui.include.JuniterBindings.rawDocument;
 
 /**
  * inspiration here https://github.com/buckyroberts/Source-Code-from-Tutorials
@@ -27,7 +26,6 @@ import java.util.stream.Collectors;
 @ConditionalOnExpression("${juniter.useJavaFX:false}")
 @Component
 public class WotPanel implements Initializable {
-
 
 
     @FXML
@@ -92,7 +90,6 @@ public class WotPanel implements Initializable {
     private TextField idtyUniqueIDRev;
 
 
-
     @Autowired
     private IINDEXRepository iRepo;
 
@@ -111,9 +108,7 @@ public class WotPanel implements Initializable {
         boxMembership.managedProperty().bind(boxMembership.visibleProperty());
         boxRevocation.managedProperty().bind(boxRevocation.visibleProperty());
 
-        version.setText(Notary.PROTOCOL_VERSION+"");
-
-        var b = JuniterBindings.currenBlock.get();
+        var b = currenBlock.get();
         timestamp.setText(b.bstamp());
         block.setText(b.bstamp());
         certTS.setText(b.bstamp());
@@ -124,10 +119,10 @@ public class WotPanel implements Initializable {
         switchIdty();
 
         cbReceiver.getItems().setAll(iRepo.findAll().stream()
-                .filter(i->i.getUid()!=null)
+                .filter(i -> i.getUid() != null)
                 .sorted(Comparator.comparing(IINDEX::getUid)).collect(Collectors.toList()));
 
-        cbReceiver.setCellFactory(t-> new IdentityListCell());
+        cbReceiver.setCellFactory(t -> new IdentityListCell());
 
 
     }
@@ -137,7 +132,7 @@ public class WotPanel implements Initializable {
         protected void updateItem(IINDEX item, boolean empty) {
             super.updateItem(item, empty);
             if (item != null) {
-                setText(item.getUid()+" / "+ item.getPub());
+                setText(item.getUid() + " / " + item.getPub());
             }
         }
     }
@@ -210,13 +205,13 @@ public class WotPanel implements Initializable {
             signature.setText(sign);
         }
 
-        JuniterBindings.rawDocument.setValue(doc.toString());
+        rawDocument.setValue(doc.toString());
         pk.setText(sb.getPublicKey());
 
     }
 
     @FXML
-    public void switchIdty( ) {
+    public void switchIdty() {
 
         boxIdty.setVisible(true);
         boxMembership.setVisible(false);
@@ -225,7 +220,7 @@ public class WotPanel implements Initializable {
     }
 
     @FXML
-    public void switchMembership( ) {
+    public void switchMembership() {
 
 
         boxIdty.setVisible(false);
@@ -237,7 +232,7 @@ public class WotPanel implements Initializable {
     }
 
     @FXML
-    public void switchCertif( ) {
+    public void switchCertif() {
 
 
         boxIdty.setVisible(false);
@@ -248,7 +243,7 @@ public class WotPanel implements Initializable {
     }
 
     @FXML
-    public void switchRevoc( ) {
+    public void switchRevoc() {
 
 
         boxIdty.setVisible(false);

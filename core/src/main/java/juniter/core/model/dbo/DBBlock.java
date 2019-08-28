@@ -11,13 +11,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import javax.validation.Valid;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -100,7 +98,7 @@ public class DBBlock implements DUPDocument, Serializable {
     private Integer issuersFrameVar;
 
     @Size(max = 42)
-    @Pattern(regexp = Constants.Regex.G1)
+    @Pattern(regexp = Constants.Regex.CURRENCY)
     private String currency;
 
     @Size(max = 45)
@@ -112,9 +110,10 @@ public class DBBlock implements DUPDocument, Serializable {
     private String signature;
 
 
-    //@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    transient private ChainParameters parameters = new ChainParameters();
+    @Nullable
+    private ChainParameters parameters ;
 
 
     @Column(length = 64, name = "previous_hash")
@@ -205,6 +204,14 @@ public class DBBlock implements DUPDocument, Serializable {
         parameters.accept(string);
     }
 
+    public void setParameters(ChainParameters string) {
+        parameters = string;
+    }
+
+
+    public ChainParameters params (){
+return         parameters;
+    }
     public String getParameters() {
         return number == 0 ? parameters.toDUP() : null;
     }
@@ -319,10 +326,15 @@ public class DBBlock implements DUPDocument, Serializable {
         return toDUP(true, true);
     }
 
+    @Override
+    public String toDUPdoc(boolean signed) {
+        return null;
+    }
+
     /**
      * Method returning node as a Raw format
      *
-     * @return the DUP as text format
+     * @return the DUPComponent as text format
      */
     public String toDUP(boolean signed, boolean innerHash) {
 

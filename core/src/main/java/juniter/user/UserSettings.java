@@ -8,7 +8,7 @@ import java.util.List;
 @Data
 public class UserSettings {
 
-    enum UnitDisplay{
+    public enum UnitDisplay{
         RELATIVE, QUANTITATIVE
     }
 
@@ -16,9 +16,10 @@ public class UserSettings {
 
     private List<String> wallets;
 
+    private List<String> bookmarks;
+
     private String LANG;
 
     private UnitDisplay unit;
-
 
 }

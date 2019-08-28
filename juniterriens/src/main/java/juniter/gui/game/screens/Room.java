@@ -18,7 +18,6 @@ import juniter.gui.game.engine.Curiosity;
 import juniter.gui.game.engine.Gate;
 import juniter.gui.game.objects.Coins;
 import juniter.gui.game.objects.Items;
-import juniter.gui.include.JuniterBindings;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
@@ -30,6 +29,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
+
+import static juniter.gui.include.JuniterBindings.input;
 
 @Getter
 @Setter
@@ -106,23 +107,23 @@ public abstract class Room implements Initializable {
             Player.get().setVelocity(0, 0);
             bunny.setVelocity(0, 0);
 //            }
-            if (JuniterBindings.input.contains("LEFT")) {
+            if (input.contains("LEFT")) {
                 Player.get().addVelocity(-1, 0, boundsInScene);
                 bunny.addVelocity(-200, 0, boundsInScene);
             }
-            if (JuniterBindings.input.contains("RIGHT")) {
+            if (input.contains("RIGHT")) {
                 Player.get().addVelocity(1, 0, boundsInScene);
                 bunny.addVelocity(200, 0, boundsInScene);
             }
-            if (JuniterBindings.input.contains("UP")) {
+            if (input.contains("UP")) {
                 Player.get().addVelocity(0, -1, boundsInScene);
                 bunny.addVelocity(0, -200, boundsInScene);
             }
-            if (JuniterBindings.input.contains("DOWN")) {
+            if (input.contains("DOWN")) {
                 Player.get().addVelocity(0, 1, boundsInScene);
                 bunny.addVelocity(0, 200, boundsInScene);
             }
-            if (JuniterBindings.input.contains("SPACE") && Player.get().getScore() > 0) {
+            if (input.contains("SPACE") && Player.get().getScore() > 0) {
                 collectables.add(Player.get().payment());
                 Player.get().score--;
             }

@@ -4,6 +4,7 @@ import org.apache.jena.ontology.OntModel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,8 +16,9 @@ import java.util.Map;
 
 
 @RestController
-@Order(100)
+@Order(100000)
 @RequestMapping(value = "/jena")
+@ConditionalOnExpression("${juniter.useJenaRDF:false}")
 public class RDFRestController extends OpenDataController {
 
     private Logger LOG = LogManager.getLogger(RDFRestController.class);

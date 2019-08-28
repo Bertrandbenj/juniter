@@ -3,7 +3,6 @@ package juniter.core.model.dbo.wot;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.DUPDocument;
-import juniter.core.model.dbo.DenormalizeWrittenStamp;
 import juniter.core.utils.Constants;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -70,6 +69,11 @@ public class Identity implements DUPDocument, Comparable<Identity> {
 
     public String toDUP() {
         return pubkey + ":" + signature + ":" + signed.stamp() + ":" + uid;
+    }
+
+    @Override
+    public String toDUPdoc(boolean signed) {
+        return "";
     }
 
     @Override

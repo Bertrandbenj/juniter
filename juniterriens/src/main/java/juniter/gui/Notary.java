@@ -2,18 +2,19 @@ package juniter.gui;
 
 import antlr.generated.JuniterLexer;
 import antlr.generated.JuniterParser;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
 import juniter.core.model.dbo.net.EndPointType;
 import juniter.core.model.dto.raw.*;
 import juniter.grammar.JuniterGrammar;
 import juniter.gui.include.AbstractJuniterFX;
-import juniter.gui.include.JuniterBindings;
 import juniter.gui.include.I18N;
+import juniter.service.BlockService;
 import juniter.service.bma.PeerService;
 import org.antlr.v4.runtime.*;
 import org.apache.logging.log4j.LogManager;
@@ -32,11 +33,24 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.ResourceBundle;
 
+import static juniter.gui.include.JuniterBindings.block_0;
+import static juniter.gui.include.JuniterBindings.rawDocument;
+
 @ConditionalOnExpression("${juniter.useJavaFX:false}")
 @Component
 public class Notary extends AbstractJuniterFX implements Initializable {
 
     private static final Logger LOG = LogManager.getLogger(Notary.class);
+    @FXML
+    private TabPane tabPane;
+    @FXML
+    private Tab paneWOT;
+    @FXML
+    private Tab paneTX;
+    @FXML
+    private Tab paneBlock0;
+    @FXML
+    private Tab panePeer;
 
     @FXML
     private TextArea rawDoc;
@@ -51,25 +65,31 @@ public class Notary extends AbstractJuniterFX implements Initializable {
     private Button sendButton;
 
     @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
     private RestTemplate restTemplate;
 
-    public static Integer PROTOCOL_VERSION = 10;
+    @Autowired
+    private BlockService blockService;
+
+    @Autowired
+    private PeerService peers;
 
     @Override
     public void start(Stage primaryStage) {
         LOG.info("Starting Notary");
 
-        primaryStage.setTitle("Juniter - "+I18N.get("notary"));
+        primaryStage.setTitle("Juniter - " + I18N.get("notary"));
         primaryStage.show();
 
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        rawDoc.textProperty().bind(JuniterBindings.rawDocument);
+
+        // for the time being
+        logGlobalValid.managedProperty().bind(logGlobalValid.visibleProperty());
+        logGlobalValid.setVisible(false);
+
+        rawDoc.textProperty().bind(rawDocument);
         rawDoc.textProperty().addListener((observable, oldValue, newValue) -> {
             LOG.info("rawDocument Doc changed ");
 
@@ -83,11 +103,10 @@ public class Notary extends AbstractJuniterFX implements Initializable {
                 var docObject = visitor.visitDoc(doc);
                 LOG.info("Visited : " + docObject + "  ");
 
-                //sendButton.setDisable(!docObject.isValid());
-
-
                 logLocalValid.setWrapText(true);
                 logLocalValid.setText(I18N.get("φ.1"));
+                sendButton.setDisable(!docObject.isValid());
+
             } catch (Exception e) {
                 StringWriter sw = new StringWriter();
                 e.printStackTrace(new PrintWriter(sw));
@@ -95,71 +114,83 @@ public class Notary extends AbstractJuniterFX implements Initializable {
                 logLocalValid.setText(sw.toString());
                 sendButton.setDisable(true);
             }
-            sendButton.setDisable(false); // FIXME
+            sendButton.setDisable(false);//FIXME REMOVE ONCE Grammar is correct
+
         });
     }
 
+    @FXML
     public void sendDoc() {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         String dest = "wot/add";
         Wrapper reqBodyData = null;
-        switch (rawDoc.getText().lines().filter(l -> l.startsWith("Type")).findFirst().get()) {
-            case "Type: Transaction":
+
+        var selectedPane = tabPane.getSelectionModel().getSelectedItem();
+
+        if (selectedPane.equals(paneBlock0)) {
+
+            blockService.localSave(block_0);
+
+            // TODO COMPLETE
+        } else {
+            if (selectedPane.equals(paneTX)) {
                 dest = "tx/process";
-                reqBodyData  = new WrapperTransaction(rawDoc.getText());
-                break;
-            case "Type: Identity":
-                dest = "wot/add";
-                reqBodyData  = new WrapperIdentity(rawDoc.getText());
-                break;
-            case "Type: Membership":
-                dest = "blockchain/membership";
-                reqBodyData  = new WrapperMembership(rawDoc.getText());
-                break;
-            case "Type: Certification":
-                dest = "wot/certify";
-                reqBodyData  = new WrapperCertification(rawDoc.getText());
-                break;
-            case "Type: Revocation":
-                dest = "wot/revoke";
-                reqBodyData  = new WrapperRevocation(rawDoc.getText());
-                break;
-        }
+                reqBodyData = new WrapperTransaction(rawDoc.getText());
 
+            }
+            if (selectedPane.equals(panePeer)) {
+                dest = "network/peering";
+                reqBodyData = new WrapperPeer(rawDoc.getText());
 
-        try {
-            //objectMapper.writeValueAsString(reqBodyData);
-            var reqURL = peers.nextHost(EndPointType.BASIC_MERKLED_API).get().getHost() ;
-            reqURL += (reqURL.endsWith("/")?"":"/") + dest;
+            } else if (selectedPane.equals(paneWOT)) {
+                switch (rawDoc.getText().lines().filter(l -> l.startsWith("Type")).findFirst().orElseThrow()) {
+                    case "Type: Identity":
+                        dest = "wot/add";
+                        reqBodyData = new WrapperIdentity(rawDoc.getText());
+                        break;
+                    case "Type: Membership":
+                        dest = "blockchain/membership";
+                        reqBodyData = new WrapperMembership(rawDoc.getText());
+                        break;
+                    case "Type: Certification":
+                        dest = "wot/certify";
+                        reqBodyData = new WrapperCertification(rawDoc.getText());
+                        break;
+                    case "Type: Revocation":
+                        dest = "wot/revoke";
+                        reqBodyData = new WrapperRevocation(rawDoc.getText());
+                        break;
+                }
+            }
 
-            LOG.info("sendDoc posting {} {}", reqURL,  reqBodyData);
+            try {
+                //objectMapper.writeValueAsString(reqBodyData);
+                var reqURL = peers.nextHost(EndPointType.BASIC_MERKLED_API).orElseThrow().getHost();
+                reqURL += (reqURL.endsWith("/") ? "" : "/") + dest;
 
-            var request = new HttpEntity<>(reqBodyData, headers);
+                LOG.info("sendDoc posting {} {}", reqURL, reqBodyData);
 
-            var response = restTemplate.postForEntity(reqURL, request, Object.class);
+                var request = new HttpEntity<>(reqBodyData, headers);
+                var response = restTemplate.postForEntity(reqURL, request, Object.class);
 
-            LOG.info("sendDoc response {}", response);
+                if (response.getStatusCodeValue() != 200) {
+                    throw new AssertionError("post doc error, code {} " + response);
+                } else {
+                    LOG.info("successfully sent doc, response : {}", response);
+                }
 
-            if (response.getStatusCodeValue() != 200)
-                throw new AssertionError("post doc status code {} " + response);
-            else
-                LOG.info("sendDoc response : {}", response);
-
-        } catch (Exception | AssertionError e) {
-            StringWriter sw = new StringWriter();
-            e.printStackTrace(new PrintWriter(sw));
-            logLocalValid.setWrapText(false);
-            logLocalValid.setText(sw.toString());
-            LOG.error("sendDoc Error ", e);
+            } catch (Exception | AssertionError e) {
+                StringWriter sw = new StringWriter();
+                e.printStackTrace(new PrintWriter(sw));
+                logLocalValid.setWrapText(false);
+                logLocalValid.setText(sw.toString());
+                LOG.error("Notary.sendDoc ", e);
+            }
         }
 
     }
-
-    @Autowired
-    private PeerService peers;
-
 
 
     private JuniterParser juniterParser(CharStream file) {

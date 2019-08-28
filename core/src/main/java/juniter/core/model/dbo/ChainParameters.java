@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 
 /**
- * DUP ChainParameters initialized using ğ1 variable
+ * DUPComponent ChainParameters initialized using ğ1 variable
  *
  * @see <a href="https://git.duniter.org/nodes/typescript/duniter/blob/dev/doc/Protocol.md#protocol-parameters"></a>
  */
@@ -22,10 +22,15 @@ import javax.persistence.*;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ChainParameters implements DUPDocument {
 
+    public ChainParameters(String ccy) {
+        currency = ccy;
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private Short id;
+
+    private String currency;
 
     /**
      * The %growth of the UD every [dt] period
@@ -186,6 +191,11 @@ public class ChainParameters implements DUPDocument {
     @Override
     public String toDUP() {
         return c + ":" + dt + ":" + ud0 + ":" + sigPeriod + ":" + sigStock + ":" + sigWindow + ":" + sigValidity + ":" + sigQty + ":" + idtyWindow + ":" + msWindow + ":" + xpercent + ":" + msValidity + ":" + stepMax + ":" + medianTimeBlocks + ":" + avgGenTime + ":" + dtDiffEval + ":" + percentRot + ":" + udTime0 + ":" + udReevalTime0 + ":" + dtReeval;
+    }
+
+    @Override
+    public String toDUPdoc(boolean signed) {
+        return toDUP();
     }
 
     public double maxAcceleration() {

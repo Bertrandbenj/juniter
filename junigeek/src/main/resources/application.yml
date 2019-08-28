@@ -16,7 +16,8 @@ juniter:
   useBMA: true
   useWS2P: true
   useIPFS: false
-  useRobot: true
+  #useJenaRDF: true #default false
+  useForkHead: true
   utils.enabled: false
   #useSpark: true
   indexer: true

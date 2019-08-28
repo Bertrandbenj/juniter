@@ -17,6 +17,8 @@ public class Joiner extends Member implements Serializable {
     }
 
 
+
+
     public void parse(String joiner) {
         final var vals = joiner.split(":");
         pubkey = vals[0];

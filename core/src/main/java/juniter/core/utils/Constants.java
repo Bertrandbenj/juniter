@@ -10,6 +10,10 @@ public interface Constants {
 		String INTERRUPTED = "THE UNEXPECTED HAPPENED : Thread.sleep failed";
 	}
 
+
+	/**
+	 * FIXME using https://www.freeformatter.com/java-regex-tester.html
+	 */
 	interface Regex {
 		String USER_ID = "[A-Za-z0-9_- ]{2,50}+";
 		String CURRENCY_NAME = "[A-Za-z0-9_-]";
@@ -17,7 +21,7 @@ public interface Constants {
 		/**
 		 * ex: D9D2zaJoWYWveii1JRYLVK3J4Z7ZH3QczoKrnQeiM6mx
 		 */
-		String PUBKEY = "[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]{43,45}";
+		String PUBKEY = "[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]{44}";
 
 		/**
 		 * ex:
@@ -52,5 +56,7 @@ public interface Constants {
 		String DOMAIN2 = "^([a-zA-Z0-9][a-zA-Z0-9-]{0,62}\\.)+[A-Za-z0-9]{0,62}$";
 		String WS2P_SMETHING = "[a-zA-Z0-9]{8}";
 		String G1 = "^g1$";
+		String CURRENCY = "[a-zA-Z0-9]{0,8}";
+
 	}
 }

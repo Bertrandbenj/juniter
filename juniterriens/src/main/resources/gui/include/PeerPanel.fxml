@@ -14,7 +14,7 @@
                 <HBox spacing="20.0">
                     <children>
                         <Label alignment="CENTER" prefHeight="27.0" prefWidth="149.0" text="%notary.version"/>
-                        <TextField fx:id="version" disable="true" editable="false" text="10"/>
+                        <TextField fx:id="version" disable="true" editable="false" text="11"/>
                     </children>
                     <padding>
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>

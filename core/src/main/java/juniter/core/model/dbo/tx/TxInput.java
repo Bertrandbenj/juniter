@@ -1,6 +1,6 @@
 package juniter.core.model.dbo.tx;
 
-import juniter.core.model.dbo.DUPDocument;
+import juniter.core.model.dbo.DUPComponent;
 import juniter.core.utils.Constants;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,7 +20,7 @@ import javax.validation.constraints.Size;
 @AllArgsConstructor
 @NoArgsConstructor
 @Embeddable
-public class TxInput implements  Comparable<TxInput>, DUPDocument {
+public class TxInput implements  Comparable<TxInput>, DUPComponent {
 
 	@Min(1)
 	private Integer amount;
@@ -49,7 +49,7 @@ public class TxInput implements  Comparable<TxInput>, DUPDocument {
 	/**
 	 * Build input from String
      *
-	 * @param input as a DUP String
+	 * @param input as a DUPComponent String
 	 */
 	public TxInput(String input) {
 		final var it = input.split(":");

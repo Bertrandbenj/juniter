@@ -17,7 +17,7 @@
                         <Font size="19.0" />
                      </font>
                   </Label>
-                  <Label fx:id="targetPubkey" alignment="CENTER" maxWidth="1.7976931348623157E308" text="%login.pubkey" textAlignment="CENTER" HBox.hgrow="ALWAYS">
+                  <Label fx:id="targetPubkeyLabel" alignment="CENTER" maxWidth="1.7976931348623157E308" text="%login.pubkey" textAlignment="CENTER" HBox.hgrow="ALWAYS">
                      <font>
                         <Font size="19.0" />
                      </font>

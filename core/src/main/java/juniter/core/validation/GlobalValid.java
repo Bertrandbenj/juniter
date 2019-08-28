@@ -77,6 +77,8 @@ public interface GlobalValid {
 
     Logger LOG = LogManager.getLogger(GlobalValid.class);
 
+    String INIT_HASH = "0-E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855";
+
     interface Conf {
         int NB_DIGITS_UD = 4;
         long txWindow = 604800; // 3600 * 24 * 7
@@ -437,7 +439,7 @@ public interface GlobalValid {
      */
     private void BR_G102_setSourceAge(SINDEX entry, BINDEX head) {
         if (head.getNumber() == 0
-                && "0-E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855".equals(entry.getSigned() + "")) {
+                && INIT_HASH.equals(entry.getSigned() + "")) {
             entry.setAge(0);
         } else {
             entry.setAge(createdOnBlock(entry.getSigned())
@@ -956,7 +958,7 @@ public interface GlobalValid {
     private void BR_G19_setAge(BINDEX head, IINDEX entry) {
 
         if ("CREATE".equals(entry.getOp())) {
-            if (head.getNumber() == 0 && "0-E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855".equals(entry.getSigned().toString())) {
+            if (head.getNumber() == 0 && INIT_HASH.equals(entry.getSigned().toString())) {
                 entry.setAge(0);
             } else {
 
@@ -1028,7 +1030,7 @@ public interface GlobalValid {
 
         if (entry.getRevoked() == null) {
 
-            if (head.getNumber() == 0 && "0-E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855".equals(entry.getSigned().toString())) {
+            if (head.getNumber() == 0 && INIT_HASH.equals(entry.getSigned().toString())) {
                 entry.age = 0;
             } else {
                 entry.age = createdOnBlock(entry.getSigned())
@@ -1360,7 +1362,7 @@ public interface GlobalValid {
 
         final long sigWindow = 0;
 
-        if (head.getNumber() == 0 && "0-E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855".equals(entry.getCreated_on().toString())) {
+        if (head.getNumber() == 0 && INIT_HASH.equals(entry.getCreated_on().toString())) {
             entry.setAge(0);
         } else {
             entry.setAge(IndexB.stream()

@@ -3,11 +3,12 @@ package juniter.gui;
 import javafx.concurrent.Worker.State;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import juniter.gui.include.AbstractJuniterFX;
-import juniter.gui.include.JuniterBindings;
 import juniter.service.web.GraphvizService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,11 +26,16 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.ResourceBundle;
 
+import static juniter.gui.include.JuniterBindings.currenBlock;
+
 @ConditionalOnExpression("${juniter.useJavaFX:false}")
 @Component
 public class GraphPanel extends AbstractJuniterFX implements Initializable {
 
     private static final Logger LOG = LogManager.getLogger(GraphPanel.class);
+
+    @FXML
+    private TabPane tabPane;
 
     @FXML
     private WebView SVGAnchor;
@@ -106,7 +112,7 @@ public class GraphPanel extends AbstractJuniterFX implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        uri.setText("/graphviz/svg/block/" + (JuniterBindings.currenBlock.get().getNumber() - 2));
+        uri.setText("/graphviz/svg/block/" + (currenBlock.get().getNumber() - 2));
 
         var webEngine = SVGAnchor.getEngine();    // Get WebEngine via WebView
         SVGAnchor.setZoom(0.60);
@@ -156,6 +162,12 @@ public class GraphPanel extends AbstractJuniterFX implements Initializable {
 
             }
         });
+
+        var tab = new Tab();
+        var wv = new WebView();
+        wv.getEngine().load("https://g1.le-sou.org/#/app/currency/lg");
+        tab.setContent(wv);
+        tabPane.getTabs().add(tab);
 
         go();
         WotMapAnchor.getEngine().load("https://duniter.normandie-libre.fr/wotmap/");

@@ -12,7 +12,6 @@ import javafx.scene.layout.VBox;
 import juniter.core.crypto.SecretBox;
 import juniter.core.model.dbo.net.EndPoint;
 import juniter.core.model.dbo.net.Peer;
-import juniter.gui.Notary;
 import juniter.service.bma.NetworkService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,6 +23,9 @@ import java.net.URL;
 import java.util.Random;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
+
+import static juniter.gui.include.JuniterBindings.currenBlock;
+import static juniter.gui.include.JuniterBindings.rawDocument;
 
 @ConditionalOnExpression("${juniter.useJavaFX:false}")
 @Component
@@ -116,13 +118,12 @@ public class PeerPanel implements Initializable {
                         .collect(Collectors.toList())
         );
 
-        JuniterBindings.rawDocument.setValue(peer.toDUP(true));
+        rawDocument.setValue(peer.toDUP(true));
     }
 
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        version.setText(Notary.PROTOCOL_VERSION+"");
         typeCombo.getItems().setAll("WS2P", "BMAS", "BASIC_MERKLED_API");
 
         salt.setOnAction(e -> {
@@ -145,13 +146,13 @@ public class PeerPanel implements Initializable {
     }
 
 
-   private void presetPeer() {
+    private void presetPeer() {
 
-        peer = netService.endPointPeer(JuniterBindings.currenBlock.get().getNumber());
+        peer = netService.endPointPeer(currenBlock.get().getNumber());
         sessid.setText(getRandomHexString(8));
         block.setText(peer.getBlock().stamp());
 
-         pubkey.setText(peer.getPubkey());
+        pubkey.setText(peer.getPubkey());
         version.setText(peer.getVersion() + "");
         currency.setText(peer.getCurrency());
 

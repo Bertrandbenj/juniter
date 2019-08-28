@@ -9,12 +9,11 @@ import javafx.scene.control.TextField;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
-import juniter.gui.include.I18N;
-import juniter.gui.include.JuniterBindings;
 import juniter.gui.game.characters.Player;
 import juniter.gui.game.characters.WhiteRabbit;
-import juniter.gui.game.screens.TheBeginning;
 import juniter.gui.game.screens.Room;
+import juniter.gui.game.screens.TheBeginning;
+import juniter.gui.include.I18N;
 import juniter.repository.jpa.index.MINDEXRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,6 +26,8 @@ import org.springframework.stereotype.Component;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
+
+import static juniter.gui.include.JuniterBindings.*;
 
 @ConditionalOnExpression("${juniter.useJavaFX:false}")
 @Component
@@ -64,8 +65,8 @@ public class Game implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         gc = canvas.getGraphicsContext2D();
 
-        Platform.runLater(() -> JuniterBindings.playing.addListener(observable -> {
-            if (JuniterBindings.playing.get()) {
+        Platform.runLater(() -> playing.addListener(observable -> {
+            if (playing.get()) {
                 LOG.info("focus on game ");
                 canvas.requestFocus();
             }
@@ -80,13 +81,13 @@ public class Game implements Initializable {
         erg.setOnKeyPressed(e -> {
             String code = e.getCode().toString();
             //System.out.println("Game " + code);
-            if (!JuniterBindings.input.contains(code))
-                JuniterBindings.input.add(code);
+            if (!input.contains(code))
+                input.add(code);
         });
 
         erg.setOnKeyReleased(e -> {
             String code = e.getCode().toString();
-            JuniterBindings.input.remove(code);
+            input.remove(code);
         });
 
         Platform.runLater(() -> {

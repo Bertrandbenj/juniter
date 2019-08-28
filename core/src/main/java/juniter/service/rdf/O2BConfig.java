@@ -27,8 +27,7 @@ public interface O2BConfig {
 
     String MY_PREFIX = "http://www.juniter.com/2019/03/ontology/";
 
-    String[] AUTHORS = new String[]{
-            "BERTRAND Benjamin"};
+    String[] AUTHORS = new String[]{"BERTRAND Benjamin"};
 
     String ADAGIO_PREFIX = "http://www.e-is.pro/2019/03/adagio/";
 
@@ -121,7 +120,7 @@ public interface O2BConfig {
                 " join fetch g.status st");
 
 
-        //URI_2_CLASS.put("definedURI", TaxonomicLevel.class);
+//        URI_2_CLASS.put("definedURI", TaxonomicLevel.class);
 
 
         O2B_ARBITRARY_MAPPER.put("uri", obj -> {

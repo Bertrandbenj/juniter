@@ -26,6 +26,8 @@ import java.util.Comparator;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
+import static juniter.gui.include.JuniterBindings.*;
+
 /**
  * inspiration here https://github.com/buckyroberts/Source-Code-from-Tutorials
  */
@@ -71,7 +73,7 @@ public class LoginBox implements Initializable {
         LOG.info("Login ... ");
         var sb = new SecretBox(salt.getText(), password.getText());
         pubkey.setText(sb.getPublicKey());
-        JuniterBindings.secretBox.set(sb);
+        secretBox.set(sb);
 
         Task<Void> task = new Task<>() {
 
@@ -81,15 +83,15 @@ public class LoginBox implements Initializable {
                 updateMessage("Loading certificates ");
                 var c1 = cRepo.receivedBy(sb.getPublicKey());
                 var c2 = cRepo.issuedBy(sb.getPublicKey());
-                JuniterBindings.certsRelated.addAll(c1);
-                JuniterBindings.certsRelated.addAll(c2);
+                certsRelated.addAll(c1);
+                certsRelated.addAll(c2);
 
 
                 updateMessage("Loading Transactions ");
                 var t1 = txRepo.transactionsOfIssuer_(sb.getPublicKey());
                 var t2 = txRepo.transactionsOfReceiver_(sb.getPublicKey());
-                JuniterBindings.txRelated.addAll(t1);
-                JuniterBindings.txRelated.addAll(t2);
+                txRelated.addAll(t1);
+                txRelated.addAll(t2);
 
                 updateMessage("Loading Sources ");
                 var ss = sRepo.sourcesOfPubkeyL(sb.getPublicKey()).stream()
@@ -97,11 +99,11 @@ public class LoginBox implements Initializable {
                         .sorted(Comparator.comparingInt(SINDEX::getAmount))
                         .map(s -> new TxInput(s.getAmount() + ":" + s.getBase() + ":" + s.type() + ":" + s.getIdentifier() + ":" + s.getPos()))
                         .collect(Collectors.toList());
-                JuniterBindings.sources.addAll(ss);
+                sources.addAll(ss);
 
 
                 updateMessage("Loading account");
-                JuniterBindings.playing.set(true);
+                playing.set(true);
                 GameBindings.money.setValue(accountRepository.accountOf(sb.getPublicKey()).getBSum());
 
                 return null;

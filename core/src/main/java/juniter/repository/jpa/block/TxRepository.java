@@ -18,7 +18,7 @@ public interface TxRepository extends JpaRepository<Transaction, Long> {
 //	@Override
 //	Optional<TransactionDTO> findById(Long id);
 
-    @Query("SELECT t FROM Transaction t WHERE thash = ?1")
+    @Query("SELECT t FROM Transaction t WHERE hash = ?1")
     List<Transaction> findByTHash(String hash);
 
     default Stream<Transaction> findTxOneAndSameIssuerAndDest() {

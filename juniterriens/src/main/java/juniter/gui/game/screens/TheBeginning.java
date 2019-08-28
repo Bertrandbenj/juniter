@@ -11,9 +11,11 @@ import juniter.gui.game.engine.Collectable;
 import juniter.gui.game.engine.Curiosity;
 import juniter.gui.game.engine.Gate;
 import juniter.gui.include.I18N;
-import juniter.gui.include.JuniterBindings;
 import juniter.gui.include.Technology;
 import juniter.gui.include.TxBox;
+
+import static juniter.gui.include.JuniterBindings.*;
+import static juniter.gui.include.JuniterBindings.Theme.DARK_THEME;
 
 
 public class TheBeginning extends Room {
@@ -34,7 +36,7 @@ public class TheBeginning extends Room {
          gc().setFont(theFont);
         gc().fillText(I18N.get("game.pi.rule5"), canvas.getWidth() / 2, canvas.getHeight() / 2);
 
-        if (JuniterBindings.selectedTheme.getValue().equals(JuniterBindings.DARK_THEME)) {
+        if (selectedTheme.getValue().equals(DARK_THEME)) {
             Game.foundRule5 = true;
         }
 

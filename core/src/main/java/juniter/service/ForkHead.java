@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @Order(1000)
-@ConditionalOnExpression("${juniter.useRobot:false}")
+@ConditionalOnExpression("${juniter.useForkHead:false}")
 public class ForkHead implements ApplicationListener<CoreEvent> {
 
 

@@ -75,6 +75,10 @@ public interface Bean2Owl extends Helpers {
                     .filter(c -> c != null && !Object.class.equals(c))
                     .forEach(i -> aClass.addSuperClass(typeToUri(schema, i)));
 
+            Stream.of(clazz.getGenericSuperclass())
+                    .filter(c -> c != null && !Object.class.equals(c))
+                    .forEach(i -> aClass.addSuperClass(typeToUri(schema, i)));
+
 
             if (addMethods) {
                 Stream.of(clazz.getMethods())

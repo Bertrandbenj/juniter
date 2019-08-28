@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.web.WebView?>
 
- <BorderPane styleClass="pane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.gui.GraphPanel">
+<BorderPane styleClass="pane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.gui.GraphPanel">
     <right>
 
                 <fx:include fx:id="menu" source="include/Menu.fxml" />
@@ -19,14 +19,14 @@
 
     <bottom>
 
-        <fx:include source="include/Footer.fxml"/>
+        <fx:include source="include/Footer.fxml" />
     </bottom>
     <center>
-        <TabPane prefHeight="200.0"  prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+        <TabPane fx:id="tabPane" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
             <tabs>
                 <Tab text="GraphViz">
                     <content>
-                        <WebView fx:id="SVGAnchor" prefHeight="200.0" prefWidth="200.0"/>
+                        <WebView fx:id="SVGAnchor" prefHeight="200.0" prefWidth="200.0" />
                      </content>
                 </Tab>
                 <Tab text="Cesium">
@@ -34,33 +34,32 @@
                         <ImageView fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
                             <image>
 
-                                <Image url="@images/cesium.png"/>
+                                <Image url="@images/cesium.png" />
                             </image>
                             <viewport>
-                                <Rectangle2D/>
+                                <Rectangle2D />
                              </viewport>
                         </ImageView>
                     </graphic>
                     <content>
 
-                        <WebView fx:id="CesiumAnchor" prefHeight="200.0" prefWidth="200.0"/>
+                        <WebView fx:id="CesiumAnchor" prefHeight="200.0" prefWidth="200.0" />
                      </content>
 
                 </Tab>
                 <Tab text="WotMap">
                     <content>
 
-                        <WebView fx:id="WotMapAnchor" prefHeight="200.0" prefWidth="200.0"/>
+                        <WebView fx:id="WotMapAnchor" prefHeight="200.0" prefWidth="200.0" />
                      </content>
                 </Tab>
-                <Tab>
+                <Tab fx:id="huhu">
                     <content>
 
-                        <WebView fx:id="SVGAnchor111" prefHeight="200.0" prefWidth="200.0"/>
+                        <WebView fx:id="SVGAnchor111" prefHeight="200.0" prefWidth="200.0" />
                     </content>
                     <graphic>
-                        <TextField fx:id="uri" alignment="CENTER" prefHeight="24.0" prefWidth="250.0"
-                                   promptText="https://forum.monnaie-libre.fr/" onAction="#go"/>
+                        <TextField fx:id="uri" alignment="CENTER" onAction="#go" prefHeight="24.0" prefWidth="250.0" promptText="https://forum.monnaie-libre.fr/" />
                      </graphic>
                 </Tab>
             </tabs>

@@ -1,6 +1,6 @@
 package juniter.core.model.dbo.tx;
 
-import juniter.core.model.dbo.DUPDocument;
+import juniter.core.model.dbo.DUPComponent;
 import lombok.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,7 +27,7 @@ import javax.validation.constraints.Size;
 @Embeddable
 @Data
 @NoArgsConstructor
-public class TxOutput implements Comparable<TxOutput>, DUPDocument {
+public class TxOutput implements Comparable<TxOutput>, DUPComponent {
 
 	static final Logger LOG = LogManager.getLogger(TxOutput.class);
 

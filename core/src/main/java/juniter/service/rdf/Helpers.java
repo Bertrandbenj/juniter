@@ -89,6 +89,18 @@ public interface Helpers extends O2BConfig {
 
     }
 
+    default OntModel ontError(String uri) {
+        uri += (uri.endsWith("/") || uri.endsWith("#")) ? "" : "/";
+
+        OntModel ontology = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM);
+        ontology.setNsPrefix("this", uri);
+        ontology.setNsPrefix("foaf", FOAF.getURI());
+        ontology.setNsPrefix("purl", DC_11.getURI()); // http://purl.org/dc/elements/1.1/
+
+
+        return ontology;
+    }
+
 
     default OntModel ontModelWithMetadata(String uri) {
 
@@ -120,25 +132,41 @@ public interface Helpers extends O2BConfig {
 
     default Optional<Method> setterOfField(Resource schema, Class t, String field) {
         try {
-            Field f = fieldOf(schema, t, field);
-            Method met = t.getMethod("set" + f.getName().substring(0, 1).toUpperCase() + f.getName().substring(1), f.getType());
-            return Optional.of(met);
+            Optional<Field> f = fieldOf(schema, t, field);
+            if (f.isPresent()) {
+                String setterName = "set" + f.get().getName().substring(0, 1).toUpperCase() + f.get().getName().substring(1);
+                //LOG.info("setterName " + setterName);
+                Method met = t.getMethod(setterName, f.get().getType());
+                return Optional.of(met);
+            }
+
         } catch (NoSuchMethodException e) {
-            LOG.error("NoSuchMethodException setterOfField " + field + " - ", e);
+            LOG.warn("NoSuchMethodException setterOfField " + field);
         } catch (NullPointerException e) {
-            LOG.error("NullPointerException setterOfField " + field + " - ", e);
+            LOG.warn("NullPointerException setterOfField " + field);
         }
         return Optional.empty();
     }
 
-    default Field fieldOf(Resource schema, Class t, String name) {
+    default Optional<Field> fieldOf(Resource schema, Class t, String name) {
         try {
-            return URI_2_CLASS.get(classToURI(schema, t)).getDeclaredField(name);
+
+            Class ret = URI_2_CLASS.get(t.getSimpleName());
+            if (ret == null) {
+                LOG.info("error fieldOf " + classToURI(schema, t) + " " + name);
+                return Optional.empty();
+            } else {
+                return Optional.of(ret.getDeclaredField(name));
+
+            }
         } catch (NoSuchFieldException e) {
             LOG.error("error fieldOf " + t.getSimpleName() + " " + name + " - " + e.getMessage());
         }
         return null;
     }
+
+
+
 
 
     default String classToURI(Resource ont, Class c) {

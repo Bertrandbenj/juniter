@@ -20,14 +20,15 @@ public interface OwlMappers extends Owl2Bean, Bean2Owl {
     Logger LOG = LogManager.getLogger(OwlMappers.class);
 
     default List<Object> objectsFromOnt(OntModel m) {
-        Resource schema = m.listSubjectsWithProperty(RDF.type, OWL.Ontology.asResource()).nextResource();
+        Resource schema = m.listSubjectsWithProperty(RDF.type, OWL.Ontology).nextResource();
 
         List<Object> ret = new ArrayList<>();
 
         for (OntClass ontClass : m.listClasses().toList()) {
-
+            LOG.info("objectsFromOnt " + ontClass + " " + ontClass.listInstances().toList().size());
             ontToJavaClass(ontClass).ifPresent(clazz -> {
                 for (OntResource ontResource : ontClass.listInstances().toList()) {
+                    LOG.info("  ontResource " +ontResource);
 
                     Function<OntResource, Object> f = B2O_ARBITRARY_MAPPER.get(ontClass.getURI());
                     if (f != null) {
@@ -132,17 +133,23 @@ public interface OwlMappers extends Owl2Bean, Bean2Owl {
     }
 
 
+
     default OntModel ontOfClasses(String uri, Stream<Class> classes, Map<String, String> options) {
+
+        boolean addDisjoints = options.getOrDefault("disjoints", "false").contains("true");
+        boolean addInterfaces = options.getOrDefault("interface", "true").contains("true");
+        boolean addMethods = options.getOrDefault("methods", "false").contains("true");
+
 
         OntModel model = ontModelWithMetadata(uri);
 
         Map<OntClass, List<OntClass>> mutualyDisjoint = null;
-        if (options != null && options.getOrDefault("disjoints", "false").contains("true")) {
+        if (addDisjoints) {
             mutualyDisjoint = new HashMap<>();
         }
 
         for (Class<?> ent : classes.collect(Collectors.toList())) {
-            classToOwl(model, ent, mutualyDisjoint, true, true);
+            classToOwl(model, ent, mutualyDisjoint, addInterfaces, addMethods);
         }
         withDisjoints(mutualyDisjoint);
         return model;
@@ -151,21 +158,27 @@ public interface OwlMappers extends Owl2Bean, Bean2Owl {
 
     default OntModel ontOfCapturedClasses(String uri, Stream<Class<?>> classes, Map<String, String> options) {
 
+        boolean addDisjoints = options.getOrDefault("disjoints", "false").contains("true");
+        boolean addInterfaces = options.getOrDefault("interface", "true").contains("true");
+        boolean addMethods = options.getOrDefault("methods", "false").contains("true");
+
+
         OntModel model = ontModelWithMetadata(uri);
 
         Map<OntClass, List<OntClass>> mutualyDisjoint = null;
-        if (options != null && options.getOrDefault("disjoints", "false").contains("true")) {
+        if (addDisjoints) {
             mutualyDisjoint = new HashMap<>();
         }
 
         for (Class<?> ent : classes.collect(Collectors.toList())) {
-            classToOwl(model, ent, mutualyDisjoint, true, true);
+            classToOwl(model, ent, mutualyDisjoint, addInterfaces, addMethods);
         }
 
         withDisjoints(mutualyDisjoint);
         return model;
 
     }
+
 
 
 }

@@ -17,9 +17,10 @@ juniter:
   useBMA: true
   useWS2P: true  #default false
   #useIPFS: true  #default false
+  #useJenaRDF: true #default false
   utils.enabled: false
   useJavaFX: true #default false
-  useRobot: true  #default false
+  useForkHead: true  #default false
   #useSpark: true  #default false
   indexer: true
   startIndex: false

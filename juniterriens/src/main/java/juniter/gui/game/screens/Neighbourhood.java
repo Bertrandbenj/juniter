@@ -8,9 +8,10 @@ import juniter.gui.game.engine.Collectable;
 import juniter.gui.game.engine.Curiosity;
 import juniter.gui.game.engine.Gate;
 import juniter.gui.include.I18N;
-import juniter.gui.include.JuniterBindings;
 import juniter.gui.include.TaxPanel;
 import juniter.gui.include.TxBox;
+
+import static juniter.gui.include.JuniterBindings.*;
 
 public class Neighbourhood extends Room {
 
@@ -87,7 +88,7 @@ public class Neighbourhood extends Room {
 
 
         int i = 0;
-        for (Transaction t : JuniterBindings.txRelated) {
+        for (Transaction t : txRelated) {
 
             var x = 50 + (i * 60);
 
@@ -99,7 +100,7 @@ public class Neighbourhood extends Room {
         }
 
         i = 0;
-        for (CINDEX t : JuniterBindings.certsRelated) {
+        for (CINDEX t : certsRelated) {
             var x = 50;
             ;
             var y = 50 + (i * 60);

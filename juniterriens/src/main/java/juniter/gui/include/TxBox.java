@@ -2,6 +2,7 @@ package juniter.gui.include;
 
 import com.google.common.util.concurrent.AtomicDouble;
 import javafx.application.Platform;
+import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -40,16 +41,25 @@ import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import static juniter.gui.include.JuniterBindings.*;
+
 @Component
 
 public class TxBox extends AbstractJuniterFX implements Initializable {
     private static final Logger LOG = LogManager.getLogger(TxBox.class);
+    @FXML
     public TextField amount;
+    @FXML
     public VBox outputs;
+    @FXML
     public TextArea doc;
-    public Label targetPubkey;
+    @FXML
+    public Label targetPubkeyLabel;
+    @FXML
     public TextField comment;
+    @FXML
     public Button ok;
+    @FXML
     public Button cancel;
 
 
@@ -59,19 +69,19 @@ public class TxBox extends AbstractJuniterFX implements Initializable {
 
     }
 
-    public static boolean display(String prefix, String targetPubkey) {
+    public static boolean display(String prefix, String targetPubkeyL) {
 
-        LOG.info("Opening txBox for pub " + targetPubkey + " on prefix " + prefix);
+        LOG.info("Opening txBox for pub " + targetPubkeyL + " on prefix " + prefix);
 
-        JuniterBindings.targetComment.setValue(prefix);
+        targetComment.setValue(prefix);
 
-        JuniterBindings.targetPubkey.setValue(targetPubkey);
+        targetPubkey.setValue(targetPubkeyL);
 
-        var userPub = JuniterBindings.secretBox.get().getPublicKey();
+        var userPub = secretBox.get().getPublicKey();
         var tx = new TxBox();
 
         var stage = new Stage(StageStyle.UNDECORATED);
-         stage.setTitle("Tax panel");
+        stage.setTitle("Tax panel");
 
         try {
 
@@ -120,12 +130,12 @@ public class TxBox extends AbstractJuniterFX implements Initializable {
         tx.setLocktime(0);
         tx.setVersion(10);
 
-        tx.setBlockstamp(JuniterBindings.currenBlock.get().bStamp());
-        tx.setIssuers(List.of(targetPubkey.getText()));
+        tx.setBlockstamp(currenBlock.get().bStamp());
+        tx.setIssuers(List.of(targetPubkeyLabel.getText()));
         tx.setComment("");
 
-        targetPubkey.textProperty().bind(JuniterBindings.targetPubkey);
-        comment.textProperty().bind(JuniterBindings.targetComment);
+        targetPubkeyLabel.textProperty().bind(targetPubkey);
+        comment.textProperty().bind(targetComment);
 
         amount.setOnAction(al -> {
             LOG.info("onAction");
@@ -134,7 +144,7 @@ public class TxBox extends AbstractJuniterFX implements Initializable {
 
             //set inputs
             AtomicInteger ai = new AtomicInteger(0);
-            tx.setInputs(JuniterBindings.sources
+            tx.setInputs(sources
                     .stream()
                     .takeWhile(s -> ai.getAndAdd(s.getAmount()) < amo)
                     .collect(Collectors.toList()));
@@ -146,11 +156,11 @@ public class TxBox extends AbstractJuniterFX implements Initializable {
 
             // set tax outputs
             AtomicDouble perc = new AtomicDouble(0);
-            JuniterBindings.tax.forEach((k, v) -> {
-                if (k.equals(targetPubkey.getText()))
+            tax.forEach((k, v) -> {
+                if (k.equals(targetPubkeyLabel.getText()))
                     return; // break if taxed address is an output
 
-                var rate = v * JuniterBindings.overallTaxRate.get() / 100;
+                var rate = v * overallTaxRate.get() / 100;
 
 
                 perc.addAndGet(rate);
@@ -168,21 +178,21 @@ public class TxBox extends AbstractJuniterFX implements Initializable {
             var to = new TxOutput();
             to.setBase(0);
             to.setAmount(amountLeft);
-            to.setCondition("SIG(" + targetPubkey.getText() + ")");
+            to.setCondition("SIG(" + targetPubkeyLabel.getText() + ")");
             tx.getOutputs().add(to);
-            outputs.getChildren().add(new Label((100 * (1 - perc.get())) + "% - " + to.getAmount() + " - " + targetPubkey));
+            outputs.getChildren().add(new Label((100 * (1 - perc.get())) + "% - " + to.getAmount() + " - " + targetPubkeyLabel));
 
 
             // set rest output
             var rest = new TxOutput();
             rest.setBase(0);
             rest.setAmount(tx.getInputs().stream().mapToInt(TxInput::getAmount).sum() - amo);
-            rest.setCondition("SIG(" + targetPubkey.getText() + ")");
+            rest.setCondition("SIG(" + targetPubkeyLabel.getText() + ")");
             tx.getOutputs().add(rest);
 
 
             // set doc to emit
-            tx.setSignatures(List.of(JuniterBindings.secretBox.get().sign(tx.toDUPdoc(false))));
+            tx.setSignatures(List.of(secretBox.get().sign(tx.toDUPdoc(false))));
 
             doc.setText(tx.toDUPdoc(true));
 
@@ -200,14 +210,14 @@ public class TxBox extends AbstractJuniterFX implements Initializable {
             LOG.info("send tx {}", reqBodyData);
 
 
-            JuniterBindings.peers.get().nextHosts(EndPointType.BASIC_MERKLED_API,5)
+            peerProp.get().nextHosts(EndPointType.BASIC_MERKLED_API, 5)
                     .stream().parallel()
                     .map(NetStats::getHost)
                     .forEach(reqURL -> {
 
                         try {
                             //objectMapper.writeValueAsString(reqBodyData);
-                            //var reqURL = JuniterBindings.peers.get().nextHost().get().getHost();
+                            //var reqURL = JuniterBindings.peerProp.get().nextHost().get().getHost();
                             reqURL += (reqURL.endsWith("/") ? "" : "/") + dest;
 
                             LOG.info("sent Tx to {}", reqURL);

@@ -113,6 +113,11 @@ public class BlockService implements BlockLocalValid {
 
     public Optional<DBBlock> localSave(DBBlock block) throws AssertionError {
         //LOG.error("localsavng  "+node.getNumber());
+
+        if(block.getNumber().equals(0)){
+            block.params().setCurrency(block.getCurrency());
+        }
+
         block.getSize();
 
         // Denormalized Fields !

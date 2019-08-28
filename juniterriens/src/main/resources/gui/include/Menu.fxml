@@ -4,10 +4,10 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
-<AnchorPane xmlns="http://javafx.com/javafx/8" styleClass="pane" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="juniter.gui.include.Menu">
+<VBox maxWidth="130.0" styleClass="pane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="juniter.gui.include.Menu">
     <children>
-        <VBox fx:id="vMenu" alignment="CENTER" BorderPane.alignment="CENTER">
+        <VBox fx:id="vMenu" alignment="CENTER" VBox.vgrow="ALWAYS">
             <padding>
                 <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
             </padding>
@@ -91,11 +91,22 @@
                         <Tooltip text="%menu.tooltip.spark"/>
                     </tooltip>
                 </Hyperlink>
+                <Hyperlink onAction="#viewSettings">
+                    <graphic>
+                        <ImageView fx:id="logoSettings" fitHeight="100.0" fitWidth="120.0" pickOnBounds="true"
+                                   preserveRatio="true">
+                            <image>
+                                <Image url="@../images/logo.png"/>
+                            </image>
+                        </ImageView>
+                    </graphic>
+                    <tooltip>
+                        <Tooltip text="%menu.tooltip.settings"/>
+                    </tooltip>
+                </Hyperlink>
 
                 <Region VBox.vgrow="ALWAYS"/>
-                <ComboBox fx:id="LANG_COMBO" focusTraversable="false" VBox.vgrow="ALWAYS"/>
-                <ComboBox fx:id="THEME_COMBO" focusTraversable="false" VBox.vgrow="ALWAYS"/>
             </children>
         </VBox>
     </children>
-</AnchorPane>
+</VBox>

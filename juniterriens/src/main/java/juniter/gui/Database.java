@@ -18,7 +18,6 @@ import javafx.stage.Stage;
 import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.index.*;
 import juniter.gui.include.AbstractJuniterFX;
-import juniter.gui.include.JuniterBindings;
 import juniter.repository.jpa.index.*;
 import juniter.service.BlockService;
 import juniter.service.Index;
@@ -34,6 +33,8 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.ResourceBundle;
+
+import static juniter.gui.include.JuniterBindings.*;
 
 @Component
 @ConditionalOnExpression("${juniter.useJavaFX:false}")
@@ -250,12 +251,12 @@ public class Database extends AbstractJuniterFX implements Initializable {
     public void indexUntil() {
 
 
-        JuniterBindings.isIndexing.setValue(!JuniterBindings.isIndexing.get());
+        isIndexing.setValue(!isIndexing.get());
 
-        if (!JuniterBindings.isIndexing.get())
+        if (!isIndexing.get())
             return;
 
-        JuniterBindings.currentBindex.setValue(-1);
+        currentBindex.setValue(-1);
 
 
         int until;
@@ -265,7 +266,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
             until = blockService.currentBlockNumber();
         }
 
-        JuniterBindings.maxBindex.setValue(until);
+        maxBindex.setValue(until);
 
         index.indexUntil(until, false);
     }
@@ -273,22 +274,22 @@ public class Database extends AbstractJuniterFX implements Initializable {
     @FXML
     public void indexReset() {
         index.reset(true);
-        JuniterBindings.currentBindex.setValue(0);
+        currentBindex.setValue(0);
     }
 
 
     public void index1() {
 
-        JuniterBindings.isIndexing.setValue(!JuniterBindings.isIndexing.get());
+        isIndexing.setValue(!isIndexing.get());
 
 
-        index.indexUntil(JuniterBindings.currentBindex.intValue() + 1, false);
+        index.indexUntil(currentBindex.intValue() + 1, false);
         //JuniterBindings.indexLogMessage.setValue("Validated " + JuniterBindings.currentBindex.intValue());
 
     }
 
     public void revert1() {
-        if (JuniterBindings.isIndexing.get())
+        if (isIndexing.get())
             return;
 
         index.revert1();
@@ -377,9 +378,9 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        indexUntilButton.setText(JuniterBindings.isIndexing.get() ? "||" : ">>");
+        indexUntilButton.setText(isIndexing.get() ? "||" : ">>");
 
-        JuniterBindings.isIndexing.addListener((v, oldValue, newValue) -> {
+        isIndexing.addListener((v, oldValue, newValue) -> {
             if (!newValue)
                 indexUntilButton.setText(">>");
             else
@@ -387,7 +388,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
         });
 
 
-        indexBar.progressProperty().bind(JuniterBindings.currentBindex.divide(JuniterBindings.maxBindex));
+        indexBar.progressProperty().bind(currentBindex.divide(maxBindex));
 
 
         // ===================   MAP  COLUMNS =================

@@ -17,6 +17,8 @@ import org.springframework.stereotype.Component;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import static juniter.gui.include.JuniterBindings.overallTaxRate;
+
 @Component
 public class TaxPanel extends AbstractJuniterFX implements Initializable {
 
@@ -34,7 +36,7 @@ public class TaxPanel extends AbstractJuniterFX implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         LOG.info("initialize Tax panel");
-        sliderTax.valueProperty().bindBidirectional(JuniterBindings.overallTaxRate);
+        sliderTax.valueProperty().bindBidirectional(overallTaxRate);
         cancel.setCancelButton(true);
         cancel.setOnAction(e -> ((Stage) cancel.getScene().getWindow()).close());
         ok.setOnAction(e -> {

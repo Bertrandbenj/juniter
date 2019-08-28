@@ -2,7 +2,7 @@ package juniter.core.model.dbo.wot;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import juniter.core.model.dbo.BStamp;
-import juniter.core.model.dbo.DenormalizeWrittenStamp;
+import juniter.core.model.dbo.DUPDocument;
 import juniter.core.utils.Constants;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,7 +24,7 @@ import javax.validation.constraints.Size;
         @Index(columnList = "written_number")
 })
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Certification implements Comparable<Certification> {
+public class Certification implements DUPDocument, Comparable<Certification> {
 
     private static final Logger LOG = LogManager.getLogger(Certification.class);
 
@@ -65,6 +65,11 @@ public class Certification implements Comparable<Certification> {
 
     public String toDUP() {
         return certifier + ":" + certified + ":" + signedOn + ":" + signature;
+    }
+
+    @Override
+    public String toDUPdoc(boolean signed) {
+        return "";
     }
 
     @Override

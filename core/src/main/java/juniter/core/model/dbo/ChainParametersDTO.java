@@ -5,14 +5,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 /**
- * DUP ChainParameters initialized using ğ1 variable
+ * DUPComponent ChainParameters initialized using ğ1 variable
  *
  * @see <a href="https://git.duniter.org/nodes/typescript/duniter/blob/dev/doc/Protocol.md#protocol-parameters"></a>
  */
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ChainParametersDTO implements DUPDocument {
+public class ChainParametersDTO implements DUPComponent {
 
 
     private String currency = "g1";

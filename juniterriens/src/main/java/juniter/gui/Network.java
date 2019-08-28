@@ -18,7 +18,6 @@ import juniter.core.model.dto.node.IssuersFrameDTO;
 import juniter.core.validation.BlockLocalValid;
 import juniter.gui.include.AbstractJuniterFX;
 import juniter.gui.include.AlertBox;
-import juniter.gui.include.JuniterBindings;
 import juniter.service.BlockService;
 import juniter.service.bma.PeerService;
 import juniter.service.bma.loader.PeerLoader;
@@ -35,14 +34,14 @@ import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static juniter.gui.include.JuniterBindings.currenBlock;
+
 @ConditionalOnExpression("${juniter.useJavaFX:false}")
 @Component
 public class Network extends AbstractJuniterFX implements Initializable {
 
     private static final Logger LOG = LogManager.getLogger(Network.class);
 
-    @FXML
-    public CheckBox ws2p;
 
     @FXML
     private ComboBox<String> period;
@@ -98,11 +97,6 @@ public class Network extends AbstractJuniterFX implements Initializable {
     @FXML
     private StackedAreaChart<Integer, Integer> pow;
 
-    @FXML
-    private TextField delSome;
-
-    @FXML
-    private TextField tstSome;
 
     @Autowired
     private PeerLoader peerLoader;
@@ -133,43 +127,6 @@ public class Network extends AbstractJuniterFX implements Initializable {
         peerLoader.runPeerCheck();
     }
 
-    @FXML
-    public void deleteSome() {
-        String[] ids = delSome.getText().split(",");
-
-        Stream.of(ids) //
-                .map(Integer::parseInt)//
-                .forEach(id -> {
-                    LOG.info("deleting Blocks # " + id);
-
-                    blockService.blocks(id).forEach(block -> blockService.delete(block));
-                });
-    }
-
-
-    @FXML
-    public void testSome() {
-        String[] ids = tstSome.getText().split(",");
-
-        Stream.of(ids) //
-                .map(Integer::parseInt)//
-                .forEach(id -> {
-                    LOG.info("testing Blocks # " + id);
-
-                    blockService.block(id).ifPresent(block -> {
-                        boolean result = false;
-                        try {
-                            BlockLocalValid.Static.assertBlock(block);
-
-                        } catch (AssertionError ea) {
-                            result = AlertBox.display("AssertionError", ea.getMessage());
-                        }
-                        LOG.info("testing Block # " + result);
-                    });
-                });
-        AlertBox.display("All good", "repository node is local valid  ");
-
-    }
 
 
     @Override
@@ -192,7 +149,7 @@ public class Network extends AbstractJuniterFX implements Initializable {
 
 
         Platform.runLater(() -> {
-            var current = JuniterBindings.currenBlock.get().getNumber();
+            var current = currenBlock.get().getNumber();
             var issuersPoints = blockService.issuersFrameFromTo(current - range, current);
 
 
@@ -216,7 +173,7 @@ public class Network extends AbstractJuniterFX implements Initializable {
         });
 
         Platform.runLater(() -> {
-            var current = JuniterBindings.currenBlock.get().getNumber();
+            var current = currenBlock.get().getNumber();
             var issuersPoints = blockService.issuersFrameFromTo(current - range, current);
 
             //issuersFrameX.setAutoRanging(false);
@@ -243,7 +200,7 @@ public class Network extends AbstractJuniterFX implements Initializable {
 
 
         Platform.runLater(() -> {
-            var current = JuniterBindings.currenBlock.get().getNumber();
+            var current = currenBlock.get().getNumber();
             var issuersPoints = blockService.issuersFrameFromTo(current - range, current);
 
             //issuersFrameX.setAutoRanging(false);
@@ -268,7 +225,7 @@ public class Network extends AbstractJuniterFX implements Initializable {
         });
 
         Platform.runLater(() -> {
-            var current = JuniterBindings.currenBlock.get().getNumber();
+            var current = currenBlock.get().getNumber();
             var issuersPoints = blockService.issuersFrameFromTo(current - range, current);
             Long prev = null;
             for (IssuersFrameDTO ifd : issuersPoints) {
@@ -334,9 +291,6 @@ public class Network extends AbstractJuniterFX implements Initializable {
         });
     }
 
-    @Autowired
-    private WebSocketPool webSocketPool;
-
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -345,16 +299,6 @@ public class Network extends AbstractJuniterFX implements Initializable {
 
         netstats.dataProperty().setValue(pieChartData);
 
-        ws2p.selectedProperty().addListener(l -> {
-            LOG.info("WS2P: running? " + ws2p.isSelected());
-
-            if (ws2p.isSelected()) {
-                webSocketPool.restart();
-            }else{
-                webSocketPool.stop();
-            }
-
-        });
 
         observableList.addListener((ListChangeListener<NetStats>) c -> {
             pieChartData.setAll(
@@ -417,6 +361,4 @@ public class Network extends AbstractJuniterFX implements Initializable {
         peerService.pings();
     }
 
-    public void ws2p(ActionEvent actionEvent) {
-    }
 }
