@@ -30,7 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import static juniter.gui.include.JuniterBindings.input;
+import static juniter.gui.JuniterBindings.input;
 
 @Getter
 @Setter

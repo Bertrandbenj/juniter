@@ -1,8 +1,8 @@
 package juniter;
 
 import com.sun.javafx.tk.Toolkit;
-import juniter.gui.FrontPage;
-import juniter.gui.include.AbstractJuniterFX;
+import juniter.gui.business.page.FrontPage;
+import juniter.gui.technical.AbstractJuniterFX;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.boot.SpringApplication;

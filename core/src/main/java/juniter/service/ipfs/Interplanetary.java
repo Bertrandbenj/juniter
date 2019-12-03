@@ -2,7 +2,6 @@ package juniter.service.ipfs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.ipfs.api.IPFS;
-import juniter.core.model.dbo.ChainParametersDTO;
 import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dto.net.DifficultiesDTO;
 import juniter.core.model.dto.node.Block;
@@ -309,7 +308,7 @@ public class Interplanetary {
         LOG.info("saving params ");
 
         try {
-            var json = new String(new ObjectMapper().writeValueAsBytes(new ModelMapper().map(blockchainService.parameters(), ChainParametersDTO.class)));
+            var json = new String(new ObjectMapper().writeValueAsBytes(blockchainService.parameters(Optional.of("g1"))));
             //LOG.info(" - json " + json);
 
             var path = dagPut(json);

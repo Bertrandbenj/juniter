@@ -3,6 +3,7 @@ package juniter.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import juniter.core.event.LogMemory;
 import juniter.core.model.dto.node.Block;
+import juniter.user.UserSettings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
@@ -29,6 +30,7 @@ public class UtilsService {
 
     @Autowired
     private ApplicationEventPublisher coreEventBus;
+
 
 
     @Autowired

@@ -4,6 +4,7 @@ import com.codahale.metrics.annotation.CachedGauge;
 import com.codahale.metrics.annotation.Counted;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import juniter.core.model.DUPDocument;
 import juniter.core.model.dbo.tx.Transaction;
 import juniter.core.model.dbo.wot.*;
 import juniter.core.utils.Constants;
@@ -15,7 +16,10 @@ import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import javax.validation.Valid;
-import javax.validation.constraints.*;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +70,7 @@ public class DBBlock implements DUPDocument, Serializable {
     // @Id
     @Size(max = 64)
     @Column(length = 64)
-    protected String hash;
+    private String hash;
 
     @Min(10)
     @Max(100)
@@ -111,9 +115,9 @@ public class DBBlock implements DUPDocument, Serializable {
 
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
+//    @JsonIgnore
     @Nullable
-    private ChainParameters parameters ;
+    private ChainParameters parameters;
 
 
     @Column(length = 64, name = "previous_hash")
@@ -201,6 +205,9 @@ public class DBBlock implements DUPDocument, Serializable {
     private List<Transaction> transactions = new ArrayList<>();
 
     public void setParameters(String string) {
+        if (string == null || string == "")
+            return;
+        parameters = new ChainParameters(currency);
         parameters.accept(string);
     }
 
@@ -208,12 +215,12 @@ public class DBBlock implements DUPDocument, Serializable {
         parameters = string;
     }
 
-
-    public ChainParameters params (){
-return         parameters;
+    public ChainParameters params() {
+        return parameters;
     }
+
     public String getParameters() {
-        return number == 0 ? parameters.toDUP() : null;
+        return (parameters != null && number == 0) ? parameters.toDUP() : null;
     }
 
 

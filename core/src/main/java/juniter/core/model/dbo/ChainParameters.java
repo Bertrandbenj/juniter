@@ -2,6 +2,7 @@ package juniter.core.model.dbo;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import juniter.core.model.DUPDocument;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,11 +19,13 @@ import javax.persistence.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "chainParam", schema = "public")
+//@Table(name = "chainParam", schema = "public", uniqueConstraints = {
+//        @UniqueConstraint(columnNames = {"currency"})
+//})
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ChainParameters implements DUPDocument {
 
-    public ChainParameters(String ccy) {
+    public ChainParameters(  String ccy) {
         currency = ccy;
     }
 
@@ -30,6 +33,9 @@ public class ChainParameters implements DUPDocument {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Short id;
 
+    /**
+     * The currency name
+     */
     private String currency;
 
     /**
@@ -185,8 +191,30 @@ public class ChainParameters implements DUPDocument {
             msPeriod = Long.parseLong(params[20]);
             sigReplay = Long.parseLong(params[21]);
         }
+    }
+
+    public void accept(ChainParameters params ){
+        this.setC(params.getC());
+        this.setCurrency(params.getCurrency());
+        this.setUdTime0(params.getUdTime0());
+        this.setUdTime0(params.getUdTime0());
+        this.setUdTime0(params.getUdTime0());
+        this.setUdTime0(params.getUdTime0());
+        this.setUdTime0(params.getUdTime0());
+        this.setUdTime0(params.getUdTime0());
+        this.setUdTime0(params.getUdTime0());
+        this.setUdTime0(params.getUdTime0());
+        this.setUdTime0(params.getUdTime0());
+        this.setUdTime0(params.getUdTime0());
+        this.setUdTime0(params.getUdTime0());
+        this.setUdTime0(params.getUdTime0());
+        this.setUdTime0(params.getUdTime0());
+        this.setUdTime0(params.getUdTime0());
+
 
     }
+
+
 
     @Override
     public String toDUP() {

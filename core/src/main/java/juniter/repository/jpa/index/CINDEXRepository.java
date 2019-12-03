@@ -1,6 +1,5 @@
 package juniter.repository.jpa.index;
 
-import juniter.core.model.dbo.ChainParameters;
 import juniter.core.model.dbo.index.CINDEX;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

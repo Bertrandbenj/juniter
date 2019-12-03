@@ -7,11 +7,11 @@ import juniter.core.model.dbo.tx.Transaction;
 import juniter.gui.game.engine.Collectable;
 import juniter.gui.game.engine.Curiosity;
 import juniter.gui.game.engine.Gate;
-import juniter.gui.include.I18N;
-import juniter.gui.include.TaxPanel;
-import juniter.gui.include.TxBox;
+import juniter.gui.technical.I18N;
+import juniter.gui.business.panel.TaxPanel;
+import juniter.gui.business.popup.TxBox;
 
-import static juniter.gui.include.JuniterBindings.*;
+import static juniter.gui.JuniterBindings.*;
 
 public class Neighbourhood extends Room {
 

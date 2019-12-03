@@ -63,7 +63,7 @@ public class PeerService {
                 while ((value = pingingQueue.take()) != null) {
                     test(EndPointType.BMAS, value);
                 }
-                Thread.sleep(2000);
+                Thread.sleep(200);
 
             } catch (Exception e) {
                 LOG.error("initConsumers ERROR " + e.getMessage());
@@ -85,7 +85,6 @@ public class PeerService {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 LOG.error(e);
-
             }
         }
 
@@ -110,7 +109,7 @@ public class PeerService {
                 next.setLastResponseTime(System.nanoTime() - prevTime);
             }
         } catch (Exception e) {
-            LOG.debug("pinging "+ e);
+            LOG.debug("pinging " + e);
         }
 
     }
@@ -129,8 +128,11 @@ public class PeerService {
                     .collect(Collectors.toList());
             urls.addAll(configuredNodes);
             urls.forEach(url -> {
-                var ns = new NetStats(new AtomicInteger(1), new AtomicInteger(1), new AtomicInteger(0), System.currentTimeMillis(), 1L, Math.random(), url);
-                queue.putIfAbsent(url, ns);
+                queue.computeIfPresent(url,(x,y)->{
+                    y.getCount().incrementAndGet();
+                    return y;
+                });
+                //queue.putIfAbsent(url, new NetStats(new AtomicInteger(1), new AtomicInteger(1), new AtomicInteger(0), System.currentTimeMillis(), 1L, Math.random(), url));
             });
         }
 
@@ -167,7 +169,7 @@ public class PeerService {
             }
         }
 
-        reload(type);
+        //reload(type);
         LOG.error("no peers found in BMAHosts[" + BMAHosts.size() + "]");
         return Optional.empty();
     }
@@ -201,7 +203,7 @@ public class PeerService {
             }
         }
 
-        reload(type);
+        //reload(type);
         LOG.error("no peers found in BMAHosts[" + queue.size() + "]");
         return res;
     }
@@ -217,16 +219,16 @@ public class PeerService {
     private void renormalize(EndPointType type) {
 
         var queue = getQueue(type);
-
+        LOG.info("renormalize " + queue);
         synchronized (queue) {
             var sum = queue.values().stream().mapToDouble(NetStats::score).sum();
             var cntAll = queue.values().stream().mapToDouble(ns -> ns.getCount().doubleValue()).sum();
             var cntSucc = queue.values().stream().mapToDouble(ns -> ns.getSuccess().doubleValue()).sum();
 
             LOG.debug("renormalize - success: " + cntSucc + "/" + cntAll);
-            LOG.debug("renormalize - top 6 : \n" + queue.values().stream()
+            LOG.info("renormalize - top 6 : \n" + queue.values().stream()
                     .sorted(Comparator.reverseOrder())
-                    .limit(6)
+                    //.filter(ns -> ns.getLastNormalizedScore() > 0.001)
                     .map(NetStats::getHost)
                     .collect(Collectors.joining(",")));
 
@@ -234,7 +236,9 @@ public class PeerService {
             coreEventBus.publishEvent(new RenormalizedNet(
                     queue.values().stream()
                             .sorted(Comparator.reverseOrder())
-                            .filter(ns -> ns.getLastNormalizedScore() > 0.001 && ns.getSuccess().get() > 1)
+                            //.filter(ns -> ns.getLastNormalizedScore() > 0.001)
+                            //.filter(ns -> ns.getSuccess().get() > 0)
+                           // .limit(6)
                             .collect(Collectors.toList())));
 
             for (Map.Entry<String, NetStats> h : queue.entrySet()) {
@@ -252,30 +256,12 @@ public class PeerService {
             var x = h.getSuccess().incrementAndGet();
             if (x > 100) {
                 LOG.debug("renormalize - reset: " + h.getHost());
-                h.getSuccess().lazySet(1);
-                h.getCount().lazySet(1);
+                h.getSuccess().incrementAndGet();
+                h.getCount().incrementAndGet();
                 h.setLastNormalizedScore(Math.random() * 0.5);
             }
             LOG.debug(" " + url + " : " + x);
         }
     }
-
-    public void reportError(EndPointType type, String url) {
-
-        var queue = getQueue(type);
-
-        synchronized (queue) {
-            var h = queue.get(url);
-            var x = h.getSuccess().incrementAndGet();
-            if (x > 100) {
-                LOG.debug("renormalize - reset: " + h.getHost());
-                h.getSuccess().lazySet(1);
-                h.getCount().lazySet(1);
-                h.setLastNormalizedScore(Math.random() * 0.5);
-            }
-            LOG.debug(" " + url + " : " + x);
-        }
-    }
-
 
 }

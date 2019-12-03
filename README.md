@@ -31,13 +31,14 @@ It is not yet a calculating node of the network
 ## Install 
 
 ```bash
-sudo apt-get install graphviz git maven postgresql libsodium-dev openjdk-11 openjfx
+sudo apt-get install graphviz git maven postgresql libsodium-dev openjdk-11-jdk openjfx
 git clone https://github.com/Bertrandbenj/juniter
 cd juniter 
+./gradlew :juniterriens:bootRun
 
 # install gradle using sdkman 
-curl -s "https://get.sdkman.io" | bash
-sdk install gradle 4.10.2
+#curl -s "https://get.sdkman.io" | bash
+#sdk install gradle 5.5
 
 
 # you may need to do things like

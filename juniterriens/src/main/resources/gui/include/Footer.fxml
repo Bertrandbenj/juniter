@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.*?>
 
 
-<HBox alignment="CENTER" styleClass="pane" BorderPane.alignment="CENTER" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.gui.include.Footer">
+<HBox alignment="CENTER" styleClass="pane" BorderPane.alignment="CENTER" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.gui.business.panel.Footer">
     <children>
         <HBox alignment="CENTER" prefHeight="75.0" prefWidth="121.0" styleClass="pane" HBox.hgrow="NEVER">
             <children>

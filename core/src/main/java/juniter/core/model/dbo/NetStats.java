@@ -32,7 +32,6 @@ public class NetStats implements Comparable<NetStats> {
         return lastNormalizedScore;
     }
 
-
     @Override
     public int compareTo(NetStats o) {
         return lastNormalizedScore.compareTo(o.lastNormalizedScore);

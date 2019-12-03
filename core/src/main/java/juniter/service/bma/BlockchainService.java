@@ -1,16 +1,18 @@
 package juniter.service.bma;
 
 import juniter.core.model.dbo.DBBlock;
-import juniter.core.model.dbo.ChainParameters;
-import juniter.core.model.dbo.ChainParametersDTO;
 import juniter.core.model.dbo.index.MINDEX;
-import juniter.core.model.dto.node.Block;
-import juniter.core.model.dto.node.WithDTO;
+import juniter.core.model.dto.ChainParametersDTO;
 import juniter.core.model.dto.net.DifficultiesDTO;
 import juniter.core.model.dto.net.Difficulty;
 import juniter.core.model.dto.net.HardshipDTO;
+import juniter.core.model.dto.node.Block;
+import juniter.core.model.dto.node.WithDTO;
 import juniter.core.model.dto.wot.MembershipDTO;
-import juniter.repository.jpa.block.*;
+import juniter.repository.jpa.block.CertsRepository;
+import juniter.repository.jpa.block.MemberRepository;
+import juniter.repository.jpa.block.ParamsRepository;
+import juniter.repository.jpa.block.TxRepository;
 import juniter.repository.jpa.index.MINDEXRepository;
 import juniter.service.BlockService;
 import juniter.service.bma.loader.BlockLoader;
@@ -30,6 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -90,6 +93,8 @@ public class BlockchainService {
 
     @Autowired
     private ModelMapper modelMapper;
+    @Autowired
+    private ParamsRepository paramsRepository;
 
     @Transactional(readOnly = true)
     @GetMapping(value = "/all")
@@ -171,7 +176,7 @@ public class BlockchainService {
      * @return A Wrapped List of Blocks
      */
     @CrossOrigin(origins = "*")
-    @GetMapping(value = "/with/{what}" ,name = "newcomers,certs,actives,revoked,leavers,excluded,ud,tx")
+    @GetMapping(value = "/with/{what}", name = "newcomers,certs,actives,revoked,leavers,excluded,ud,tx")
     @Transactional(readOnly = true)
     public WithDTO with(@PathVariable("what") String what) {
 
@@ -217,9 +222,9 @@ public class BlockchainService {
 
 
     @CrossOrigin(origins = "*")
-    @GetMapping(value = "/parameters")
-    public ChainParametersDTO parameters() {
-        return modelMapper.map(new ChainParameters(), ChainParametersDTO.class);
+    @GetMapping(value = "/parameters/{ccy}")
+    public ChainParametersDTO parameters(@PathVariable(name = "ccy", required = false) Optional<String> ccy) {
+        return modelMapper.map(blockService.paramsByCCY(ccy.orElse("g1")), ChainParametersDTO.class);
     }
 
     @CrossOrigin(origins = "*")

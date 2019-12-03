@@ -10,12 +10,12 @@ import juniter.gui.game.Game;
 import juniter.gui.game.engine.Collectable;
 import juniter.gui.game.engine.Curiosity;
 import juniter.gui.game.engine.Gate;
-import juniter.gui.include.I18N;
-import juniter.gui.include.Technology;
-import juniter.gui.include.TxBox;
+import juniter.gui.technical.I18N;
+import juniter.gui.business.panel.Technology;
+import juniter.gui.business.popup.TxBox;
 
-import static juniter.gui.include.JuniterBindings.*;
-import static juniter.gui.include.JuniterBindings.Theme.DARK_THEME;
+import static juniter.gui.JuniterBindings.*;
+import static juniter.gui.JuniterBindings.Theme.DARK_THEME;
 
 
 public class TheBeginning extends Room {

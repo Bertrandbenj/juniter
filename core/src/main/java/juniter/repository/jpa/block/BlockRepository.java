@@ -1,5 +1,6 @@
 package juniter.repository.jpa.block;
 
+import juniter.core.model.CcyStats;
 import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dbo.tx.Transaction;
 import juniter.core.model.dbo.wot.Certification;
@@ -72,6 +73,9 @@ public interface BlockRepository extends JpaRepository<DBBlock, Long> {
     // TODO clean this up
     Optional<DBBlock> findTop1ByNumber(Integer number);
 
+    @Query("FROM DBBlock b WHERE b.currency = :ccy AND b.number = :number")
+    DBBlock current(String ccy, Integer number);
+
     /**
      * Alias for current()
      *
@@ -106,6 +110,8 @@ public interface BlockRepository extends JpaRepository<DBBlock, Long> {
     @Query("SELECT number FROM DBBlock c WHERE dividend IS NOT NULL ORDER BY number")
     List<Integer> withUD();
 
+    @Query("SELECT new juniter.core.model.CcyStats(number, medianTime, membersCount, monetaryMass)  FROM DBBlock c WHERE dividend IS NOT NULL ORDER BY number")
+    List<CcyStats> statsWithUD();
 
     @Query("SELECT c FROM DBBlock c WHERE number >= ?1 AND number < ?2")
     List<DBBlock> blocksFromTo(Integer from, Integer to);

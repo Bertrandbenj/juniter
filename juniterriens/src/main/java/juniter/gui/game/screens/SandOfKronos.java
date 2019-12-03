@@ -4,7 +4,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.image.Image;
 import juniter.gui.game.engine.Curiosity;
 import juniter.gui.game.engine.Gate;
-import juniter.gui.include.I18N;
+import juniter.gui.technical.I18N;
 
 import java.util.List;
 

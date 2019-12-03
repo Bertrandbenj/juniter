@@ -13,7 +13,7 @@ import juniter.gui.game.characters.Player;
 import juniter.gui.game.characters.WhiteRabbit;
 import juniter.gui.game.screens.Room;
 import juniter.gui.game.screens.TheBeginning;
-import juniter.gui.include.I18N;
+import juniter.gui.technical.I18N;
 import juniter.repository.jpa.index.MINDEXRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,7 +27,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import static juniter.gui.include.JuniterBindings.*;
+import static juniter.gui.JuniterBindings.*;
 
 @ConditionalOnExpression("${juniter.useJavaFX:false}")
 @Component

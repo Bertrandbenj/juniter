@@ -4,19 +4,24 @@ import javafx.application.Platform;
 import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dbo.NetStats;
 import juniter.core.model.dbo.index.BINDEX;
-import juniter.gui.Network;
+import juniter.gui.business.page.Network;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static juniter.gui.include.JuniterBindings.*;
+import static juniter.gui.JuniterBindings.*;
 
 /**
  * this class interface Core events onto the GUI
  */
 @Service
 public class GuiCoreEventListener implements ApplicationListener<CoreEvent> {
+
+    private static final Logger LOG = LogManager.getLogger(GuiCoreEventListener.class);
+
 
     @Override
     public void onApplicationEvent(CoreEvent event) {
@@ -50,6 +55,7 @@ public class GuiCoreEventListener implements ApplicationListener<CoreEvent> {
                 break;
 
             case "RenormalizedNet":
+                LOG.info("RenormalizedNet" + event.getWhat());
                 Platform.runLater(() -> Network.observableList.setAll((List<NetStats>) event.getWhat()));
                 break;
 

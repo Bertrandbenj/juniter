@@ -261,7 +261,7 @@ public class BlockLoader implements BlockLocalValid {
 
                     block = restTemplate.getForObject(url, DBBlock.class);
 
-                    LOG.info("  Fetched ... : " + id + " => " + block.getHash());
+                    LOG.info("  Fetched ... : " + url + " => " + block.getHash());
 
                 } catch (Exception e) {
                     LOG.warn("Exception accessing node " + url + " " + e.getMessage());

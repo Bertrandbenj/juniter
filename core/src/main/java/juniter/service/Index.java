@@ -26,6 +26,7 @@ import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -69,8 +70,6 @@ public class Index implements GlobalValid {
     private BlockService blockService;
 
 
-
-
     @Value("${juniter.startIndex:false}")
     private boolean startIndex;
 
@@ -78,6 +77,15 @@ public class Index implements GlobalValid {
     private EntityManager entityManager;
 
     private Boolean indexing = false;
+
+
+    @PostConstruct
+    public void init() {
+        LOG.info("Init Indexes: ");
+
+        //bRepo.head().ifPresent(b->coreEventBuss.publishEvent(new NewBINDEX(b)));
+
+    }
 
     /**
      * hack to create account VIEW after SQL table's init.
@@ -100,7 +108,7 @@ public class Index implements GlobalValid {
             }
 
         } catch (Exception e) {
-            LOG.warn("Error creating Account view ", e.getLocalizedMessage());
+            LOG.warn("creating Account view " + e.getCause());
 
         }
 
@@ -117,7 +125,14 @@ public class Index implements GlobalValid {
 
     @Transactional
     @Counted(absolute = true)
-    private void init(boolean resetDB) {
+    private void init(boolean resetDB, String ccy) {
+        try {
+            var params = blockService.paramsByCCY(ccy);
+            conf.accept(params);
+        } catch (Exception e) {
+            LOG.error(e, e);
+        }
+
         if (resetDB) {
             cRepo.deleteAll();
             iRepo.deleteAll();
@@ -146,6 +161,11 @@ public class Index implements GlobalValid {
 
     }
 
+    public List<String> getIssuers() {
+
+        return bRepo.findAll().stream().map(BINDEX::getIssuer).distinct().collect(Collectors.toList());
+
+    }
 
     @Transactional
     @Override
@@ -164,6 +184,7 @@ public class Index implements GlobalValid {
 
     @Transactional
     @Override
+    @Counted(absolute = true)
     public boolean commit(BINDEX indexB,
                           Set<IINDEX> indexI, Set<MINDEX> indexM, Set<CINDEX> indexC, Set<SINDEX> indexS) {
 
@@ -320,22 +341,25 @@ public class Index implements GlobalValid {
 
     /**
      * mostly technical function to error handle, parametrized, log the validation function
+     * <p>
+     * Asynchronous to the thread that calls it, once at a time
+     * FIXME java synchronized will be a problem for more than one currency indexing
      *
      * @param syncUntil a specific block number
      * @param quick     whether or not to index quickly
      */
     @Async
     @Timed(longTask = true, histogram = true)
-    public synchronized void indexUntil(int syncUntil, boolean quick) {
+    public synchronized void indexUntil(int syncUntil, boolean quick, String ccy) {
 
-        LOG.info("indexUntil " + syncUntil + " , quick? " + quick);
-        init(false);
+        LOG.info("indexUntil " + syncUntil + " , quick? " + quick+ " , ccy? " + ccy);
+        init(false, ccy);
         var baseTime = System.currentTimeMillis();
         var time = System.currentTimeMillis();
         long delta;
         int reverted = 0;
 
-        for (int bnum = head().map(h -> h.getNumber() + 1).orElse(0); bnum <= syncUntil; bnum++) { // && Bus.isIndexing.get()
+        for (int bnum = head().map(h -> h.getNumber() + 1).orElse(0); bnum <= syncUntil; bnum++) {
             final int finalBnum = bnum;
 
 
@@ -379,11 +403,11 @@ public class Index implements GlobalValid {
         setIndexing(false);
     }
 
-    public void reset(boolean resetDB) {
-        init(resetDB);
+    public void reset(boolean resetDB, String ccy) {
+        init(resetDB, ccy);
     }
 
-    public void revert1() {
+    public void revert1(String ccy) {
         bRepo.head().ifPresent(h -> {
             bRepo.delete(h);
 
@@ -405,7 +429,7 @@ public class Index implements GlobalValid {
 
             coreEventBuss.publishEvent(new LogIndex("Reverted to " + h.getNumber() + " from " + h));
 
-            reset(false);
+            reset(false, ccy);
         });
     }
 }

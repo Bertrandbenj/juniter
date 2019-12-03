@@ -1,8 +1,11 @@
 package juniter.service;
 
 import juniter.core.event.DecrementCurrent;
+import juniter.core.event.NewBINDEX;
 import juniter.core.event.NewBlock;
+import juniter.core.model.CcyStats;
 import juniter.core.model.dbo.BStamp;
+import juniter.core.model.dbo.ChainParameters;
 import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dbo.tx.Transaction;
 import juniter.core.model.dbo.wot.Certification;
@@ -11,19 +14,24 @@ import juniter.core.model.dbo.wot.Member;
 import juniter.core.model.dto.node.IssuersFrameDTO;
 import juniter.core.validation.BlockLocalValid;
 import juniter.repository.jpa.block.BlockRepository;
+import juniter.repository.jpa.block.ParamsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
-public class BlockService implements BlockLocalValid {
+public class BlockService implements BlockLocalValid, ApplicationListener<NewBINDEX> {
 
     @Autowired
     private BlockRepository blockRepo;
@@ -31,6 +39,19 @@ public class BlockService implements BlockLocalValid {
     @Autowired
     private ApplicationEventPublisher coreEventBus;
 
+    @Autowired
+    private ParamsRepository paramsRepository;
+
+
+    @Cacheable(value = "params")
+    public ChainParameters paramsByCCY(String ccy) {
+        return paramsRepository.paramsByCCY(ccy);
+    }
+
+    //@Cacheable(value = "ccys")
+    List<String> existingCCYs() {
+        return paramsRepository.existingCCY();
+    }
 
     public Optional<DBBlock> block(Integer num) {
         return blockRepo.block(num);
@@ -49,8 +70,12 @@ public class BlockService implements BlockLocalValid {
         return blockRepo.findTop1ByNumber(num);
     }
 
+    public Optional<DBBlock> current(Integer num) {
+        return blockRepo.findTop1ByNumber(num);
+    }
 
-    public Optional<DBBlock> blockOpt(Integer num, String hash) {
+
+    private Optional<DBBlock> blockOpt(Integer num, String hash) {
         return blockRepo.block(num, hash);
     }
 
@@ -87,8 +112,16 @@ public class BlockService implements BlockLocalValid {
         return blockRepo.findTop1ByOrderByNumberDesc();
     }
 
+    public DBBlock current(String ccy) {
+        return blockRepo.current(ccy, currents.get(ccy));
+    }
+
     public List<Integer> withUD() {
         return blockRepo.withUD();
+    }
+
+    public List<CcyStats> statsWithUD() {
+        return blockRepo.statsWithUD();
     }
 
     public Stream<DBBlock> with(Predicate<DBBlock> predicate) {
@@ -114,7 +147,7 @@ public class BlockService implements BlockLocalValid {
     public Optional<DBBlock> localSave(DBBlock block) throws AssertionError {
         //LOG.error("localsavng  "+node.getNumber());
 
-        if(block.getNumber().equals(0)){
+        if (block.getNumber().equals(0) && block.params() != null) {
             block.params().setCurrency(block.getCurrency());
         }
 
@@ -180,8 +213,9 @@ public class BlockService implements BlockLocalValid {
                 return Optional.empty();
             }
         } else {
-            LOG.error("Error localSave block " + block.getNumber());
-
+            LOG.error("Error localSave block " + block.getNumber()
+                    + " :  BlockIsLocalValid " + checkBlockIsLocalValid(block)
+                    + ", block doesn't exists just yet " + blockOpt(block.getNumber(), block.getHash()).isEmpty());
         }
 
 
@@ -217,5 +251,16 @@ public class BlockService implements BlockLocalValid {
 
     public List<DBBlock> findAll() {
         return blockRepo.findAll();
+    }
+
+
+    private Map<String, Integer> currents = new HashMap<>();
+
+    @Override
+    public void onApplicationEvent(NewBINDEX newBINDEX) {
+        var currentNumber = newBINDEX.getWhat().getNumber();
+        var currentCCY = newBINDEX.getWhat().getCurrency();
+        currents.put(currentCCY, currentNumber);
+
     }
 }

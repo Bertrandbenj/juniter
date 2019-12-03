@@ -4,7 +4,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.util.Duration;
-import juniter.gui.include.I18N;
+import juniter.gui.technical.I18N;
 import juniter.gui.game.characters.Player;
 import juniter.gui.game.engine.Collectable;
 import juniter.gui.game.engine.Curiosity;

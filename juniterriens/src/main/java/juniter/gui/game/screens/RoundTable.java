@@ -10,8 +10,8 @@ import juniter.gui.game.engine.Collectable;
 import juniter.gui.game.engine.Curiosity;
 import juniter.gui.game.engine.Gate;
 import juniter.gui.game.engine.Utils;
-import juniter.gui.include.I18N;
-import juniter.gui.include.TxBox;
+import juniter.gui.technical.I18N;
+import juniter.gui.business.popup.TxBox;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

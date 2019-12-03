@@ -4,7 +4,7 @@ import javafx.scene.image.Image;
 import juniter.gui.game.engine.Collectable;
 import juniter.gui.game.engine.Curiosity;
 import juniter.gui.game.engine.Gate;
-import juniter.gui.include.TxBox;
+import juniter.gui.business.popup.TxBox;
 
 public class Snaky extends Room {
 

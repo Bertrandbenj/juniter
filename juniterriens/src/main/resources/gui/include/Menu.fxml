@@ -5,7 +5,7 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <VBox maxWidth="130.0" styleClass="pane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="juniter.gui.include.Menu">
+      fx:controller="juniter.gui.business.panel.Menu">
     <children>
         <VBox fx:id="vMenu" alignment="CENTER" VBox.vgrow="ALWAYS">
             <padding>
@@ -44,7 +44,7 @@
                         <ImageView fx:id="logoNotary" fitHeight="100.0" fitWidth="120.0" pickOnBounds="true"
                                    preserveRatio="true">
                             <image>
-                                <Image url="@../images/logo.png"/>
+                                <Image url="@../images/keep_calm_im_the_notary_puzzle.jpg"/>
                             </image>
                         </ImageView>
                     </graphic>
@@ -57,7 +57,20 @@
                         <ImageView fx:id="logoNetwork" fitHeight="100.0" fitWidth="120.0" pickOnBounds="true"
                                    preserveRatio="true">
                             <image>
-                                <Image url="@../images/logo.png"/>
+                                <Image url="@../images/network.png"/>
+                            </image>
+                        </ImageView>
+                    </graphic>
+                    <tooltip>
+                        <Tooltip text="%menu.tooltip.network"/>
+                    </tooltip>
+                </Hyperlink>
+                <Hyperlink onAction="#viewCurrencies">
+                    <graphic>
+                        <ImageView fx:id="logoCurrencies" fitHeight="100.0" fitWidth="120.0" pickOnBounds="true"
+                                   preserveRatio="true">
+                            <image>
+                                <Image url="@../images/g1.png"/>
                             </image>
                         </ImageView>
                     </graphic>
@@ -70,7 +83,7 @@
                         <ImageView fx:id="logoDatabase" fitHeight="100.0" fitWidth="120.0" pickOnBounds="true"
                                    preserveRatio="true">
                             <image>
-                                <Image url="@../images/logo.png"/>
+                                <Image url="@../images/database.png"/>
                             </image>
                         </ImageView>
                     </graphic>
@@ -78,12 +91,12 @@
                         <Tooltip text="%menu.tooltip.database"/>
                     </tooltip>
                 </Hyperlink>
-                <Hyperlink onAction="#viewSpark">
+                <Hyperlink onAction="#viewSpark" id="sparkMenuButton">
                     <graphic>
                         <ImageView fx:id="logoSpark" fitHeight="100.0" fitWidth="120.0" pickOnBounds="true"
                                    preserveRatio="true">
                             <image>
-                                <Image url="@../images/logo.png"/>
+                                <Image url="@../images/spark.png"/>
                             </image>
                         </ImageView>
                     </graphic>
@@ -96,7 +109,7 @@
                         <ImageView fx:id="logoSettings" fitHeight="100.0" fitWidth="120.0" pickOnBounds="true"
                                    preserveRatio="true">
                             <image>
-                                <Image url="@../images/logo.png"/>
+                                <Image url="@../images/settings.png"/>
                             </image>
                         </ImageView>
                     </graphic>

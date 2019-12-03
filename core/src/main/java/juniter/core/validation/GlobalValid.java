@@ -104,8 +104,7 @@ public interface GlobalValid {
 
     ChainParameters conf = new ChainParameters();
 
-
-    private int bIndexSize() {
+    default int bIndexSize() {
         Optional<BINDEX> tail = IndexB.stream().min(Comparator.comparingInt(BINDEX::getNumber));
         //BINDEX head = IndexB.stream().max(Comparator.comparingInt(b -> b.number)).orElseThrow();
 

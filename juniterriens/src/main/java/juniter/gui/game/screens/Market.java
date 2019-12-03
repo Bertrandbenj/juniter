@@ -3,7 +3,7 @@ package juniter.gui.game.screens;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.paint.Color;
-import juniter.gui.include.I18N;
+import juniter.gui.technical.I18N;
 import juniter.gui.game.Game;
 import juniter.gui.game.characters.Player;
 import juniter.gui.game.engine.Boat;

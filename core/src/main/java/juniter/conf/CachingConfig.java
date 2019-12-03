@@ -17,13 +17,13 @@ import java.util.concurrent.TimeUnit;
 public class CachingConfig {
 
 
-
     @Bean
     public CacheManager cacheManager() {
         var cacheManager = new SimpleCacheManager();
         cacheManager.setCaches(Arrays.asList(
                 buildSandboxesCache(),
-                buildBlockCache())
+                buildBlockCache(),
+                buildParamsCache())
         );
 
         return cacheManager;
@@ -46,6 +46,18 @@ public class CachingConfig {
                 .expireAfterAccess(3, TimeUnit.MINUTES)
                 //.recordStats()
                 .maximumSize(1000)
+                .ticker(Ticker.systemTicker())
+                //.ticker(ticker())
+                .build());
+    }
+
+    private CaffeineCache buildParamsCache() {
+        return new CaffeineCache("params", Caffeine.newBuilder()
+
+                .expireAfterWrite(500, TimeUnit.MINUTES)
+                .expireAfterAccess(300, TimeUnit.MINUTES)
+                //.recordStats()
+                .maximumSize(10)
                 .ticker(Ticker.systemTicker())
                 //.ticker(ticker())
                 .build());
