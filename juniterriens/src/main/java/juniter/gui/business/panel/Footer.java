@@ -34,16 +34,16 @@ public class Footer implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         LOG.debug("initialize Footer.fxml");
         // bind indicators
-        indexIndic.progressProperty().bind(currentBindex.divide(maxBindex));
-        downloadIndic.progressProperty().bind(currentDBBlock.divide(maxPeerBlock));
+        indexIndic.progressProperty().bind(currentBindexN.divide(highestDBBlock));
+        downloadIndic.progressProperty().bind(currentDBBlockNum.divide(maxPeerBlock));
 
         // bind logger
 
 
         indexLog.textProperty().bind(new SimpleStringProperty("Index : ")
-                .concat(javafx.beans.binding.Bindings.format("%,.2f", currentBindex.multiply(100).divide(currentDBBlock)))
-                .concat("% - HEAD: ").concat(currentBindex)
-                .concat(" - DB: ").concat(currentDBBlock)
+                .concat(javafx.beans.binding.Bindings.format("%,.2f", currentBindexN.multiply(100).divide(currentDBBlockNum)))
+                .concat("% - HEAD: ").concat(currentBindexN)
+                .concat(" - DB: ").concat(currentDBBlockNum)
                 .concat(" - ").concat(indexLogMessage));
         peerLog.textProperty().bind(new SimpleStringProperty("Peers : ")
                 .concat(maxPeerBlock)

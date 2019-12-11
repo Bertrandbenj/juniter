@@ -6,6 +6,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import juniter.core.crypto.SecretBox;
 import juniter.core.model.dbo.DBBlock;
+import juniter.core.model.dbo.index.BINDEX;
 import juniter.core.model.dbo.index.CINDEX;
 import juniter.core.model.dbo.tx.Transaction;
 import juniter.core.model.dbo.tx.TxInput;
@@ -66,10 +67,10 @@ public interface JuniterBindings {
 
 
     // updatable value from the outside
-    DoubleProperty currentBindex = new SimpleDoubleProperty(.0);
-    DoubleProperty maxBindex = new SimpleDoubleProperty(42.);
-    DoubleProperty currentDBBlock = new SimpleDoubleProperty(42.);
-    DoubleProperty maxDBBlock = new SimpleDoubleProperty(42.);
+    ObjectProperty<BINDEX> currentBindex = new SimpleObjectProperty(null);
+    IntegerProperty  currentBindexN = new SimpleIntegerProperty(0);
+     DoubleProperty currentDBBlockNum = new SimpleDoubleProperty(42.);
+    DoubleProperty highestDBBlock = new SimpleDoubleProperty(42.);
 
     DoubleProperty maxPeerBlock = new SimpleDoubleProperty(42.);
 

@@ -76,7 +76,7 @@ public class MissingBlocksLoader {
             return;
         }
 
-        LOG.info("@Scheduled checkMissingBlocks ");
+        LOG.info("checkMissingBlocks ");
         final var start = System.nanoTime();
 
 

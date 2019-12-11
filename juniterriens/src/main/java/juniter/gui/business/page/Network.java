@@ -1,19 +1,20 @@
 package juniter.gui.business.page;
 
-import javafx.application.Platform;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.*;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Tooltip;
 import javafx.stage.Stage;
 import juniter.core.model.dbo.NetStats;
-import juniter.core.model.dto.node.IssuersFrameDTO;
+import juniter.core.model.dto.node.BlockNetworkMeta;
 import juniter.gui.technical.AbstractJuniterFX;
+import juniter.gui.technical.I18N;
 import juniter.service.BlockService;
 import juniter.service.bma.PeerService;
 import juniter.service.bma.loader.PeerLoader;
@@ -28,7 +29,8 @@ import java.text.DecimalFormat;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
-import static juniter.gui.JuniterBindings.currenBlock;
+import static juniter.gui.JuniterBindings.currentBindex;
+import static juniter.gui.JuniterBindings.currentBindexN;
 
 @ConditionalOnExpression("${juniter.useJavaFX:false}")
 @Component
@@ -40,31 +42,31 @@ public class Network extends AbstractJuniterFX implements Initializable {
     @FXML
     private ComboBox<String> period;
     @FXML
-    private PieChart netstats;
+    private PieChart netStatsChart;
 
     @FXML
-    private LineChart<Integer, Long> medianTime;
+    private LineChart<Integer, Long> medianTimeChart;
     @FXML
     private NumberAxis medianY;
     @FXML
     private NumberAxis medianX;
 
     @FXML
-    private LineChart<Integer, Integer> issuersFrame;
+    private LineChart<Integer, Integer> issuersFrameChart;
     @FXML
     private NumberAxis issuersFrameX;
     @FXML
     private NumberAxis issuersFrameY;
 
     @FXML
-    private StackedAreaChart<Integer, Integer> pow;
+    private StackedAreaChart<Integer, Integer> powChart;
     @FXML
     private NumberAxis powX;
     @FXML
     private NumberAxis powY;
 
     @FXML
-    private LineChart<Integer, Integer> issuersFrameVar;
+    private LineChart<Integer, Integer> issuersFrameVarChart;
     @FXML
     private NumberAxis issuersFrameVarX;
     @FXML
@@ -81,14 +83,21 @@ public class Network extends AbstractJuniterFX implements Initializable {
     private BlockService blockService;
 
 
-    public static ObservableList<NetStats> observableList = FXCollections.observableArrayList();
-    private static ObservableList<String> periodList = FXCollections.observableArrayList("Day", "Week", "Month", "Equinox", "Year", "All");
-    private static ObservableList<PieChart.Data> pieChartData =
+    public static ObservableList<NetStats> observableNetStats = FXCollections.observableArrayList();
+    private static ObservableList<String> observablePeriodList = FXCollections.observableArrayList("Day", "Week", "Month", "Equinox", "Year", "All");
+    private static ObservableList<PieChart.Data> netPieChartData =
             FXCollections.observableArrayList(
                     new PieChart.Data("Node A", 10),
                     new PieChart.Data("Node B", 10),
                     new PieChart.Data("Node C", 10));
 
+    public static ObservableList<BlockNetworkMeta> observableBlockNetInfos = FXCollections.observableArrayList();
+
+    XYChart.Series<Integer, Integer> seriesPOW = new XYChart.Series<>();
+    XYChart.Series<Integer, Integer> issuerFrameVarChartData = new XYChart.Series<>();
+    XYChart.Series<Integer, Integer> seriesIF = new XYChart.Series<>();
+    XYChart.Series<Integer, Long> mtSeries1 = new XYChart.Series<>();
+    XYChart.Series<Integer, Long> mtSeries2 = new XYChart.Series<>();
 
     @FXML
     public void pairing() {
@@ -101,7 +110,6 @@ public class Network extends AbstractJuniterFX implements Initializable {
     }
 
 
-
     @Override
     public void start(Stage primaryStage) {
         LOG.info("Starting Network");
@@ -110,139 +118,18 @@ public class Network extends AbstractJuniterFX implements Initializable {
         primaryStage.show();
     }
 
-    private Integer PERIOD = 3 * 288;
+    private IntegerProperty PERIOD = new SimpleIntegerProperty(3 * 288);
 
     @FXML
     @SuppressWarnings("unchecked")
     private void refreshGraphs() {
 
 
-        final var range = PERIOD;
-        final var tick = (range / 4);
-
-
-        Platform.runLater(() -> {
-            var current = currenBlock.get().getNumber();
-            var issuersPoints = blockService.issuersFrameFromTo(current - range, current);
-
-
-            //issuersFrameVarX.setAutoRanging(false);
-            issuersFrameVarX.setTickUnit(tick);
-            issuersFrameVarX.setLowerBound(current - range);
-            issuersFrameVarX.setUpperBound(current);
-
-            // issuersFrameVarY.setAutoRanging(false);
-            issuersFrameVarY.setLowerBound(issuersPoints.stream().mapToInt(IssuersFrameDTO::getIssuersFrameVar).min().orElse(0) - 10);
-            issuersFrameVarY.setUpperBound(issuersPoints.stream().mapToInt(IssuersFrameDTO::getIssuersFrameVar).max().orElse(0) + 10);
-
-            XYChart.Series<Integer, Integer> series = new XYChart.Series<>();
-            series.getData().addAll(issuersPoints.stream()
-                    .map(frame -> new XYChart.Data<>(frame.getNumber(), frame.getIssuersFrameVar()))
-                    .collect(Collectors.toList()));
-
-            //issuersFrame.setCreateSymbols(false);
-
-            issuersFrameVar.getData().setAll(series);
-        });
-
-        Platform.runLater(() -> {
-            var current = currenBlock.get().getNumber();
-            var issuersPoints = blockService.issuersFrameFromTo(current - range, current);
-
-            //issuersFrameX.setAutoRanging(false);
-            issuersFrameX.setTickUnit(tick);
-            issuersFrameX.setLowerBound(current - range);
-            issuersFrameX.setUpperBound(current);
-
-            //issuersFrameY.setAutoRanging(false);
-//            issuersFrameVarY.setLowerBound(50);
-//            issuersFrameVarY.setUpperBound(180);
-
-            issuersFrameY.setLowerBound(issuersPoints.stream().mapToInt(IssuersFrameDTO::getIssuersFrame).min().orElse(80) - 10);
-            issuersFrameY.setUpperBound(issuersPoints.stream().mapToInt(IssuersFrameDTO::getIssuersFrame).max().orElse(250) + 10);
-            XYChart.Series<Integer, Integer> series = new XYChart.Series<>();
-
-            series.getData().addAll(issuersPoints.stream()
-                    .map(frame -> new XYChart.Data<>(frame.getNumber(), frame.getIssuersFrame()))
-                    .collect(Collectors.toList()));
-
-            //issuersFrame.setCreateSymbols(false);
-
-            issuersFrame.getData().setAll(series);
-        });
-
-
-        Platform.runLater(() -> {
-            var current = currenBlock.get().getNumber();
-            var issuersPoints = blockService.issuersFrameFromTo(current - range, current);
-
-            //issuersFrameX.setAutoRanging(false);
-            powX.setTickUnit(tick);
-            powX.setLowerBound(current - range);
-            powX.setUpperBound(current);
-
-            //issuersFrameY.setAutoRanging(false);
-//            issuersFrameVarY.setLowerBound(50);
-//            issuersFrameVarY.setUpperBound(180);
-
-            powY.setLowerBound(issuersPoints.stream().mapToInt(IssuersFrameDTO::getPowMin).min().orElse(0) - 10);
-            powY.setUpperBound(issuersPoints.stream().mapToInt(IssuersFrameDTO::getPowMin).max().orElse(250) + 10);
-            XYChart.Series<Integer, Integer> series = new XYChart.Series<>();
-
-            series.getData().addAll(issuersPoints.stream()
-                    .map(frame -> new XYChart.Data<>(frame.getNumber(), frame.getPowMin()))
-                    .collect(Collectors.toList()));
-
-
-            pow.getData().setAll(series);
-        });
-
-        Platform.runLater(() -> {
-            var current = currenBlock.get().getNumber();
-            var issuersPoints = blockService.issuersFrameFromTo(current - range, current);
-            Long prev = null;
-            for (IssuersFrameDTO ifd : issuersPoints) {
-                if (prev != null) {
-                    var tmp = ifd.getMedianTime();
-                    ifd.setMedianTime(tmp - prev);
-                    prev = tmp;
-                } else {
-                    prev = ifd.getMedianTime();
-                    ifd.setMedianTime(100L);
-                }
-
-            }
-
-            //issuersFrameX.setAutoRanging(false);
-            medianX.setTickUnit(tick);
-            medianX.setLowerBound(current - range);
-            medianX.setUpperBound(current);
-
-//            issuersFrameVarY.setLowerBound(50);
-//            issuersFrameVarY.setUpperBound(180);
-
-//            var medianMin = issuersPoints.stream().mapToLong(IssuersFrameDTO::getMedianTime).min().orElse(0);
-//            var medianMax = issuersPoints.stream().mapToLong(IssuersFrameDTO::getMedianTime).max().orElse(250);
-            medianY.setAutoRanging(false);
-            medianY.setLowerBound(0);
-            medianY.setUpperBound(1000);
-
-            XYChart.Series<Integer, Long> series = new XYChart.Series<>();
-
-            series.getData().addAll(issuersPoints.stream()
-                    .map(frame -> new XYChart.Data<>(frame.getNumber(), frame.getMedianTime()))
-                    .peek(f -> Tooltip.install(f.getNode(), new Tooltip(df.format(f.getYValue()) + "XX")))
-
-                    .collect(Collectors.toList()));
-
-
-            medianTime.getData().setAll(series);
-
             /*
              * Browsing through the Data and applying ToolTip
              * as well as the class on hover
-             */
-            for (XYChart.Series<Integer, Long> s : medianTime.getData()) {
+
+            for (XYChart.Series<Integer, Long> s : medianTimeChart.getData()) {
                 for (XYChart.Data<Integer, Long> d : s.getData()) {
                     Tooltip.install(d.getNode(), new Tooltip(
                             d.getXValue().toString() + "\n" +
@@ -259,23 +146,99 @@ public class Network extends AbstractJuniterFX implements Initializable {
                     }
                 }
             }
+*/
 
-
-        });
     }
 
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-        period.setItems(periodList);
+        period.setItems(observablePeriodList);
 
-        netstats.dataProperty().setValue(pieChartData);
+        netStatsChart.dataProperty().setValue(netPieChartData);
+
+        // BIND AXIS BOUNDS
+        powX.tickUnitProperty().bind(PERIOD.divide(4));
+        powX.lowerBoundProperty().bind(currentBindexN.subtract(PERIOD));
+        powX.upperBoundProperty().bind(currentBindexN);
+
+        medianX.tickUnitProperty().bind(PERIOD.divide(4));
+        medianX.lowerBoundProperty().bind(currentBindexN.subtract(PERIOD));
+        medianX.upperBoundProperty().bind(currentBindexN);
+
+        issuersFrameX.tickUnitProperty().bind(PERIOD.divide(4));
+        issuersFrameX.lowerBoundProperty().bind(currentBindexN.subtract(PERIOD));
+        issuersFrameX.upperBoundProperty().bind(currentBindexN);
+
+        issuersFrameVarX.tickUnitProperty().bind(PERIOD.divide(4));
+        issuersFrameVarX.lowerBoundProperty().bind(currentBindexN.subtract(PERIOD));
+        issuersFrameVarX.upperBoundProperty().bind(currentBindexN);
+
+//        medianY.setAutoRanging(false);
+//        medianY.setLowerBound(0);
+//        medianY.setUpperBound(1000);
 
 
-        observableList.addListener((ListChangeListener<NetStats>) c -> {
-            LOG.info("observableList.addListener");
-            pieChartData.setAll(
+        currentBindex.addListener(cl -> observableBlockNetInfos.setAll(blockService.issuersFrameFromTo(currentBindexN.subtract(PERIOD).intValue(), currentBindexN.get())));
+
+
+        powChart.getData().setAll(seriesPOW);
+        issuersFrameVarChart.getData().setAll(issuerFrameVarChartData);
+        issuersFrameChart.getData().setAll(seriesIF);
+        medianTimeChart.getData().setAll(mtSeries1, mtSeries2);
+
+        observableBlockNetInfos.addListener((ListChangeListener<BlockNetworkMeta>) netInfos -> {
+            LOG.debug(" ==== REBUILD POW GRAPH");
+            powY.setLowerBound(netInfos.getList().stream().mapToInt(BlockNetworkMeta::getPowMin).min().orElse(0) - 10);
+            powY.setUpperBound(netInfos.getList().stream().mapToInt(BlockNetworkMeta::getPowMin).max().orElse(250) + 10);
+            seriesPOW.getData().setAll(netInfos.getList().stream()
+                    .map(frame -> new XYChart.Data<>(frame.getNumber(), frame.getPowMin()))
+                    .collect(Collectors.toList()));
+
+            LOG.debug(" ==== REBUILD ISSUER FRAME VAR GRAPH");
+            issuersFrameVarY.setLowerBound(netInfos.getList().stream().mapToInt(BlockNetworkMeta::getIssuersFrameVar).min().orElse(0) - 10);
+            issuersFrameVarY.setUpperBound(netInfos.getList().stream().mapToInt(BlockNetworkMeta::getIssuersFrameVar).max().orElse(0) + 10);
+            issuerFrameVarChartData.getData().addAll(netInfos.getList().stream()
+                    .map(frame -> new XYChart.Data<>(frame.getNumber(), frame.getIssuersFrameVar()))
+                    .collect(Collectors.toList()));
+
+            LOG.debug(" ==== REBUILD ISSUER FRAME GRAPH");
+            issuersFrameY.setLowerBound(netInfos.getList().stream().mapToInt(BlockNetworkMeta::getIssuersFrame).min().orElse(80) - 10);
+            issuersFrameY.setUpperBound(netInfos.getList().stream().mapToInt(BlockNetworkMeta::getIssuersFrame).max().orElse(250) + 10);
+            seriesIF.getData().addAll(netInfos.getList().stream()
+                    .map(frame -> new XYChart.Data<>(frame.getNumber(), frame.getIssuersFrame()))
+                    .collect(Collectors.toList()));
+
+            LOG.debug(" ==== REBUILD MEDIAN TIME GRAPH");
+            Long prev = null;
+            for (BlockNetworkMeta ifd : netInfos.getList()) {
+                if (prev != null) {
+                    var tmp = ifd.getMedianTime();
+                    ifd.setMedianTime(tmp - prev);
+                    prev = tmp;
+                } else {
+                    prev = ifd.getMedianTime();
+                    ifd.setMedianTime(300L);
+                }
+
+            }
+            var avg = (long) netInfos.getList().stream().mapToLong(BlockNetworkMeta::getMedianTime).average().orElseThrow();
+            mtSeries1.getData().addAll(netInfos.getList().stream()
+                    .map(frame -> new XYChart.Data<>(frame.getNumber(), frame.getMedianTime()))
+                    .collect(Collectors.toList()));
+            mtSeries2.getData().addAll(netInfos.getList().stream()
+                    .map(frame -> new XYChart.Data<>(frame.getNumber(), avg))
+                    .collect(Collectors.toList()));
+            medianTimeChart.setTitle(I18N.get("net.medianTime") + " (avg: " + avg + "s)");
+
+
+        });
+
+
+        observableNetStats.addListener((ListChangeListener<NetStats>) c -> {
+            LOG.info("observableNetStats.addListener");
+            netPieChartData.setAll(
                     c.getList().stream()
                             .map(ns -> {
                                 var st = ns.getHost().substring(ns.getHost().indexOf("://") + 3);
@@ -286,8 +249,8 @@ public class Network extends AbstractJuniterFX implements Initializable {
                             })
                             .collect(Collectors.toList()));
 
-            for (final PieChart.Data data : pieChartData) {
-                Tooltip.install(data.getNode(), new Tooltip(df.format(data.getPieValue() * 100) + "%"  ));
+            for (final PieChart.Data data : netPieChartData) {
+                Tooltip.install(data.getNode(), new Tooltip(df.format(data.getPieValue() * 100) + "%"));
             }
 
         });
@@ -295,36 +258,36 @@ public class Network extends AbstractJuniterFX implements Initializable {
         period.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> {
                     try {
-                        PERIOD = Integer.parseInt(newValue);
+                        PERIOD.set(Integer.parseInt(newValue));
                     } catch (Exception e) {
                         switch (newValue) {
                             case "Day":
-                                PERIOD = 288;
+                                PERIOD.set(288);
                                 break;
                             case "Week":
-                                PERIOD = 7 * 288;
+                                PERIOD.set(7 * 288);
                                 break;
                             case "Month":
-                                PERIOD = 30 * 288;
+                                PERIOD.set(30 * 288);
                                 break;
                             case "Equinox":
-                                PERIOD = 183 * 288;
+                                PERIOD.set(183 * 288);
                                 break;
                             case "Year":
-                                PERIOD = 365 * 288;
+                                PERIOD.set(365 * 288);
                                 break;
                             case "All":
-                                PERIOD = 730 * 288;
+                                PERIOD.set(730 * 288);
                                 break;
                             default:
-                                PERIOD = 3 * 288;
+                                PERIOD.set(3 * 288);
                         }
                     }
-                    refreshGraphs();
+                    observableBlockNetInfos.setAll(blockService.issuersFrameFromTo(currentBindexN.subtract(PERIOD).intValue(), currentBindexN.get()));
+
                 });
 
-        refreshGraphs();
-
+        observableBlockNetInfos.setAll(blockService.issuersFrameFromTo(currentBindexN.subtract(PERIOD).intValue(), currentBindexN.get()));
 
     }
 

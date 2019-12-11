@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class IssuersFrameDTO   {
+public class BlockNetworkMeta {
 
     private Integer number;
     private Integer issuersFrame;

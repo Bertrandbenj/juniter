@@ -11,7 +11,7 @@ import juniter.core.model.dbo.tx.Transaction;
 import juniter.core.model.dbo.wot.Certification;
 import juniter.core.model.dbo.wot.Identity;
 import juniter.core.model.dbo.wot.Member;
-import juniter.core.model.dto.node.IssuersFrameDTO;
+import juniter.core.model.dto.node.BlockNetworkMeta;
 import juniter.core.validation.BlockLocalValid;
 import juniter.repository.jpa.block.BlockRepository;
 import juniter.repository.jpa.block.ParamsRepository;
@@ -222,7 +222,7 @@ public class BlockService implements BlockLocalValid, ApplicationListener<NewBIN
         return Optional.empty();
     }
 
-    public List<IssuersFrameDTO> issuersFrameFromTo(int i, Integer current) {
+    public List<BlockNetworkMeta> issuersFrameFromTo(int i, Integer current) {
         return blockRepo.issuersFrameFromTo(i, current);
     }
 

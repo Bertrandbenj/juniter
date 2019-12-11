@@ -81,7 +81,7 @@ public class PeerLoader {
 
     private Optional<String> anyNotIn(final List<String> triedURL) {
         Collections.shuffle(configuredNodes);
-        return configuredNodes.stream()
+                return configuredNodes.stream()
                 .filter(node -> triedURL == null || !triedURL.contains(node))
                 .findAny();
     }
@@ -148,7 +148,7 @@ public class PeerLoader {
                     return;
 
                 } catch (Exception e) {
-                    LOG.warn("Retrying on " + host + " " + e.getMessage());
+                    LOG.warn("Retrying on " + host + " " , e);
                 }
 
             } else {

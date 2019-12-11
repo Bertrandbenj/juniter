@@ -41,18 +41,16 @@ public class PeerService {
     private EndPointsRepository endPointRepo;
 
     private final Map<String, NetStats> BMAHosts = Collections.synchronizedMap(new HashMap<>());
+
     private final Map<String, NetStats> WS2PHosts = Collections.synchronizedMap(new HashMap<>());
 
-
     private BlockingQueue<NetStats> pingingQueue = new LinkedBlockingDeque<>(20);
-
 
     @Autowired
     private RestTemplate restTemplate;
 
     @Value("#{'${juniter.network.trusted}'.split(',')}")
     private List<String> configuredNodes;
-
 
     @PostConstruct
     public void initConsumers() {
@@ -116,75 +114,53 @@ public class PeerService {
 
     @Transactional(readOnly = true)
     public void reload(EndPointType type) {
-
+        LOG.info("reload " + type);
         var queue = getQueue(type);
 
         synchronized (queue) {
 
-            var list = type == EndPointType.BMAS ? endPointRepo.endpointssBMAS() : type == EndPointType.WS2P ? endPointRepo.get(EndPointType.WS2P, EndPointType.WS2PS) : null;
-
-            var urls = list.stream()
+            var urls = getEndPoint(type).stream()
                     .map(EndPoint::url)
                     .collect(Collectors.toList());
             urls.addAll(configuredNodes);
+            LOG.info("added configures node " + urls + " from " + configuredNodes);
             urls.forEach(url -> {
-                queue.computeIfPresent(url,(x,y)->{
+                queue.computeIfPresent(url, (x, y) -> {
+
+                    LOG.info("compute if present ");
                     y.getCount().incrementAndGet();
                     return y;
                 });
-                //queue.putIfAbsent(url, new NetStats(new AtomicInteger(1), new AtomicInteger(1), new AtomicInteger(0), System.currentTimeMillis(), 1L, Math.random(), url));
+                queue.putIfAbsent(url, new NetStats(new AtomicInteger(1), new AtomicInteger(1), new AtomicInteger(0), System.currentTimeMillis(), 1L, Math.random(), url));
             });
         }
 
         renormalize(type);
     }
 
-
-    private Map<String, NetStats> getQueue(EndPointType type) {
-        return type == EndPointType.BMAS || type == EndPointType.BASIC_MERKLED_API ? BMAHosts : type == EndPointType.WS2P || type == EndPointType.WS2PS ? WS2PHosts : null;
-
+    private List<EndPoint> getEndPoint(EndPointType type) {
+        return type == EndPointType.BMAS || type == EndPointType.BASIC_MERKLED_API ? endPointRepo.get(EndPointType.BMAS, EndPointType.BASIC_MERKLED_API)
+                : type == EndPointType.WS2P || type == EndPointType.WS2PS ? endPointRepo.get(EndPointType.WS2P, EndPointType.WS2PS)
+                : null;
     }
 
-    @Transactional(readOnly = true)
+    private Map<String, NetStats> getQueue(EndPointType type) {
+        return type == EndPointType.BMAS || type == EndPointType.BASIC_MERKLED_API ? BMAHosts
+                : type == EndPointType.WS2P || type == EndPointType.WS2PS ? WS2PHosts
+                : null;
+    }
+
     public Optional<NetStats> nextHost(EndPointType type) {
-
-        var queue = getQueue(type);
-
-        var rand = Math.random();
-
-        //BMAHosts.values().stream().min(Comparator.naturalOrder()).ifPresent(top -> LOG.info("Min Found " + top));
-        //
-        synchronized (queue) {
-            var normalizeAggregate = 0.;
-
-            for (Map.Entry<String, NetStats> h : queue.entrySet()) {
-                normalizeAggregate += h.getValue().getLastNormalizedScore();
-
-                if (normalizeAggregate >= rand) {
-                    //LOG.info("normalizeAggregate " + normalizeAggregate);
-
-                    h.getValue().getCount().incrementAndGet();
-                    return Optional.of(h.getValue());
-                }
-            }
-        }
-
-        //reload(type);
-        LOG.error("no peers found in BMAHosts[" + BMAHosts.size() + "]");
-        return Optional.empty();
+        return Optional.of(nextHosts(type, 1).get(0));
     }
 
     @Transactional(readOnly = true)
     public List<NetStats> nextHosts(EndPointType type, int nb) {
 
         var queue = getQueue(type);
-
         List<NetStats> res = new ArrayList<>(nb);
-
         var rand = Math.random();
 
-        //BMAHosts.values().stream().min(Comparator.naturalOrder()).ifPresent(top -> LOG.info("Min Found " + top));
-        //
         synchronized (queue) {
             for (int x = nb; x > 0; x--) {
 
@@ -198,13 +174,14 @@ public class PeerService {
 
                         h.getValue().getCount().incrementAndGet();
                         res.add(h.getValue());
+                        if (res.size() == nb) break;
                     }
                 }
             }
         }
 
         //reload(type);
-        LOG.error("no peers found in BMAHosts[" + queue.size() + "]");
+        LOG.warn("next " + nb + " hosts of type " + type + " among [" + queue.size() + "] => " + res);
         return res;
     }
 
@@ -219,7 +196,7 @@ public class PeerService {
     private void renormalize(EndPointType type) {
 
         var queue = getQueue(type);
-        LOG.info("renormalize " + queue);
+        LOG.info("renormalize " + type + " => " + queue);
         synchronized (queue) {
             var sum = queue.values().stream().mapToDouble(NetStats::score).sum();
             var cntAll = queue.values().stream().mapToDouble(ns -> ns.getCount().doubleValue()).sum();
@@ -232,18 +209,20 @@ public class PeerService {
                     .map(NetStats::getHost)
                     .collect(Collectors.joining(",")));
 
+            if (queue.size() > 0) {
 
-            coreEventBus.publishEvent(new RenormalizedNet(
-                    queue.values().stream()
-                            .sorted(Comparator.reverseOrder())
-                            //.filter(ns -> ns.getLastNormalizedScore() > 0.001)
-                            //.filter(ns -> ns.getSuccess().get() > 0)
-                           // .limit(6)
-                            .collect(Collectors.toList())));
-
-            for (Map.Entry<String, NetStats> h : queue.entrySet()) {
-                h.getValue().normalizedScore(sum);
+                for (Map.Entry<String, NetStats> h : queue.entrySet()) {
+                    h.getValue().normalizedScore(sum);
+                }
+                coreEventBus.publishEvent(new RenormalizedNet(
+                        queue.values().stream()
+                                .sorted(Comparator.reverseOrder())
+                                //.filter(ns -> ns.getLastNormalizedScore() > 0.001)
+                                //.filter(ns -> ns.getSuccess().get() > 0)
+                                // .limit(6)
+                                .collect(Collectors.toList())));
             }
+
         }
     }
 
@@ -256,9 +235,9 @@ public class PeerService {
             var x = h.getSuccess().incrementAndGet();
             if (x > 100) {
                 LOG.debug("renormalize - reset: " + h.getHost());
-                h.getSuccess().incrementAndGet();
-                h.getCount().incrementAndGet();
-                h.setLastNormalizedScore(Math.random() * 0.5);
+                h.getSuccess().set(0);
+                h.getCount().set(1);
+                h.setLastNormalizedScore(Math.random() * 0.2);
             }
             LOG.debug(" " + url + " : " + x);
         }

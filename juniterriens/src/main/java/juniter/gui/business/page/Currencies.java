@@ -14,6 +14,7 @@ import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import juniter.core.model.CcyStats;
 import juniter.gui.technical.AbstractJuniterFX;
+import juniter.gui.technical.I18N;
 import juniter.service.BlockService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -134,7 +135,7 @@ public class Currencies extends AbstractJuniterFX implements Initializable {
             begin.setMembersGrowthRate(0.0);
             begin.setMoneyShare(begin.getMonetaryMass() / (double) begin.getMembersCount());
 
-            LOG.info(list);
+            LOG.debug(list);
 
 
             LOG.info(" ======== POPULATION CHART");
@@ -165,18 +166,19 @@ public class Currencies extends AbstractJuniterFX implements Initializable {
             popgrowth.setUpperBound(1.0);
 
             XYChart.Series<Long, Double> seriespgC = new XYChart.Series<>();
-            var avg = list.stream().mapToDouble(CcyStats::getMembersGrowthRate).average().getAsDouble() * 100;
-            LOG.info("avg pop growth rate " + avg);
             seriespgC.getData().addAll(
                     list.stream()
                             .map(frame -> new XYChart.Data<>(frame.getMedianTime(), frame.getMembersGrowthRate() * 100))
                             .collect(Collectors.toList()));
 
+            var avg = list.stream().mapToDouble(CcyStats::getMembersGrowthRate).average().getAsDouble() * 100;
+            LOG.info("avg pop growth rate " + avg);
             XYChart.Series<Long, Double> seriespgC2 = new XYChart.Series<>();
-
             seriespgC2.getData().addAll(list.stream()
                     .map(frame -> new XYChart.Data<>(frame.getMedianTime(), avg))
                     .collect(Collectors.toList()));
+
+            popGrowthChart.setTitle(I18N.get("ccy.stats.popgrowth")+" ("+avg+")");
             popGrowthChart.getData().setAll(seriespgC, seriespgC2);
 
 

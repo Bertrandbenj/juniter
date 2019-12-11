@@ -3,6 +3,7 @@ package juniter.gui.business.page;
 
 import javafx.application.Preloader;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
@@ -11,7 +12,6 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
-import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dbo.index.BINDEX;
 import juniter.gui.technical.AbstractJuniterFX;
 import juniter.gui.technical.PageName;
@@ -132,44 +132,46 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-        loadBar.progressProperty().bind(currentDBBlock.divide(maxPeerBlock));
-        maxBindex.setValue(blockService.currentBlockNumber());
-        currentDBBlock.setValue(blockService.currentBlockNumber());
-        currentBindex.setValue(bRepo.head().map(BINDEX::getNumber).orElse(0));
-        maxDBBlock.setValue(blockService.currentBlockNumber());
+        loadBar.progressProperty().bind(currentDBBlockNum.divide(maxPeerBlock));
+        currentDBBlockNum.setValue(blockService.currentBlockNumber());
+
+        currentBindex.setValue(bRepo.head().get());
+        currentBindexN.bind(Bindings.createDoubleBinding(()-> new SimpleDoubleProperty().add(currentBindex.get().getNumber()).doubleValue(), currentBindex));
+
+        highestDBBlock.setValue(blockService.currentBlockNumber());
         currenBlock.setValue(blockService.current().orElseGet(() -> blockLoader.fetchAndSaveBlock("current")));
 
         peerProp.set(peers);
 
-        m.textProperty().bind(Bindings.createObjectBinding(() ->
-                String.format("%,.2f", currenBlock.get().getMonetaryMass() / 100.)));
+        m.textProperty().bind(Bindings.createObjectBinding(() -> String.format("%,.2f", currenBlock.get().getMonetaryMass() / 100.), currenBlock));
 
 
-        var mc = currenBlock.get().getMembersCount();
-        var h24 = blockService.block(currenBlock.get().getNumber() - 288)
-                .map(DBBlock::getMembersCount)
-                .map(x -> mc - x)
-                .orElse(0);
-
-        n.textProperty().bind(Bindings.createObjectBinding(() ->
-                mc + " " + (h24 == 0 ? "" : (h24 > 0 ? "+" : "-") + h24)));
+        n.textProperty().bind(Bindings.createObjectBinding(() -> {
+                    var mc = currentBindex.get().getMembersCount();
+                    var h24 = bRepo.byNum(currentBindexN.get() - 288, "g1")
+                            .map(BINDEX::getMembersCount)
+                            .map(x -> mc - x)
+                            .orElse(0);
+                    return mc + " " + (h24 == 0 ? "" : (h24 > 0 ? "+" : "-") + h24);
+                }
+                , currentBindex));
 
 
         median.textProperty().bind(Bindings.createObjectBinding(() -> {
-                    var date = new Date(currenBlock.get().getMedianTime() * 1000L);
+                    var date = new Date(currentBindex.get().getMedianTime() * 1000L);
                     var sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     sdf.setTimeZone(java.util.TimeZone.getTimeZone("GMT+1"));
                     return sdf.format(date);
                 }
-                , currenBlock));
+                , currentBindex));
 
 
         size.textProperty().bind(Bindings.createObjectBinding(() ->
-                currenBlock.get().getSize().toString(), currenBlock));
+                currentBindex.get().getSize().toString(), currentBindex));
 
 
         number.textProperty().bind(Bindings.createObjectBinding(() ->
-                currenBlock.get().getNumber().toString(), currenBlock));
+                currentBindex.get().getNumber().toString(), currentBindex));
 
         // test.setText(txRepo.transactionsOfIssuer_("4weakHxDBMJG9NShULG1g786eeGh7wwntMeLZBDhJFni").singleton(0).getWrittenOn()+"");
 

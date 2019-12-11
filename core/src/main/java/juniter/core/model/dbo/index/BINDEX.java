@@ -29,7 +29,7 @@ public class BINDEX implements Comparable<BINDEX> {
     private String issuer;
     private Long time;
     private Integer number;
-    private String currency;
+        private String currency;
     private String previousHash;
     private String previousIssuer;
     private Integer membersCount;

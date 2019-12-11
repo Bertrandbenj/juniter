@@ -35,14 +35,14 @@
                         </HBox>
                         <HBox VBox.vgrow="ALWAYS">
                             <children>
-                                <PieChart fx:id="netstats" legendSide="LEFT" title="%net.nextProbability"
+                                <PieChart fx:id="netStatsChart" legendSide="LEFT" title="%net.nextProbability"
                                           HBox.hgrow="ALWAYS"/>
 
                             </children>
                         </HBox>
                         <HBox VBox.vgrow="ALWAYS">
                             <children>
-                                <StackedAreaChart fx:id="pow" createSymbols="false" legendVisible="false"
+                                <StackedAreaChart fx:id="powChart" createSymbols="false" legendVisible="false"
                                                   title="%net.pow" HBox.hgrow="ALWAYS">
                                     <xAxis>
                                         <NumberAxis fx:id="powX" autoRanging="false" side="BOTTOM"/>
@@ -51,7 +51,7 @@
                                         <NumberAxis fx:id="powY" autoRanging="false" side="LEFT"/>
                                     </yAxis>
                                 </StackedAreaChart>
-                                <LineChart fx:id="issuersFrameVar" createSymbols="false" legendVisible="false"
+                                <LineChart fx:id="issuersFrameVarChart" createSymbols="false" legendVisible="false"
                                            title="%net.issuersFrameVar" HBox.hgrow="ALWAYS">
                                     <xAxis>
                                         <NumberAxis fx:id="issuersFrameVarX" autoRanging="false" side="BOTTOM"/>
@@ -64,7 +64,7 @@
                         </HBox>
                         <HBox VBox.vgrow="ALWAYS">
                             <children>
-                                <LineChart fx:id="medianTime" createSymbols="false" legendVisible="false"
+                                <LineChart fx:id="medianTimeChart" createSymbols="false" legendVisible="false"
                                            title="%net.medianTime" HBox.hgrow="ALWAYS">
                                     <xAxis>
                                         <NumberAxis fx:id="medianX" autoRanging="false" side="BOTTOM"/>
@@ -73,7 +73,7 @@
                                         <NumberAxis fx:id="medianY" side="LEFT"/>
                                     </yAxis>
                                 </LineChart>
-                                <LineChart fx:id="issuersFrame" createSymbols="false" legendVisible="false"
+                                <LineChart fx:id="issuersFrameChart" createSymbols="false" legendVisible="false"
                                            title="%net.issuersFrame" HBox.hgrow="ALWAYS">
                                     <xAxis>
                                         <NumberAxis fx:id="issuersFrameX" autoRanging="false" side="BOTTOM"/>

@@ -28,26 +28,27 @@ public class GuiCoreEventListener implements ApplicationListener<CoreEvent> {
 
         switch (event.getName()) {
             case "NewBINDEX":
-                Platform.runLater(() -> currentBindex.setValue(((BINDEX) event.getWhat()).getNumber()));
+                Platform.runLater(() -> currentBindex.setValue((BINDEX) event.getWhat()));
                 break;
 
             case "NewBlock":
                 Platform.runLater(() -> {
                     currenBlock.setValue(((DBBlock) event.getWhat()));
-                    currentDBBlock.setValue(((DBBlock) event.getWhat()).getNumber());
+                    currentDBBlockNum.setValue(((DBBlock) event.getWhat()).getNumber());
+
                 });
                 break;
 
             case "CurrentBNUM":
-                Platform.runLater(() -> currentDBBlock.setValue((Integer) event.getWhat()));
+                Platform.runLater(() -> currentDBBlockNum.setValue((Integer) event.getWhat()));
                 break;
 
             case "DecrementCurrent":
-                Platform.runLater(() -> currentDBBlock.subtract(1));
+                Platform.runLater(() -> currentDBBlockNum.subtract(1));
                 break;
 
             case "MaxDBBlock":
-                Platform.runLater(() -> maxDBBlock.setValue((Integer) event.getWhat()));
+                Platform.runLater(() -> highestDBBlock.setValue((Integer) event.getWhat()));
                 break;
 
             case "MaxPeerBlock":
@@ -56,7 +57,7 @@ public class GuiCoreEventListener implements ApplicationListener<CoreEvent> {
 
             case "RenormalizedNet":
                 LOG.info("RenormalizedNet" + event.getWhat());
-                Platform.runLater(() -> Network.observableList.setAll((List<NetStats>) event.getWhat()));
+                Platform.runLater(() -> Network.observableNetStats.setAll((List<NetStats>) event.getWhat()));
                 break;
 
             case "LogNetwork":

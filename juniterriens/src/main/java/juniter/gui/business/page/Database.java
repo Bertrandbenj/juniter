@@ -1,7 +1,12 @@
 package juniter.gui.business.page;
 
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
+import javafx.beans.binding.StringBinding;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -13,8 +18,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.index.*;
 import juniter.gui.technical.AbstractJuniterFX;
@@ -29,10 +34,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;
+import java.lang.reflect.Array;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.ResourceBundle;
+import java.util.function.Function;
 
 import static juniter.gui.JuniterBindings.*;
 
@@ -47,9 +55,24 @@ public class Database extends AbstractJuniterFX implements Initializable {
     private static ObservableList<CINDEX> cindex = FXCollections.observableArrayList();
     private static ObservableList<MINDEX> mindex = FXCollections.observableArrayList();
     private static ObservableList<SINDEX> sindex = FXCollections.observableArrayList();
+    public Label qCount;
+    public Button index1Button;
+    public Button pauseButton;
+
+    private ObservableList<String> queryEx = FXCollections.observableArrayList(
+            "FROM BINDEX p WHERE currency = 'g1'",
+            "SELECT number, hash FROM BINDEX p WHERE currency = 'g1'",
+            "SELECT c FROM CINDEX c, IINDEX i WHERE (c.receiver = i.pub OR c.issuer = i.pub) AND i.uid LIKE '%BnimajneB%'",
+            "SELECT m FROM MINDEX m, IINDEX i WHERE m.pub = i.pub AND i.uid LIKE '%BnimajneB%'",
+            "SELECT i.uid AS theDude , ir.uid AS certifier, c.written FROM CINDEX c, IINDEX i, IINDEX ir WHERE i.uid LIKE '%BnimajneB%' AND c.receiver = i.pub AND ir.pub = c.issuer ",
+            "SELECT i.uid AS theDude , iis.uid AS certified, c.written FROM CINDEX c, IINDEX i, IINDEX iis WHERE i.uid LIKE '%BnimajneB%' AND c.issuer = i.pub AND iis.pub = c.receiver ",
+            "SELECT ir.uid AS certified, iis.uid AS certifier, i.uid AS theDude  FROM CINDEX c, IINDEX i, IINDEX ir, IINDEX iis WHERE  i.uid LIKE '%BnimajneB%' AND ( (c.receiver = i.pub AND iis.pub = c.issuer ) OR ( c.issuer = i.pub AND ir.pub= c.receiver)) ");
 
     @FXML
-    private TextField jpql;
+    private TableView tableQuery;
+
+    @FXML
+    private ComboBox<String> jpql;
     @FXML
     private Button indexUntilButton;
     @FXML
@@ -225,15 +248,15 @@ public class Database extends AbstractJuniterFX implements Initializable {
     private TableColumn cReceiverCol;
 
     @Autowired
-    BINDEXRepository bRepo;
+    private BINDEXRepository bRepo;
     @Autowired
-    CINDEXRepository cRepo;
+    private CINDEXRepository cRepo;
     @Autowired
-    IINDEXRepository iRepo;
+    private IINDEXRepository iRepo;
     @Autowired
-    MINDEXRepository mRepo;
+    private MINDEXRepository mRepo;
     @Autowired
-    SINDEXRepository sRepo;
+    private SINDEXRepository sRepo;
 
     @Autowired
     private Index index;
@@ -251,12 +274,10 @@ public class Database extends AbstractJuniterFX implements Initializable {
     public void indexUntil() {
 
 
-        isIndexing.setValue(!isIndexing.get());
+        isIndexing.setValue(true);
 
-        if (!isIndexing.get())
-            return;
 
-        currentBindex.setValue(-1);
+        currentBindex.setValue(index.head_());
 
 
         int until;
@@ -266,24 +287,20 @@ public class Database extends AbstractJuniterFX implements Initializable {
             until = blockService.currentBlockNumber();
         }
 
-        maxBindex.setValue(until);
-
         index.indexUntil(until, false, CURRENCY.get());
     }
 
     @FXML
     public void indexReset() {
         index.reset(true, CURRENCY.get());
-        currentBindex.setValue(0);
+        currentBindex.setValue(null);
     }
 
 
     public void index1() {
 
-        isIndexing.setValue(!isIndexing.get());
-
-
-        index.indexUntil(currentBindex.intValue() + 1, false, CURRENCY.get());
+        isIndexing.setValue(true);
+        index.indexUntil(currentBindexN.get() + 1, false, CURRENCY.get());
         //JuniterBindings.indexLogMessage.setValue("Validated " + JuniterBindings.currentBindex.intValue());
 
     }
@@ -378,17 +395,25 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        indexUntilButton.setText(isIndexing.get() ? "||" : ">>");
 
-        isIndexing.addListener((v, oldValue, newValue) -> {
-            if (!newValue)
-                indexUntilButton.setText(">>");
-            else
-                indexUntilButton.setText("||");
-        });
+        jpql.setItems(queryEx);
+        jpql.getSelectionModel().select(0);
+
+        indexUntilButton.disableProperty().bind(isIndexing);
+        index1Button.disableProperty().bind(isIndexing);
+        pauseButton.disableProperty().bind(isIndexing.not());
+
+//        isIndexing.addListener((v, oldValue, newValue) -> {
+//            if (!newValue)
+//                indexUntilButton.setText(">>");
+//            else
+//                indexUntilButton.setText("||");
+//        });
 
 
-        indexBar.progressProperty().bind(currentBindex.divide(maxBindex));
+        indexBar.progressProperty().bind(currentBindexN.divide(highestDBBlock));
+
+        txCountB.textProperty().bind(new SimpleStringProperty("Count ").concat(Bindings.size(bindex)));
 
 
         // ===================   MAP  COLUMNS =================
@@ -570,6 +595,9 @@ public class Database extends AbstractJuniterFX implements Initializable {
         tableC.setItems(sortedC);
         tableS.setItems(sortedS);
 
+        currentBindex.addListener(c -> bindex.setAll(bRepo.findAll()));
+        bindex.setAll(bRepo.findAll());
+
         Platform.runLater(this::reload);
     }
 
@@ -665,37 +693,90 @@ public class Database extends AbstractJuniterFX implements Initializable {
     @Autowired
     private EntityManager em;
 
+    static <S, T> Callback<TableColumn.CellDataFeatures<S, T>, ObservableValue<T>> createArrayValueFactory(Function<S, T[]> arrayExtractor, final int index) {
+        if (index < 0) {
+            return cd -> null;
+        }
+        return cd -> {
+            T[] array = arrayExtractor.apply(cd.getValue());
+            return array == null || array.length <= index ? null : new SimpleObjectProperty<>(array[index]);
+        };
+    }
+
     @FXML
     public void jpqlQuery() {
-        LOG.info("jpql Query " + jpql.getText());
-        em.createQuery(jpql.getText())
-                .setMaxResults(1000)
-                .getResultList()
-                .stream()
-                .forEach(r -> LOG.info("result : " + r));
+        tabPane.getSelectionModel().selectLast();
+
+        var q =jpql.getSelectionModel().getSelectedItem();
+        LOG.info("jpql Query " + q);
+        LOG.info("params " +  em.createQuery(q).getParameters());
+
+        var list = em.createQuery(q).setMaxResults(1000).getResultList();
+
+        if (list.size() <= 0)
+            return;
+        tableQuery.getColumns().clear();
+
+        LOG.info(list.get(0).getClass() + "=> " + list.get(0));
+
+        // case where there is no pre-defined object
+        if (list.get(0).getClass().isArray()) {
+            var fields = jpql.getValue().substring(jpql.getValue().indexOf("SELECT") + 6, jpql.getValue().indexOf("FROM")).split(",");
+
+            for (int i = 0; i < fields.length; i++) {
+
+                //cleanup
+                fields[i] = (fields[i].contains("AS")?fields[i].substring(fields[i].indexOf("AS")+2):fields[i]).trim();
+
+                var tc = new TableColumn<>(fields[i]);
+                tableQuery.getColumns().add(tc);
+                tc.setCellValueFactory(createArrayValueFactory(o -> {
+                    Object[] objects = (Object[]) o;
+                    return objects;
+                }, i));
+                int finalI = i;
+                tableQuery.getItems().clear();
+                list.forEach(c -> {
+                    Object[] objects = (Object[]) c;
+                    String rec = "record : ";
+                    for (int x = 0; x < fields.length; x++) {
+                        var it = Array.get(c, x);
+                        rec += it + " ";
+                    }
+                    LOG.info(rec);
+                    tableQuery.getItems().add(c);
+                    //tc.setCellValueFactory(createArrayValueFactory(o -> objects, finalI));
+                });
+
+            }
+
+        } else {        // case where there is a pre-defined object
+
+            for (Method f : list.get(0).getClass().getMethods()) {
+                if (!f.getName().startsWith("get") || "getClass".equals(f.getName()) || "getLong".equals(f.getName()))
+                    continue;
+                var firstLetter = f.getName().substring(3, 4).toLowerCase();
+                var fieldName = firstLetter + f.getName().substring(4);
+
+                LOG.info(fieldName + "  " + f.getName());
+
+                var tc = new TableColumn<>(fieldName);
+
+                tableQuery.getColumns().add(tc);
+                mapColumn(tc, fieldName);
+            }
+            tableQuery.setItems(FXCollections.observableArrayList(list));
+
+        }
+
+        tableQuery.setColumnResizePolicy(p -> true);
+        qCount.textProperty().bind(new SimpleStringProperty("Count ").concat(tableQuery.getItems().size()));
     }
 
 
     @FXML
     public void reload() {
         Platform.runLater(() -> {
-
-            var blocks = bRepo.findAll();//.stream().map(b -> modelMapper.map(b, GlobalValid.BINDEX.class)).collect(Collectors.toList());
-
-
-            blocks.forEach(block -> {
-                var button = new Button(block.getNumber() + "");
-                button.setFont(new Font(9));
-                button.setOnAction(event -> show(block.getNumber()));
-                //flowPanel.getChildren().add(button);
-            });
-
-
-            //  map table and refresh
-            bindex.clear();
-            txCountB.textProperty().set("Count " + bRepo.count());
-            bindex.addAll(blocks);
-
 
             txCountM.textProperty().set("Count " + mRepo.count());
             mindex.clear();
@@ -720,4 +801,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
     }
 
 
+    public void pause() {
+        isIndexing.setValue(false);
+    }
 }

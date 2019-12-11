@@ -194,7 +194,7 @@ public class ChainParameters implements DUPDocument {
     }
 
     public void accept(ChainParameters params ){
-        this.setC(params.getC());
+            this.setC(params.getC());
         this.setCurrency(params.getCurrency());
         this.setUdTime0(params.getUdTime0());
         this.setUdTime0(params.getUdTime0());

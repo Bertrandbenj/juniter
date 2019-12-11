@@ -2,10 +2,7 @@ package juniter.service;
 
 import com.codahale.metrics.annotation.Counted;
 import io.micrometer.core.annotation.Timed;
-import juniter.core.event.CurrentBNUM;
-import juniter.core.event.LogIndex;
-import juniter.core.event.NewBINDEX;
-import juniter.core.event.PossibleFork;
+import juniter.core.event.*;
 import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dbo.index.*;
@@ -113,15 +110,6 @@ public class Index implements GlobalValid {
         }
 
     }
-
-    private synchronized Boolean isIndexing() {
-        return indexing;
-    }
-
-    private synchronized void setIndexing(Boolean id) {
-        indexing = id;
-    }
-
 
     @Transactional
     @Counted(absolute = true)
@@ -399,8 +387,8 @@ public class Index implements GlobalValid {
 
         delta = System.currentTimeMillis() - time;
         LOG.info("Finished validation, took :  " + TimeUtils.format(delta));
+        coreEventBuss.publishEvent(new Indexing(false));
 
-        setIndexing(false);
     }
 
     public void reset(boolean resetDB, String ccy) {

@@ -3,10 +3,17 @@ package juniter.core.model.dbo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Data
 @AllArgsConstructor
+@Entity
+@Table(name = "netStats", schema = "public", uniqueConstraints = @UniqueConstraint(columnNames = {"host"}))
+
 public class NetStats implements Comparable<NetStats> {
 
     private AtomicInteger count;
@@ -15,6 +22,8 @@ public class NetStats implements Comparable<NetStats> {
     private Long lastUpdate;
     private Long lastResponseTime;
     private Double lastNormalizedScore;
+
+    @Id
     private String host;
 
 

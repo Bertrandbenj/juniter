@@ -2,16 +2,10 @@ package juniter.repository.jpa.block;
 
 import juniter.core.model.CcyStats;
 import juniter.core.model.dbo.DBBlock;
-import juniter.core.model.dbo.tx.Transaction;
-import juniter.core.model.dbo.wot.Certification;
-import juniter.core.model.dbo.wot.Identity;
-import juniter.core.model.dbo.wot.Member;
-import juniter.core.model.dto.node.IssuersFrameDTO;
-import juniter.core.validation.BlockLocalValid;
+import juniter.core.model.dto.node.BlockNetworkMeta;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.exception.GenericJDBCException;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -20,8 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -116,7 +108,7 @@ public interface BlockRepository extends JpaRepository<DBBlock, Long> {
     @Query("SELECT c FROM DBBlock c WHERE number >= ?1 AND number < ?2")
     List<DBBlock> blocksFromTo(Integer from, Integer to);
 
-    @Query("SELECT  new juniter.core.model.dto.node.IssuersFrameDTO(number, issuersFrame, issuersFrameVar, powMin, medianTime) FROM DBBlock c WHERE number >= ?1 AND number < ?2")
-    List<IssuersFrameDTO> issuersFrameFromTo(int from, int to);
+    @Query("SELECT  new juniter.core.model.dto.node.BlockNetworkMeta(number, issuersFrame, issuersFrameVar, powMin, medianTime) FROM DBBlock c WHERE number >= ?1 AND number < ?2")
+    List<BlockNetworkMeta> issuersFrameFromTo(int from, int to);
 
 }

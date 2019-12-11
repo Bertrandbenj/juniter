@@ -2,15 +2,19 @@ package juniter.gui.business.panel;
 
 import com.google.common.collect.Lists;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import juniter.core.crypto.SecretBox;
+import juniter.core.model.dbo.NetStats;
 import juniter.core.model.dbo.index.SINDEX;
 import juniter.core.model.dbo.tx.*;
 import juniter.repository.jpa.index.SINDEXRepository;
+import juniter.user.UserSettings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +43,9 @@ public class TxPanel implements Initializable {
     private TextField amountDest;
     @FXML
     private ComboBox issUnit;
+
+    public static ObservableList<UserSettings.UnitDisplay> observableList = FXCollections.observableArrayList(UserSettings.UnitDisplay.values());
+
     @FXML
     private TextField issSalt;
     @FXML
@@ -92,6 +99,8 @@ public class TxPanel implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
          fieldBlockstamp.setText(currenBlock.get().bstamp());
+        observableList.setAll();
+        issUnit.setItems(observableList);
     }
 
     @FXML

@@ -138,7 +138,7 @@ public class BlockLoader implements BlockLocalValid {
             while (body == null || body.size() == 0) {
                 try {
 
-                    var host = peerService.nextHost(EndPointType.BASIC_MERKLED_API).get().getHost();
+                    var host = peerService.nextHost(EndPointType.BMAS).get().getHost();
                     url = host + path;
                     final var responseEntity = restTemplate.exchange(url, HttpMethod.GET, null,
                             new ParameterizedTypeReference<List<DBBlock>>() {
@@ -159,7 +159,7 @@ public class BlockLoader implements BlockLocalValid {
 
 
                     LOG.info("getBlocks " + body.size() + " from: " + url + "... Status: " + statusCode + " : " + contentType);
-                    peerService.reportSuccess(EndPointType.BASIC_MERKLED_API,host);
+                    peerService.reportSuccess(EndPointType.BMAS,host);
 
                     applicationEventPublisher.publishEvent(new CurrentBNUM(body.get(body.size() - 1).getNumber()));
 
@@ -254,7 +254,7 @@ public class BlockLoader implements BlockLocalValid {
 
         while (block == null) {
 
-            final var host = peerService.nextHost(EndPointType.BASIC_MERKLED_API).map(NetStats::getHost);
+            final var host = peerService.nextHost(EndPointType.BMAS).map(NetStats::getHost);
             if (host.isPresent()) {
                 try {
                     url = host.get() + "blockchain/" + id;
@@ -278,22 +278,22 @@ public class BlockLoader implements BlockLocalValid {
      * uses /blockchain/blocks/[count]/[from]
      *
      * @param bulkSize:
-     * @param i;
+     * @param from;
      * @return .
      */
     @Transactional
-    List<DBBlock> fetchBlocks(int bulkSize, int i) {
+    List<DBBlock> fetchBlocks(int bulkSize, int from) {
         List<DBBlock> body = null;
         final var blacklistHosts = new ArrayList<String>();
         String url = null;
         final var attempts = 0;
         Optional<NetStats> host;
-        peerService.reload(EndPointType.BASIC_MERKLED_API);
-        while (body == null && (host = peerService.nextHost(EndPointType.BASIC_MERKLED_API)).isPresent()) {
+        peerService.reload(EndPointType.BMAS);
+        while (body == null && (host = peerService.nextHost(EndPointType.BMAS)).isPresent()) {
 
             try {
                 //var host = peerService.nextHost().get();
-                url = host.get().getHost() + "blockchain/blocks/" + bulkSize + "/" + i;
+                url = host.get().getHost() + "blockchain/blocks/" + bulkSize + "/" + from;
                 final var responseEntity = restTemplate.exchange(url, HttpMethod.GET, null,
                         new ParameterizedTypeReference<List<DBBlock>>() {
                         });
@@ -313,7 +313,7 @@ public class BlockLoader implements BlockLocalValid {
 
 
                 LOG.info("attempts: " + attempts + " to record " + body.size() + " from: " + url + "... Status: " + statusCode + " : " + contentType);
-                peerService.reportSuccess(EndPointType.BASIC_MERKLED_API,host.get().getHost());
+                peerService.reportSuccess(EndPointType.BMAS,host.get().getHost());
                 return body;
 
             } catch (final RestClientException e) {

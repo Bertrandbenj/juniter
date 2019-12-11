@@ -1,3 +1,5 @@
+import javassist.bytecode.ClassFilePrinter
+
 buildscript {
     repositories {
         mavenCentral()
@@ -58,3 +60,17 @@ subprojects {
 
 }
 
+
+task cleanupDaemonLog{
+    def gradle = project.getGradle()
+    println "gradle version ${gradle.getGradleVersion()}"
+    println "cleaning up folder ${gradle.getGradleUserHomeDir().getAbsolutePath()}/daemon/${gradle.getGradleVersion()}"
+
+    new File("${gradle.getGradleUserHomeDir().getAbsolutePath()}/daemon/${gradle.getGradleVersion()}").listFiles().each {
+        if (it.getName().endsWith('.out.log')) {
+            logger.debug("Cleaning up daemon log file $it")
+            it.delete()
+        }
+    }
+
+}

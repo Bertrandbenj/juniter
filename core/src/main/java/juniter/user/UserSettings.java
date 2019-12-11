@@ -9,7 +9,7 @@ import java.util.List;
 public class UserSettings {
 
     public enum UnitDisplay{
-        RELATIVE, QUANTITATIVE
+        RELATIVE, QUANTITATIVE, ZEN
     }
 
     private SecretBox nodeKey;
