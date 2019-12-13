@@ -43,6 +43,7 @@ public abstract class AbstractJuniterFX extends Application {
     public static void launchGUI(Class<? extends AbstractJuniterFX> appClass, ConfigurableApplicationContext context) {
         applicationContext = context;
         Application.launch(appClass);
+
     }
 
 

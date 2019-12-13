@@ -9,6 +9,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
@@ -27,11 +28,11 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.ResourceBundle;
 
 import static juniter.gui.JuniterBindings.*;
+import static juniter.gui.technical.Formats.DATETIME_FORMAT;
 
 /**
  * inspiration here https://github.com/buckyroberts/Source-Code-from-Tutorials
@@ -114,6 +115,7 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
         var scene = screenController.getMain();
         if (screenController.getMain() == null) {
             BorderPane page = (BorderPane) load("/gui/page/FrontPage.fxml");
+
             screenController.addScreen(PageName.MAIN, page);
             scene = new Scene(page);
             screenController.setMain(scene);
@@ -122,7 +124,7 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
         }
 
         screenController.setMain(scene);
-
+        primaryStage.getIcons().add(new Image("/gui/images/logo.png"));
         primaryStage.setScene(scene);
         primaryStage.show();
 
@@ -136,7 +138,7 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
         currentDBBlockNum.setValue(blockService.currentBlockNumber());
 
         currentBindex.setValue(bRepo.head().get());
-        currentBindexN.bind(Bindings.createDoubleBinding(()-> new SimpleDoubleProperty().add(currentBindex.get().getNumber()).doubleValue(), currentBindex));
+        currentBindexN.bind(Bindings.createDoubleBinding(() -> new SimpleDoubleProperty().add(currentBindex.get().getNumber()).doubleValue(), currentBindex));
 
         highestDBBlock.setValue(blockService.currentBlockNumber());
         currenBlock.setValue(blockService.current().orElseGet(() -> blockLoader.fetchAndSaveBlock("current")));
@@ -159,9 +161,8 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
 
         median.textProperty().bind(Bindings.createObjectBinding(() -> {
                     var date = new Date(currentBindex.get().getMedianTime() * 1000L);
-                    var sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    sdf.setTimeZone(java.util.TimeZone.getTimeZone("GMT+1"));
-                    return sdf.format(date);
+
+                    return DATETIME_FORMAT.format(date);
                 }
                 , currentBindex));
 

@@ -5,6 +5,7 @@ import juniter.core.model.dbo.net.EndPointType;
 import juniter.service.BlockService;
 import juniter.service.Index;
 import juniter.service.bma.PeerService;
+import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.java_websocket.client.WebSocketClient;
@@ -39,6 +40,7 @@ public class WebSocketPool {
     private static final Logger LOG = LogManager.getLogger(WebSocketPool.class);
 
 
+    @Getter
     private AtomicBoolean running = new AtomicBoolean(true);
 
 
@@ -69,12 +71,6 @@ public class WebSocketPool {
         clients = new LinkedBlockingDeque<>(WEB_SOCKET_POOL_SIZE);
     }
 
-    @Async
-    public void restart() {
-        running.lazySet(true);
-        reconnectWebSockets();
-    }
-
 
     @Transactional
     @Scheduled(initialDelay = 3 * 60 * 1000, fixedDelay = 20 * 1000)
@@ -88,35 +84,39 @@ public class WebSocketPool {
                     .forEach(c -> c.send(new Request().getCurrent()));
     }
 
-    @Async
-    public void stop() {
-        LOG.info("Stopping websockets");
-        running.set(false);
-        clients.forEach(c -> c.close(1000, "Cause I decided to "));
-    }
-
-
     @Transactional
     @Scheduled(initialDelay = 60 * 1000, fixedDelay = 10 * 1000)//, initialDelay = 10 * 60 * 1000)
     public void reconnectWebSockets() {
 
-        while (clients.remainingCapacity() > 0 && running.get()) {
-            peerService.nextHost(EndPointType.WS2P).ifPresent(ep -> {
-                var client = new WS2PClient(URI.create(ep.getHost()), this);
-                LOG.debug("Connecting to WS endpoint " + client.getURI());
+        if (running.get()) {
 
-                try {
-                    client.connectBlocking(10, TimeUnit.SECONDS);
-                } catch (InterruptedException e) {
-                    if (running.get())
-                        LOG.error("reconnectWebSockets ", e);
-                    else
-                        LOG.warn("reconnectWebSockets "); // may be ignored
+            while (clients.remainingCapacity() > 0) {
+                peerService.nextHost(EndPointType.WS2P).ifPresent(ep -> {
+                    var client = new WS2PClient(URI.create(ep.getHost()), this);
+                    LOG.debug("Connecting to WS endpoint " + client.getURI());
 
-                }
-            });
+                    try {
+                        client.connectBlocking(10, TimeUnit.SECONDS);
+                    } catch (InterruptedException e) {
+                        if (running.get())
+                            LOG.error("reconnectWebSockets ", e);
+                        else
+                            LOG.warn("reconnectWebSockets "); // may be ignored
+
+                    }
+                });
+            }
+        } else { // Stop websocket and destroy existing ones
+            clients.forEach(c -> c.close(1000, "Cause I decided to "));
+
         }
 
+    }
+
+
+    @Scheduled(fixedRate = 1000 * 60, initialDelay = 60 * 1000)
+    public void renormalize() {
+        peerService.renormalize(EndPointType.WS2P);
     }
 
 

@@ -82,7 +82,7 @@ public class WoTService {
     }
 
     @Transactional
-    @GraphQLMutation(name = "submitCertification", description = "post a certification document")
+    @GraphQLMutation(name = "submitCertification", description = "post a cert document")
     @GraphQLNonNull
     public PendingIdentity submitCertification(@GraphQLNonNull @GraphQLArgument(name = "rawDocument") String raw) {
         LOG.info(" GVA - submitCertification");

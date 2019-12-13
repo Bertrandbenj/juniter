@@ -37,12 +37,12 @@ import javax.persistence.EntityManager;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.ResourceBundle;
 import java.util.function.Function;
 
 import static juniter.gui.JuniterBindings.*;
+import static juniter.gui.technical.Formats.DATETIME_FORMAT;
 
 @Component
 @ConditionalOnExpression("${juniter.useJavaFX:false}")
@@ -66,7 +66,8 @@ public class Database extends AbstractJuniterFX implements Initializable {
             "SELECT m FROM MINDEX m, IINDEX i WHERE m.pub = i.pub AND i.uid LIKE '%BnimajneB%'",
             "SELECT i.uid AS theDude , ir.uid AS certifier, c.written FROM CINDEX c, IINDEX i, IINDEX ir WHERE i.uid LIKE '%BnimajneB%' AND c.receiver = i.pub AND ir.pub = c.issuer ",
             "SELECT i.uid AS theDude , iis.uid AS certified, c.written FROM CINDEX c, IINDEX i, IINDEX iis WHERE i.uid LIKE '%BnimajneB%' AND c.issuer = i.pub AND iis.pub = c.receiver ",
-            "SELECT ir.uid AS certified, iis.uid AS certifier, i.uid AS theDude  FROM CINDEX c, IINDEX i, IINDEX ir, IINDEX iis WHERE  i.uid LIKE '%BnimajneB%' AND ( (c.receiver = i.pub AND iis.pub = c.issuer ) OR ( c.issuer = i.pub AND ir.pub= c.receiver)) ");
+            "SELECT s FROM IINDEX i, SINDEX s WHERE i.uid LIKE '%BnimajneB%' AND s.conditions LIKE CONCAT('%',i.pub,'%')",
+            "SELECT s FROM SINDEX s WHERE conditions LIKE '%XHX(%' OR LIKE '%CSV(%' OR LIKE '%CLTV(%'");
 
     @FXML
     private TableView tableQuery;
@@ -325,11 +326,9 @@ public class Database extends AbstractJuniterFX implements Initializable {
                 if (item != null) {
                     long unixSeconds = item;
                     Date date = new Date(unixSeconds * 1000L);
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
-                    sdf.setTimeZone(java.util.TimeZone.getTimeZone("GMT+1"));
-                    String formattedDate = sdf.format(date);
+
                     setText(item + "");
-                    setTooltip(new Tooltip("" + formattedDate));
+                    setTooltip(new Tooltip("" + DATETIME_FORMAT.format(date)));
 
 
                     //setStyle("-fx-background-color: #" + hsvGradient(ratio) + ";");

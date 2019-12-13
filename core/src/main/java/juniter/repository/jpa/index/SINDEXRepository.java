@@ -14,6 +14,7 @@ import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -30,6 +31,27 @@ public interface SINDEXRepository extends JpaRepository<SINDEX, Long> {
 
     @Override
     List<SINDEX> findAll();
+
+    @Query("SELECT s FROM IINDEX i, SINDEX s WHERE " +
+            "   i.uid LIKE CONCAT('%',?1,'%') AND " +
+            "   s.conditions LIKE CONCAT('%',i.pub,'%') AND" +
+            "   NOT EXISTS (" +
+            "       SELECT s2 FROM SINDEX s2 WHERE " +
+            "           s2.op = 'UPDATE' AND " +
+            "           s2.identifier = s.identifier AND " +
+            "           s2.pos = s.pos)")
+    List<SINDEX> availableSourcesOfUid(String uid );
+
+    @Query("SELECT s FROM SINDEX s WHERE " +
+            "   s.conditions LIKE CONCAT('%',?1,'%') " +
+            "AND " +
+            "   NOT EXISTS (" +
+            "       SELECT s2 FROM SINDEX s2 WHERE " +
+            "           s2.op = 'UPDATE' AND " +
+            "           s2.identifier = s.identifier AND " +
+            "           s2.pos = s.pos)")
+    List<SINDEX> availableSourcesOfPub(String pub );
+
 
     @Query("SELECT s FROM SINDEX s ")
     Page<SINDEX> findSome(Pageable pageable);

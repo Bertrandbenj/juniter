@@ -8,9 +8,6 @@ import java.util.List;
 @Data
 public class UserSettings {
 
-    public enum UnitDisplay{
-        RELATIVE, QUANTITATIVE, ZEN
-    }
 
     private SecretBox nodeKey;
 

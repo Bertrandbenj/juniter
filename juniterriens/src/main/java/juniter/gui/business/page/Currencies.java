@@ -23,19 +23,18 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
+
+import static juniter.gui.technical.Formats.DATE_FORMAT;
+import static juniter.gui.technical.Formats.DECIMAL_4;
 
 @ConditionalOnExpression("${juniter.useJavaFX:false}")
 @Component
 public class Currencies extends AbstractJuniterFX implements Initializable {
 
     private static final Logger LOG = LogManager.getLogger(Currencies.class);
-
-    private DecimalFormat df = new DecimalFormat("#.##");
 
     @FXML
     private ComboBox<String> period;
@@ -89,15 +88,9 @@ public class Currencies extends AbstractJuniterFX implements Initializable {
 
     public class MyStringConv extends StringConverter<Number> {
 
-        private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
-        {
-            dateFormat.setTimeZone(java.util.TimeZone.getTimeZone("GMT+1"));
-        }
-
         @Override
         public String toString(Number object) {
-            return dateFormat.format((Double) object * 1000);
+            return DATE_FORMAT.format((Double) object * 1000);
         }
 
         @Override
@@ -178,7 +171,7 @@ public class Currencies extends AbstractJuniterFX implements Initializable {
                     .map(frame -> new XYChart.Data<>(frame.getMedianTime(), avg))
                     .collect(Collectors.toList()));
 
-            popGrowthChart.setTitle(I18N.get("ccy.stats.popgrowth")+" ("+avg+")");
+            popGrowthChart.setTitle(I18N.get("ccy.stats.popgrowth") + " (" + DECIMAL_4.format(avg) + "%)");
             popGrowthChart.getData().setAll(seriespgC, seriespgC2);
 
 
@@ -196,7 +189,7 @@ public class Currencies extends AbstractJuniterFX implements Initializable {
 
             seriesmm.getData().addAll(list.stream()
                     .map(frame -> new XYChart.Data<>(frame.getMedianTime(), frame.getMonetaryMass()))
-                    //.peek(f -> Tooltip.install(f.getNode(), new Tooltip(df.format(f.getYValue()) + "XX")))
+                    //.peek(f -> Tooltip.install(f.getNode(), new Tooltip(DECIMAL_2.format(f.getYValue()) + "XX")))
 
                     .collect(Collectors.toList()));
 

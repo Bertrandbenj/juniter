@@ -70,7 +70,7 @@ public class TxBox extends AbstractJuniterFX implements Initializable {
 
     }
 
-    public static boolean display(String prefix, String targetPubkeyL) {
+    private static boolean display(String prefix, String targetPubkeyL) {
 
         LOG.info("Opening txBox for pub " + targetPubkeyL + " on prefix " + prefix);
 
@@ -91,7 +91,7 @@ public class TxBox extends AbstractJuniterFX implements Initializable {
 
             //stage.showAndWait();
         } catch (Exception e) {
-            LOG.error(e);
+            LOG.error("starting txBox",e);
         }
         stage.show();
 

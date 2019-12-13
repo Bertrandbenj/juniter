@@ -25,6 +25,12 @@ public class TxUnlock implements Comparable<TxUnlock>, DUPComponent {
     private String fctParam;
 
 
+    public TxUnlock(Integer inputRef,UnlockFct fct,String fctParam){
+        this.inputRef=inputRef;
+        this.fct=fct;
+        this.fctParam=fctParam;
+    }
+
     public TxUnlock(String unlock) {
         try {
             final var vals = unlock.split(":");

@@ -9,4 +9,10 @@ public class WrapperResponse {
 
     Integer ucode;
     String message;
+
+    @Override
+    public String toString() {
+
+        return "{ucode:"+ucode+", message:"+message+"}";
+    }
 }

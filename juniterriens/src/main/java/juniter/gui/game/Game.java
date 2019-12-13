@@ -81,13 +81,13 @@ public class Game implements Initializable {
         erg.setOnKeyPressed(e -> {
             String code = e.getCode().toString();
             //System.out.println("Game " + code);
-            if (!input.contains(code))
-                input.add(code);
+            if (!keyboardInput.contains(code))
+                keyboardInput.add(code);
         });
 
         erg.setOnKeyReleased(e -> {
             String code = e.getCode().toString();
-            input.remove(code);
+            keyboardInput.remove(code);
         });
 
         Platform.runLater(() -> {

@@ -1,6 +1,5 @@
 package juniter.core.model.dbo.net;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import juniter.core.utils.Constants;
 import juniter.core.validation.NetValid;
@@ -94,14 +93,14 @@ public class EndPoint {
         return api;
     }
 
-    public void setApi(EndPointType api){
+    public void setApi(EndPointType api) {
         this.api = api;
     }
 
     public EndPointType getApi() {
 
         if (api == null) { // used for loading from bootstrap list
-            System.out.println("api null : "+ endpoint);
+            System.out.println("api null : " + endpoint);
             switch (endpoint.substring(0, endpoint.indexOf("://") + 3)) {
                 case "https://":
                     api = BMAS;
@@ -122,19 +121,27 @@ public class EndPoint {
 
     public String url() {
 
+        String scheme = "";
+
         String res = "";
         switch (api) {
             case BMAS:
-                res += "https://";
+                scheme += "https://";
                 break;
             case BASIC_MERKLED_API:
-                res += "http://";
+                scheme += "http://";
                 break;
             case WS2P:
-                res += "wss://";
+                scheme += "wss://";
                 break;
-
         }
+
+        if ("443".equals(port)) { // trick to help bad endpoint definition (BMA on 443 is actually BMAS)
+            scheme = "https://";
+        }
+
+        res += scheme;
+
 
         if (domain != null) {
             res += domain;
@@ -150,8 +157,8 @@ public class EndPoint {
             res += "/";
         //LOG.debug("url: " +res);
 
-        if("/ws2p".equals(getOther())){
-            res+="ws2p";
+        if ("/ws2p".equals(getOther())) {
+            res += "ws2p";
         }
 
         return res;

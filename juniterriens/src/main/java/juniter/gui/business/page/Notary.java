@@ -2,12 +2,12 @@ package juniter.gui.business.page;
 
 import antlr.generated.JuniterLexer;
 import antlr.generated.JuniterParser;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 import juniter.core.model.dbo.net.EndPointType;
 import juniter.core.model.dto.raw.*;
@@ -24,7 +24,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.PrintWriter;
@@ -41,6 +44,8 @@ import static juniter.gui.JuniterBindings.rawDocument;
 public class Notary extends AbstractJuniterFX implements Initializable {
 
     private static final Logger LOG = LogManager.getLogger(Notary.class);
+
+    public Label isValidLabel;
     @FXML
     private TabPane tabPane;
     @FXML
@@ -53,7 +58,7 @@ public class Notary extends AbstractJuniterFX implements Initializable {
     private Tab panePeer;
 
     @FXML
-    private TextArea rawDoc;
+    private TextArea rawDocTextArea;
 
     @FXML
     private TextArea logLocalValid;
@@ -73,6 +78,8 @@ public class Notary extends AbstractJuniterFX implements Initializable {
     @Autowired
     private PeerService peers;
 
+    private BooleanProperty docIsValid = new SimpleBooleanProperty(false);
+
     @Override
     public void start(Stage primaryStage) {
         LOG.info("Starting Notary");
@@ -89,15 +96,24 @@ public class Notary extends AbstractJuniterFX implements Initializable {
         logGlobalValid.managedProperty().bind(logGlobalValid.visibleProperty());
         logGlobalValid.setVisible(false);
 
-        rawDoc.textProperty().bind(rawDocument);
-        rawDoc.textProperty().addListener((observable, oldValue, newValue) -> {
+        isValidLabel.textProperty().bind(new SimpleStringProperty(I18N.get("notary.isValid") + " ").concat(docIsValid.asString()));
+
+        //sendButton.disableProperty().bind(docIsValid.not()); // FIXME uncomment once fixed
+
+        rawDocTextArea.textProperty().bind(rawDocument);
+        rawDocTextArea.textProperty().addListener((observable, oldValue, newValue) -> {
             LOG.info("rawDocument Doc changed ");
+            if (tabPane.getSelectionModel().getSelectedItem().equals(paneTX))// FIXME remove once fixed
+                return;
+
 
             try {
                 final var parser = juniterParser(CharStreams.fromString(newValue));
                 var doc = parser.doc();
                 assert doc != null : "doc is null";
-                LOG.info(doc);
+
+
+                LOG.debug("parsed document \n {}", doc);
 
                 JuniterGrammar visitor = new JuniterGrammar();
                 var docObject = visitor.visitDoc(doc);
@@ -105,16 +121,14 @@ public class Notary extends AbstractJuniterFX implements Initializable {
 
                 logLocalValid.setWrapText(true);
                 logLocalValid.setText(I18N.get("φ.1"));
-                sendButton.setDisable(!docObject.isValid());
 
             } catch (Exception e) {
                 StringWriter sw = new StringWriter();
                 e.printStackTrace(new PrintWriter(sw));
                 logLocalValid.setWrapText(false);
                 logLocalValid.setText(sw.toString());
-                sendButton.setDisable(true);
+                LOG.error("Parsing error " + e.getMessage());
             }
-            sendButton.setDisable(false);//FIXME REMOVE ONCE Grammar is correct
 
         });
     }
@@ -132,55 +146,65 @@ public class Notary extends AbstractJuniterFX implements Initializable {
         if (selectedPane.equals(paneBlock0)) {
 
             blockService.localSave(block_0);
-            reqBodyData = new WrapperBlock(rawDoc.getText());
+            reqBodyData = new WrapperBlock(rawDocTextArea.getText());
             // TODO COMPLETE
         } else {
             if (selectedPane.equals(paneTX)) {
                 dest = "tx/process";
-                reqBodyData = new WrapperTransaction(rawDoc.getText());
+                reqBodyData = new WrapperTransaction(rawDocTextArea.getText());
 
             }
             if (selectedPane.equals(panePeer)) {
                 dest = "network/peering";
-                reqBodyData = new WrapperPeer(rawDoc.getText());
+                reqBodyData = new WrapperPeer(rawDocTextArea.getText());
 
             } else if (selectedPane.equals(paneWOT)) {
-                switch (rawDoc.getText().lines().filter(l -> l.startsWith("Type")).findFirst().orElseThrow()) {
+                switch (rawDocTextArea.getText().lines().filter(l -> l.startsWith("Type")).findFirst().orElseThrow()) {
                     case "Type: Identity":
                         dest = "wot/add";
-                        reqBodyData = new WrapperIdentity(rawDoc.getText());
+                        reqBodyData = new WrapperIdentity(rawDocTextArea.getText());
                         break;
                     case "Type: Membership":
                         dest = "blockchain/membership";
-                        reqBodyData = new WrapperMembership(rawDoc.getText());
+                        reqBodyData = new WrapperMembership(rawDocTextArea.getText());
                         break;
                     case "Type: Certification":
                         dest = "wot/certify";
-                        reqBodyData = new WrapperCertification(rawDoc.getText());
+                        reqBodyData = new WrapperCertification(rawDocTextArea.getText());
                         break;
                     case "Type: Revocation":
                         dest = "wot/revoke";
-                        reqBodyData = new WrapperRevocation(rawDoc.getText());
+                        reqBodyData = new WrapperRevocation(rawDocTextArea.getText());
                         break;
                 }
             }
 
+            var reqURL = peers.nextHost(EndPointType.BMAS).orElseThrow().getHost();
+            //var reqURL = "https://g1.presles.fr"; // FIXME remove when fixed
+            reqURL += (reqURL.endsWith("/") ? "" : "/") + dest;
+
+            LOG.info("posting doc to {}\n{}", reqURL, reqBodyData);
+
+            var request = new HttpEntity<>(reqBodyData, headers);
+            ResponseEntity response = null;
+
             try {
-                //objectMapper.writeValueAsString(reqBodyData);
-                var reqURL = peers.nextHost(EndPointType.BASIC_MERKLED_API).orElseThrow().getHost();
-                reqURL += (reqURL.endsWith("/") ? "" : "/") + dest;
 
-                LOG.info("sendDoc posting {} {}", reqURL, reqBodyData);
-
-                var request = new HttpEntity<>(reqBodyData, headers);
-                var response = restTemplate.postForEntity(reqURL, request, Object.class);
+                response = restTemplate.postForEntity(reqURL, request, Object.class);
 
                 if (response.getStatusCodeValue() != 200) {
                     throw new AssertionError("post doc error, code {} " + response);
                 } else {
                     LOG.info("successfully sent doc, response : {}", response);
+                    logLocalValid.setText("successfully sent doc, response : " + response);
                 }
 
+            } catch (HttpServerErrorException http) {
+                LOG.warn("error sending doc response {} " + response, http);
+
+                logLocalValid.setText("error sending doc, response : " + response);
+            } catch (ResourceAccessException ignored) {
+                LOG.warn("ignored ResourceAccessException (handled as duniter ucode )", ignored );
             } catch (Exception | AssertionError e) {
                 StringWriter sw = new StringWriter();
                 e.printStackTrace(new PrintWriter(sw));

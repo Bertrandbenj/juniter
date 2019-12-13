@@ -8,26 +8,26 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 
-<ScrollPane fx:id="pane" styleClass="pane" fitToWidth="true" prefHeight="900.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.gui.business.panel.TxPanel">
+<ScrollPane fx:id="pane" fitToWidth="true" prefHeight="900.0" prefWidth="800.0" styleClass="pane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.gui.business.panel.TxPanel">
     <content>
-        <VBox alignment="CENTER" spacing="5.0"  >
+        <VBox alignment="CENTER" spacing="5.0">
             <children>
                 <HBox spacing="20.0" VBox.vgrow="ALWAYS">
                     <children>
                         <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0" text="%notary.version" />
-                        <TextField fx:id="fieldVersion" disable="true" editable="false" text="11" />
+                        <TextField fx:id="fieldVersion" editable="false" text="10" />
                     </children>
                 </HBox>
                 <HBox spacing="20.0" VBox.vgrow="ALWAYS">
                     <children>
                         <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0" text="%notary.type" />
-                        <TextField disable="true" editable="false" text="Transaction" />
+                        <TextField editable="false" text="Transaction" />
                     </children>
                 </HBox>
                 <HBox spacing="20.0" VBox.vgrow="ALWAYS">
                     <children>
                         <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0" text="%notary.ccy" />
-                        <TextField fx:id="fieldCurrency" disable="true" editable="false" text="g1" />
+                        <TextField fx:id="fieldCurrency" editable="false" text="g1" />
                     </children>
                 </HBox>
                 <HBox spacing="20.0">
@@ -35,7 +35,7 @@
                         <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0" text="%notary.blockstamp" />
                         <HBox HBox.hgrow="ALWAYS">
                             <children>
-                                <TextField fx:id="fieldBlockstamp" disable="true" editable="false" HBox.hgrow="ALWAYS" />
+                                <TextField fx:id="fieldBlockstamp" editable="false" HBox.hgrow="ALWAYS" />
                             </children>
                         </HBox>
                     </children>
@@ -87,27 +87,50 @@
                     </children>
                 </HBox>
                 <Separator prefWidth="200.0" />
-                <HBox spacing="20.0">
-                    <children>
-                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0" text="%notary.inputs" />
-                        <HBox HBox.hgrow="ALWAYS">
-                            <children>
-                                <VBox fx:id="inputContainer" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS" />
-                            </children>
+            <TitledPane fx:id="sourcePane" expanded="false" text="Sources" VBox.vgrow="ALWAYS">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="500.0">
+                     <children>
+                        <HBox prefHeight="500.0">
+                           <children>
+                              <VBox prefHeight="500.0" prefWidth="64.0">
+                                 <children>
+                                    <Label alignment="CENTER" maxWidth="1.7976931348623157E308" prefHeight="30.0" />
+                                    <HBox VBox.vgrow="ALWAYS">
+                                       <children>
+                                          <VBox fx:id="sourcesActionCol" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS" />
+                                       </children>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                              <Separator orientation="VERTICAL" prefHeight="200.0" />
+                              <VBox prefHeight="200.0" prefWidth="597.0" HBox.hgrow="ALWAYS">
+                                 <children>
+                                          <Label alignment="CENTER" maxWidth="1.7976931348623157E308" prefHeight="30.0" text="%notary.inputs" />
+                                          <HBox VBox.vgrow="ALWAYS">
+                                              <children>
+                                                  <VBox fx:id="inputContainer" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS" />
+                                              </children>
+                                          </HBox>
+                                 </children>
+                              </VBox>
+                              <Separator orientation="VERTICAL" prefHeight="200.0" />
+                              <VBox prefHeight="200.0" prefWidth="164.0" HBox.hgrow="ALWAYS">
+                                 <children>
+                                          <Label alignment="CENTER" maxWidth="1.7976931348623157E308" prefHeight="30.0" text="%notary.unlocks" />
+                                          <HBox VBox.vgrow="ALWAYS">
+                                              <children>
+                                                  <VBox fx:id="unlockContainer" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS" />
+                                              </children>
+                                          </HBox>
+                                 </children>
+                              </VBox>
+                           </children>
                         </HBox>
-                    </children>
-                </HBox>
-                <Separator prefWidth="200.0" />
-                <HBox spacing="20.0">
-                    <children>
-                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0" text="%notary.unlocks" />
-                        <HBox HBox.hgrow="ALWAYS">
-                            <children>
-                                <VBox fx:id="unlockContainer" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS" />
-                            </children>
-                        </HBox>
-                    </children>
-                </HBox>
+                     </children>
+                  </AnchorPane>
+              </content>
+            </TitledPane>
                 <Separator prefWidth="200.0" />
                 <HBox spacing="20.0">
                     <children>

@@ -36,12 +36,12 @@ public class Snaky extends Room {
             if (!popupOpen) {
                 if (sakia.intersects(x)) {
                     popupOpen = true;
-                    popupOpen = TxBox.display("JT:TKS:SAKIA", "5cnvo5bmR8QbtyNVnkDXWq6n5My6oNLd1o6auJApGCsv");
+                    popupOpen = TxBox.displayLater("JT:TKS:SAKIA", "5cnvo5bmR8QbtyNVnkDXWq6n5My6oNLd1o6auJApGCsv");
                 }
 
                 if (silkaj.intersects(x)) {
                     popupOpen = true;
-                    popupOpen = TxBox.display("JT:TKS:SILKAJ", "GfKERHnJTYzKhKUma5h1uWhetbA8yHKymhVH2raf2aCP");
+                    popupOpen = TxBox.displayLater("JT:TKS:SILKAJ", "GfKERHnJTYzKhKUma5h1uWhetbA8yHKymhVH2raf2aCP");
                 }
             }
         });

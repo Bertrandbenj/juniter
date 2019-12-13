@@ -13,4 +13,10 @@ public class WrapperTransaction implements Wrapper{
     public WrapperTransaction(String rawDoc) {
         this.transaction = rawDoc;
     }
+
+    @Override
+    public String toString(){
+        return transaction;
+    }
+
 }

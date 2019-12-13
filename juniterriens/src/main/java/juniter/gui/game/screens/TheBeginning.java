@@ -15,7 +15,7 @@ import juniter.gui.business.panel.Technology;
 import juniter.gui.business.popup.TxBox;
 
 import static juniter.gui.JuniterBindings.*;
-import static juniter.gui.JuniterBindings.Theme.DARK_THEME;
+import static juniter.gui.technical.Theme.DARK_THEME;
 
 
 public class TheBeginning extends Room {
@@ -45,12 +45,12 @@ public class TheBeginning extends Room {
             if (!popupOpen) {
                 if (duniter.intersects(x)) {
                     popupOpen = true;
-                    popupOpen = TxBox.display("JT:TKS:DUNITER", "2ny7YAdmzReQxAayyJZsyVYwYhVyax2thKcGknmQy5nQ");
+                    popupOpen = TxBox.displayLater("JT:TKS:DUNITER", "2ny7YAdmzReQxAayyJZsyVYwYhVyax2thKcGknmQy5nQ");
                 }
 
                 if (trm.intersects(x)) {
                     popupOpen = true;
-                    popupOpen = TxBox.display("JT:TKS:TRM", "Ds1z6Wd8hNTexBoo3LVG2oXLZN4dC9ZWxoWwnDbF1NEW");
+                    popupOpen = TxBox.displayLater("JT:TKS:TRM", "Ds1z6Wd8hNTexBoo3LVG2oXLZN4dC9ZWxoWwnDbF1NEW");
                 }
 
                 if (techtree.intersects(x)) {

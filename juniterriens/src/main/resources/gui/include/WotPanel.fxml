@@ -1,106 +1,99 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<ScrollPane fitToWidth="true" prefHeight="900.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8"
-            xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.gui.business.panel.WotPanel" styleClass="pane">
+
+<ScrollPane fitToWidth="true" prefHeight="900.0" prefWidth="800.0" styleClass="pane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.gui.business.panel.WotPanel">
     <content>
         <VBox alignment="CENTER" spacing="5.0">
             <children>
                 <HBox spacing="20.0">
                     <children>
-                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0" text="%notary.version"/>
-                        <TextField fx:id="version" editable="false" prefHeight="25.0" prefWidth="120.0" text="11"/>
+                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0" text="%notary.version" />
+                        <TextField fx:id="version" editable="false" prefHeight="25.0" prefWidth="120.0" text="10" />
                     </children>
                     <padding>
-                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                     </padding>
                 </HBox>
                 <HBox spacing="20.0">
                     <children>
-                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0" text="%notary.type"/>
-                        <RadioButton fx:id="swIdty" mnemonicParsing="false" onAction="#switchIdty" selected="true"
-                                     text="%notary.type.identity">
+                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0" text="%notary.type" />
+                        <RadioButton fx:id="swIdty" mnemonicParsing="false" onAction="#switchIdty" selected="true" text="%notary.type.identity">
                             <padding>
-                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                             </padding>
                             <toggleGroup>
-                                <ToggleGroup fx:id="wotType"/>
+                                <ToggleGroup fx:id="wotType" />
                             </toggleGroup>
                         </RadioButton>
-                        <RadioButton fx:id="swMember" mnemonicParsing="false" onAction="#switchMembership"
-                                     text="%notary.type.membership" toggleGroup="$wotType">
+                        <RadioButton fx:id="swMember" mnemonicParsing="false" onAction="#switchMembership" text="%notary.type.membership" toggleGroup="$wotType">
                             <padding>
-                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                             </padding>
                         </RadioButton>
-                        <RadioButton fx:id="swCertif" mnemonicParsing="false" onAction="#switchCertif"
-                                     text="%notary.type.certification" toggleGroup="$wotType">
+                        <RadioButton fx:id="swCertif" mnemonicParsing="false" onAction="#switchCertif" text="%notary.type.certification" toggleGroup="$wotType">
                             <padding>
-                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                             </padding>
                         </RadioButton>
-                        <RadioButton fx:id="swRevoc" mnemonicParsing="false" onAction="#switchRevoc"
-                                     text="%notary.type.revocation" toggleGroup="$wotType">
+                        <RadioButton fx:id="swRevoc" mnemonicParsing="false" onAction="#switchRevoc" text="%notary.type.revocation" toggleGroup="$wotType">
                             <padding>
-                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                             </padding>
                         </RadioButton>
                     </children>
                     <padding>
-                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                     </padding>
                 </HBox>
                 <HBox spacing="20.0">
                     <children>
-                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0" text="%notary.ccy"/>
-                        <TextField fx:id="currency" editable="false" prefHeight="25.0" prefWidth="120.0" promptText="g1"
-                                   text="g1" HBox.hgrow="NEVER"/>
+                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0" text="%notary.ccy" />
+                        <TextField fx:id="currency" editable="false" prefHeight="25.0" prefWidth="120.0" promptText="g1" text="g1" HBox.hgrow="NEVER" />
                     </children>
                     <padding>
-                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                     </padding>
                 </HBox>
                 <HBox spacing="20.0">
                     <children>
-                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0" text="%notary.issuer"/>
+                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0" text="%notary.issuer" />
                         <VBox spacing="5.0">
                             <children>
-                                <PasswordField fx:id="salt" onAction="#refresh" promptText="%login.salt"/>
-                                <PasswordField fx:id="password" onAction="#refresh" promptText="%login.pass"/>
+                                <PasswordField fx:id="salt" onAction="#refresh" promptText="%login.salt" />
+                                <PasswordField fx:id="password" onAction="#refresh" promptText="%login.pass" />
                             </children>
                         </VBox>
-                        <Label fx:id="pk" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
-                               text="%login.pubkey" HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="pk" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="%login.pubkey" HBox.hgrow="ALWAYS" />
                     </children>
                     <padding>
-                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                     </padding>
                 </HBox>
-                <Separator prefWidth="200.0"/>
+                <Separator prefWidth="200.0" />
                 <HBox VBox.vgrow="ALWAYS">
                     <children>
                         <VBox fx:id="boxIdty" minWidth="0.0" prefWidth="404.0" HBox.hgrow="ALWAYS">
                             <children>
                                 <HBox spacing="20.0">
                                     <children>
-                                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0"
-                                               text="%notary.uniqueID"/>
-                                        <TextField fx:id="uniqueID" onAction="#refresh" HBox.hgrow="ALWAYS"/>
+                                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0" text="%notary.uniqueID" />
+                                        <TextField fx:id="uniqueIDIdty" onAction="#refresh" HBox.hgrow="ALWAYS" />
                                     </children>
                                     <padding>
-                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                     </padding>
                                 </HBox>
                                 <HBox spacing="20.0">
                                     <children>
-                                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0"
-                                               text="%notary.timestamp"/>
-                                        <TextField fx:id="timestamp" HBox.hgrow="ALWAYS"/>
+                                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0" text="%notary.timestamp" />
+                                        <TextField fx:id="timestampIdty" editable="false" HBox.hgrow="ALWAYS" />
                                     </children>
                                     <padding>
-                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                     </padding>
                                 </HBox>
                             </children>
@@ -109,42 +102,38 @@
                             <children>
                                 <HBox spacing="20.0">
                                     <children>
-                                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0"
-                                               text="%notary.block"/>
-                                        <TextField fx:id="block" editable="false" HBox.hgrow="ALWAYS"/>
+                                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0" text="%notary.block" />
+                                        <TextField fx:id="blockMem" editable="false" HBox.hgrow="ALWAYS" />
                                     </children>
                                     <padding>
-                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                     </padding>
                                 </HBox>
                                 <HBox spacing="20.0">
                                     <children>
-                                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0"
-                                               text="%notary.mstatus"/>
-                                        <TextField disable="true" editable="false" maxWidth="100.0" text="IN"/>
+                                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0" text="%notary.mstatus" />
+                                        <TextField disable="true" editable="false" maxWidth="100.0" text="IN" />
                                     </children>
                                     <padding>
-                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                     </padding>
                                 </HBox>
                                 <HBox spacing="20.0">
                                     <children>
-                                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0"
-                                               text="%notary.userID"/>
-                                        <TextField fx:id="userid" onKeyTyped="#refresh" HBox.hgrow="ALWAYS"/>
+                                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0" text="%notary.userID" />
+                                        <TextField fx:id="useridMem" editable="false" onKeyTyped="#refresh" HBox.hgrow="ALWAYS" />
                                     </children>
                                     <padding>
-                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                     </padding>
                                 </HBox>
                                 <HBox spacing="20.0">
                                     <children>
-                                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0"
-                                               text="%notary.certTS"/>
-                                        <TextField fx:id="certTS" HBox.hgrow="ALWAYS"/>
+                                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0" text="%notary.certTS" />
+                                        <TextField fx:id="certTSMem" editable="false" HBox.hgrow="ALWAYS" />
                                     </children>
                                     <padding>
-                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                     </padding>
                                 </HBox>
                             </children>
@@ -153,62 +142,56 @@
                             <children>
                                 <HBox spacing="20.0">
                                     <children>
-                                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0"
-                                               text="%notary.receiver"/>
-                                        <ComboBox fx:id="cbReceiver" editable="true" prefWidth="150.0"/>
+                                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0" text="%notary.receiver" />
+                                        <ComboBox fx:id="cbReceiver" editable="true" prefWidth="150.0" />
                                     </children>
                                     <padding>
-                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                     </padding>
                                 </HBox>
                                 <HBox spacing="20.0">
                                     <children>
-                                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0"
-                                               text="%notary.idtyIssuer"/>
-                                        <TextField fx:id="idtyIssuer" onKeyTyped="#refresh" HBox.hgrow="ALWAYS"/>
+                                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0" text="%notary.idtyIssuer" />
+                                        <TextField fx:id="idtyIssuerCert" editable="false" onKeyTyped="#refresh" HBox.hgrow="ALWAYS" />
                                     </children>
                                     <padding>
-                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                     </padding>
                                 </HBox>
                                 <HBox spacing="20.0">
                                     <children>
-                                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0"
-                                               text="%notary.idtyUID"/>
-                                        <TextField fx:id="idtyUniqueID" onKeyTyped="#refresh" HBox.hgrow="ALWAYS"/>
+                                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0" text="%notary.idtyUID" />
+                                        <TextField fx:id="idtyUniqueIDCert" editable="false" onKeyTyped="#refresh" HBox.hgrow="ALWAYS" />
                                     </children>
                                     <padding>
-                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                     </padding>
                                 </HBox>
                                 <HBox spacing="20.0">
                                     <children>
-                                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0"
-                                               text="%notary.idtyTimestamp"/>
-                                        <TextField fx:id="idtyTimestamp" editable="false" HBox.hgrow="ALWAYS"/>
+                                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0" text="%notary.idtyTimestamp" />
+                                        <TextField fx:id="idtyTimestampCert" editable="false" HBox.hgrow="ALWAYS" />
                                     </children>
                                     <padding>
-                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                     </padding>
                                 </HBox>
                                 <HBox spacing="20.0">
                                     <children>
-                                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0"
-                                               text="%notary.idtySig"/>
-                                        <TextField fx:id="idtySignature" HBox.hgrow="ALWAYS"/>
+                                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0" text="%notary.idtySig" />
+                                        <TextField fx:id="idtySignatureCert" editable="false" HBox.hgrow="ALWAYS" />
                                     </children>
                                     <padding>
-                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                     </padding>
                                 </HBox>
                                 <HBox spacing="20.0">
                                     <children>
-                                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0"
-                                               text="%notary.certTimestamp"/>
-                                        <TextField fx:id="certTimestamp" editable="false" HBox.hgrow="ALWAYS"/>
+                                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0" text="%notary.certTimestamp" />
+                                        <TextField fx:id="certTimestampCert" editable="false" HBox.hgrow="ALWAYS" />
                                     </children>
                                     <padding>
-                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                     </padding>
                                 </HBox>
                             </children>
@@ -217,46 +200,43 @@
                             <children>
                                 <HBox spacing="20.0">
                                     <children>
-                                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0"
-                                               text="%notary.idtyUID"/>
-                                        <TextField fx:id="idtyUniqueIDRev" onKeyTyped="#refresh" HBox.hgrow="ALWAYS"/>
+                                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0" text="%notary.idtyUID" />
+                                        <TextField fx:id="idtyUniqueIDRev" editable="false" onKeyTyped="#refresh" HBox.hgrow="ALWAYS" />
                                     </children>
                                     <padding>
-                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                     </padding>
                                 </HBox>
                                 <HBox spacing="20.0">
                                     <children>
-                                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0"
-                                               text="%notary.idtyTimestamp"/>
-                                        <TextField fx:id="idtyTimestampRev" editable="false" HBox.hgrow="ALWAYS"/>
+                                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0" text="%notary.idtyTimestamp" />
+                                        <TextField fx:id="idtyTimestampRev" editable="false" HBox.hgrow="ALWAYS" />
                                     </children>
                                     <padding>
-                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                     </padding>
                                 </HBox>
                                 <HBox spacing="20.0">
                                     <children>
-                                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0"
-                                               text="%notary.idtySig"/>
-                                        <TextField fx:id="idtySignatureRev" onKeyTyped="#refresh" HBox.hgrow="ALWAYS"/>
+                                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0" text="%notary.idtySig" />
+                                        <TextField fx:id="idtySignatureRev" editable="false" onKeyTyped="#refresh" HBox.hgrow="ALWAYS" />
                                     </children>
                                     <padding>
-                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                     </padding>
                                 </HBox>
                             </children>
                         </VBox>
                     </children>
                 </HBox>
-                <Separator prefWidth="200.0"/>
+                <Separator prefWidth="200.0" />
                 <HBox spacing="20.0" VBox.vgrow="ALWAYS">
                     <children>
-                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0" text="%notary.signature"/>
-                        <TextField fx:id="signature" editable="false" prefWidth="400.0"/>
+                        <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0" text="%notary.signature" />
+                        <TextField fx:id="signature" editable="false" prefWidth="400.0" />
                     </children>
                     <padding>
-                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                     </padding>
                 </HBox>
             </children>

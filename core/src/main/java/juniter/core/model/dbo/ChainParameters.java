@@ -64,7 +64,7 @@ public class ChainParameters implements DUPDocument {
     private long sigStock = 100;
 
     /**
-     * Maximum delay a certification can wait before being expired for non-writing.
+     * Maximum delay a cert can wait before being expired for non-writing.
      */
     private long sigWindow = 5259600; // 60 days, 21 hours
 

@@ -28,7 +28,7 @@ import java.util.function.BinaryOperator;
  *
  * a block cannot have 2 identical certifications (A -> B)
  * a block cannot have 2 certifications from a same public key, except in block#0
- * a block cannot have a certification to a leaver or an excluded
+ * a block cannot have a cert to a leaver or an excluded
  * </pre>
  */
 @Data
@@ -82,7 +82,7 @@ public class CINDEX implements Comparable<CINDEX> {
     private transient DBBlock created_on;
     /**
      *  introduced as of version 11
-     *  allow replaying certification prior to its expiry
+     *  allow replaying cert prior to its expiry
      */
     private transient boolean isReplayable;
     private Long replayable_on;

@@ -14,6 +14,7 @@ import juniter.repository.jpa.net.EndPointsRepository;
 import juniter.repository.jpa.net.PeersRepository;
 import juniter.service.BlockService;
 import juniter.service.bma.NetworkService;
+import juniter.service.bma.PeerService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
@@ -52,13 +53,16 @@ public class PeerLoader {
     public static final Logger LOG = LogManager.getLogger(PeerLoader.class);
 
     @Autowired
-    private RestTemplate restTpl;
+    private RestTemplate restTemplate;
 
     @Value("#{'${juniter.network.trusted}'.split(',')}")
     private List<String> configuredNodes;
 
     @Autowired
     private PeersRepository peerRepo;
+
+    @Autowired
+    private PeerService peerService;
 
     @Autowired
     private BlockLoader blockLoader;
@@ -81,7 +85,7 @@ public class PeerLoader {
 
     private Optional<String> anyNotIn(final List<String> triedURL) {
         Collections.shuffle(configuredNodes);
-                return configuredNodes.stream()
+        return configuredNodes.stream()
                 .filter(node -> triedURL == null || !triedURL.contains(node))
                 .findAny();
     }
@@ -98,7 +102,7 @@ public class PeerLoader {
     }
 
     @Async
-    @Scheduled(fixedDelay = 10 * 60 * 1000)
+    @Scheduled(fixedDelay = 10 * 60 * 1000, initialDelay = 60 * 1000)
     public void runPeerCheck() {
 
         LOG.info("@Scheduled runPeerCheck ");
@@ -148,7 +152,7 @@ public class PeerLoader {
                     return;
 
                 } catch (Exception e) {
-                    LOG.warn("Retrying on " + host + " " , e);
+                    LOG.warn("Retrying after failing on " + host + " ", e);
                 }
 
             } else {
@@ -247,7 +251,7 @@ public class PeerLoader {
 
         LOG.info("fetchPeering try on " + url);
         try {
-            var peers = restTpl.getForObject(url, Peer.class);
+            var peers = restTemplate.getForObject(url, Peer.class);
 
             var bstamp = peers.getBlock();
 
@@ -270,25 +274,30 @@ public class PeerLoader {
     private PeersDTO fetchPeers(String nodeURL) {
 
         LOG.info("fetching peers using BMA at " + nodeURL + "network/peers");
-
-        var responseEntity = restTpl.exchange(nodeURL + "network/peers",
-                HttpMethod.GET, null, new ParameterizedTypeReference<PeersDTO>() {
-                });
-
-        final var peers = responseEntity.getBody();
-        final var contentType = responseEntity.getHeaders().getContentType();
-        final var statusCode = responseEntity.getStatusCode();
-
-        LOG.info("Found peers: " + peers.getPeers().size() + ", status : " + statusCode.getReasonPhrase()
-                + ", ContentType: " + contentType);
-
-        LOG.info(" - " + peers.getPeers());
+        try {
 
 
-        save(peers);
+            var responseEntity = restTemplate.exchange(nodeURL + "network/peers",
+                    HttpMethod.GET, null, new ParameterizedTypeReference<PeersDTO>() {
+                    });
 
+            final var peers = responseEntity.getBody();
+            final var contentType = responseEntity.getHeaders().getContentType();
+            final var statusCode = responseEntity.getStatusCode();
 
-        return peers;
+            LOG.info("Found peers: " + peers.getPeers().size() + ", status : " + statusCode.getReasonPhrase()
+                    + ", ContentType: " + contentType);
+
+            LOG.info(" - " + peers.getPeers());
+            save(peers);
+
+            return peers;
+
+        } catch (Exception e) {
+            peerService.reportError(EndPointType.BMAS, nodeURL);
+        }
+
+        return new PeersDTO(new ArrayList<>());
         //return peers.getPeers().stream().map(b -> modelMapper.map(b, Peer.class)).collect(Collectors.toList());
     }
 

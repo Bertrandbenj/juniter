@@ -1485,7 +1485,7 @@ public interface GlobalValid {
         if (head.getNumber() > 0 && head_1().getVersion() > 10) {
             entry.setReplayable(reducible.size() == 0 || reducible.stream().reduce(CINDEX.reducer).orElseThrow().getReplayable_on() < head_1().getMedianTime());
         } else {
-            // v10 blocks do not allow certification replay
+            // v10 blocks do not allow cert replay
             entry.setReplayable(false);
         }
 

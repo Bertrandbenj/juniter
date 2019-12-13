@@ -22,7 +22,7 @@ import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static juniter.gui.JuniterBindings.Theme.JMetroBase;
+import static juniter.gui.technical.Theme.JMetroBase;
 import static juniter.gui.JuniterBindings.screenController;
 import static juniter.gui.JuniterBindings.selectedTheme;
 

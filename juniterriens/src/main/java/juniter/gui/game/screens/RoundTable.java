@@ -57,12 +57,12 @@ public class RoundTable extends Room {
             if (!popupOpen) {
                 if (moul.intersects(x)) {
                     popupOpen = true;
-                    popupOpen = TxBox.display("JT:TKS:PASSEUR", "GfKERHnJTYzKhKUma5h1uWhetbA8yHKymhVH2raf2aCP");
+                    popupOpen = TxBox.displayLater("JT:TKS:DEATHREAPER", "FuorSmMNh27Duufcx8anHdHaU3wAw2YmjCRh1b9UWEdP");
                 }
 
                 if (gerard.intersects(x)) {
                     popupOpen = true;
-                    popupOpen = TxBox.display("JT:TKS:WOTWIZARD", "CRBxCJrTA6tmHsgt9cQh9SHcCc8w8q95YTp38CPHx2Uk");
+                    popupOpen = TxBox.displayLater("JT:TKS:WOTWIZARD", "CRBxCJrTA6tmHsgt9cQh9SHcCc8w8q95YTp38CPHx2Uk");
                 }
             }
         });

@@ -288,7 +288,6 @@ public class BlockLoader implements BlockLocalValid {
         String url = null;
         final var attempts = 0;
         Optional<NetStats> host;
-        peerService.reload(EndPointType.BMAS);
         while (body == null && (host = peerService.nextHost(EndPointType.BMAS)).isPresent()) {
 
             try {

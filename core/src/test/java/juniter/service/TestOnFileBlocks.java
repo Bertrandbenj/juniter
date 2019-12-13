@@ -20,7 +20,7 @@ public class TestOnFileBlocks implements BlockLocalValid {
 	private static final Logger LOG = LogManager.getLogger(TestOnFileBlocks.class);
 
 	/**
-	 * joiners/identity/certification & parameters
+	 * joiners/identity/cert & parameters
 	 */
 	public DBBlock _0;
 

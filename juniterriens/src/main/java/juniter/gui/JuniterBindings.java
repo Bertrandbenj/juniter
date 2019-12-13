@@ -13,32 +13,14 @@ import juniter.core.model.dbo.tx.TxInput;
 import juniter.gui.technical.I18N;
 import juniter.gui.technical.PageName;
 import juniter.gui.technical.ScreenController;
+import juniter.gui.technical.Theme;
 import juniter.service.bma.PeerService;
 
 import java.util.*;
 
-import static juniter.gui.JuniterBindings.Theme.*;
+import static juniter.gui.technical.Theme.*;
 
 public interface JuniterBindings {
-
-
-    enum Theme {
-        JMetroBase("/gui/css/JMetroBase.css"),
-        BLANK_THEME("/gui/css/JMetroBase.css"),
-        DARK_THEME("/gui/css/JMetroDarkTheme.css"),
-        LIGHT_THEME("/gui/css/JMetroLightTheme.css");
-
-
-        private final String THETHEME;
-
-        Theme(String ept) {
-            this.THETHEME = ept;
-        }
-
-        public String getTheme() {
-            return this.THETHEME;
-        }
-    }
 
 
     StringProperty CURRENCY = new SimpleStringProperty("g1");
@@ -49,7 +31,7 @@ public interface JuniterBindings {
 //    String LIGHT_THEME = "/gui/css/JMetroLightTheme.css";
 
     DoubleProperty overallTaxRate = new SimpleDoubleProperty(20.);
-     DBBlock block_0 = new DBBlock();
+    DBBlock block_0 = new DBBlock();
 
 
     Map<String, Double> tax = Map.of(
@@ -68,8 +50,8 @@ public interface JuniterBindings {
 
     // updatable value from the outside
     ObjectProperty<BINDEX> currentBindex = new SimpleObjectProperty(null);
-    IntegerProperty  currentBindexN = new SimpleIntegerProperty(0);
-     DoubleProperty currentDBBlockNum = new SimpleDoubleProperty(42.);
+    IntegerProperty currentBindexN = new SimpleIntegerProperty(0);
+    DoubleProperty currentDBBlockNum = new SimpleDoubleProperty(42.);
     DoubleProperty highestDBBlock = new SimpleDoubleProperty(42.);
 
     DoubleProperty maxPeerBlock = new SimpleDoubleProperty(42.);
@@ -83,7 +65,7 @@ public interface JuniterBindings {
     StringProperty memoryLogMessage = new SimpleStringProperty(" ... ");
     StringProperty docPoolLogMessage = new SimpleStringProperty(" ... ");
 
-    ArrayList<String> input = new ArrayList<>();
+    ArrayList<String> keyboardInput = new ArrayList<>();
 
     ObjectProperty<Theme> selectedTheme = new SimpleObjectProperty(DARK_THEME);
     ObservableList<Theme> themes = FXCollections.observableArrayList(DARK_THEME, LIGHT_THEME, BLANK_THEME);
@@ -91,6 +73,8 @@ public interface JuniterBindings {
     ObjectProperty<ResourceBundle> resources = new SimpleObjectProperty<>();
     StringProperty targetPubkey = new SimpleStringProperty();
     StringProperty targetComment = new SimpleStringProperty();
+
+    BooleanProperty advancedUser = new SimpleBooleanProperty(true);
 
 
     default StringBinding getStringBinding(String key) {

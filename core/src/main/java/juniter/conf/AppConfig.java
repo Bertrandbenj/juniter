@@ -1,5 +1,7 @@
 package juniter.conf;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import juniter.core.model.dto.raw.WrapperResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
@@ -14,12 +16,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
 import javax.sql.DataSource;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.concurrent.Executor;
 import java.util.stream.Stream;
@@ -65,10 +70,15 @@ public class AppConfig {
 
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder restTemplateBuilder) {
-        return restTemplateBuilder
-                .setConnectTimeout(5 * 1000)
-                .setReadTimeout(5 * 1000)
+
+
+        var restTemplate =  restTemplateBuilder
+                .setConnectTimeout(15 * 1000)
+                .setReadTimeout(15 * 1000)
                 .build();
+
+
+        return restTemplate ;
     }
 
 

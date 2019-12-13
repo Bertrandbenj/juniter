@@ -8,6 +8,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.*;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Tooltip;
 import javafx.stage.Stage;
@@ -18,19 +19,20 @@ import juniter.gui.technical.I18N;
 import juniter.service.BlockService;
 import juniter.service.bma.PeerService;
 import juniter.service.bma.loader.PeerLoader;
+import juniter.service.ws2p.WebSocketPool;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
-import java.text.DecimalFormat;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
-import static juniter.gui.JuniterBindings.currentBindex;
-import static juniter.gui.JuniterBindings.currentBindexN;
+import static juniter.gui.JuniterBindings.*;
+import static juniter.gui.technical.Formats.DECIMAL_2;
 
 @ConditionalOnExpression("${juniter.useJavaFX:false}")
 @Component
@@ -38,6 +40,17 @@ public class Network extends AbstractJuniterFX implements Initializable {
 
     private static final Logger LOG = LogManager.getLogger(Network.class);
 
+    @FXML
+    public CheckBox ws2pCombo;
+
+    @FXML
+    public CheckBox BMApingCombo;
+
+    @Value("${juniter.useWS2P:false}")
+    private Boolean useWS2P;
+
+    @Value("${juniter.useBMA:false}")
+    private Boolean useBMA;
 
     @FXML
     private ComboBox<String> period;
@@ -82,6 +95,9 @@ public class Network extends AbstractJuniterFX implements Initializable {
     @Autowired
     private BlockService blockService;
 
+    @Autowired
+    private WebSocketPool webSocketPool;
+
 
     public static ObservableList<NetStats> observableNetStats = FXCollections.observableArrayList();
     private static ObservableList<String> observablePeriodList = FXCollections.observableArrayList("Day", "Week", "Month", "Equinox", "Year", "All");
@@ -120,39 +136,15 @@ public class Network extends AbstractJuniterFX implements Initializable {
 
     private IntegerProperty PERIOD = new SimpleIntegerProperty(3 * 288);
 
-    @FXML
-    @SuppressWarnings("unchecked")
-    private void refreshGraphs() {
-
-
-            /*
-             * Browsing through the Data and applying ToolTip
-             * as well as the class on hover
-
-            for (XYChart.Series<Integer, Long> s : medianTimeChart.getData()) {
-                for (XYChart.Data<Integer, Long> d : s.getData()) {
-                    Tooltip.install(d.getNode(), new Tooltip(
-                            d.getXValue().toString() + "\n" +
-                                    "Number Of Events : " + d.getYValue()));
-
-
-                    if (d.getNode() != null) {
-                        //Adding class on hover
-                        d.getNode().setOnMouseEntered(event -> d.getNode().getStyleClass().add("onHover"));
-
-                        //Removing class on exit
-                        d.getNode().setOnMouseExited(event -> d.getNode().getStyleClass().remove("onHover"));
-
-                    }
-                }
-            }
-*/
-
-    }
-
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+
+        BMApingCombo.selectedProperty().addListener((obs, old, newValue) -> peerService.getPinging().lazySet(newValue));
+        BMApingCombo.setSelected(useBMA);
+
+        ws2pCombo.selectedProperty().addListener((obs, old, newValue) -> webSocketPool.getRunning().lazySet(newValue));
+        ws2pCombo.setSelected(useWS2P);
 
         period.setItems(observablePeriodList);
 
@@ -250,7 +242,7 @@ public class Network extends AbstractJuniterFX implements Initializable {
                             .collect(Collectors.toList()));
 
             for (final PieChart.Data data : netPieChartData) {
-                Tooltip.install(data.getNode(), new Tooltip(df.format(data.getPieValue() * 100) + "%"));
+                Tooltip.install(data.getNode(), new Tooltip(DECIMAL_2.format(data.getPieValue() * 100) + "%"));
             }
 
         });
@@ -289,13 +281,9 @@ public class Network extends AbstractJuniterFX implements Initializable {
 
         observableBlockNetInfos.setAll(blockService.issuersFrameFromTo(currentBindexN.subtract(PERIOD).intValue(), currentBindexN.get()));
 
+
     }
 
-    private DecimalFormat df = new DecimalFormat("#.##");
 
-    @FXML
-    public void ping() {
-        peerService.pings();
-    }
 
 }

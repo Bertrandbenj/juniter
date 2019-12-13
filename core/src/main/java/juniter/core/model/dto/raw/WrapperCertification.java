@@ -8,9 +8,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class WrapperCertification implements Wrapper{
 
-    String certification;
+    String cert;
 
     public WrapperCertification(String rawDoc) {
-        this.certification = rawDoc;
+        this.cert = rawDoc;
     }
 }

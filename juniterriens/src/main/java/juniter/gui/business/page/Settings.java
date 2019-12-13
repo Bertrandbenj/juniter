@@ -9,12 +9,13 @@ import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import juniter.core.validation.BlockLocalValid;
 import juniter.gui.JuniterBindings;
-import juniter.gui.technical.AbstractJuniterFX;
 import juniter.gui.business.popup.AlertBox;
+import juniter.gui.technical.AbstractJuniterFX;
 import juniter.gui.technical.I18N;
+import juniter.gui.technical.Theme;
 import juniter.service.BlockService;
 import juniter.service.ipfs.Interplanetary;
-import juniter.service.ws2p.WebSocketPool;
+import juniter.user.UnitDisplay;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +29,7 @@ import java.util.ResourceBundle;
 import java.util.stream.Stream;
 
 import static juniter.gui.JuniterBindings.*;
-import static juniter.gui.JuniterBindings.Theme.JMetroBase;
-import static juniter.user.UserSettings.UnitDisplay;
+import static juniter.gui.technical.Theme.JMetroBase;
 
 
 @Component
@@ -58,8 +58,6 @@ public class Settings extends AbstractJuniterFX implements Initializable {
 
 
     @FXML
-    public CheckBox ws2p;
-    @FXML
     private PasswordField salt;
     @FXML
     private PasswordField pass;
@@ -72,21 +70,12 @@ public class Settings extends AbstractJuniterFX implements Initializable {
     @FXML
     private ComboBox<Theme> themeCB;
 
-    //private UserSettings userSettings = new UserSettings();
-
-
-    @Autowired
-    private WebSocketPool webSocketPool;
-
 
     @Autowired
     private BlockService blockService;
 
     @Autowired
     private Optional<Interplanetary> interplanetary;
-
-    @Value("${juniter.useWS2P:false}")
-    private Boolean useWS2P;
 
 
     @Override
@@ -109,8 +98,6 @@ public class Settings extends AbstractJuniterFX implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         forksize.setText(forkSize.toString());
-
-        ws2p.setSelected(useWS2P);
 
         //secretBox.set(userSettings.getNodeKey());
 
@@ -176,17 +163,6 @@ public class Settings extends AbstractJuniterFX implements Initializable {
                 "https://g1-monit.librelois.fr/",
                 "https://www.gchange.fr/#/app/market/lg"));
 
-
-        ws2p.selectedProperty().addListener(l -> {
-            LOG.info("WS2P: running? " + ws2p.isSelected());
-
-            if (ws2p.isSelected()) {
-                webSocketPool.restart();
-            } else {
-                webSocketPool.stop();
-            }
-
-        });
 
     }
 

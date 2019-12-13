@@ -11,8 +11,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Data
 @AllArgsConstructor
-@Entity
-@Table(name = "netStats", schema = "public", uniqueConstraints = @UniqueConstraint(columnNames = {"host"}))
+//@Entity
+//@Table(name = "netStats", schema = "public", uniqueConstraints = @UniqueConstraint(columnNames = {"host"}))
 
 public class NetStats implements Comparable<NetStats> {
 

@@ -103,8 +103,7 @@
 
                         <HBox alignment="CENTER_LEFT" spacing="20.0">
                             <children>
-                                <Label alignment="CENTER" prefWidth="200.0" text="%settings.node.runWS2P" />
-                                <CheckBox fx:id="ws2p" mnemonicParsing="false" text="WS2P" />
+
                             </children>
                             <opaqueInsets>
                                 <Insets />

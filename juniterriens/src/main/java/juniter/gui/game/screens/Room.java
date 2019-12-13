@@ -30,7 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import static juniter.gui.JuniterBindings.input;
+import static juniter.gui.JuniterBindings.keyboardInput;
 
 @Getter
 @Setter
@@ -103,27 +103,27 @@ public abstract class Room implements Initializable {
             });
 
             // Handle player actions
-//            if(JuniterBindings.input.isEmpty()){
+//            if(JuniterBindings.keyboardInput.isEmpty()){
             Player.get().setVelocity(0, 0);
             bunny.setVelocity(0, 0);
 //            }
-            if (input.contains("LEFT")) {
+            if (keyboardInput.contains("LEFT")) {
                 Player.get().addVelocity(-1, 0, boundsInScene);
                 bunny.addVelocity(-200, 0, boundsInScene);
             }
-            if (input.contains("RIGHT")) {
+            if (keyboardInput.contains("RIGHT")) {
                 Player.get().addVelocity(1, 0, boundsInScene);
                 bunny.addVelocity(200, 0, boundsInScene);
             }
-            if (input.contains("UP")) {
+            if (keyboardInput.contains("UP")) {
                 Player.get().addVelocity(0, -1, boundsInScene);
                 bunny.addVelocity(0, -200, boundsInScene);
             }
-            if (input.contains("DOWN")) {
+            if (keyboardInput.contains("DOWN")) {
                 Player.get().addVelocity(0, 1, boundsInScene);
                 bunny.addVelocity(0, 200, boundsInScene);
             }
-            if (input.contains("SPACE") && Player.get().getScore() > 0) {
+            if (keyboardInput.contains("SPACE") && Player.get().getScore() > 0) {
                 collectables.add(Player.get().payment());
                 Player.get().score--;
             }

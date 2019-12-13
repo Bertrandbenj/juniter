@@ -17,8 +17,7 @@ import java.util.Comparator;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
-import static juniter.gui.JuniterBindings.currenBlock;
-import static juniter.gui.JuniterBindings.rawDocument;
+import static juniter.gui.JuniterBindings.*;
 
 /**
  * inspiration here https://github.com/buckyroberts/Source-Code-from-Tutorials
@@ -55,7 +54,7 @@ public class WotPanel implements Initializable {
     @FXML
     private Label pk;
     @FXML
-    private TextField userid;
+    private TextField useridMem;
     @FXML
     private TextField version;
     @FXML
@@ -63,25 +62,25 @@ public class WotPanel implements Initializable {
 
 
     @FXML
-    private TextField uniqueID;
+    private TextField uniqueIDIdty;
     @FXML
-    private TextField timestamp;
+    private TextField timestampIdty;
     @FXML
     private TextField signature;
     @FXML
-    private TextField certTimestamp;
+    private TextField certTimestampCert;
     @FXML
-    private TextField idtySignature;
+    private TextField idtySignatureCert;
     @FXML
-    private TextField idtyTimestamp;
+    private TextField idtyTimestampCert;
     @FXML
-    private TextField idtyUniqueID;
+    private TextField idtyUniqueIDCert;
     @FXML
-    private TextField idtyIssuer;
+    private TextField idtyIssuerCert;
     @FXML
-    private TextField certTS;
+    private TextField certTSMem;
     @FXML
-    private TextField block;
+    private TextField blockMem;
     @FXML
     private TextField idtySignatureRev;
     @FXML
@@ -93,6 +92,9 @@ public class WotPanel implements Initializable {
     @Autowired
     private IINDEXRepository iRepo;
 
+    @Autowired
+    private IINDEXRepository mRepo;
+
     private Document doc;
 
 
@@ -102,18 +104,41 @@ public class WotPanel implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        version.editableProperty().bind(advancedUser);
+        currency.editableProperty().bind(advancedUser);
+        signature.editableProperty().bind(advancedUser);
+        timestampIdty.editableProperty().bind(advancedUser);
+        certTimestampCert.editableProperty().bind(advancedUser);
+        idtySignatureCert.editableProperty().bind(advancedUser);
+        idtyUniqueIDCert.editableProperty().bind(advancedUser);
+        idtyTimestampCert.editableProperty().bind(advancedUser);
+        idtyIssuerCert.editableProperty().bind(advancedUser);
+        idtySignatureRev.editableProperty().bind(advancedUser);
+        idtyTimestampRev.editableProperty().bind(advancedUser);
+        idtyUniqueIDRev.editableProperty().bind(advancedUser);
+
 
         boxIdty.managedProperty().bind(boxIdty.visibleProperty());
         boxCertification.managedProperty().bind(boxCertification.visibleProperty());
         boxMembership.managedProperty().bind(boxMembership.visibleProperty());
         boxRevocation.managedProperty().bind(boxRevocation.visibleProperty());
+        pk.textProperty().addListener(c -> {
+            var assocIdentity = iRepo.byUidOrPubkey(null, pk.getText()).get(0);
+            var assocMembership = mRepo.byUidOrPubkey(null, pk.getText()).get(0);
+
+            useridMem.setText(assocIdentity.getUid());
+            certTSMem.setText(assocMembership.getSigned().toString());
+
+            idtySignatureRev.setText(assocIdentity.getSig());
+            idtyTimestampRev.setText(assocIdentity.getSigned().toString());
+            idtyUniqueIDRev.setText(assocIdentity.getUid());
+
+        });
 
         var b = currenBlock.get();
-        timestamp.setText(b.bstamp());
-        block.setText(b.bstamp());
-        certTS.setText(b.bstamp());
-        certTimestamp.setText(b.bstamp());
-        idtyTimestamp.setText(b.bstamp());
+        timestampIdty.setText(b.bstamp());
+        blockMem.setText(b.bstamp());
+        certTimestampCert.setText(b.bstamp());
 
 
         switchIdty();
@@ -124,6 +149,13 @@ public class WotPanel implements Initializable {
 
         cbReceiver.setCellFactory(t -> new IdentityListCell());
 
+        cbReceiver.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            var assocIdentity = iRepo.byUidOrPubkey(null, newValue.getPub()).get(0);
+            idtyIssuerCert.setText(assocIdentity.getPub());
+            idtyUniqueIDCert.setText(assocIdentity.getUid());
+            idtyTimestampCert.setText(assocIdentity.getSigned().toString());
+            idtySignatureCert.setText(assocIdentity.getSig());
+        });
 
     }
 
@@ -135,6 +167,8 @@ public class WotPanel implements Initializable {
                 setText(item.getUid() + " / " + item.getPub());
             }
         }
+
+
     }
 
     @FXML
@@ -147,8 +181,8 @@ public class WotPanel implements Initializable {
                     version.getText(),
                     currency.getText(),
                     sb.getPublicKey(),
-                    uniqueID.getText(),
-                    timestamp.getText());
+                    uniqueIDIdty.getText(),
+                    timestampIdty.getText());
             var idty = (IdentityDoc) doc;
 
             var sign = sb.sign(idty.unsignedDoc());
@@ -161,11 +195,11 @@ public class WotPanel implements Initializable {
                     version.getText(),
                     currency.getText(),
                     sb.getPublicKey(),
-                    idtyIssuer.getText(),
-                    idtyUniqueID.getText(),
-                    idtyTimestamp.getText(),
-                    idtySignature.getText(),
-                    certTimestamp.getText());
+                    idtyIssuerCert.getText(),
+                    idtyUniqueIDCert.getText(),
+                    idtyTimestampCert.getText(),
+                    idtySignatureCert.getText(),
+                    certTimestampCert.getText());
             var cert = (CertificationDoc) doc;
 
             var sign = sb.sign(cert.unsignedDoc());
@@ -194,10 +228,10 @@ public class WotPanel implements Initializable {
                     version.getText(),
                     currency.getText(),
                     sb.getPublicKey(),
-                    block.getText(),
+                    blockMem.getText(),
                     "IN",
-                    userid.getText(),
-                    certTimestamp.getText());
+                    useridMem.getText(),
+                    certTimestampCert.getText());
             var mem = (MembershipDoc) doc;
 
             var sign = sb.sign(mem.unsignedDoc());

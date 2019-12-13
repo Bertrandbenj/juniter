@@ -38,7 +38,7 @@ public class Neighbourhood extends Room {
 
                 if (frama.intersects(x)) {
                     popupOpen = true;
-                    popupOpen = TxBox.display("JT:TKS:FRAMA", "XXX");
+                    popupOpen = TxBox.displayLater("JT:TKS:FRAMA", "XXX");
                 }
 
                 if (vote.intersects(x)) {
