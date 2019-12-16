@@ -22,7 +22,7 @@ import static juniter.core.model.dbo.net.EndPointType.*;
 @Data
 @ToString
 @NoArgsConstructor
-@Table(name = "endpoint", schema = "public")
+@Table(name = "net_endpoint", schema = "public")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class EndPoint {
 

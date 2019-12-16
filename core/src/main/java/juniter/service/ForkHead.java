@@ -1,17 +1,13 @@
 package juniter.service;
 
 
-import com.codahale.metrics.annotation.Counted;
 import juniter.core.crypto.Crypto;
+import juniter.core.crypto.SecretBox;
 import juniter.core.event.CoreEvent;
 import juniter.core.event.NewBlock;
 import juniter.core.event.PossibleFork;
-import juniter.core.model.DUPDocument;
 import juniter.core.model.dbo.DBBlock;
-import juniter.core.model.dbo.index.BINDEX;
-import juniter.core.model.dbo.wot.Identity;
-import juniter.repository.jpa.index.BINDEXRepository;
-import juniter.user.UserSettings;
+import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +19,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -38,9 +35,6 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
     private Index index;
 
     @Autowired
-    private BINDEXRepository bRepo;
-
-    @Autowired
     private BlockService blockService;
 
     @Value("${juniter.forkSize:100}")
@@ -48,9 +42,10 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
 
     private AtomicInteger reverted = new AtomicInteger(0);
 
-    //@Autowired
-    //private UserSettings settings;
+    @Autowired
+    private Sandboxes sandboxes;
 
+    private SecretBox sb = new SecretBox("salt", "password");
 
     @PostConstruct
     public void init() {
@@ -63,12 +58,7 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
     }
 
 
-    private BINDEX current() {
-        return bRepo.head().orElseThrow();
-    }
-
-
-    private DBBlock forge(DBBlock prev, DUPDocument... docs) {
+    private DBBlock forge(DBBlock prev) {
         var block = new DBBlock();
         block.setNumber(prev.getNumber() + 1);
         block.setCurrency(prev.getCurrency());
@@ -77,7 +67,11 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
         block.setTime(System.currentTimeMillis());
         block.setMedianTime(System.currentTimeMillis());
         block.setDividend(prev.getDividend());
-        //block.setIssuer(settings.getNodeKey().getPublicKey());
+        block.setCertifications(sandboxes.getPendingCertifications());
+        block.setMembers(sandboxes.getPendingMemberships());
+        block.setIdentities(sandboxes.getPendingIdentities());
+        block.setTransactions(sandboxes.getPendingTransactions());
+        block.setIssuer(sb.getPublicKey());
 
         // get Issuers Frame, frameVar and Count
         var issuers = index.getIssuers();
@@ -99,29 +93,28 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
         return block;
     }
 
+    @Getter
+    private AtomicBoolean forgeCurrent = new AtomicBoolean(true);
+
     private DBBlock proove(String ccy) {
-        var prev = blockService.current();
-        if (prev.isPresent()) {
-            var newBlock = forge(prev.get(), new Identity());
+        var prev = blockService.current(ccy);
 
-            // Compute the hash
-            boolean found = false;
-            long nonce = 0L;
-            while (!found) {
-                newBlock.setNonce(nonce++);
-
-                String hash = Crypto.hash(newBlock.signedPartSigned());
-                if (hash.startsWith("0000")) {
-                    LOG.info("has 4 zeros");
-                    newBlock.setHash(hash);
-                    found = true;
-                }
-
-            }
+        var newBlock = forge(prev);
+        LOG.info("Forged " + newBlock.toDUP());
+        var tryHead = index.prepareIndexForForge();
+        String hash = "XXXXX";
+        var nonce = 10099900011440L;
+        while (forgeCurrent.get() && !index.isValid(tryHead, newBlock)) {
+            newBlock.setNonce(nonce++);
+            hash = Crypto.hash(newBlock.signedPartSigned());
+            tryHead.setHash(hash);
         }
+        newBlock.setHash(hash);
 
-        return null;
-    }
+        LOG.info("Prooved "+ newBlock.toDUP());
+
+        return newBlock;
+}
 
 
     @Scheduled(fixedDelay = 30 * 1000, initialDelay = 60 * 1000)
@@ -150,13 +143,13 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
             var bl = newBlockEvent.getWhat();
             LOG.info("newBlockEvent " + newBlockEvent);
 
-            if (current().getNumber() < bl.getNumber()) {
+            if (index.head_().getNumber() < bl.getNumber()) {
                 index.indexUntil(bl.getNumber(), false, bl.getCurrency());
             }
 
         } else if (event instanceof PossibleFork) {
             var forkEv = (PossibleFork) event;
-            LOG.info("forkEv " + forkEv);
+            LOG.info("PossibleFork " + forkEv);
             var head = index.head().orElseThrow().getNumber();
 
             if (reverted.get() < forkSize) {

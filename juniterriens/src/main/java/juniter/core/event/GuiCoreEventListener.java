@@ -1,12 +1,16 @@
 package juniter.core.event;
 
 import javafx.application.Platform;
+import javafx.geometry.Pos;
 import juniter.core.model.dbo.DBBlock;
-import juniter.core.model.dbo.NetStats;
 import juniter.core.model.dbo.index.BINDEX;
+import juniter.core.model.dbo.net.NetStats;
 import juniter.gui.business.page.Network;
+import juniter.gui.technical.ScreenController;
+import juniter.user.UserSettings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.controlsfx.control.Notifications;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
 
@@ -22,9 +26,13 @@ public class GuiCoreEventListener implements ApplicationListener<CoreEvent> {
 
     private static final Logger LOG = LogManager.getLogger(GuiCoreEventListener.class);
 
+    private final List<String> wallets = new UserSettings().getWallets();
 
     @Override
     public void onApplicationEvent(CoreEvent event) {
+
+        var notifTitle = "";
+        var notifText = "";
 
         switch (event.getName()) {
             case "NewBINDEX":
@@ -32,10 +40,17 @@ public class GuiCoreEventListener implements ApplicationListener<CoreEvent> {
                 break;
 
             case "NewBlock":
-                Platform.runLater(() -> {
-                    currenBlock.setValue(((DBBlock) event.getWhat()));
-                    currentDBBlockNum.setValue(((DBBlock) event.getWhat()).getNumber());
+                var block = (DBBlock) event.getWhat();
+                notifTitle = "a new " + block.getCurrency() + " block as been created ";
+                notifText = "# " + block.getNumber();
 
+                if (wallets.contains(block.getIssuer())) {
+                    notifText += "congrats you forged this block";
+                }
+
+                Platform.runLater(() -> {
+                    currenBlock.setValue(block);
+                    currentDBBlockNum.setValue(block.getNumber());
                 });
                 break;
 
@@ -56,8 +71,9 @@ public class GuiCoreEventListener implements ApplicationListener<CoreEvent> {
                 break;
 
             case "RenormalizedNet":
-                LOG.info("RenormalizedNet" + event.getWhat());
-                Platform.runLater(() -> Network.observableNetStats.setAll((List<NetStats>) event.getWhat()));
+                var list = (List<NetStats>) event.getWhat();
+                //LOG.info("RenormalizedNet " +list.stream().sorted().limit(5));
+                Platform.runLater(() -> Network.observableNetStats.setAll(list));
                 break;
 
             case "LogNetwork":
@@ -81,5 +97,13 @@ public class GuiCoreEventListener implements ApplicationListener<CoreEvent> {
 
         }
 
+        if (!notifTitle.isEmpty())
+            Notifications.create()
+                    .title(notifTitle)
+                    .text(notifText)
+                    .owner(ScreenController.singleton.getMain().getWindow())
+                    .position(Pos.TOP_RIGHT)
+                    .darkStyle()
+                    .showInformation();
     }
 }

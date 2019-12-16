@@ -14,13 +14,13 @@ public class KafkaTest {
 	//
 	//	private Map<String, Object> consumerProps() {
 	//		final Map<String, Object> props = new HashMap<>();
-	//		props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
-	//		props.put(ConsumerConfig.GROUP_ID_CONFIG, group);
-	//		props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
-	//		props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "100");
-	//		props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, "15000");
-	//		props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, IntegerDeserializer.class);
-	//		props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+	//		props.queue(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+	//		props.queue(ConsumerConfig.GROUP_ID_CONFIG, group);
+	//		props.queue(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
+	//		props.queue(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "100");
+	//		props.queue(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, "15000");
+	//		props.queue(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, IntegerDeserializer.class);
+	//		props.queue(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
 	//		return props;
 	//	}
 	//
@@ -42,13 +42,13 @@ public class KafkaTest {
 	//
 	//	private Map<String, Object> senderProps() {
 	//		final Map<String, Object> props = new HashMap<>();
-	//		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
-	//		props.put(ProducerConfig.RETRIES_CONFIG, 0);
-	//		props.put(ProducerConfig.BATCH_SIZE_CONFIG, 16384);
-	//		props.put(ProducerConfig.LINGER_MS_CONFIG, 1);
-	//		props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, 33554432);
-	//		props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, IntegerSerializer.class);
-	//		props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+	//		props.queue(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+	//		props.queue(ProducerConfig.RETRIES_CONFIG, 0);
+	//		props.queue(ProducerConfig.BATCH_SIZE_CONFIG, 16384);
+	//		props.queue(ProducerConfig.LINGER_MS_CONFIG, 1);
+	//		props.queue(ProducerConfig.BUFFER_MEMORY_CONFIG, 33554432);
+	//		props.queue(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, IntegerSerializer.class);
+	//		props.queue(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
 	//		return props;
 	//	}
 	//

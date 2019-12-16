@@ -23,6 +23,9 @@ public interface BINDEXRepository extends JpaRepository<BINDEX, Long> {
     @Override
     List<BINDEX> findAll();
 
+    @Query("FROM BINDEX b ORDER BY number")
+    List<BINDEX> allAsc();
+
     @Override
     void delete(BINDEX entity);
 

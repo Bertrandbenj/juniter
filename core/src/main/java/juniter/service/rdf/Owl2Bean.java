@@ -146,7 +146,7 @@ public interface Owl2Bean extends Helpers {
                                 LOG.error(e.getClass().getSimpleName() + " on field " + fName + " => " + val + " using class " + clazz + " using method " + setterOfField(ont, clazz, fName) + " " + e.getMessage(), e);
                             }
 
-                            //values.put(fName, safeCastRDFNode(val, fName, clazz));
+                            //values.queue(fName, safeCastRDFNode(val, fName, clazz));
                         }
 
                     });

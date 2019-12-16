@@ -25,6 +25,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
@@ -88,11 +89,7 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
 
     @FXML
     public void bulkLoad() {
-
-        if (isDownloading.getValue()) {
-            return;
-        }
-        blockLoader.bulkLoad2();
+        blockLoader.startBulkLoad();
     }
 
 
@@ -104,7 +101,7 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
 
     @Override
     public void start(Stage primaryStage) {
-        LOG.info("Starting Notary");
+        LOG.info("Starting FrontPage");
 
         notifyPreloader(new Preloader.StateChangeNotification(Preloader.StateChangeNotification.Type.BEFORE_START));
 
@@ -113,7 +110,7 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
         }
 
         var scene = screenController.getMain();
-        if (screenController.getMain() == null) {
+        if (scene == null) {
             BorderPane page = (BorderPane) load("/gui/page/FrontPage.fxml");
 
             screenController.addScreen(PageName.MAIN, page);
@@ -137,7 +134,7 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
         loadBar.progressProperty().bind(currentDBBlockNum.divide(maxPeerBlock));
         currentDBBlockNum.setValue(blockService.currentBlockNumber());
 
-        currentBindex.setValue(bRepo.head().get());
+        currentBindex.setValue(bRepo.head().orElse(BINDEX.before0()));
         currentBindexN.bind(Bindings.createDoubleBinding(() -> new SimpleDoubleProperty().add(currentBindex.get().getNumber()).doubleValue(), currentBindex));
 
         highestDBBlock.setValue(blockService.currentBlockNumber());

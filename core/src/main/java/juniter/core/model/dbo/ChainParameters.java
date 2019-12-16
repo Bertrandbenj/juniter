@@ -19,9 +19,7 @@ import javax.persistence.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-//@Table(name = "chainParam", schema = "public", uniqueConstraints = {
-//        @UniqueConstraint(columnNames = {"currency"})
-//})
+@Table(name = "chainparameters", schema = "public")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ChainParameters implements DUPDocument {
 
@@ -30,12 +28,6 @@ public class ChainParameters implements DUPDocument {
     }
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Short id;
-
-    /**
-     * The currency name
-     */
     private String currency;
 
     /**

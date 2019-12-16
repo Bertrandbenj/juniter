@@ -4,6 +4,9 @@
 
 juniter:
   forkSize: 100
+  sandboxTxField: 100
+  sandboxIMem: 100
+  sandboxIdtyField: 100
   network:
     trusted: https://g1.bertrandbenjamin.com/,https://g1.duniter.org/,https://duniter.g1.1000i100.fr/,https://duniter.nayya.org/,http://g1-monit.librelois.fr:10901/,http://jardin.foyerruralct.fr:10902/,http://g1.ambau.ovh:10901/,https://duniter.normandie-libre.fr/,https://g1.le-sou.org:443/,https://g1.nordstrom.duniter.org/,https://g1.duniter.uras.ovh:443/,https://g1.duniter.inso.ovh:443/,https://duniter.fabwice.com:443/
     bulkSize: 500
@@ -24,6 +27,7 @@ juniter:
   #useSpark: true  #default false
   indexer: true
   startIndex: false
+  bulkload: false
 
   ##  reset: true     # default false
 #overwrite dataPath to change the working directory

@@ -2,10 +2,9 @@ package juniter.service.bma.loader;
 
 import juniter.core.event.CurrentBNUM;
 import juniter.core.event.DecrementCurrent;
-import juniter.core.model.dbo.NetStats;
 import juniter.core.model.dbo.DBBlock;
+import juniter.core.model.dbo.net.NetStats;
 import juniter.core.model.dbo.net.EndPointType;
-import juniter.core.utils.TimeUtils;
 import juniter.core.validation.BlockLocalValid;
 import juniter.service.BlockService;
 import juniter.service.bma.PeerService;
@@ -17,6 +16,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.annotation.Order;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.http.HttpMethod;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -26,12 +26,11 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.IntStream;
 
 /**
@@ -51,8 +50,10 @@ public class BlockLoader implements BlockLocalValid {
     private static final Logger LOG = LogManager.getLogger(BlockLoader.class);
 
 
-    @Value("${bulkLoad:false}")
-    private Boolean bulkLoad;
+    @Value("${bulkload:false}")
+    private Boolean bulkLoadAtStart;
+
+    private AtomicBoolean bulkLoadOn = new AtomicBoolean(false);
 
     @Value("${juniter.network.bulkSize:200}")
     private Integer bulkSize;
@@ -81,15 +82,17 @@ public class BlockLoader implements BlockLocalValid {
     @PostConstruct
     public void initConsumers() {
 
+
         Runnable cons = () -> {
             while (true) {
 
-                getBlocks().forEach(b -> blockService.localSave(b));
-
                 try {
-                    Thread.sleep(100);
+                    getBlocks().forEach(b -> blockService.localSave(b));
+                    Thread.sleep(500);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    LOG.error("interrupted ", e);
+                }catch (Exception e) {
+                    LOG.error("Unknown exception ", e);
                 }
             }
         };
@@ -98,17 +101,15 @@ public class BlockLoader implements BlockLocalValid {
             new Thread(cons, "consumer" + i).start();
         }
 
-        if (bulkLoad) {
-            bulkLoad2();
+        if(bulkLoadAtStart){
+            startBulkLoad();
         }
+
     }
 
-    @Async
-    //@Transactional
-    public void bulkLoad2() {
-        resetBlockinDB();
-        final var currentNumber = fetchAndSaveBlock("current").getNumber();
+    private void queueBulkQueries() {
 
+        final var currentNumber = fetchAndSaveBlock("current").getNumber();
 
         applicationEventPublisher.publishEvent(new CurrentBNUM((int) blockService.count()));
 
@@ -119,18 +120,18 @@ public class BlockLoader implements BlockLocalValid {
                 .boxed()
                 .sorted()
                 .map(i -> "blockchain/blocks/" + bulkSize + "/" + i)
-                .forEach(url -> {
-                    try {
-                        blockingQueue.put(url);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                });
+                .forEach(this::queue);
 
     }
 
     @Transactional
     private List<DBBlock> getBlocks() {
+
+        if (bulkLoadOn.get() && blockingQueue.isEmpty()) {
+            LOG.info("finished bulkload");
+            bulkLoadOn.set(false);
+        }
+
         List<DBBlock> body = null;
         String url = null;
         try {
@@ -159,19 +160,19 @@ public class BlockLoader implements BlockLocalValid {
 
 
                     LOG.info("getBlocks " + body.size() + " from: " + url + "... Status: " + statusCode + " : " + contentType);
-                    peerService.reportSuccess(EndPointType.BMAS,host);
+                    peerService.reportSuccess(EndPointType.BMAS, host);
 
                     applicationEventPublisher.publishEvent(new CurrentBNUM(body.get(body.size() - 1).getNumber()));
 
                     return body;
 
                 } catch (final RestClientException e) {
-                    LOG.error("fetchBlocks failed - RestClientException at " + url + " retrying .. ");
+                    LOG.warn("fetchBlocks failed - RestClientException at " + url + " retrying .. ");
 
                 }
             }
         } catch (final Exception e) {
-            LOG.error("fetchBlocks failed at " + url + " retrying .. ");
+            LOG.error("fetchBlocks failed at " + url + " stopping .. ");
 
         }
 
@@ -179,50 +180,25 @@ public class BlockLoader implements BlockLocalValid {
     }
 
 
-    private boolean bulkLoadOn = false;
-
     public boolean bulkLoadOn() {
-        return bulkLoadOn;
+        return bulkLoadOn.get();
     }
 
     @Async
-    @Transactional
-    public void bulkLoad() {
-        bulkLoadOn = true;
-        if (reset) resetBlockinDB();
+    public void startBulkLoad() {
 
-        final var start = System.nanoTime();
-        final var currentNumber = fetchAndSaveBlock("current").getNumber();
-        if (blockService.count() > currentNumber * 0.9) {
-            LOG.warn(" = Ignore bulk loading " + blockService.count() + " blocks");
-            bulkLoadOn = false;
-            return;
+        if(bulkLoadOn.compareAndExchange(false,true)){
+            resetBlockinDB();
+            queueBulkQueries();
         }
-
-        LOG.info(" ======== Start BulkLoading ======== " + blockService.count() + " blocks");
-
-        final var nbPackage = Integer.divideUnsigned(currentNumber, bulkSize);
-        final AtomicInteger ai = new AtomicInteger(0);
-
-        IntStream.range(0, nbPackage)// get nbPackage Integers
-                .map(nbb -> (nbb * bulkSize)) // with an offset of bulkSize
-                .boxed()
-                .sorted()
-                // .parallel() // if needed
-                .map(i -> fetchBlocks(bulkSize, i)) // remote list of blocks
-                .flatMap(Collection::stream) // blocks individually
-                .forEach(b -> blockService.localSave(b));
-
-        final var elapsed = Long.divideUnsigned(System.nanoTime() - start, 1000000);
-
-        LOG.info("Bulkloaded " + ai.get() + " in " + TimeUtils.format(elapsed));
     }
+
 
     /**
      * Wrapper for fetchAndSaveBlock(String)
      *
-     * @param number
-     * @return
+     * @param number: block number
+     * @return the block or null
      */
     public DBBlock fetchAndSaveBlock(Integer number) {
         return fetchAndSaveBlock("block/" + number);
@@ -247,7 +223,7 @@ public class BlockLoader implements BlockLocalValid {
      * @param id the node id
      */
     @Transactional
-    public DBBlock fetchBlock(String id) {
+    private DBBlock fetchBlock(String id) {
         String url = null;
         DBBlock block = null;
         final var attempts = 0;
@@ -312,7 +288,7 @@ public class BlockLoader implements BlockLocalValid {
 
 
                 LOG.info("attempts: " + attempts + " to record " + body.size() + " from: " + url + "... Status: " + statusCode + " : " + contentType);
-                peerService.reportSuccess(EndPointType.BMAS,host.get().getHost());
+                peerService.reportSuccess(EndPointType.BMAS, host.get().getHost());
                 return body;
 
             } catch (final RestClientException e) {
@@ -331,6 +307,7 @@ public class BlockLoader implements BlockLocalValid {
 
 
     @Transactional
+    @Modifying
     private void resetBlockinDB() {
         LOG.info(" === Reseting DB " + blockService.count());
 
@@ -346,11 +323,11 @@ public class BlockLoader implements BlockLocalValid {
 
     }
 
-    public void put(String s) {
+    public void queue(String s) {
         try {
             blockingQueue.put(s);
         } catch (InterruptedException e) {
-            LOG.error(e);
+            LOG.error("Interrupted while queuing ",e);
         }
     }
 }

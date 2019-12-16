@@ -1,19 +1,15 @@
-package juniter.core.model.dbo;
+package juniter.core.model.dbo.net;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Data
 @AllArgsConstructor
 //@Entity
-//@Table(name = "netStats", schema = "public", uniqueConstraints = @UniqueConstraint(columnNames = {"host"}))
-
+//@Table(name = "net_stats", schema = "public", uniqueConstraints = @UniqueConstraint(columnNames = {"host"}))
 public class NetStats implements Comparable<NetStats> {
 
     private AtomicInteger count;

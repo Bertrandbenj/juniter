@@ -11,7 +11,7 @@ import javax.persistence.*;
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name = "BINDEX", schema = "public", indexes = {
+@Table(name = "index_b", schema = "public", indexes = {
         @Index(columnList = "issuer"),
         @Index(columnList = "time"),
         @Index(columnList = "number")
@@ -29,7 +29,7 @@ public class BINDEX implements Comparable<BINDEX> {
     private String issuer;
     private Long time;
     private Integer number;
-        private String currency;
+    private String currency;
     private String previousHash;
     private String previousIssuer;
     private Integer membersCount;
@@ -65,6 +65,16 @@ public class BINDEX implements Comparable<BINDEX> {
 
     public BStamp bstamp() {
         return new BStamp(number, hash, medianTime);
+    }
+
+    public static BINDEX before0() {
+        var res = new BINDEX();
+        res.setNumber(-1);
+        res.setMedianTime(0L);
+        res.setSize(0);
+        res.setMembersCount(0);
+        res.setMass(0L);
+        return res;
     }
 
 }

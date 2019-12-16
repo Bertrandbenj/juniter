@@ -277,10 +277,6 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
         isIndexing.setValue(true);
 
-
-        currentBindex.setValue(index.head_());
-
-
         int until;
         try {
             until = Integer.parseInt(indexTil.getText());
@@ -291,12 +287,6 @@ public class Database extends AbstractJuniterFX implements Initializable {
         index.indexUntil(until, false, CURRENCY.get());
     }
 
-    @FXML
-    public void indexReset() {
-        index.reset(true, CURRENCY.get());
-        currentBindex.setValue(null);
-    }
-
 
     public void index1() {
 
@@ -305,6 +295,14 @@ public class Database extends AbstractJuniterFX implements Initializable {
         //JuniterBindings.indexLogMessage.setValue("Validated " + JuniterBindings.currentBindex.intValue());
 
     }
+
+    @FXML
+    public void indexReset() {
+        index.reset(true, CURRENCY.get());
+        currentBindex.setValue(null);
+    }
+
+
 
     public void revert1() {
         if (isIndexing.get())

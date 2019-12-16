@@ -15,7 +15,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import juniter.core.model.dbo.NetStats;
+import juniter.core.model.dbo.net.NetStats;
 import juniter.core.model.dbo.net.EndPointType;
 import juniter.core.model.dbo.tx.Transaction;
 import juniter.core.model.dbo.tx.TxInput;

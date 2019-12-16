@@ -34,7 +34,7 @@ import java.util.function.BinaryOperator;
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name = "MINDEX", schema = "public", indexes = {
+@Table(name = "index_m", schema = "public", indexes = {
         @Index(columnList = "op"),
         @Index(columnList = "pub"),
         @Index(columnList = "written_number"),

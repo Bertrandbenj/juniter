@@ -1,6 +1,6 @@
 package juniter.core.event;
 
-import juniter.core.model.dbo.NetStats;
+import juniter.core.model.dbo.net.NetStats;
 
 import java.util.List;
 

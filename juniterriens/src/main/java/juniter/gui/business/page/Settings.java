@@ -199,7 +199,6 @@ public class Settings extends AbstractJuniterFX implements Initializable {
         Stream.of(ids) //
                 .map(Integer::parseInt)//
                 .forEach(id -> {
-                    LOG.info("testing Blocks # " + id);
 
                     blockService.block(id).ifPresent(block -> {
                         boolean result = false;
@@ -207,12 +206,11 @@ public class Settings extends AbstractJuniterFX implements Initializable {
                             BlockLocalValid.Static.assertBlock(block);
 
                         } catch (AssertionError ea) {
-                            result = AlertBox.display("AssertionError", ea.getMessage());
+                            LOG.warn("Assertion error ", ea);
+                            result = AlertBox.display("testing Blocks #"+id, "AssertionError " + ea.getMessage());
                         }
-                        LOG.info("testing Block # " + result);
-                    });
+                     });
                 });
-        AlertBox.display("All good", "repository node is local valid  ");
 
     }
 

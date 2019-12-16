@@ -110,7 +110,7 @@ public class MissingBlocksLoader {
 
         }
 
-        map.forEach((key, value) -> defaultLoader.put("blockchain/blocks/" + value + "/" + key));
+        map.forEach((key, value) -> defaultLoader.queue("blockchain/blocks/" + value + "/" + key));
 
 //		missing.forEach(n -> {
 //defaultLoader.fetchBlocks(entry.getValue(), entry.getKey())

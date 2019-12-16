@@ -196,10 +196,10 @@ public class Interplanetary {
      */
     private String dagPut(String json) throws Exception {
 
-        String[] cmd = {"/bin/bash", "-c", "ipfs dag put"};
+        String[] cmd = {"/bin/bash", "-c", "ipfs dag queue"};
 
-        LOG.info(" >> echo '" + json + "' | ipfs dag put");
-//        var merkleNode = ipfs.dag.put("json", json2.getBytes());
+        LOG.info(" >> echo '" + json + "' | ipfs dag queue");
+//        var merkleNode = ipfs.dag.queue("json", json2.getBytes());
 //        LOG.info("mNode " + merkleNode.toJSONString());
 
 
@@ -228,7 +228,7 @@ public class Interplanetary {
 
             return line;
         } catch (Exception e) {
-            throw new Exception("dag put failed", e);
+            throw new Exception("dag queue failed", e);
         } finally {
             LOG.info("destroying " + cmd[2]);
             process.destroy();

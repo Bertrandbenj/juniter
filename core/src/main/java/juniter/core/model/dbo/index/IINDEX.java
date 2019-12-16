@@ -33,7 +33,7 @@ import static juniter.core.validation.GlobalValid.wotbidIncrement;
 @NoArgsConstructor
 //@AllArgsConstructor
 @Entity
-@Table(name = "IINDEX", schema = "public", indexes = {
+@Table(name = "index_i", schema = "public", indexes = {
         @Index(columnList = "uid"),
         @Index(columnList = "op"),
         @Index(columnList = "pub"),

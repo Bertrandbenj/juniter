@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.groupingBy;
@@ -314,18 +315,27 @@ public interface GlobalValid {
     private void BR_G08_setMedianTime(BINDEX head) {
         final var min = Math.min(conf.getMedianTimeBlocks(), head.getNumber());
 
-         if (head.getNumber() > 0) {
+        if (head.getNumber() > 0) {
 
-            head.setMedianTime((long) range(min) // fetchTrimmed bindices
-                    .mapToLong(BINDEX::getTime)
-                    .average().orElse(Double.NaN));
-             head.setMedianTime(Math.max(head.getMedianTime(), head_1().getMedianTime())); // found in code, not in the spec
-            // used at block 3
+            head.setMedianTime(median(range(min).map(BINDEX::getTime).collect(Collectors.toList())));
+
         } else {
 
             head.setMedianTime(head.getTime());
         }
 
+    }
+
+    default Long median(List<Long> list) {
+        var median = 0L;
+        var size = list.size();
+        if (size % 2 == 0) { // The number is even.
+            median = (list.get(size / 2 - 1) + list.get(size / 2)) / 2;
+        } else {
+            median = list.get((size - 1) / 2);
+        }
+        LOG.info(median + " median of " + list);
+        return median;
     }
 
     /**
@@ -372,7 +382,7 @@ public interface GlobalValid {
                 .filter(IINDEX::getMember).count();
         final int notMember = (int) localI.stream().filter(m -> !m.getMember()).count();
 
-         if (head.getNumber() == 0) {
+        if (head.getNumber() == 0) {
             head.setMembersCount(member);
         } else {
             head.setMembersCount(head_1().getMembersCount() + member - notMember);
@@ -412,6 +422,7 @@ public interface GlobalValid {
      *
      * </pre>
      */
+    @SuppressWarnings("ConstantConditions")
     private boolean BR_G101_ruleIssuerIsMember(BINDEX head) {
         assert head.getIssuerIsMember() : "BR_G101_ruleIssuerIsMember - ? " + head.getIssuerIsMember() + " at " + head;
         return head.getIssuerIsMember();
@@ -901,33 +912,37 @@ public interface GlobalValid {
      * </pre>
      */
     private void BR_G18_setPowZero(BINDEX head) {
+        var map = issuersMap();
+        var blocksOfIssuer = map.getOrDefault(head.getIssuer(), new ArrayList<>());
+        var perIssuerCount = map.entrySet().stream().collect(Collectors.toMap(
+                Map.Entry::getKey,
+                ent -> ent.getValue().size()
+        ));
 
-        long nbPersonalBlocksInFrame; // FIXME quesaco ?
-        final int medianOfBlocksInFrame = 1;
+        long nbPersonalBlocksInFrame = blocksOfIssuer.size();
+        final int medianOfBlocksInFrame = head.getNumber() == 0 ? 1 :
+                perIssuerCount.values()
+                        .stream()
+                        .sorted()
+                        .collect(Collectors.toList())
+                        .get(perIssuerCount.size() / 2);
         int nbPreviousIssuers = 0;
         int nbBlocksSince = 0;
 
-        //		Stream<BINDEX> blocksOfIssuer = null;
-        if (head.getNumber() != 0) {
-            final var blocksOfIssuer = range(head.getIssuersFrame())
-                    .filter(i -> i.getIssuer().equals(head.getIssuer()))
-                    .collect(toList());
-            nbPersonalBlocksInFrame = blocksOfIssuer.size();
-            final Object blocksPerIssuerInFrame = null;
 
-            if (nbPersonalBlocksInFrame != 0) {
-                final var first = blocksOfIssuer.get(0);
-                nbPreviousIssuers = first.getIssuersCount();
-                nbBlocksSince = head_1().getNumber() - first.getNumber();
-            }
-
+        if (nbPersonalBlocksInFrame != 0) {
+            final var first = blocksOfIssuer.get(0);
+            nbPreviousIssuers = first.getIssuersCount();
+            nbBlocksSince = head_1().getNumber() - first.getNumber();
         }
 
-        final var personalExcess = Math.max(0, 1);
-        final var personalHandicap = Math.floor(Math.log(1 + personalExcess) / Math.log(1.189));
 
-        head.setIssuerDiff((int) Math.max(head.getPowMin(),
-                head.getPowMin() * Math.floor(conf.getPercentRot() * nbPreviousIssuers / (1 + nbBlocksSince))));
+        final var personalExcess = Math.max(0, ((nbPersonalBlocksInFrame + 1) / medianOfBlocksInFrame) - 1);
+        final var personalHandicap = Math.floor(Math.log(1 + personalExcess) / Math.log(1.189));
+        var difficulty = personalHandicap + Math.max(
+                head.getPowMin(),
+                head.getPowMin() * Math.floor(conf.getPercentRot() * nbPreviousIssuers / (1 + nbBlocksSince)));
+        head.setIssuerDiff((int) difficulty);
 
         if ((head.getIssuerDiff() + 1) % 16 == 0) {
             head.setIssuerDiff(head.getIssuerDiff() + 1);
@@ -1125,7 +1140,7 @@ public interface GlobalValid {
     private void BR_G25_setOnRevoked(MINDEX entry) {
         entry.onRevoked = reduceM(entry.getPub())
                 .map(m -> m.getRevoked() != null)
-                .orElse (false);
+                .orElse(false);
     }
 
     /**
@@ -1408,7 +1423,7 @@ public interface GlobalValid {
      * </pre>
      */
     private void BR_G39_setCertStock(CINDEX entry, BINDEX head) {
-        entry.setStock(certStock(entry.getIssuer(), head.getMedianTime() ));
+        entry.setStock(certStock(entry.getIssuer(), head.getMedianTime()));
     }
 
     /**
@@ -1529,7 +1544,7 @@ public interface GlobalValid {
      * </pre>
      */
     private void BR_G47_prepareIsLocked(SINDEX entry, SINDEX input) {
-         entry.setLocked(false); // FIXME BR_G47_prepareIsLocked
+        entry.setLocked(false); // FIXME BR_G47_prepareIsLocked
     }
 
     /**
@@ -2222,7 +2237,7 @@ public interface GlobalValid {
     private void BR_G91_IndexDividend(BINDEX head, BStamp block) {
         if (head.new_dividend == null)
             return;
-         Stream.concat(indexIGlobal(), localI.stream())
+        Stream.concat(indexIGlobal(), localI.stream())
                 .filter(i -> i.getMember() != null && i.getMember())
                 //.peek(i ->  LOG.info("BR_G91_IndexDividend"+i))
                 .map(i -> new SINDEX("CREATE",
@@ -2332,7 +2347,7 @@ public interface GlobalValid {
     private void BR_G94_IndexExclusionByMembership(BStamp blockstamp) {
 
         for (final MINDEX m : localM) {
-             if (m.getExpired_on() != null && m.getExpired_on() != 0) {
+            if (m.getExpired_on() != null && m.getExpired_on() != 0) {
                 localI.add(new IINDEX("UPDATE",
                         m.getPub(),
                         blockstamp,
@@ -2582,7 +2597,7 @@ public interface GlobalValid {
 
 
     default Optional<BINDEX> head() {
-        if (IndexB.size() > 1)
+        if (IndexB.size() > 0)
             return Optional.of(IndexB.get(IndexB.size() - 1));
 
         return Optional.empty();
@@ -2592,110 +2607,125 @@ public interface GlobalValid {
         return head().orElseThrow();
     }
 
+    default Map<String, List<BINDEX>> issuersMap() {
+        return IndexB.stream().collect(Collectors.groupingBy(BINDEX::getIssuer));
+    }
 
-        /**
-         * <pre>
-         *
-         *
-         *
-         * Each exclusion produces 1 new entry:
-         * IINDEX (
-         * op = 'UPDATE'
-         * uid = null
-         * pub = PUBLIC_KEY
-         * signed = null
-         * written = BLOCKSTAMP
-         * member = false
-         * wasMember = null
-         * kick = false
-         * )
-         *
-         *
-         * Each revocation produces 1 new entry:
-         *
-         * MINDEX (
-         * op = 'UPDATE'
-         * pub = PUBLIC_KEY
-         * signed = BLOCK_UID
-         * written = BLOCKSTAMP
-         * type = 'REV'
-         * expires_on = null
-         * revokes_on = null
-         * revoked = BLOCKSTAMP
-         * revocation = REVOCATION_SIG
-         * leaving = false
-         * )
-         *
-         *
-         *
-         * Leaver
-         *
-         * Each leaver produces 1 new entry:
-         *
-         * MINDEX (
-         * op = 'UPDATE'
-         * pub = PUBLIC_KEY
-         * signed = BLOCK_UID
-         * written = BLOCKSTAMP
-         * type = 'LEAVE'
-         * expires_on = null
-         * revokes_on = null
-         * revoked = null
-         * leaving = true
-         * )
-         *
-         *
-         * Sources
-         *
-         * Each transaction input produces 1 new entry:
-         *
-         * SINDEX (
-         * op = 'UPDATE'
-         * tx = TRANSACTION_HASH
-         * identifier = INPUT_IDENTIFIER
-         * pos = INPUT_INDEX
-         * signed = TX_BLOCKSTAMP
-         * written = BLOCKSTAMP
-         * amount = INPUT_AMOUNT
-         * base = INPUT_BASE
-         * conditions = null
-         * consumed = true
-         * )
-         * Each transaction output produces 1 new entry:
-         *
-         * SINDEX (
-         * op = 'CREATE'
-         * tx = TRANSACTION_HASH
-         * identifier = TRANSACTION_HASH
-         * pos = OUTPUT_INDEX_IN_TRANSACTION
-         * written = BLOCKSTAMP
-         * written_time = MedianTime
-         * amount = OUTPUT_AMOUNT
-         * base = OUTPUT_BASE
-         * locktime = LOCKTIME
-         * conditions = OUTPUT_CONDITIONS
-         * consumed = false
-         * )
-         *
-         * Each active produces 1 new entry:
-         *
-         * MINDEX (
-         * op = 'UPDATE'
-         * pub = PUBLIC_KEY
-         * signed = BLOCK_UID
-         * written = BLOCKSTAMP
-         * expires_on = MedianTime + msValidity
-         * revokes_on = MedianTime + msValidity*2
-         * chainable_on = MedianTime + msPeriod
-         * type = 'RENEW'
-         * revoked = null
-         * leaving = null
-         * )
-         *
-         * </pre>
-         *
-         * @param block :
-         */
+    default BINDEX prepareIndexForForge() {
+        var res = new BINDEX();
+        BR_G17_setPowMin(res);
+        BR_G18_setPowZero(res);
+        return res;
+    }
+
+    default boolean isValid(BINDEX head, DBBlock block) {
+        return BR_G61_rulePowMin(head, block) && BR_G62_ruleProofOfWork(head);
+    }
+
+
+    /**
+     * <pre>
+     *
+     *
+     *
+     * Each exclusion produces 1 new entry:
+     * IINDEX (
+     * op = 'UPDATE'
+     * uid = null
+     * pub = PUBLIC_KEY
+     * signed = null
+     * written = BLOCKSTAMP
+     * member = false
+     * wasMember = null
+     * kick = false
+     * )
+     *
+     *
+     * Each revocation produces 1 new entry:
+     *
+     * MINDEX (
+     * op = 'UPDATE'
+     * pub = PUBLIC_KEY
+     * signed = BLOCK_UID
+     * written = BLOCKSTAMP
+     * type = 'REV'
+     * expires_on = null
+     * revokes_on = null
+     * revoked = BLOCKSTAMP
+     * revocation = REVOCATION_SIG
+     * leaving = false
+     * )
+     *
+     *
+     *
+     * Leaver
+     *
+     * Each leaver produces 1 new entry:
+     *
+     * MINDEX (
+     * op = 'UPDATE'
+     * pub = PUBLIC_KEY
+     * signed = BLOCK_UID
+     * written = BLOCKSTAMP
+     * type = 'LEAVE'
+     * expires_on = null
+     * revokes_on = null
+     * revoked = null
+     * leaving = true
+     * )
+     *
+     *
+     * Sources
+     *
+     * Each transaction input produces 1 new entry:
+     *
+     * SINDEX (
+     * op = 'UPDATE'
+     * tx = TRANSACTION_HASH
+     * identifier = INPUT_IDENTIFIER
+     * pos = INPUT_INDEX
+     * signed = TX_BLOCKSTAMP
+     * written = BLOCKSTAMP
+     * amount = INPUT_AMOUNT
+     * base = INPUT_BASE
+     * conditions = null
+     * consumed = true
+     * )
+     * Each transaction output produces 1 new entry:
+     *
+     * SINDEX (
+     * op = 'CREATE'
+     * tx = TRANSACTION_HASH
+     * identifier = TRANSACTION_HASH
+     * pos = OUTPUT_INDEX_IN_TRANSACTION
+     * written = BLOCKSTAMP
+     * written_time = MedianTime
+     * amount = OUTPUT_AMOUNT
+     * base = OUTPUT_BASE
+     * locktime = LOCKTIME
+     * conditions = OUTPUT_CONDITIONS
+     * consumed = false
+     * )
+     *
+     * Each active produces 1 new entry:
+     *
+     * MINDEX (
+     * op = 'UPDATE'
+     * pub = PUBLIC_KEY
+     * signed = BLOCK_UID
+     * written = BLOCKSTAMP
+     * expires_on = MedianTime + msValidity
+     * revokes_on = MedianTime + msValidity*2
+     * chainable_on = MedianTime + msPeriod
+     * type = 'RENEW'
+     * revoked = null
+     * leaving = null
+     * )
+     *
+     * </pre>
+     *
+     * @param block :
+     */
     default void indexBlock(DBBlock block) {
 
         final var written_on = block.bStamp();
@@ -2931,7 +2961,7 @@ public interface GlobalValid {
     Stream<SINDEX> indexSGlobal();
 
 
-    Integer certStock(String issuer,Long asOf);
+    Integer certStock(String issuer, Long asOf);
 
     Stream<String> findPubkeysThatShouldExpire(Long mTime);
 
@@ -3118,7 +3148,7 @@ public interface GlobalValid {
         for (final var cert : localC) {
             BR_G37_setAge(newHead, cert);
             BR_G38_setCertUnchainable(newHead, cert);
-            BR_G39_setCertStock(cert,newHead);
+            BR_G39_setCertStock(cert, newHead);
             BR_G40_setCertFromMember(cert);
             BR_G41_setCertToMember(cert);
             BR_G42_setCertToNewCommer(cert);

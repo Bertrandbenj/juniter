@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @Entity
 @Data
 @ToString
-@Table(name = "peer", schema = "public", indexes = {
+@Table(name = "net_peer", schema = "public", indexes = {
         @Index(columnList = "pubkey")
 }, uniqueConstraints = {
         @UniqueConstraint(columnNames = {"pubkey"})

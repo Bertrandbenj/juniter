@@ -49,7 +49,7 @@ public interface JuniterBindings {
 
 
     // updatable value from the outside
-    ObjectProperty<BINDEX> currentBindex = new SimpleObjectProperty(null);
+    ObjectProperty<BINDEX> currentBindex = new SimpleObjectProperty();
     IntegerProperty currentBindexN = new SimpleIntegerProperty(0);
     DoubleProperty currentDBBlockNum = new SimpleDoubleProperty(42.);
     DoubleProperty highestDBBlock = new SimpleDoubleProperty(42.);
@@ -57,8 +57,7 @@ public interface JuniterBindings {
     DoubleProperty maxPeerBlock = new SimpleDoubleProperty(42.);
 
     BooleanProperty isIndexing = new SimpleBooleanProperty(false);
-    BooleanProperty isDownloading = new SimpleBooleanProperty(false);
-    StringProperty rawDocument = new SimpleStringProperty("here comes the Document in DUPComponent format");
+     StringProperty rawDocument = new SimpleStringProperty("here comes the Document in DUPComponent format");
 
     StringProperty indexLogMessage = new SimpleStringProperty(" ... ");
     StringProperty peerLogMessage = new SimpleStringProperty(" ... ");

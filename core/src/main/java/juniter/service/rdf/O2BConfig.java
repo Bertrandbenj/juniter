@@ -120,7 +120,7 @@ public interface O2BConfig {
                 " join fetch g.status st");
 
 
-//        URI_2_CLASS.put("definedURI", TaxonomicLevel.class);
+//        URI_2_CLASS.queue("definedURI", TaxonomicLevel.class);
 
 
         O2B_ARBITRARY_MAPPER.put("uri", obj -> {

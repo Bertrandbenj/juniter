@@ -132,7 +132,8 @@ public class WS2PClient extends WebSocketClient {
                 case "CURRENT":
                     final var current = jsonMapper.readValue(message, ResponseBlock.class);
                     LOG.info("CURRENT " + current.getBody());
-                    webSocketPool.coreEventBus.publishEvent(new NewBlock(current.getBody()));
+                    if (webSocketPool.blockService.currentBlockNumber() < current.getBody().getNumber())
+                        webSocketPool.coreEventBus.publishEvent(new NewBlock(current.getBody()));
                     break;
                 case "WOT_REQUIREMENTS_OF_PENDING":
                     final var wot = jsonMapper.readValue(message, ResponseWotPending.class);
@@ -181,6 +182,8 @@ public class WS2PClient extends WebSocketClient {
 
     @Override
     public void onError(Exception ex) {
+
+
         if (ex instanceof SSLHandshakeException) {
             LOG.warn("WS SSL Handshake onError " + getURI() + ex);
         } else if (ex instanceof SSLException) {

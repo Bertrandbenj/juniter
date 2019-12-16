@@ -288,7 +288,6 @@ public class PeerLoader {
             LOG.info("Found peers: " + peers.getPeers().size() + ", status : " + statusCode.getReasonPhrase()
                     + ", ContentType: " + contentType);
 
-            LOG.info(" - " + peers.getPeers());
             save(peers);
 
             return peers;

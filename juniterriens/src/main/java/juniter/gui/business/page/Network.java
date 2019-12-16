@@ -12,7 +12,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Tooltip;
 import javafx.stage.Stage;
-import juniter.core.model.dbo.NetStats;
+import juniter.core.model.dbo.net.NetStats;
 import juniter.core.model.dto.node.BlockNetworkMeta;
 import juniter.gui.technical.AbstractJuniterFX;
 import juniter.gui.technical.I18N;
@@ -143,7 +143,11 @@ public class Network extends AbstractJuniterFX implements Initializable {
         BMApingCombo.selectedProperty().addListener((obs, old, newValue) -> peerService.getPinging().lazySet(newValue));
         BMApingCombo.setSelected(useBMA);
 
-        ws2pCombo.selectedProperty().addListener((obs, old, newValue) -> webSocketPool.getRunning().lazySet(newValue));
+        ws2pCombo.selectedProperty().addListener((obs, old, newValue) -> {
+
+            webSocketPool.getRunning().lazySet(newValue);
+            LOG.info("set running to "+newValue + " "+ webSocketPool.getRunning().get());
+        });
         ws2pCombo.setSelected(useWS2P);
 
         period.setItems(observablePeriodList);

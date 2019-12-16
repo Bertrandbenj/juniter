@@ -1,6 +1,5 @@
 package juniter.repository.jpa.index;
 
-import juniter.core.model.dbo.index.Account;
 import juniter.core.model.dbo.index.SINDEX;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -10,11 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -40,7 +35,7 @@ public interface SINDEXRepository extends JpaRepository<SINDEX, Long> {
             "           s2.op = 'UPDATE' AND " +
             "           s2.identifier = s.identifier AND " +
             "           s2.pos = s.pos)")
-    List<SINDEX> availableSourcesOfUid(String uid );
+    List<SINDEX> availableSourcesOfUid(String uid);
 
     @Query("SELECT s FROM SINDEX s WHERE " +
             "   s.conditions LIKE CONCAT('%',?1,'%') " +
@@ -50,7 +45,7 @@ public interface SINDEXRepository extends JpaRepository<SINDEX, Long> {
             "           s2.op = 'UPDATE' AND " +
             "           s2.identifier = s.identifier AND " +
             "           s2.pos = s.pos)")
-    List<SINDEX> availableSourcesOfPub(String pub );
+    List<SINDEX> availableSourcesOfPub(String pub);
 
 
     @Query("SELECT s FROM SINDEX s ")
@@ -100,7 +95,6 @@ public interface SINDEXRepository extends JpaRepository<SINDEX, Long> {
         }
 
     }
-
 
 
 }

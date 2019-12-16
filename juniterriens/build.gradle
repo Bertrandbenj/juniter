@@ -54,7 +54,7 @@ dependencies {
     compile group: 'org.openjfx', name: 'javafx-media', version: '11.0.2'
     compile group: 'org.openjfx', name: 'javafx-graphics', version: '11.0.2'
 
-    //compile group: 'org.controlsfx', name: 'controlsfx', version: '11.0.0'
+    compile group: 'org.controlsfx', name: 'controlsfx', version: '11.0.1'
     compile 'org.jfxtras:jmetro:5.3'
 
 

@@ -118,7 +118,7 @@ import java.util.function.BinaryOperator;
 @Data
 @Entity
 @NoArgsConstructor
-@Table(name = "SINDEX", schema = "public", indexes = {
+@Table(name = "index_s", schema = "public", indexes = {
         @Index(columnList = "identifier"),
         @Index(columnList = "consumed"),
         @Index(columnList = "conditions"),

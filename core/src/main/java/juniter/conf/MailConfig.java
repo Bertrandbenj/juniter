@@ -16,10 +16,10 @@ public class MailConfig {
 //        mailSender.setPassword("password");
 //
 //        var props = mailSender.getJavaMailProperties();
-//        props.put("mail.transport.protocol", "smtp");
-//        props.put("mail.smtp.auth", "true");
-//        props.put("mail.smtp.starttls.enable", "true");
-//        props.put("mail.debug", "true");
+//        props.queue("mail.transport.protocol", "smtp");
+//        props.queue("mail.smtp.auth", "true");
+//        props.queue("mail.smtp.starttls.enable", "true");
+//        props.queue("mail.debug", "true");
 //
 //        return mailSender;
 //    }

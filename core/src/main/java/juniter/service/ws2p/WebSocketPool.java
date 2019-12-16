@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.annotation.Order;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,7 +40,7 @@ public class WebSocketPool {
 
 
     @Getter
-    private AtomicBoolean running = new AtomicBoolean(true);
+    private AtomicBoolean running = new AtomicBoolean(false);
 
 
     @Value("${juniter.network.webSocketPoolSize:5}")
@@ -85,30 +84,24 @@ public class WebSocketPool {
     }
 
     @Transactional
-    @Scheduled(initialDelay = 60 * 1000, fixedDelay = 10 * 1000)//, initialDelay = 10 * 60 * 1000)
+    @Scheduled(initialDelay = 60 * 1000, fixedDelay = 100 * 1000)//, initialDelay = 10 * 60 * 1000)
     public void reconnectWebSockets() {
 
-        if (running.get()) {
+        while (clients.remainingCapacity() > 0 && running.get()) {
+            peerService.nextHost(EndPointType.WS2P).ifPresent(ep -> {
+                var client = new WS2PClient(URI.create(ep.getHost()), this);
+                LOG.debug("Connecting to WS endpoint " + client.getURI());
 
-            while (clients.remainingCapacity() > 0) {
-                peerService.nextHost(EndPointType.WS2P).ifPresent(ep -> {
-                    var client = new WS2PClient(URI.create(ep.getHost()), this);
-                    LOG.debug("Connecting to WS endpoint " + client.getURI());
+                try {
+                    client.connectBlocking(10, TimeUnit.SECONDS);
+                } catch (InterruptedException e) {
+                    if (running.get())
+                        LOG.error("reconnectWebSockets ", e);
+                    else
+                        LOG.warn("reconnectWebSockets "); // may be ignored
 
-                    try {
-                        client.connectBlocking(10, TimeUnit.SECONDS);
-                    } catch (InterruptedException e) {
-                        if (running.get())
-                            LOG.error("reconnectWebSockets ", e);
-                        else
-                            LOG.warn("reconnectWebSockets "); // may be ignored
-
-                    }
-                });
-            }
-        } else { // Stop websocket and destroy existing ones
-            clients.forEach(c -> c.close(1000, "Cause I decided to "));
-
+                }
+            });
         }
 
     }

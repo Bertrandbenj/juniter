@@ -3,7 +3,6 @@ package juniter.gui.technical;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
-import javafx.stage.Stage;
 import juniter.GUIApplication;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,9 +34,14 @@ public abstract class AbstractJuniterFX extends Application {
     public void stop() throws Exception {
         super.stop();
         LOG.info("Stopping JavaFX & Java");
+
+        for (StackTraceElement ste : Thread.currentThread().getStackTrace()) {
+            System.out.println(ste);
+        }
+
         applicationContext.close();
         Platform.exit();
-        System.exit(0);
+        System.exit(1);
     }
 
     public static void launchGUI(Class<? extends AbstractJuniterFX> appClass, ConfigurableApplicationContext context) {
@@ -45,8 +49,6 @@ public abstract class AbstractJuniterFX extends Application {
         Application.launch(appClass);
 
     }
-
-
 
 
     protected Object load(String url) {
@@ -58,9 +60,9 @@ public abstract class AbstractJuniterFX extends Application {
 
             return loader.load();
         } catch (Exception e) {
-
-            throw new RuntimeException(String.format("Failed to reload FXML file '%s' ", url) + getClass().getResource(url), e);
+            LOG.error(String.format("Failed to reload FXML file '%s' ", url) + getClass().getResource(url), e);
         }
+        return null;
     }
 
 

@@ -2,7 +2,7 @@ package juniter.service.bma;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import juniter.core.event.RenormalizedNet;
-import juniter.core.model.dbo.NetStats;
+import juniter.core.model.dbo.net.NetStats;
 import juniter.core.model.dbo.net.EndPointType;
 import juniter.core.model.dto.node.NodeSummaryDTO;
 import juniter.core.model.dto.raw.WrapperResponse;
@@ -307,14 +307,12 @@ public class PeerService {
     public void renormalize(EndPointType type) {
 
         var queue = getQueue(type);
-        LOG.info("renormalize " + type + " => " + queue);
+        LOG.info("renormalize " + type  );
         synchronized (queue) {
             var sum = queue.values().stream().mapToDouble(NetStats::score).sum();
             var cntAll = queue.values().stream().mapToDouble(ns -> ns.getCount().doubleValue()).sum();
             var cntSucc = queue.values().stream().mapToDouble(ns -> ns.getSuccess().doubleValue()).sum();
-
-            LOG.debug("renormalize - success: " + cntSucc + "/" + cntAll);
-            LOG.info("renormalize - top 6 : \n" + queue.values().stream()
+            LOG.info("renormalize - success: " + cntSucc + "/" + cntAll + " of wich top 6 : \n" + queue.values().stream()
                     .sorted(Comparator.reverseOrder())
                     //.filter(ns -> ns.getLastNormalizedScore() > 0.001)
                     .map(NetStats::getHost)

@@ -2,14 +2,19 @@ package juniter.service.bma;
 
 import juniter.core.model.dto.node.NodeSummaryDTO;
 import juniter.core.model.dto.node.SandBoxesDTO;
-import juniter.core.model.dto.node.UnitDTO;
+import juniter.service.Sandboxes;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @ConditionalOnExpression("${juniter.useBMA:false}")
 public class NodeService {
 
+    @Autowired
+    private Sandboxes sandboxes;
 
     /**
      * node/summary
@@ -61,10 +66,7 @@ public class NodeService {
      */
     @GetMapping(value = "/node/sandboxes")
     public SandBoxesDTO sandboxes() {
-        return new SandBoxesDTO(
-                new UnitDTO(5000, 5000),
-                new UnitDTO(5000, 5000),
-                new UnitDTO(5000, 5000));
+        return sandboxes.status();
 
     }
 

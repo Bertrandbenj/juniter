@@ -38,10 +38,10 @@ public class HtmlService {
 ////		LOG.info("mappings "+ mappings);
 ////		LOG.info("paths " +  paths);
 //		LOG.info("tpath " + tpath);
-//		model.put("time", new Date());
-//		model.put("mappings",treeMap);
-//		model.put("message", "Welcome");
-//		model.put("title", "Welcome");
+//		model.queue("time", new Date());
+//		model.queue("mappings",treeMap);
+//		model.queue("message", "Welcome");
+//		model.queue("title", "Welcome");
 //		return "home";
 //	}
 

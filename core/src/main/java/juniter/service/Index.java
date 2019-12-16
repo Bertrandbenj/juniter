@@ -89,24 +89,31 @@ public class Index implements GlobalValid {
      * TODO: might not work on every SQL backend, please adapt
      */
     @PostConstruct
+    @Transactional
     public void createAccountView() {
         try {
 
             if (accountRepo.count() <= 0) {
-                entityManager.createNativeQuery("CREATE OR REPLACE " +
-                        "VIEW accounts AS " +
-                        "SELECT conditions, sum(case WHEN consumed THEN 0-amount ELSE amount end) bSum " +
-                        "FROM sindex " +
-                        "GROUP BY conditions " +
-                        "ORDER by conditions;")
-                        .executeUpdate();
+                entityManager.getTransaction().begin();
 
+                var q1 = entityManager.createNativeQuery("DROP TABLE IF EXISTS account;");
+
+
+                var q2 = entityManager.createNativeQuery(
+                        "CREATE OR REPLACE VIEW account AS " +
+                        "SELECT conditions, sum(case WHEN consumed THEN 0-amount ELSE amount end) bSum " +
+                        "FROM index_s GROUP BY conditions ORDER by conditions;");
+
+                entityManager.joinTransaction();
+
+                q1.executeUpdate();
+                q2.executeUpdate();
+                entityManager.getTransaction().commit();
                 LOG.info("Successfully added Account view ");
             }
 
         } catch (Exception e) {
-            LOG.warn("creating Account view " + e.getCause());
-
+            LOG.error("creating Account view failed, please do manually  ", e.getMessage());
         }
 
     }
@@ -131,7 +138,7 @@ public class Index implements GlobalValid {
 
         resetLocalIndex();
         IndexB.clear();
-        IndexB.addAll(indexBGlobal().sorted().collect(Collectors.toList()));
+        IndexB.addAll(indexBGlobal());
         if (head().isPresent()) {
             BR_G11_setUdTime(head().get());
             BR_G12_setUnitBase(head().get());
@@ -150,8 +157,7 @@ public class Index implements GlobalValid {
     }
 
     public List<String> getIssuers() {
-
-        return bRepo.findAll().stream().map(BINDEX::getIssuer).distinct().collect(Collectors.toList());
+        return IndexB.stream().map(BINDEX::getIssuer).distinct().collect(Collectors.toList());
 
     }
 
@@ -196,13 +202,13 @@ public class Index implements GlobalValid {
                     "  IndexB: " + bRepo.count() + ", " + indexB.getNumber());
         }
 
-
+        IndexB.add(indexB);
         return true;
     }
 
 
-    private Stream<BINDEX> indexBGlobal() {
-        return bRepo.findAll().stream();
+    private List<BINDEX> indexBGlobal() {
+        return bRepo.allAsc();
     }
 
 
@@ -340,7 +346,7 @@ public class Index implements GlobalValid {
     @Timed(longTask = true, histogram = true)
     public synchronized void indexUntil(int syncUntil, boolean quick, String ccy) {
 
-        LOG.info("indexUntil " + syncUntil + " , quick? " + quick+ " , ccy? " + ccy);
+        LOG.info("indexUntil " + syncUntil + " , quick? " + quick + " , ccy? " + ccy);
         init(false, ccy);
         var baseTime = System.currentTimeMillis();
         var time = System.currentTimeMillis();
@@ -360,12 +366,14 @@ public class Index implements GlobalValid {
                 } else {
                     coreEventBuss.publishEvent(new LogIndex("NOT Validated " + block));
 
+
                     break;
                 }
             } catch (AssertionError | Exception e) {
-                coreEventBuss.publishEvent(new LogIndex("ERROR Validating " + block + " - " + e.getMessage()));
-                coreEventBuss.publishEvent(new PossibleFork());
                 LOG.error("ERROR Validating " + block + " - " + e.getMessage(), e);
+
+                coreEventBuss.publishEvent(new LogIndex("ERROR Validating " + block + " - " + e.getMessage()));
+                //coreEventBuss.publishEvent(new PossibleFork());
 
                 break;
             }

@@ -114,8 +114,7 @@ public class DBBlock implements DUPDocument, Serializable {
     private String signature;
 
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-//    @JsonIgnore
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @Nullable
     private ChainParameters parameters;
 
