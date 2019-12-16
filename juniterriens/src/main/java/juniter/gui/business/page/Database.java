@@ -299,7 +299,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
     @FXML
     public void indexReset() {
         index.reset(true, CURRENCY.get());
-        currentBindex.setValue(null);
+        currentBindex.setValue(BINDEX.before0());
     }
 
 
@@ -592,7 +592,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
         tableC.setItems(sortedC);
         tableS.setItems(sortedS);
 
-        currentBindex.addListener(c -> bindex.setAll(bRepo.findAll()));
+       // currentBindex.addListener(c -> bindex.setAll(bRepo.findAll()));
         bindex.setAll(bRepo.findAll());
 
         Platform.runLater(this::reload);

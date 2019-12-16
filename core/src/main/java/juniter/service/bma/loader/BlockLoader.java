@@ -169,10 +169,12 @@ public class BlockLoader implements BlockLocalValid {
                 } catch (final RestClientException e) {
                     LOG.warn("fetchBlocks failed - RestClientException at " + url + " retrying .. ");
 
+                }catch (final Exception e) {
+                    LOG.error("fetchBlocks failed at " + url + " retrying because ", e.getMessage());
                 }
             }
         } catch (final Exception e) {
-            LOG.error("fetchBlocks failed at " + url + " stopping .. ");
+            LOG.error("fetchBlocks failed at " + url + " stopping .. ", e);
 
         }
 
@@ -241,6 +243,7 @@ public class BlockLoader implements BlockLocalValid {
 
                 } catch (Exception e) {
                     LOG.warn("Exception accessing node " + url + " " + e.getMessage());
+                    peerService.reportError(EndPointType.BMAS,host.get());
                 }
             } else {
                 LOG.error("Please, connect to the internet and provide BMA configuredNodes ");

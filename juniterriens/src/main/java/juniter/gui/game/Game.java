@@ -103,7 +103,7 @@ public class Game implements Initializable {
         var r = new TheBeginning();
 
         Player.get().setPosition(canvas.getWidth() / 2, canvas.getHeight() / 2);
-        r.run();
+        //r.run();
     }
 
 

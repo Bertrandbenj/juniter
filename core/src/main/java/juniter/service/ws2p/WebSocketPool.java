@@ -107,7 +107,7 @@ public class WebSocketPool {
     }
 
 
-    @Scheduled(fixedRate = 1000 * 60, initialDelay = 60 * 1000)
+    @Scheduled(fixedRate = 1000 * 60*5, initialDelay = 60 * 1000)
     public void renormalize() {
         peerService.renormalize(EndPointType.WS2P);
     }

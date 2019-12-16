@@ -2,8 +2,8 @@ package juniter.service.bma;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import juniter.core.event.RenormalizedNet;
-import juniter.core.model.dbo.net.NetStats;
 import juniter.core.model.dbo.net.EndPointType;
+import juniter.core.model.dbo.net.NetStats;
 import juniter.core.model.dto.node.NodeSummaryDTO;
 import juniter.core.model.dto.raw.WrapperResponse;
 import juniter.repository.jpa.net.EndPointsRepository;
@@ -30,6 +30,7 @@ import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -50,9 +51,9 @@ public class PeerService {
     @Autowired
     private EndPointsRepository endPointRepo;
 
-    private final Map<String, NetStats> BMAHosts = Collections.synchronizedMap(new HashMap<>());
+    private final Map<String, NetStats> BMAHosts = new ConcurrentHashMap<>();
 
-    private final Map<String, NetStats> WS2PHosts = Collections.synchronizedMap(new HashMap<>());
+    private final Map<String, NetStats> WS2PHosts = new ConcurrentHashMap<>();
 
     private BlockingQueue<NetStats> pingingQueue = new LinkedBlockingDeque<>(20);
 
@@ -176,7 +177,6 @@ public class PeerService {
     }
 
 
-
     @Scheduled(initialDelay = 30 * 1000, fixedDelay = 1000 * 60 * 10)
     public void pings() {
 
@@ -274,7 +274,7 @@ public class PeerService {
         List<NetStats> res = new ArrayList<>(nb);
         var rand = Math.random();
 
-        synchronized (queue) {
+      //  synchronized (queue) {
             for (int x = nb; x > 0; x--) {
 
                 var normalizeAggregate = 0.;
@@ -291,13 +291,13 @@ public class PeerService {
                     }
                 }
             }
-        }
+       // }
 
-        LOG.warn("next " + nb + " hosts of type " + type + " among [" + queue.size() + "] => " + res);
+        LOG.debug("next " + nb + " hosts of type " + type + " among [" + queue.size() + "] => " + res);
         return res;
     }
 
-    @Scheduled(fixedRate = 1000 * 60, initialDelay = 60 * 1000)
+    @Scheduled(fixedRate = 1000 * 60*5, initialDelay = 60 * 1000)
     public void renormalize() {
         renormalize(EndPointType.BMAS);
     }
@@ -307,14 +307,13 @@ public class PeerService {
     public void renormalize(EndPointType type) {
 
         var queue = getQueue(type);
-        LOG.info("renormalize " + type  );
-        synchronized (queue) {
+        //synchronized (queue) {
             var sum = queue.values().stream().mapToDouble(NetStats::score).sum();
             var cntAll = queue.values().stream().mapToDouble(ns -> ns.getCount().doubleValue()).sum();
             var cntSucc = queue.values().stream().mapToDouble(ns -> ns.getSuccess().doubleValue()).sum();
-            LOG.info("renormalize - success: " + cntSucc + "/" + cntAll + " of wich top 6 : \n" + queue.values().stream()
+            LOG.info("renormalize  " + type + " - " + cntSucc + "/" + cntAll + " of wich top 6 : \n" + queue.values().stream()
                     .sorted(Comparator.reverseOrder())
-                    //.filter(ns -> ns.getLastNormalizedScore() > 0.001)
+                    .limit(6)
                     .map(NetStats::getHost)
                     .collect(Collectors.joining(",")));
 
@@ -332,14 +331,14 @@ public class PeerService {
                                 .collect(Collectors.toList())));
             }
 
-        }
+       // }
     }
 
     public void reportSuccess(EndPointType type, String url) {
 
         var queue = getQueue(type);
 
-        synchronized (queue) {
+       // synchronized (queue) {
             var h = queue.get(url);
             var x = h.getSuccess().incrementAndGet();
             if (x > 100) {
@@ -349,7 +348,7 @@ public class PeerService {
                 h.setLastNormalizedScore(Math.random() * 0.2);
             }
             LOG.debug(" " + url + " : " + x);
-        }
+        //}
     }
 
 

@@ -135,7 +135,7 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
         currentDBBlockNum.setValue(blockService.currentBlockNumber());
 
         currentBindex.setValue(bRepo.head().orElse(BINDEX.before0()));
-        currentBindexN.bind(Bindings.createDoubleBinding(() -> new SimpleDoubleProperty().add(currentBindex.get().getNumber()).doubleValue(), currentBindex));
+        currentBindexN.bind(Bindings.createDoubleBinding(() -> new SimpleDoubleProperty(0).add(currentBindex.get().getNumber()).doubleValue(), currentBindex));
 
         highestDBBlock.setValue(blockService.currentBlockNumber());
         currenBlock.setValue(blockService.current().orElseGet(() -> blockLoader.fetchAndSaveBlock("current")));

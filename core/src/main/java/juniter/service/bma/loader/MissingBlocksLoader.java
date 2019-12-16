@@ -55,7 +55,7 @@ public class MissingBlocksLoader {
 
         final var numbers = blockService.blockNumbers();
 
-        if (currentNumber > blockService.currentBlockNumber()) {
+        if (currentNumber > blockService.count()) {
             return IntStream
                     .range(0, currentNumber)
                     .boxed()

@@ -2,7 +2,10 @@ package juniter.service;
 
 import com.codahale.metrics.annotation.Counted;
 import io.micrometer.core.annotation.Timed;
-import juniter.core.event.*;
+import juniter.core.event.CurrentBNUM;
+import juniter.core.event.Indexing;
+import juniter.core.event.LogIndex;
+import juniter.core.event.NewBINDEX;
 import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dbo.index.*;
@@ -101,8 +104,8 @@ public class Index implements GlobalValid {
 
                 var q2 = entityManager.createNativeQuery(
                         "CREATE OR REPLACE VIEW account AS " +
-                        "SELECT conditions, sum(case WHEN consumed THEN 0-amount ELSE amount end) bSum " +
-                        "FROM index_s GROUP BY conditions ORDER by conditions;");
+                                "SELECT conditions, sum(case WHEN consumed THEN 0-amount ELSE amount end) bSum " +
+                                "FROM index_s GROUP BY conditions ORDER by conditions;");
 
                 entityManager.joinTransaction();
 
@@ -195,11 +198,11 @@ public class Index implements GlobalValid {
         if (indexB != null) {
             bRepo.save(indexB);
 
-            LOG.info("Commit -  Certs: +" + indexC.size() + ",-" + cRepo.count() +
-                    "  Membship: +" + indexM.size() + ",-" + mRepo.count() +
-                    "  Idty: +" + indexI.size() + ",-" + iRepo.count() +
-                    "  localS: +" + indexS.size() + "," + sRepo.count() +
-                    "  IndexB: " + bRepo.count() + ", " + indexB.getNumber());
+            LOG.info("Commit " +indexB.getNumber() +
+                    " - Certs: +" + indexC.size() + ",-" + cRepo.count() +
+                    " Membship: +" + indexM.size() + ",-" + mRepo.count() +
+                    " Idty: +" + indexI.size() + ",-" + iRepo.count() +
+                    " localS: +" + indexS.size() + "," + sRepo.count());
         }
 
         IndexB.add(indexB);

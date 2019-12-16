@@ -314,11 +314,15 @@ public interface GlobalValid {
      */
     private void BR_G08_setMedianTime(BINDEX head) {
         final var min = Math.min(conf.getMedianTimeBlocks(), head.getNumber());
-
+        LOG.info("median of  " + range(min).map(BINDEX::getTime).collect(Collectors.toList()));
         if (head.getNumber() > 0) {
 
-            head.setMedianTime(median(range(min).map(BINDEX::getTime).collect(Collectors.toList())));
-
+            head.setMedianTime((long) Math.floor(range(min) // fetchTrimmed bindices
+                    .mapToLong(BINDEX::getTime)
+                    .average()
+                    .getAsDouble()));
+            head.setMedianTime(Math.max(head.getMedianTime(), head_1().getMedianTime())); // found in code, not in the spec
+            // used at block 3
         } else {
 
             head.setMedianTime(head.getTime());
@@ -585,7 +589,7 @@ public interface GlobalValid {
                             localS.add(lowAccount);
                             LOG.info("BR_G106_IndexLowAccounts comitting " + src);
 
-                            commit(null, Set.of(), Set.of(), Set.of(), Set.of(lowAccount));
+                            // commit(null, Set.of(), Set.of(), Set.of(), Set.of(lowAccount));
 
                         }
                     }));
@@ -832,7 +836,7 @@ public interface GlobalValid {
      * BR_G17_setPowMin
      *
      *
-     * If      HEAD.number > 0 AND HEAD.diffNumber != HEAD~1.diffNumber AND HEAD.speed >= maxSpeed AND (HEAD~1.powMin + 2) % 16 == 0:
+     * If HEAD.number > 0 AND HEAD.diffNumber != HEAD~1.diffNumber AND HEAD.speed >= maxSpeed AND (HEAD~1.powMin + 2) % 16 == 0:
      *     HEAD.powMin = HEAD~1.powMin + 2
      *
      * Else if HEAD.number > 0 AND HEAD.diffNumber != HEAD~1.diffNumber AND HEAD.speed >= maxSpeed:
@@ -2527,9 +2531,7 @@ public interface GlobalValid {
 
         BR_G86_ruleExcludedContainsExactlyThoseKicked();
 
-        if (valid) {
-            IndexB.add(testHead);
-        } else {
+        if (!valid) {
             LOG.info("BR_G97_TestIndex did not pass at block " + block + " (ICM : " + localI.size() + " " + localC.size() + " " + localM.size() + ") " + testHead);
         }
         return valid;
@@ -2607,19 +2609,65 @@ public interface GlobalValid {
         return head().orElseThrow();
     }
 
+    default BINDEX head_1() {
+        return IndexB.size() > 0 ? IndexB.get(IndexB.size() - 1) : null;
+    }
+
+
     default Map<String, List<BINDEX>> issuersMap() {
         return IndexB.stream().collect(Collectors.groupingBy(BINDEX::getIssuer));
     }
 
-    default BINDEX prepareIndexForForge() {
+    default BINDEX prepareIndexForForge(String issuer) {
+        var prev = head_();
         var res = new BINDEX();
+
+        res.setIssuer(issuer);
+        res.setTime(System.currentTimeMillis() / 1000 + 1000 * 150); // FIXME static 2.5 min after NOW
+
+        BR_G01_setNumber(res);
+        BR_G02_setPreviousHash(res);
+        BR_G03_setPreviousIssuer(res);
+        BR_G08_setMedianTime(res);
+
+        BR_G04_setIssuersCount(res);
+        BR_G05_setIssuersFrame(res);
+        BR_G06_setIssuersFrameVar(res);
+        BR_G07_setAvgBlockSize(res);
+
+        BR_G09_setDiffNumber(res);
+        //res.setDiffTime(); // FIXME ?
+        BR_G10_setMembersCount(res);
+        BR_G11_setUdTime(res);
+        BR_G12_setUnitBase(res);
+
+        BR_G13_setDividend(res);
+
+        BR_G14_setUnitBase(res);
+        BR_G15_setMassAndMassReeval(res);
+        BR_G16_setSpeed(res);
+
         BR_G17_setPowMin(res);
         BR_G18_setPowZero(res);
+
+        BR_G99_setCurrency(res);
+        BR_G100_setIssuerIsMember(res);
+
+        BR_G17_setPowMin(res);
+        BR_G18_setPowZero(res);
+        //res.setDiffTime(); //FIXME ?
         return res;
     }
 
     default boolean isValid(BINDEX head, DBBlock block) {
-        return BR_G61_rulePowMin(head, block) && BR_G62_ruleProofOfWork(head);
+        if(BR_G61_rulePowMin(head, block) && BR_G62_ruleProofOfWork(head)){
+            LOG.info("Forged PoW is valid, testing it all");
+            if(BR_G97_TestIndex(head, block, true)){
+                return true;
+            }
+        }
+
+        return false ;
     }
 
 
@@ -3057,9 +3105,6 @@ public interface GlobalValid {
         return inputEntries;
     }
 
-    default BINDEX head_1() {
-        return IndexB.size() > 0 ? IndexB.get(IndexB.size() - 1) : null;
-    }
 
     /**
      * fetches few last block index
@@ -3069,6 +3114,7 @@ public interface GlobalValid {
      */
     default Stream<BINDEX> range(long m) {
         final var bheads = IndexB.stream()
+                .distinct() // this because some crap gets in the way
                 .filter(h -> h.getNumber() >= head_1().getNumber() - m + 1)
                 .sorted((b1, b2) -> Integer.compare(b2.getNumber(), b1.getNumber()))
                 .collect(toList());
@@ -3077,14 +3123,8 @@ public interface GlobalValid {
         return bheads.stream();
     }
 
-    /**
-     * @param block to completeGlobalScope
-     * @return true or false or perhaps true
-     */
-    @Transactional
-    default boolean completeGlobalScope(DBBlock block, boolean complete) {
+    default BINDEX prepareBindex(DBBlock block, boolean complete) {
         var quick = !complete;
-        resetLocalIndex();
 
         final var newHead = new BINDEX();
 
@@ -3142,6 +3182,19 @@ public interface GlobalValid {
 
 
         newHead.setCurrency(block.getCurrency()); // because BR_G99_setCurrency set it to null
+        return newHead;
+    }
+
+    /**
+     * @param block to completeGlobalScope
+     * @return true or false or perhaps true
+     */
+    @Transactional
+    default boolean completeGlobalScope(DBBlock block, boolean complete) {
+        var quick = !complete;
+        resetLocalIndex();
+
+        final var newHead = prepareBindex(block, complete);
 
         //  ==================  SET OTHER LOCAL INDEX VARIABLES  ==================
         //
@@ -3220,9 +3273,10 @@ public interface GlobalValid {
         BR_G95_IndexExclusionByCertification(bstamp);
         BR_G96_IndexImplicitRevocation(newHead);
 
+        IndexB.add(newHead);
         success &= commit(newHead, localI, localM, localC, localS);
-
         success &= trimAndCleanup(newHead, block);
+
 
         return success;
 
