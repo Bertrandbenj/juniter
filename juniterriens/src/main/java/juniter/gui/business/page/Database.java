@@ -2,8 +2,6 @@ package juniter.gui.business.page;
 
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.beans.binding.BooleanBinding;
-import javafx.beans.binding.StringBinding;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
@@ -24,8 +22,8 @@ import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.index.*;
 import juniter.gui.technical.AbstractJuniterFX;
 import juniter.repository.jpa.index.*;
-import juniter.service.BlockService;
-import juniter.service.Index;
+import juniter.service.core.BlockService;
+import juniter.service.core.Index;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -408,7 +406,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
 //        });
 
 
-        indexBar.progressProperty().bind(currentBindexN.divide(highestDBBlock));
+        indexBar.progressProperty().bind(indexRatio);
 
         txCountB.textProperty().bind(new SimpleStringProperty("Count ").concat(Bindings.size(bindex)));
 
@@ -592,7 +590,11 @@ public class Database extends AbstractJuniterFX implements Initializable {
         tableC.setItems(sortedC);
         tableS.setItems(sortedS);
 
-       // currentBindex.addListener(c -> bindex.setAll(bRepo.findAll()));
+        indexRatio.isEqualTo(1).addListener((observable, oldValue, newValue) -> {
+            if(newValue)
+                bindex.setAll(bRepo.findAll());
+        });
+
         bindex.setAll(bRepo.findAll());
 
         Platform.runLater(this::reload);

@@ -1,9 +1,13 @@
-package juniter.service.bma;
+package juniter.service.core;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import juniter.core.crypto.SecretBox;
 import juniter.core.event.RenormalizedNet;
+import juniter.core.model.dbo.DBBlock;
+import juniter.core.model.dbo.net.EndPoint;
 import juniter.core.model.dbo.net.EndPointType;
 import juniter.core.model.dbo.net.NetStats;
+import juniter.core.model.dbo.net.Peer;
 import juniter.core.model.dto.node.NodeSummaryDTO;
 import juniter.core.model.dto.raw.WrapperResponse;
 import juniter.repository.jpa.net.EndPointsRepository;
@@ -14,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.ClientHttpResponse;
@@ -25,8 +30,11 @@ import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URI;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
@@ -47,9 +55,11 @@ public class PeerService {
     @Autowired
     private ApplicationEventPublisher coreEventBus;
 
-
     @Autowired
     private EndPointsRepository endPointRepo;
+
+    @Autowired
+    private BlockService blockService;
 
     private final Map<String, NetStats> BMAHosts = new ConcurrentHashMap<>();
 
@@ -66,6 +76,11 @@ public class PeerService {
 
     @Value("#{'${juniter.network.trusted}'.split(',')}")
     private List<String> configuredNodes;
+
+    private SecretBox secretBox = new SecretBox("salt", "password");
+    @Value("${server.port:8443}")
+    private Integer port;
+
 
     @PostConstruct
     public void initConsumers() {
@@ -248,7 +263,7 @@ public class PeerService {
             getEndPoint(type).forEach(url -> {
                 queue.computeIfPresent(url, (x, y) -> {
 
-                    LOG.info("compute if present ");
+                    LOG.info("increment count "+url);
                     y.getCount().incrementAndGet();
                     return y;
                 });
@@ -267,7 +282,6 @@ public class PeerService {
 
     @Transactional(readOnly = true)
     public List<NetStats> nextHosts(EndPointType type, int nb) {
-
 
         var queue = getQueue(type);
 
@@ -297,7 +311,7 @@ public class PeerService {
         return res;
     }
 
-    @Scheduled(fixedRate = 1000 * 60*5, initialDelay = 60 * 1000)
+    @Scheduled(fixedRate = 1000 * 60, initialDelay = 60 * 1000)
     public void renormalize() {
         renormalize(EndPointType.BMAS);
     }
@@ -315,7 +329,7 @@ public class PeerService {
                     .sorted(Comparator.reverseOrder())
                     .limit(6)
                     .map(NetStats::getHost)
-                    .collect(Collectors.joining(",")));
+                    .collect(Collectors.joining(" ")));
 
             if (queue.size() > 0) {
 
@@ -365,6 +379,56 @@ public class PeerService {
                 h.getCount().set(1);
                 h.setLastNormalizedScore(Math.random() * 0.2);
             }
+        }
+    }
+
+    /**
+     * Create the peer card of this node
+     *
+     * @param number the node number we declare the node
+     * @return the Peer object
+     */
+    public Peer endPointPeer(Integer number) {
+        LOG.info("endPointPeer " + number);
+
+        DBBlock current = blockService.block(number).or(() -> blockService.current()).orElseThrow();
+        var peer = new Peer();
+        peer.setVersion(10);
+        peer.setBlock(current.bstamp());
+        peer.setCurrency("g1");
+        peer.setPubkey(secretBox.getPublicKey());
+        peer.setStatus("UP");
+
+        //peer.endpoints().add(new EndPoint("BMAS " + serverName + " " + port));
+        //peer.endpoints().add(new EndPoint("WS2P " + serverName + " " + port));
+
+        whatsMyIp().ifPresent(ip -> {
+            peer.endpoints().add(new EndPoint("BMAS " + ip + " " + port));
+            peer.endpoints().add(new EndPoint("BASIC_MERKLED_API " + ip + " " + port));
+        });
+
+        //peer.endpoints().add(new EndPoint("BASIC_MERKLED_API " + serverName + " " + " " + port));
+
+        peer.setSignature(secretBox.sign(peer.toDUP(false)));
+
+        return peer;
+    }
+
+
+    /**
+     * Auto detect IP
+     *
+     * @return the IP address or null
+     */
+    @Bean
+    private Optional<String> whatsMyIp() {
+
+        try {
+            URL whatismyip = new URL("http://checkip.amazonaws.com");
+            BufferedReader in = new BufferedReader(new InputStreamReader(whatismyip.openStream()));
+            return Optional.of(in.readLine());
+        } catch (Exception e) {
+            return Optional.empty();
         }
     }
 

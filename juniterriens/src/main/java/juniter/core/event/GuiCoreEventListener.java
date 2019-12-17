@@ -97,13 +97,18 @@ public class GuiCoreEventListener implements ApplicationListener<CoreEvent> {
 
         }
 
-        if (!notifTitle.isEmpty())
-            Notifications.create()
-                    .title(notifTitle)
-                    .text(notifText)
+        if (!notifTitle.isEmpty()) {
+            String finalNotifTitle = notifTitle;
+            String finalNotifText = notifText;
+            Platform.runLater(() -> Notifications
+                    .create()
+                    .title(finalNotifTitle)
+                    .text(finalNotifText)
                     .owner(ScreenController.singleton.getMain().getWindow())
                     .position(Pos.TOP_RIGHT)
                     .darkStyle()
-                    .showInformation();
+                    .showInformation());
+        }
+
     }
 }

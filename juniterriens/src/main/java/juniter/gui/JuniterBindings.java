@@ -1,5 +1,7 @@
 package juniter.gui;
 
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
@@ -14,7 +16,7 @@ import juniter.gui.technical.I18N;
 import juniter.gui.technical.PageName;
 import juniter.gui.technical.ScreenController;
 import juniter.gui.technical.Theme;
-import juniter.service.bma.PeerService;
+import juniter.service.core.PeerService;
 
 import java.util.*;
 
@@ -49,15 +51,18 @@ public interface JuniterBindings {
 
 
     // updatable value from the outside
-    ObjectProperty<BINDEX> currentBindex = new SimpleObjectProperty();
-    IntegerProperty currentBindexN = new SimpleIntegerProperty(0);
-    DoubleProperty currentDBBlockNum = new SimpleDoubleProperty(42.);
-    DoubleProperty highestDBBlock = new SimpleDoubleProperty(42.);
+    ObjectProperty<BINDEX> currentBindex = new SimpleObjectProperty(BINDEX.before0());
+    IntegerProperty currentBindexN = new SimpleIntegerProperty(-1);
+    IntegerProperty currentDBBlockNum = new SimpleIntegerProperty(42);
+    IntegerProperty highestDBBlock = new SimpleIntegerProperty(42);
+    IntegerProperty maxPeerBlock = new SimpleIntegerProperty(42);
 
-    DoubleProperty maxPeerBlock = new SimpleDoubleProperty(42.);
+
+    DoubleBinding indexRatio = Bindings.add(0.0,currentBindexN.divide(highestDBBlock)) ;
+    DoubleBinding dlRatio = Bindings.add(0.0,new SimpleDoubleProperty(0).divide(maxPeerBlock));
 
     BooleanProperty isIndexing = new SimpleBooleanProperty(false);
-     StringProperty rawDocument = new SimpleStringProperty("here comes the Document in DUPComponent format");
+    StringProperty rawDocument = new SimpleStringProperty("here comes the Document in DUPComponent format");
 
     StringProperty indexLogMessage = new SimpleStringProperty(" ... ");
     StringProperty peerLogMessage = new SimpleStringProperty(" ... ");

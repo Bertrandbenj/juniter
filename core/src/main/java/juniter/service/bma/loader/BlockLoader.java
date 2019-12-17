@@ -6,8 +6,8 @@ import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dbo.net.NetStats;
 import juniter.core.model.dbo.net.EndPointType;
 import juniter.core.validation.BlockLocalValid;
-import juniter.service.BlockService;
-import juniter.service.bma.PeerService;
+import juniter.service.core.BlockService;
+import juniter.service.core.PeerService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,7 +87,7 @@ public class BlockLoader implements BlockLocalValid {
             while (true) {
 
                 try {
-                    getBlocks().forEach(b -> blockService.localSave(b));
+                    getBlocks().forEach(b -> blockService.safeSave(b));
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
                     LOG.error("interrupted ", e);
@@ -215,7 +215,7 @@ public class BlockLoader implements BlockLocalValid {
     public DBBlock fetchAndSaveBlock(String id) {
         var block = fetchBlock(id);
         LOG.info("  Saving ... : " + block.getNumber());
-        return blockService.localSave(block).orElse(block);
+        return blockService.safeSave(block).orElse(block);
     }
 
 
@@ -256,8 +256,8 @@ public class BlockLoader implements BlockLocalValid {
     /**
      * uses /blockchain/blocks/[count]/[from]
      *
-     * @param bulkSize:
-     * @param from;
+     * @param bulkSize :
+     * @param from block number to start from (included);
      * @return .
      */
     @Transactional

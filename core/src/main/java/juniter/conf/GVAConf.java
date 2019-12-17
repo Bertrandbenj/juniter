@@ -3,9 +3,9 @@ package juniter.conf;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import juniter.core.model.dbo.index.BINDEX;
 import juniter.core.model.dto.node.Block;
-import juniter.repository.jpa.index.BINDEXRepository;
-import juniter.service.BlockService;
-import juniter.service.bma.NetworkService;
+import juniter.service.core.BlockService;
+import juniter.service.core.Index;
+import juniter.service.core.PeerService;
 import juniter.service.gva.GVASubscriptionHandler;
 import juniter.service.ws2p.WSBlock;
 import juniter.service.ws2p.WSPeer;
@@ -44,11 +44,10 @@ public class GVAConf implements WebSocketConfigurer {
     private BlockService blockService;
 
     @Autowired
-    private NetworkService netService;
-
+    private PeerService peerService;
 
     @Autowired
-    private BINDEXRepository bRepo;
+    private Index index;
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
@@ -115,9 +114,9 @@ public class GVAConf implements WebSocketConfigurer {
 
         if (request.getURI().getPath().endsWith("/ws/peer") || request.getURI().getPath().endsWith("/peer")) {
 
-            bRepo.head().map(BINDEX::getNumber).ifPresent(bl -> {
+            index.head().map(BINDEX::getNumber).ifPresent(bl -> {
                 try {
-                    var peer = objectMapper.writeValueAsString(netService.endPointPeer(bl));
+                    var peer = objectMapper.writeValueAsString(peerService.endPointPeer(bl));
                     response.getBody().write(new TextMessage(peer).asBytes());
                     LOG.info("sending peer " + peer.toString() + " " + response.getBody());
                     res.set(true);

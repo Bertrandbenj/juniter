@@ -5,7 +5,7 @@ import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dbo.index.*;
 import juniter.core.validation.GlobalValid;
-import juniter.service.BlockService;
+import juniter.service.core.BlockService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

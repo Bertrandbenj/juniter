@@ -78,7 +78,7 @@ public class WS2PClient extends WebSocketClient {
 
             } else if (challenge.isOK()) {
                 LOG.info("OK, connected !! ");
-                webSocketPool.clients.offer(this);
+                webSocketPool.getClients().offer(this);
                 actionOnConnect();
 
             }
@@ -168,7 +168,7 @@ public class WS2PClient extends WebSocketClient {
 
     @Override
     public void onClose(int code, String reason, boolean remote) {
-        if (webSocketPool.clients.contains(this)) {
+        if (webSocketPool.getClients().contains(this)) {
             // The codecodes are documented in class org.java_websocket.framing.CloseFrame
             LOG.info("Connection closed by " + (remote ? "remote peer" : "us") + " Code: " + code + " on URI " + getURI());
             LOG.info(" - Reason: " + reason);
@@ -176,7 +176,7 @@ public class WS2PClient extends WebSocketClient {
         }
 
 
-        webSocketPool.clients.remove(this);
+        webSocketPool.getClients().remove(this);
 
     }
 

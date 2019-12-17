@@ -10,6 +10,7 @@ import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import juniter.gui.technical.AbstractJuniterFX;
 import juniter.service.web.GraphvizService;
+import juniter.user.UserSettings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +23,13 @@ import org.w3c.dom.events.Event;
 import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
 
+import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 import static juniter.gui.JuniterBindings.currenBlock;
 
@@ -41,16 +46,12 @@ public class GraphPanel extends AbstractJuniterFX implements Initializable {
     private WebView SVGAnchor;
 
     @FXML
-    private WebView CesiumAnchor;
-
-    @FXML
-    private WebView WotMapAnchor;
-
-    @FXML
     private TextField uri;
 
     @Autowired
     private GraphvizService graphvizService;
+
+    private List<String> bookmarks = new UserSettings().getBookmarks();
 
 
     @Override
@@ -63,18 +64,12 @@ public class GraphPanel extends AbstractJuniterFX implements Initializable {
         primaryStage.show();
     }
 
-    @FXML
-    public void openInBrowser() {
-
-        if (isWeb()) {
-            getHostServices().showDocument(uri.getText());
-        } else if (isGraphviz()) {
-            getHostServices().showDocument("https://localhost:8443" + uri.getText());
-        }
-    }
-
     private boolean isGraphviz() {
         return uri.getText().startsWith("/graphviz");
+    }
+
+    private boolean isLocal() {
+        return uri.getText().startsWith("/");
     }
 
     private boolean isWeb() {
@@ -107,12 +102,23 @@ public class GraphPanel extends AbstractJuniterFX implements Initializable {
             } catch (Exception e) {
                 LOG.error("Problem calling graphviz service ", e);
             }
+        }else if(isLocal()){
+            SVGAnchor.setZoom(1);
+            String url  ="https://"+hostAddress+":8443"+uri.getText();
+            LOG.info("loading "+url);
+            webEngine.load(url);
         }
     }
+
+    private String hostAddress;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         uri.setText("/graphviz/svg/block/" + (currenBlock.get().getNumber() - 2));
+
+        // Remote address
+        hostAddress = InetAddress.getLoopbackAddress().getHostAddress();
+
 
         var webEngine = SVGAnchor.getEngine();    // Get WebEngine via WebView
         SVGAnchor.setZoom(0.60);
@@ -163,14 +169,28 @@ public class GraphPanel extends AbstractJuniterFX implements Initializable {
             }
         });
 
-        var tab = new Tab();
-        var wv = new WebView();
-        wv.getEngine().load("https://g1.le-sou.org/#/app/currency/lg");
-        tab.setContent(wv);
-        tabPane.getTabs().add(tab);
-
         go();
-        WotMapAnchor.getEngine().load("https://duniter.normandie-libre.fr/wotmap/");
-        CesiumAnchor.getEngine().load("https://g1.le-sou.org/#/app/currency/lg");
+
+        tabPane.getTabs().addAll(bookmarks.stream().map(b -> {
+            Tab tab = new Tab(hostOf(b));
+            var webView = new WebView();
+            tab.setContent(webView);
+            tab.selectedProperty().addListener((obs, old, newValue) -> {
+                if (newValue)
+                    webView.getEngine().load(b);
+            });
+            return tab;
+        }).collect(Collectors.toList()));
+    }
+
+    private String hostOf(String url) {
+
+        try {
+            URL u = new URL(url);
+            return u.getHost();
+        } catch (MalformedURLException e) {
+            LOG.info("Parsing url ", e);
+        }
+        return null;
     }
 }

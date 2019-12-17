@@ -14,8 +14,8 @@ import juniter.core.model.dto.raw.*;
 import juniter.grammar.JuniterGrammar;
 import juniter.gui.technical.AbstractJuniterFX;
 import juniter.gui.technical.I18N;
-import juniter.service.BlockService;
-import juniter.service.bma.PeerService;
+import juniter.service.core.BlockService;
+import juniter.service.core.PeerService;
 import org.antlr.v4.runtime.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -65,9 +65,6 @@ public class Notary extends AbstractJuniterFX implements Initializable {
 
     @FXML
     private TextArea logGlobalValid;
-
-    @FXML
-    private Button sendButton;
 
     @Autowired
     private RestTemplate restTemplate;
@@ -145,7 +142,7 @@ public class Notary extends AbstractJuniterFX implements Initializable {
 
         if (selectedPane.equals(paneBlock0)) {
 
-            blockService.localSave(block_0);
+            blockService.safeSave(block_0);
             reqBodyData = new WrapperBlock(rawDocTextArea.getText());
             // TODO COMPLETE
         } else {

@@ -2,7 +2,6 @@ package juniter.service.bma.loader;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import juniter.core.event.LogNetwork;
-import juniter.core.event.MaxDBBlock;
 import juniter.core.event.MaxPeerBlock;
 import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.net.EndPointType;
@@ -12,9 +11,9 @@ import juniter.core.model.dto.net.PeersDTO;
 import juniter.core.utils.TimeUtils;
 import juniter.repository.jpa.net.EndPointsRepository;
 import juniter.repository.jpa.net.PeersRepository;
-import juniter.service.BlockService;
+import juniter.service.core.BlockService;
 import juniter.service.bma.NetworkService;
-import juniter.service.bma.PeerService;
+import juniter.service.core.PeerService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
@@ -55,9 +54,6 @@ public class PeerLoader {
     @Autowired
     private RestTemplate restTemplate;
 
-    @Value("#{'${juniter.network.trusted}'.split(',')}")
-    private List<String> configuredNodes;
-
     @Autowired
     private PeersRepository peerRepo;
 
@@ -71,9 +67,6 @@ public class PeerLoader {
     private BlockService blockService;
 
     @Autowired
-    private NetworkService netService;
-
-    @Autowired
     private EndPointsRepository endPointRepo;
 
     @Autowired
@@ -82,88 +75,57 @@ public class PeerLoader {
     @Value("${juniter.network.bulkSize:200}")
     private Integer bulkSize;
 
-
-    private Optional<String> anyNotIn(final List<String> triedURL) {
-        Collections.shuffle(configuredNodes);
-        return configuredNodes.stream()
-                .filter(node -> triedURL == null || !triedURL.contains(node))
-                .findAny();
-    }
-
-    @Transactional
-    //@Scheduled(initialDelay = 11 * 60 * 1000)
-    public void runBMAnetworkPeeringCardsCheck() {
-//        endPointRepo.endpointsBMAS()
-//                .map(bma -> fetchPeers(bma.url()) )
-//                .flatMap(peerDoc -> peerDoc.getPeers().stream())
-//                .flatMap(peer-> peer.endpoints().stream())
-//                .distinct();
-
-    }
-
     @Async
-    @Scheduled(fixedDelay = 10 * 60 * 1000, initialDelay = 60 * 1000)
+    @Scheduled(fixedDelay =  60 * 1000, initialDelay = 60 * 1000)
     public void runPeerCheck() {
 
         LOG.info("@Scheduled runPeerCheck ");
         final var start = System.nanoTime();
 
-        final var blacklistHosts = new ArrayList<String>();
-        PeersDTO peersDTO = null;
-        while (peersDTO == null) {
+         PeersDTO peersDTO = null;
+        while (peersDTO == null || peersDTO.getPeers().isEmpty()) {
 
-            final var host = anyNotIn(blacklistHosts);
+            final var host = peerService.nextHost(EndPointType.BMAS).orElseThrow().getHost();
 
-            if (host.isPresent()) {
+            try {
+                peersDTO = fetchPeers(host);
 
-                blacklistHosts.add(host.get());
-                try {
-                    peersDTO = fetchPeers(host.get());
+                var maxBlockPeer = peersDTO.getPeers().stream()
+                        .map(pdto -> modelMapper.map(pdto, Peer.class))
+                        .map(Peer::getBlock)
+                        .mapToLong(BStamp::getNumber)
+                        .max();
 
-                    var maxBlockPeer = peersDTO.getPeers().stream()
-                            .map(pdto -> modelMapper.map(pdto, Peer.class))
-                            .map(Peer::getBlock)
-                            .mapToLong(BStamp::getNumber)
-                            .max();
+                var maxBlockDB = blockService.currentBlockNumber();
 
-                    var maxBlockDB = blockService.currentBlockNumber();
+                coreEventBus.publishEvent(new LogNetwork(host));
 
-                    coreEventBus.publishEvent(new MaxDBBlock(maxBlockDB));
+                if (maxBlockPeer.isPresent()) {
+                    coreEventBus.publishEvent(new MaxPeerBlock((int) maxBlockPeer.getAsLong()));
 
-
-                    coreEventBus.publishEvent(new LogNetwork(host.orElse("")));
-
-
-                    if (maxBlockPeer.isPresent()) {
-                        coreEventBus.publishEvent(new MaxPeerBlock((int) maxBlockPeer.getAsLong()));
-
-                        if (maxBlockDB < maxBlockPeer.getAsLong()) {
-                            blockLoader.fetchBlocks(bulkSize, (int) (maxBlockPeer.getAsLong() - bulkSize))
-                                    .forEach(b -> blockService.save(b));
-                        }
+                    if (maxBlockDB < maxBlockPeer.getAsLong()) {
+                        var batch = (int) Math.min(maxBlockPeer.getAsLong() - maxBlockDB, bulkSize);
+                        blockLoader.fetchBlocks(batch, maxBlockDB)
+                                .forEach(b -> blockService.safeSave(b));
                     }
 
-
                     final var elapsed = Long.divideUnsigned(System.nanoTime() - start, 1000000);
-                    LOG.info("Max node found peers:" + maxBlockPeer +
+                    LOG.info("Max node found peers: " + maxBlockPeer +
                             "  db: " + maxBlockDB +
                             " Elapsed time: " + TimeUtils.format(elapsed));
 
-                    return;
-
-                } catch (Exception e) {
-                    LOG.warn("Retrying after failing on " + host + " ", e);
+                }  else {
+                    LOG.info("Couldn't find maxPeerBlock peers: " + host + "while having received " + peersDTO);
                 }
 
-            } else {
-                LOG.error("Please, connect to the internet and provide BMA configuredNodes ");
-                break;
+            } catch (Exception e) {
+                LOG.warn("Retrying after failing on " + host + " ", e);
             }
 
         }
 
-
     }
+
 
     @Transactional
     @Async
@@ -181,7 +143,7 @@ public class PeerLoader {
 
         LOG.info("=== Found max node " + max);
 
-        var peer = netService.endPointPeer(max.getNumber() - 1);
+        var peer = peerService.endPointPeer(max.getNumber() - 1);
         var asBMA = new PeerBMA(peer.toDUP(true));
 
         peerRepo.peerWithBlock(max.toString())
@@ -245,7 +207,7 @@ public class PeerLoader {
         return null;
     }
 
-    public BStamp fetchPeeringNumber(String nodeURL) {
+    private BStamp fetchPeeringNumber(String nodeURL) {
 
         var url = nodeURL + "network/peering";
 
@@ -258,7 +220,7 @@ public class PeerLoader {
             blockLoader.fetchBlocks(100, bstamp.getNumber() - 100)
                     //.flatMap(Collection::stream) // blocks individually
                     .forEach(b -> blockService//
-                            .localSave(b) //
+                            .safeSave(b) //
                             .ifPresent(bl -> LOG.debug(" saved node : " + bl)));
 
             return bstamp;

@@ -12,7 +12,7 @@ import javafx.scene.layout.VBox;
 import juniter.core.crypto.SecretBox;
 import juniter.core.model.dbo.net.EndPoint;
 import juniter.core.model.dbo.net.Peer;
-import juniter.service.bma.NetworkService;
+import juniter.service.core.PeerService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,7 +74,7 @@ public class PeerPanel implements Initializable {
     private Label pubkey;
 
     @Autowired
-    private NetworkService netService;
+    private PeerService peerService;
 
 
     private Peer peer;
@@ -148,7 +148,7 @@ public class PeerPanel implements Initializable {
 
     private void presetPeer() {
 
-        peer = netService.endPointPeer(currenBlock.get().getNumber());
+        peer = peerService.endPointPeer(currenBlock.get().getNumber());
         sessid.setText(getRandomHexString(8));
         block.setText(peer.getBlock().stamp());
 

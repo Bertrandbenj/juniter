@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import juniter.core.crypto.Crypto;
 import juniter.core.model.dbo.DBBlock;
 import juniter.core.validation.BlockLocalValid;
+import juniter.service.core.Index;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Before;

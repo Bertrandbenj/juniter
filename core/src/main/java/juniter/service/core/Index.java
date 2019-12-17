@@ -1,4 +1,4 @@
-package juniter.service;
+package juniter.service.core;
 
 import com.codahale.metrics.annotation.Counted;
 import io.micrometer.core.annotation.Timed;
@@ -83,8 +83,7 @@ public class Index implements GlobalValid {
     public void init() {
         LOG.info("Init Indexes: ");
 
-        //bRepo.head().ifPresent(b->coreEventBuss.publishEvent(new NewBINDEX(b)));
-
+        init(false,"g1");
     }
 
     /**

@@ -13,7 +13,7 @@ import juniter.gui.business.popup.AlertBox;
 import juniter.gui.technical.AbstractJuniterFX;
 import juniter.gui.technical.I18N;
 import juniter.gui.technical.Theme;
-import juniter.service.BlockService;
+import juniter.service.core.BlockService;
 import juniter.service.ipfs.Interplanetary;
 import juniter.user.UnitDisplay;
 import org.apache.logging.log4j.LogManager;

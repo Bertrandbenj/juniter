@@ -3,7 +3,6 @@ package juniter.gui.business.page;
 
 import javafx.application.Preloader;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
@@ -17,15 +16,14 @@ import juniter.core.model.dbo.index.BINDEX;
 import juniter.gui.technical.AbstractJuniterFX;
 import juniter.gui.technical.PageName;
 import juniter.repository.jpa.index.BINDEXRepository;
-import juniter.service.BlockService;
-import juniter.service.bma.PeerService;
+import juniter.service.core.BlockService;
+import juniter.service.core.PeerService;
 import juniter.service.bma.loader.BlockLoader;
 import juniter.service.bma.loader.MissingBlocksLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
@@ -131,21 +129,15 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-        loadBar.progressProperty().bind(currentDBBlockNum.divide(maxPeerBlock));
-        currentDBBlockNum.setValue(blockService.currentBlockNumber());
-
-        currentBindex.setValue(bRepo.head().orElse(BINDEX.before0()));
-        currentBindexN.bind(Bindings.createDoubleBinding(() -> new SimpleDoubleProperty(0).add(currentBindex.get().getNumber()).doubleValue(), currentBindex));
-
-        highestDBBlock.setValue(blockService.currentBlockNumber());
-        currenBlock.setValue(blockService.current().orElseGet(() -> blockLoader.fetchAndSaveBlock("current")));
+        currentBindexN.bind(Bindings.createIntegerBinding(()->currentBindex.get().getNumber(),currentBindex));
+        loadBar.progressProperty().bind(dlRatio);
 
         peerProp.set(peers);
 
-        m.textProperty().bind(Bindings.createObjectBinding(() -> String.format("%,.2f", currenBlock.get().getMonetaryMass() / 100.), currenBlock));
+        m.textProperty().bind(Bindings.createStringBinding(() -> String.format("%,.2f", currentBindex.get().getMass() / 100.), currentBindex));
 
 
-        n.textProperty().bind(Bindings.createObjectBinding(() -> {
+        n.textProperty().bind(Bindings.createStringBinding(() -> {
                     var mc = currentBindex.get().getMembersCount();
                     var h24 = bRepo.byNum(currentBindexN.get() - 288, "g1")
                             .map(BINDEX::getMembersCount)
@@ -168,11 +160,15 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
                 currentBindex.get().getSize().toString(), currentBindex));
 
 
-        number.textProperty().bind(Bindings.createObjectBinding(() ->
-                currentBindex.get().getNumber().toString(), currentBindex));
+        number.textProperty().bind(currentBindexN.asString());
 
         // test.setText(txRepo.transactionsOfIssuer_("4weakHxDBMJG9NShULG1g786eeGh7wwntMeLZBDhJFni").singleton(0).getWrittenOn()+"");
 
+        // INIT Binded Properties
+        highestDBBlock.setValue(blockService.currentBlockNumber());
+        currenBlock.setValue(blockService.current().orElseGet(() -> blockLoader.fetchAndSaveBlock("current")));
+        currentDBBlockNum.setValue(blockService.currentBlockNumber());
+        currentBindex.setValue(bRepo.head().orElse(BINDEX.before0()));
 
     }
 

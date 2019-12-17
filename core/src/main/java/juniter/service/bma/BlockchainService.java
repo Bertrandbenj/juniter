@@ -14,7 +14,7 @@ import juniter.repository.jpa.block.MemberRepository;
 import juniter.repository.jpa.block.ParamsRepository;
 import juniter.repository.jpa.block.TxRepository;
 import juniter.repository.jpa.index.MINDEXRepository;
-import juniter.service.BlockService;
+import juniter.service.core.BlockService;
 import juniter.service.bma.loader.BlockLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

@@ -4,7 +4,7 @@ import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.net.Peer;
 import juniter.core.utils.TimeUtils;
 import juniter.repository.jpa.net.PeersRepository;
-import juniter.service.BlockService;
+import juniter.service.core.BlockService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,7 +115,7 @@ public class MissingBlocksLoader {
 //		missing.forEach(n -> {
 //defaultLoader.fetchBlocks(entry.getValue(), entry.getKey())
 //                            .forEach(b -> blockService//
-//                                    .localSave(b) //
+//                                    .safeSave(b) //
 //                                    .ifPresent(bl -> LOG.debug("saved missing node " + bl))
 //			if(!blackList.contains(n)){
 //				LOG.info("  - doFetch for : " + n);

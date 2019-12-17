@@ -2,12 +2,10 @@ package juniter.service.ws2p;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import juniter.core.model.dbo.index.BINDEX;
-import juniter.repository.jpa.index.BINDEXRepository;
-import juniter.service.BlockService;
-import juniter.service.bma.NetworkService;
+import juniter.service.core.Index;
+import juniter.service.core.PeerService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -21,11 +19,16 @@ public class WSPeer extends TextWebSocketHandler {
 
     private static final Logger LOG = LogManager.getLogger(WSPeer.class);
 
+    @Autowired
+    private PeerService peerService;
 
-    private List<WebSocketSession> sessions = new CopyOnWriteArrayList();
+    @Autowired
+    private Index index;
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    private List<WebSocketSession> sessions = new CopyOnWriteArrayList();
 
 
     @Override
@@ -42,19 +45,12 @@ public class WSPeer extends TextWebSocketHandler {
     }
 
 
-    @Autowired
-    private NetworkService netService;
-
-
-    @Autowired
-    private BINDEXRepository bRepo;
-
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) {
 
-        bRepo.head().map(BINDEX::getNumber).ifPresent(bl -> {
+        index.head().map(BINDEX::getNumber).ifPresent(bl -> {
             try {
-                var peer = objectMapper.writeValueAsString(netService.endPointPeer(bl));
+                var peer = objectMapper.writeValueAsString(peerService.endPointPeer(bl));
                 session.sendMessage(new TextMessage(peer));
             } catch (Exception e) {
                 LOG.error(e);

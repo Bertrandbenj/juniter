@@ -6,7 +6,7 @@ import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dto.net.DifficultiesDTO;
 import juniter.core.model.dto.node.Block;
 import juniter.core.model.dto.node.WithDTO;
-import juniter.service.BlockService;
+import juniter.service.core.BlockService;
 import juniter.service.bma.BlockchainService;
 import juniter.service.bma.loader.BlockLoader;
 import org.apache.logging.log4j.LogManager;

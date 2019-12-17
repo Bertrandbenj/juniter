@@ -1,4 +1,4 @@
-package juniter.service;
+package juniter.service.core;
 
 
 import juniter.core.crypto.Crypto;
@@ -9,7 +9,10 @@ import juniter.core.event.NewBlock;
 import juniter.core.event.PossibleFork;
 import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dbo.index.BINDEX;
-import lombok.Getter;
+import juniter.core.model.dbo.net.EndPointType;
+import juniter.core.model.dto.raw.Wrapper;
+import juniter.core.model.dto.raw.WrapperBlock;
+import juniter.service.ws2p.WebSocketPool;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,14 +20,21 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.Collections;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -43,6 +53,15 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
     @Autowired
     private BlockService blockService;
 
+    @Autowired
+    private PeerService peerService;
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @Autowired
+    private WebSocketPool wsPool;
+
     @Value("${juniter.forkSize:100}")
     private Integer forkSize;
 
@@ -53,19 +72,17 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
 
     private SecretBox sb = new SecretBox("salt", "password");
 
-    private ExecutorService executor = Executors.newFixedThreadPool(4);
+    private ExecutorService executor;
 
-    private Future<DBBlock> future;
+    private Future<DBBlock> prover;
 
 
     @PostConstruct
     public void init() {
+        executor = new ThreadPoolExecutor(2, 4, 60,
+                TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
         LOG.info("Init ForkHead window: " + forkSize);
 
-
-//        websockets.reconnectWebSockets();
-
-//         index.indexUntil(blockService.currentBlockNumber(), false);
     }
 
 
@@ -106,50 +123,31 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
         return block;
     }
 
-    @Getter
-    private AtomicBoolean forgeCurrent = new AtomicBoolean(true);
-
-    private DBBlock prove(String ccy) {
-        var tryHead = index.prepareIndexForForge(sb.getPublicKey());
-
-        var newBlock = forge(tryHead);
-        LOG.info("Forged " + newBlock.toDUP());
-
-        String hash = "XXXXX";
-        var nonce = 10099900011440L;
-
-
-        while (forgeCurrent.get() && !index.isValid(tryHead, newBlock)) {
-            newBlock.setNonce(nonce++);
-
-            hash = Crypto.hash(newBlock.signedPartSigned());
-            tryHead.setHash(hash);
-        }
-        newBlock.setHash(hash);
-
-        LOG.info("Prooved " + newBlock.toDUP());
-
-        return newBlock;
-    }
-
     private DBBlock parallelProver(String ccy) {
 
-        future = executor.submit(() -> {
+        prover = executor.submit(() -> {
             var tryHead = index.prepareIndexForForge(sb.getPublicKey());
             var newBlock = forge(tryHead);
+            LOG.info("Forged : " + newBlock);
             String hash = "XXXXX";
             var nonce = Long.parseLong("100" + Thread.currentThread().getId() + "0000000000");
             while (!Thread.currentThread().isInterrupted() && !index.isValid(tryHead, newBlock)) {
                 newBlock.setNonce(nonce++);
                 hash = Crypto.hash(newBlock.signedPartSigned());
+                LOG.info("trying nonce:" + nonce + ", and found hash:" + hash);
                 tryHead.setHash(hash);
             }
             newBlock.setHash(hash);
             return newBlock;
         });
 
+
         try {
-            return future.get();
+
+            executor.awaitTermination(5, TimeUnit.MINUTES);
+            System.out.println("result1 = " + prover.get());
+
+            return prover.get();
         } catch (InterruptedException e) {
             LOG.error("Prover interrupted ", e);
         } catch (ExecutionException e) {
@@ -158,6 +156,58 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
             LOG.error("Prover Exception", e);
         }
         return null;
+    }
+
+    private boolean postBlock(DBBlock block) {
+        AtomicBoolean success = new AtomicBoolean(false);
+        Wrapper reqBodyData = new WrapperBlock(block.toDUP());
+
+
+        peerService.nextHosts(EndPointType.BMAS, 5).forEach(n -> {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            String dest = "blockchain/block";
+
+            var reqURL = peerService.nextHost(EndPointType.BMAS).orElseThrow().getHost();
+            //var reqURL = "https://g1.presles.fr"; // FIXME remove when fixed
+            reqURL += (reqURL.endsWith("/") ? "" : "/") + dest;
+
+            LOG.info("posting Forged Block to {}\n{}", reqURL, reqBodyData);
+
+            var request = new HttpEntity<>(reqBodyData, headers);
+            ResponseEntity response = null;
+
+            try {
+
+                response = restTemplate.postForEntity(reqURL, request, Object.class);
+
+                if (response.getStatusCodeValue() != 200) {
+                    throw new AssertionError("post doc error, code {} " + response);
+                } else {
+                    LOG.info("successfully sent doc, response : {}", response);
+                    success.set(true);
+                }
+
+            } catch (HttpServerErrorException http) {
+                LOG.warn("error sending doc response {} " + response, http);
+
+            } catch (ResourceAccessException ignored) {
+                LOG.warn("ignored ResourceAccessException (handled as duniter ucode )", ignored);
+            } catch (Exception | AssertionError e) {
+                StringWriter sw = new StringWriter();
+                e.printStackTrace(new PrintWriter(sw));
+
+                LOG.error("Notary.sendDoc ", e);
+            }
+
+        });
+
+        wsPool.getClients().forEach(wsClient -> {
+            wsClient.send(reqBodyData.toString());
+        });
+
+        return success.get();
     }
 
     @Override
@@ -170,15 +220,22 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
             LOG.info("newBlockEvent " + newBlockEvent);
 
             if (index.head_().getNumber() < bl.getNumber()) {
-                future.cancel(true);
+                if (prover != null) {
+                    LOG.info("Killing the current PoW execution");
+                    prover.cancel(true);
+                }
                 index.indexUntil(bl.getNumber(), false, bl.getCurrency());
             }
 
         } else if (event instanceof NewBINDEX) {
             var what = (BINDEX) event.getWhat();
-            if (what.getNumber().equals(blockService.currentBlockNumber())){
-                LOG.info("new BINDEX, no higher block => starting proving next "+ what.getCurrency() + "block");
-                parallelProver(what.getCurrency());
+            if (what.getNumber().equals(blockService.currentBlockNumber())) {
+                LOG.info("new BINDEX, no higher block => starting proving next " + what.getCurrency() + " block");
+                DBBlock proved = parallelProver(what.getCurrency());
+                if (postBlock(proved)) {
+                    LOG.info("Bitch please " + proved.getNumber());
+                    System.exit(0);
+                }
             }
         } else if (event instanceof PossibleFork) {
             var forkEv = (PossibleFork) event;

@@ -1,4 +1,4 @@
-package juniter.service;
+package juniter.service.core;
 
 import juniter.core.model.DUPDocument;
 import juniter.core.model.dbo.sandbox.CertificationSandboxed;

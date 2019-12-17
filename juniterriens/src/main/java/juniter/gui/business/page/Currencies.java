@@ -15,7 +15,7 @@ import javafx.util.StringConverter;
 import juniter.core.model.CcyStats;
 import juniter.gui.technical.AbstractJuniterFX;
 import juniter.gui.technical.I18N;
-import juniter.service.BlockService;
+import juniter.service.core.BlockService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

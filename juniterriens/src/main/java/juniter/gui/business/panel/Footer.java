@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import static javafx.beans.binding.Bindings.*;
 import static juniter.gui.JuniterBindings.*;
 
 
@@ -32,18 +33,17 @@ public class Footer implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        LOG.debug("initialize Footer.fxml");
+        LOG.debug("initialize Footer.fxml " );
+
         // bind indicators
-        indexIndic.progressProperty().bind(currentBindexN.divide(highestDBBlock));
-        downloadIndic.progressProperty().bind(currentDBBlockNum.divide(maxPeerBlock));
+        indexIndic.progressProperty().bind(indexRatio);
+        downloadIndic.progressProperty().bind(dlRatio);
 
-        // bind logger
-
-
+        // bind loggers
         indexLog.textProperty().bind(new SimpleStringProperty("Index : ")
-                .concat(javafx.beans.binding.Bindings.format("%,.2f", currentBindexN.multiply(100).divide(currentDBBlockNum)))
+                .concat(format("%,.2f", indexRatio.multiply(100)))
                 .concat("% - HEAD: ").concat(currentBindexN)
-                .concat(" - DB: ").concat(currentDBBlockNum)
+                .concat(" - DB: ").concat(highestDBBlock)
                 .concat(" - ").concat(indexLogMessage));
         peerLog.textProperty().bind(new SimpleStringProperty("Peers : ")
                 .concat(maxPeerBlock)

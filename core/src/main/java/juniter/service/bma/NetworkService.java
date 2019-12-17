@@ -1,21 +1,17 @@
 package juniter.service.bma;
 
-import juniter.core.crypto.SecretBox;
-import juniter.core.model.dbo.DBBlock;
-import juniter.core.model.dbo.net.EndPoint;
 import juniter.core.model.dbo.net.EndPointType;
 import juniter.core.model.dbo.net.Peer;
 import juniter.core.model.dto.net.*;
 import juniter.repository.jpa.net.PeersRepository;
-import juniter.service.BlockService;
+import juniter.service.core.BlockService;
+import juniter.service.core.PeerService;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
-import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -29,14 +25,10 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.net.URI;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -50,12 +42,6 @@ import java.util.stream.Collectors;
 @Order(100)
 public class NetworkService {
 
-    @Value("${server.port:8443}")
-    private Integer port;
-
-    @Value("${server.name:localhost}")
-    private String serverName;
-
 
     public static final Logger LOG = LogManager.getLogger(NetworkService.class);
 
@@ -66,12 +52,12 @@ public class NetworkService {
     @Autowired
     private BlockService blockService;
 
+    @Autowired
+    private PeerService peerService;
+
 
     @Autowired
     private ModelMapper modelMapper;
-
-
-    private SecretBox secretBox = new SecretBox("salt", "password");
 
 
     @Transactional
@@ -210,41 +196,10 @@ public class NetworkService {
 
         LOG.info("Entering /network/peering ... " + remote);
 
-        return endPointPeer(blockService.currentBlockNumber());
+        return peerService.endPointPeer(blockService.currentBlockNumber());
 
     }
 
-    /**
-     * Create the peer card of this node
-     *
-     * @param number the node number we declare the node
-     * @return the Peer object
-     */
-    public Peer endPointPeer(Integer number) {
-        LOG.info("endPointPeer " + number);
-
-        DBBlock current = blockService.block(number).or(() -> blockService.current()).orElseThrow();
-        var peer = new Peer();
-        peer.setVersion(10);
-        peer.setBlock(current.bstamp());
-        peer.setCurrency("g1");
-        peer.setPubkey(secretBox.getPublicKey());
-        peer.setStatus("UP");
-
-        //peer.endpoints().add(new EndPoint("BMAS " + serverName + " " + port));
-        //peer.endpoints().add(new EndPoint("WS2P " + serverName + " " + port));
-
-        whatsMyIp().ifPresent(ip -> {
-            peer.endpoints().add(new EndPoint("BMAS " + ip + " " + port));
-            peer.endpoints().add(new EndPoint("BASIC_MERKLED_API " + ip + " " + port));
-        });
-
-        //peer.endpoints().add(new EndPoint("BASIC_MERKLED_API " + serverName + " " + " " + port));
-
-        peer.setSignature(secretBox.sign(peer.toDUP(false)));
-
-        return peer;
-    }
 
     @PostMapping(value = "/peering/peers")
     @ResponseBody
@@ -290,22 +245,5 @@ public class NetworkService {
         return new ResponseEntity<>(peeringPeers, headers, HttpStatus.OK);
     }
 
-
-    /**
-     * Auto detect IP
-     *
-     * @return the IP address or null
-     */
-    @Bean
-    private Optional<String> whatsMyIp() {
-
-        try {
-            URL whatismyip = new URL("http://checkip.amazonaws.com");
-            BufferedReader in = new BufferedReader(new InputStreamReader(whatismyip.openStream()));
-            return Optional.of(in.readLine());
-        } catch (Exception e) {
-            return Optional.empty();
-        }
-    }
 
 }

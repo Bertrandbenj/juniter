@@ -1,4 +1,4 @@
-package juniter.service;
+package juniter.service.core;
 
 import juniter.core.event.DecrementCurrent;
 import juniter.core.event.NewBINDEX;
@@ -112,7 +112,7 @@ public class BlockService implements BlockLocalValid, ApplicationListener<NewBIN
         return blockRepo.findTop1ByOrderByNumberDesc();
     }
 
-    public DBBlock current(String ccy) {
+    private DBBlock current(String ccy) {
         return blockRepo.current(ccy, currents.get(ccy));
     }
 
@@ -140,11 +140,9 @@ public class BlockService implements BlockLocalValid, ApplicationListener<NewBIN
         return blockRepo.streamBlocksFromTo(i, i1);
     }
 
-    public DBBlock save(DBBlock b) {
-        return blockRepo.save(b);
-    }
 
-    public Optional<DBBlock> localSave(DBBlock block) throws AssertionError {
+
+    public Optional<DBBlock> safeSave(DBBlock block) throws AssertionError {
         //LOG.error("localsavng  "+node.getNumber());
 
         if (block.getNumber().equals(0) && block.params() != null) {
@@ -198,7 +196,7 @@ public class BlockService implements BlockLocalValid, ApplicationListener<NewBIN
             try {
 
                 var cur = blockRepo.findTop1ByOrderByNumberDesc();
-                var res = Optional.ofNullable(save(block));
+                var res = Optional.ofNullable(blockRepo.save(block));
 
                 if (res.isPresent() && cur.isPresent()) {
                     if (cur.get().getNumber() < res.get().getNumber()) {
@@ -209,11 +207,11 @@ public class BlockService implements BlockLocalValid, ApplicationListener<NewBIN
                 return res;
 
             } catch (Exception e) {
-                LOG.error("Error localSave block " + block.getNumber(), e);
+                LOG.error("Error safeSave block " + block.getNumber(), e);
                 return Optional.empty();
             }
         } else {
-            LOG.error("Error localSave block " + block.getNumber()
+            LOG.error("Error safeSave block " + block.getNumber()
                     + " :  BlockIsLocalValid " + checkBlockIsLocalValid(block)
                     + ", block doesn't exists just yet " + blockOpt(block.getNumber(), block.getHash()).isEmpty());
         }

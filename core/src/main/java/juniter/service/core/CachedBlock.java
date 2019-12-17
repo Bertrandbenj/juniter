@@ -1,4 +1,4 @@
-package juniter.service;
+package juniter.service.core;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;

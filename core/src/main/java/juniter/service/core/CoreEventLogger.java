@@ -1,4 +1,4 @@
-package juniter.service;
+package juniter.service.core;
 
 import juniter.core.event.CoreEvent;
 import org.apache.logging.log4j.LogManager;

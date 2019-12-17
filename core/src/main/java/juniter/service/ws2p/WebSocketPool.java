@@ -2,9 +2,8 @@ package juniter.service.ws2p;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import juniter.core.model.dbo.net.EndPointType;
-import juniter.service.BlockService;
-import juniter.service.Index;
-import juniter.service.bma.PeerService;
+import juniter.service.core.BlockService;
+import juniter.service.core.PeerService;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -46,7 +45,8 @@ public class WebSocketPool {
     @Value("${juniter.network.webSocketPoolSize:5}")
     private Integer WEB_SOCKET_POOL_SIZE;
 
-    BlockingQueue<WS2PClient> clients = new LinkedBlockingDeque<>();
+    @Getter
+    private BlockingQueue<WS2PClient> clients = new LinkedBlockingDeque<>();
 
 
     @Autowired
@@ -60,9 +60,6 @@ public class WebSocketPool {
 
     @Autowired
     public BlockService blockService;
-
-    @Autowired
-    public Index index;
 
 
     @PostConstruct
@@ -107,7 +104,7 @@ public class WebSocketPool {
     }
 
 
-    @Scheduled(fixedRate = 1000 * 60*5, initialDelay = 60 * 1000)
+    @Scheduled(fixedRate = 1000 * 60, initialDelay = 60 * 1000)
     public void renormalize() {
         peerService.renormalize(EndPointType.WS2P);
     }
