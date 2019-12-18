@@ -15,7 +15,7 @@
                 <Region VBox.vgrow="ALWAYS"/>
                 <Hyperlink onAction="#viewMain">
                     <graphic>
-                        <ImageView fx:id="logoMain" fitHeight="100.0" fitWidth="120.0" pickOnBounds="true"
+                        <ImageView fx:id="logoMain" fitHeight="60.0" fitWidth="72.0" pickOnBounds="true"
                                    preserveRatio="true">
                             <image>
                                 <Image url="@../images/whiterabbit.jpg"/>
@@ -28,7 +28,7 @@
                 </Hyperlink>
                 <Hyperlink onAction="#viewSVGGraph">
                     <graphic>
-                        <ImageView fx:id="logoGraphs" fitHeight="100.0" fitWidth="120.0" pickOnBounds="true"
+                        <ImageView fx:id="logoGraphs" fitHeight="60.0" fitWidth="72.0" pickOnBounds="true"
                                    preserveRatio="true">
                             <image>
                                 <Image url="@../images/logo.png"/>
@@ -41,7 +41,7 @@
                 </Hyperlink>
                 <Hyperlink onAction="#viewNotary">
                     <graphic>
-                        <ImageView fx:id="logoNotary" fitHeight="100.0" fitWidth="120.0" pickOnBounds="true"
+                        <ImageView fx:id="logoNotary" fitHeight="60.0" fitWidth="72.0" pickOnBounds="true"
                                    preserveRatio="true">
                             <image>
                                 <Image url="@../images/keep_calm_im_the_notary_puzzle.jpg"/>
@@ -54,7 +54,7 @@
                 </Hyperlink>
                 <Hyperlink onAction="#viewNetwork">
                     <graphic>
-                        <ImageView fx:id="logoNetwork" fitHeight="100.0" fitWidth="120.0" pickOnBounds="true"
+                        <ImageView fx:id="logoNetwork" fitHeight="60.0" fitWidth="72.0" pickOnBounds="true"
                                    preserveRatio="true">
                             <image>
                                 <Image url="@../images/network.png"/>
@@ -67,7 +67,7 @@
                 </Hyperlink>
                 <Hyperlink onAction="#viewCurrencies">
                     <graphic>
-                        <ImageView fx:id="logoCurrencies" fitHeight="100.0" fitWidth="120.0" pickOnBounds="true"
+                        <ImageView fx:id="logoCurrencies" fitHeight="60.0" fitWidth="72.0" pickOnBounds="true"
                                    preserveRatio="true">
                             <image>
                                 <Image url="@../images/g1.png"/>
@@ -80,7 +80,7 @@
                 </Hyperlink>
                 <Hyperlink onAction="#viewDatabase">
                     <graphic>
-                        <ImageView fx:id="logoDatabase" fitHeight="100.0" fitWidth="120.0" pickOnBounds="true"
+                        <ImageView fx:id="logoDatabase" fitHeight="60.0" fitWidth="72.0" pickOnBounds="true"
                                    preserveRatio="true">
                             <image>
                                 <Image url="@../images/database.png"/>
@@ -93,7 +93,7 @@
                 </Hyperlink>
                 <Hyperlink onAction="#viewSpark" id="sparkMenuButton">
                     <graphic>
-                        <ImageView fx:id="logoSpark" fitHeight="100.0" fitWidth="120.0" pickOnBounds="true"
+                        <ImageView fx:id="logoSpark" fitHeight="60.0" fitWidth="72.0" pickOnBounds="true"
                                    preserveRatio="true">
                             <image>
                                 <Image url="@../images/spark.png"/>
@@ -106,7 +106,7 @@
                 </Hyperlink>
                 <Hyperlink onAction="#viewSettings">
                     <graphic>
-                        <ImageView fx:id="logoSettings" fitHeight="100.0" fitWidth="120.0" pickOnBounds="true"
+                        <ImageView fx:id="logoSettings" fitHeight="60.0" fitWidth="72.0" pickOnBounds="true"
                                    preserveRatio="true">
                             <image>
                                 <Image url="@../images/settings.png"/>

@@ -7,7 +7,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane styleClass="pane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.gui.business.page.Network">
+<BorderPane styleClass="pane" xmlns="http://javafx.com/javafx/8" minHeight="600" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.gui.business.page.Network">
     <right>
 
         <fx:include fx:id="menu" source="../include/Menu.fxml" />
@@ -26,7 +26,7 @@
                             <children>
                                 <Button mnemonicParsing="false" onAction="#peerCheck" text="peerCheck" />
                                 <Button mnemonicParsing="false" onAction="#pairing" text="Pairing" />
-                                <CheckBox mnemonicParsing="false" fx:id="BMApingCombo" text="200 pings" />
+                                <CheckBox mnemonicParsing="false" fx:id="BMApingCombo" text="BMA pings" />
                                 <ComboBox fx:id="period" editable="true" prefHeight="25.0" prefWidth="184.0" promptText="%net.statPeriod" HBox.hgrow="ALWAYS" />
                                 <CheckBox fx:id="ws2pCombo" mnemonicParsing="false" text="%settings.node.runWS2P" />
                             </children>

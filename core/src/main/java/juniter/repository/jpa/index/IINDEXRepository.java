@@ -134,9 +134,6 @@ public interface IINDEXRepository extends JpaRepository<IINDEX, Long> {
     @Query(value = "FROM IINDEX WHERE pub = ?1 ORDER BY written.number")
     List<IINDEX> fetchTrimmed(String pub);
 
-
-    @Query("SELECT i FROM IINDEX i ")
-    Page<IINDEX> findSome(Pageable pageable);
 }
 
 	

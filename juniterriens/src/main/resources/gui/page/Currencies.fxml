@@ -5,7 +5,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <BorderPane styleClass="pane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="juniter.gui.business.page.Currencies">
+            fx:controller="juniter.gui.business.page.Currencies" minHeight="600">
     <right>
 
         <fx:include fx:id="menu" source="../include/Menu.fxml"/>
@@ -16,7 +16,7 @@
     </bottom>
 
     <center>
-        <ScrollPane fitToWidth="true" prefWidth="1050.0" BorderPane.alignment="CENTER">
+        <ScrollPane fitToWidth="true" prefWidth="1050.0" prefHeight="1050.0" BorderPane.alignment="CENTER">
             <content>
                 <VBox BorderPane.alignment="CENTER" styleClass="pane">
                     <children>

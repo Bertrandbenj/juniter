@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.HBox?>
@@ -7,12 +11,12 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
-<BorderPane prefHeight="800.0" styleClass="pane" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8"
-            xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.gui.business.page.FrontPage">
+
+<BorderPane minHeight="600" minWidth="800.0" styleClass="pane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.gui.business.page.FrontPage">
        <center>
            <VBox alignment="CENTER" focusTraversable="true" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
                <children>
-                   <HBox alignment="CENTER" prefHeight="54.0" prefWidth="1060.0" spacing="10.0">
+                   <HBox alignment="CENTER" prefHeight="54.0" spacing="10.0">
                        <padding>
                            <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
                        </padding>
@@ -52,7 +56,7 @@
                            <fx:include source="../include/LoginPanel.fxml" />
                        </children>
                    </HBox>
-                   <HBox fx:id="canvasRoot" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="440.0" prefWidth="1100.0" styleClass="pane" VBox.vgrow="ALWAYS">
+                   <HBox fx:id="canvasRoot" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="pane" VBox.vgrow="ALWAYS">
 
                        <children>
                            <fx:include source="../game/Game.fxml" />

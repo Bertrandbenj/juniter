@@ -53,8 +53,6 @@ public interface CINDEXRepository extends JpaRepository<CINDEX, Long> {
     @Query("SELECT cert from CINDEX cert WHERE expires_on < ?1")
     List<CINDEX> findCertsThatShouldExpire(Long mTime);
 
-    @Query("SELECT c FROM CINDEX c ")
-    Page<CINDEX> findSome(Pageable pageable);
 }
 
 	

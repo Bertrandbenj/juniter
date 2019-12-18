@@ -184,11 +184,8 @@ public class Index implements GlobalValid {
     public boolean commit(BINDEX indexB,
                           Set<IINDEX> indexI, Set<MINDEX> indexM, Set<CINDEX> indexC, Set<SINDEX> indexS) {
 
-        // Platform.runLater(() ->  Database.refresh(indexB,indexI,indexM,indexC,indexS,consumeI,consumeM,consumeC,consumeS) );
-
 
         iRepo.saveAll(new ArrayList<>(indexI));
-        //iig.addAll(indexI);
         mRepo.saveAll(new ArrayList<>(indexM));
         cRepo.saveAll(new ArrayList<>(indexC));
         sRepo.saveAll(new ArrayList<>(indexS));
@@ -204,7 +201,6 @@ public class Index implements GlobalValid {
                     " localS: +" + indexS.size() + "," + sRepo.count());
         }
 
-        IndexB.add(indexB);
         return true;
     }
 

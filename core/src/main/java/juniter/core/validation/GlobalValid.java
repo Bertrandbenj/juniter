@@ -314,7 +314,7 @@ public interface GlobalValid {
      */
     private void BR_G08_setMedianTime(BINDEX head) {
         final var min = Math.min(conf.getMedianTimeBlocks(), head.getNumber());
-        LOG.info("median of  " + range(min).map(BINDEX::getTime).collect(Collectors.toList()));
+        //LOG.info("median of  " + range(min).map(BINDEX::getTime).collect(Collectors.toList()));
         if (head.getNumber() > 0) {
 
             head.setMedianTime((long) Math.floor(range(min) // fetchTrimmed bindices
@@ -960,6 +960,7 @@ public interface GlobalValid {
             head.setIssuerDiff(head.getIssuerDiff() + 1);
         }
 
+        //LOG.info("setting pow R&Z based on" +blocksOfIssuer +", "+ nbPreviousIssuers +", "+ nbBlocksSince+", "+personalExcess +", "+ personalHandicap );
         head.powRemainder = head.getIssuerDiff() % 16;
         head.powZeros = (head.getIssuerDiff() - head.powRemainder) / 16;
     }
@@ -2641,7 +2642,7 @@ public interface GlobalValid {
 
 
     default Map<String, List<BINDEX>> issuersMap() {
-        return IndexB.subList(IndexB.size() - head_1().getIssuersFrame() - 1, IndexB.size() - 1).stream().collect(Collectors.groupingBy(BINDEX::getIssuer));
+        return IndexB.subList(IndexB.size() - head_1().getIssuersFrame()  , IndexB.size()  ).stream().collect(Collectors.groupingBy(BINDEX::getIssuer));
     }
 
     default BINDEX prepareIndexForForge(String issuer) {
@@ -3299,8 +3300,9 @@ public interface GlobalValid {
             BR_G95_IndexExclusionByCertification(bstamp);
             BR_G96_IndexImplicitRevocation(newHead);
 
-            IndexB.add(newHead);
+
             success &= commit(newHead, localI, localM, localC, localS);
+            if(success) IndexB.add(newHead);
             success &= trimAndCleanup(newHead, block);
 
         }

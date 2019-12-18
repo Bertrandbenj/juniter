@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.web.WebView?>
 <BorderPane styleClass="pane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="juniter.gui.business.page.GraphPanel">
+            fx:controller="juniter.gui.business.page.GraphPanel" minHeight="600">
     <right>
         <fx:include fx:id="menu" source="../include/Menu.fxml"/>
     </right>

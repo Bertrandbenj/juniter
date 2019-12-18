@@ -58,8 +58,8 @@ public interface JuniterBindings {
     IntegerProperty maxPeerBlock = new SimpleIntegerProperty(42);
 
 
-    DoubleBinding indexRatio = Bindings.add(0.0,currentBindexN.divide(highestDBBlock)) ;
-    DoubleBinding dlRatio = Bindings.add(0.0,new SimpleDoubleProperty(0).divide(maxPeerBlock));
+    DoubleBinding indexRatio = Bindings.createDoubleBinding(()-> Double.valueOf(currentBindexN.getValue()) / highestDBBlock.getValue(), currentBindexN, highestDBBlock) ;
+    DoubleBinding dlRatio = Bindings.createDoubleBinding(()-> Double.valueOf(currentDBBlockNum.getValue())/maxPeerBlock.getValue(),currentDBBlockNum,maxPeerBlock);
 
     BooleanProperty isIndexing = new SimpleBooleanProperty(false);
     StringProperty rawDocument = new SimpleStringProperty("here comes the Document in DUPComponent format");

@@ -67,8 +67,6 @@ public class RAMIndex implements GlobalValid {
         indexMG.addAll(indexM);
         indexIG.addAll(indexI);
         indexSG.addAll(indexS);
-        IndexB.add(indexB);
-
         LOG.info("Commit -  Certs: +" + indexC.size() + "," + indexCG.size() +
                 "  Membship: +" + indexM.size() + "," + indexMG.size() +
                 "  Idty: +" + indexI.size() + "," + indexIG.size() +

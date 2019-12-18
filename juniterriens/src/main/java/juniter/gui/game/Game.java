@@ -6,6 +6,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
@@ -33,6 +34,7 @@ import static juniter.gui.JuniterBindings.*;
 @Component
 public class Game implements Initializable {
     private static final Logger LOG = LogManager.getLogger(Game.class);
+    public HBox container;
 
     @FXML
     private Canvas canvas;
@@ -64,6 +66,9 @@ public class Game implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         gc = canvas.getGraphicsContext2D();
+        //canvas.heightProperty().bind(container.heightProperty());
+        //canvas.widthProperty().bind(container.widthProperty());
+
 
         Platform.runLater(() -> playing.addListener(observable -> {
             if (playing.get()) {
@@ -102,8 +107,17 @@ public class Game implements Initializable {
         Room.canvas = canvas;
         var r = new TheBeginning();
 
+        isIndexing.addListener((observable, oldValue, newValue) -> {
+            if(newValue)
+                if(indexRatio.doubleValue()<.95)
+                    r.getTimeline().stop();
+            else{
+                r.getTimeline().play();
+            }
+        });
+
         Player.get().setPosition(canvas.getWidth() / 2, canvas.getHeight() / 2);
-        //r.run();
+        r.run();
     }
 
 

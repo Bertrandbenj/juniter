@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane styleClass="pane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.gui.business.page.Settings">
+<BorderPane styleClass="pane" xmlns="http://javafx.com/javafx/8" minHeight="600" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.gui.business.page.Settings">
     <right>
         <fx:include fx:id="menu" source="../include/Menu.fxml" />
     </right>

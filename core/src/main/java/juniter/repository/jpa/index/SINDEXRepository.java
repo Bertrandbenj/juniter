@@ -47,10 +47,6 @@ public interface SINDEXRepository extends JpaRepository<SINDEX, Long> {
             "           s2.pos = s.pos)")
     List<SINDEX> availableSourcesOfPub(String pub);
 
-
-    @Query("SELECT s FROM SINDEX s ")
-    Page<SINDEX> findSome(Pageable pageable);
-
     @Query("SELECT sindex from SINDEX sindex WHERE consumed = false")
     Stream<SINDEX> sourceNotConsumed();
 

@@ -118,7 +118,6 @@ public interface MINDEXRepository extends JpaRepository<MINDEX, Long> {
     @Query(value = "SELECT pub FROM MINDEX WHERE revoked IS NULL AND expires_on > ?1 GROUP BY pub HAVING max(revokes_on) <= ?1 ")
     List<String> findRevokesOnLteAndRevokedOnIsNull(Long mTime);
 
-    @Query("SELECT m FROM MINDEX m ")
-    Page<MINDEX> findSome(Pageable pageable);
+
 }
 

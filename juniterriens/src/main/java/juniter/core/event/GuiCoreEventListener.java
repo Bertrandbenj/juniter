@@ -90,6 +90,7 @@ public class GuiCoreEventListener implements ApplicationListener<CoreEvent> {
 
             case "Indexing":
                 Platform.runLater(() -> isIndexing.setValue((Boolean) event.getWhat()));
+
                 break;
 
             default:
