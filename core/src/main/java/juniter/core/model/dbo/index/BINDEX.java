@@ -47,13 +47,12 @@ public class BINDEX implements Comparable<BINDEX> {
     private Integer powMin;
 
     private Long udTime;
-    private Long diffTime;
-    private Long speed;
+    private Long diffNumber;
+    private double speed;
 
     public Integer new_dividend;
     public Long udReevalTime;
 
-    public transient long diffNumber;
     public transient int powRemainder;
     public transient int powZeros;
 

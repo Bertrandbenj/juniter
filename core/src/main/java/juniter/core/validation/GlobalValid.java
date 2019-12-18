@@ -359,13 +359,13 @@ public interface GlobalValid {
     private void BR_G09_setDiffNumber(BINDEX head) {
 
         if (head.getNumber() == 0) {
-            head.setDiffTime(head.getNumber() + conf.getDtDiffEval());
+            head.setDiffNumber(head.getNumber() + conf.getDtDiffEval());
 
-        } else if (head_1().diffNumber <= head.getNumber()) {
-            head.setDiffTime(head_1().getDiffTime() + conf.getDtDiffEval());
+        } else if (head_1().getDiffNumber() <= head.getNumber()) {
+            head.setDiffNumber(head_1().getDiffNumber() + conf.getDtDiffEval());
 
         } else {
-            head.setDiffTime(head_1().getTime());
+            head.setDiffNumber(head_1().getDiffNumber());
         }
     }
 
@@ -815,18 +815,18 @@ public interface GlobalValid {
      * </pre>
      */
     private void BR_G16_setSpeed(BINDEX head) {
-        final int dtDiffEval = 0;
+        final int dtDiffEval = (int) conf.getDtDiffEval();
 
         if (head.getNumber() == 0) {
-            head.setSpeed(0L);
+            head.setSpeed(0.);
         } else {
             final var range = Math.min(dtDiffEval, head.getNumber());
-            final var elapsed = head.getMedianTime() - IndexB.get(range).getMedianTime();
+            final var elapsed = head.getMedianTime() - IndexB.get(IndexB.size() - range).getMedianTime();
 
             if (elapsed == 0) {
-                head.setSpeed(100L);
+                head.setSpeed(100.);
             } else {
-                head.setSpeed(range / elapsed);
+                head.setSpeed(range / (double) elapsed);
             }
         }
     }
@@ -859,7 +859,8 @@ public interface GlobalValid {
         //		LOG.info("BR_G17_setPowMin - " + head.diffNumber + "!=" + head_1().diffNumber);
         //		LOG.info(head.speed + " >= " + conf.maxSpeed() + head_1().powMin);
 
-        if (head.diffNumber != head_1().diffNumber) {
+        if (!head.getDiffNumber().equals(head_1().getDiffNumber())) {
+
 
             if (head.getSpeed() >= conf.maxSpeed()) { // too fast, increase difficulty
                 if ((head_1().getPowMin() + 2) % 16 == 0) {
@@ -869,7 +870,7 @@ public interface GlobalValid {
                 }
             }
 
-            if (head.getSpeed() <= conf.minSpeed()) { // too slow, increase difficulty
+            if (head.getSpeed() <= conf.minSpeed()) { // too slow, lower difficulty
                 if (head_1().getPowMin() % 16 == 0) {
                     head.setPowMin(Math.max(0, head_1().getPowMin() - 2));
                 } else {
@@ -916,20 +917,27 @@ public interface GlobalValid {
      * </pre>
      */
     private void BR_G18_setPowZero(BINDEX head) {
-        var map = issuersMap();
-        var blocksOfIssuer = map.getOrDefault(head.getIssuer(), new ArrayList<>());
-        var perIssuerCount = map.entrySet().stream().collect(Collectors.toMap(
-                Map.Entry::getKey,
-                ent -> ent.getValue().size()
-        ));
+        var nbPersonalBlocksInFrame = 0;
+        var medianOfBlocksInFrame = 1;
+        List<BINDEX> blocksOfIssuer = new ArrayList<>();
 
-        long nbPersonalBlocksInFrame = blocksOfIssuer.size();
-        final int medianOfBlocksInFrame = head.getNumber() == 0 ? 1 :
-                perIssuerCount.values()
-                        .stream()
-                        .sorted()
-                        .collect(Collectors.toList())
-                        .get(perIssuerCount.size() / 2);
+        if (head.getNumber() != 0) {
+            var map = issuersMap();
+            blocksOfIssuer = map.getOrDefault(head.getIssuer(), new ArrayList<>());
+            var perIssuerCount = map.entrySet().stream().collect(Collectors.toMap(
+                    Map.Entry::getKey,
+                    ent -> ent.getValue().size()
+            ));
+            nbPersonalBlocksInFrame = blocksOfIssuer.size();
+            medianOfBlocksInFrame = head.getNumber() == 0 ? 1 :
+                    perIssuerCount.values()
+                            .stream()
+                            .sorted()
+                            .collect(Collectors.toList())
+                            .get(perIssuerCount.size() / 2);
+        }
+
+
         int nbPreviousIssuers = 0;
         int nbBlocksSince = 0;
 
@@ -941,7 +949,7 @@ public interface GlobalValid {
         }
 
 
-        final var personalExcess = Math.max(0, ((nbPersonalBlocksInFrame + 1) / medianOfBlocksInFrame) - 1);
+        final var personalExcess = Math.max(0, ((nbPersonalBlocksInFrame + 1) / (double) medianOfBlocksInFrame) - 1);
         final var personalHandicap = Math.floor(Math.log(1 + personalExcess) / Math.log(1.189));
         var difficulty = personalHandicap + Math.max(
                 head.getPowMin(),
@@ -1771,49 +1779,67 @@ public interface GlobalValid {
      * </pre>
      */
     private boolean BR_G62_ruleProofOfWork(BINDEX head) {
-        final String expectedStart = head.getHash().substring(0, head.powZeros + 1);
+        var res = false;
+        final String expectedStart = head.getHash();
 
-        for (int i = 0; i <= head.powZeros; i++) {
-            if (expectedStart.charAt(i) != '0') {
-                LOG.info("missing zeros at  " + i);
-                return false;
-            }
+        for (int i = 0; i < head.powZeros; i++) {
+
+            assert expectedStart.charAt(i) == '0' : "missing zeros at  " + i + " with hash start  " + expectedStart + " and powZeros " + head.powZeros;
+
         }
+        var nextChar = expectedStart.charAt(head.powZeros) + "";
+
+
         switch (head.powRemainder) {
             case 0:
-                return expectedStart.matches("[0-9A-F]");
+                res = nextChar.matches("[0-9A-F]");
+                break;
             case 1:
-                return expectedStart.matches("[0-9A-E]");
+                res = nextChar.matches("[0-9A-E]");
+                break;
             case 2:
-                return expectedStart.matches("[0-9A-D]");
+                res = nextChar.matches("[0-9A-D]");
+                break;
             case 3:
-                return expectedStart.matches("[0-9A-C]");
+                res = nextChar.matches("[0-9A-C]");
+                break;
             case 4:
-                return expectedStart.matches("[0-9A-B]");
+                res = nextChar.matches("[0-9A-B]");
+                break;
             case 5:
-                return expectedStart.matches("[0-9A]");
+                res = nextChar.matches("[0-9A]");
+                break;
             case 6:
-                return expectedStart.matches("[0-9]");
+                res = nextChar.matches("[0-9]");
+                break;
             case 7:
-                return expectedStart.matches("[0-8]");
+                res = nextChar.matches("[0-8]");
+                break;
             case 8:
-                return expectedStart.matches("[0-7]");
+                res = nextChar.matches("[0-7]");
+                break;
             case 9:
-                return expectedStart.matches("[0-6]");
+                res = nextChar.matches("[0-6]");
+                break;
             case 10:
-                return expectedStart.matches("[0-5]");
+                res = nextChar.matches("[0-5]");
+                break;
             case 11:
-                return expectedStart.matches("[0-4]");
+                res = nextChar.matches("[0-4]");
+                break;
             case 12:
-                return expectedStart.matches("[0-3]");
+                res = nextChar.matches("[0-3]");
+                break;
             case 13:
-                return expectedStart.matches("[0-2]");
+                res = nextChar.matches("[0-2]");
+                break;
             case 14:
-                return expectedStart.matches("[01]");
-            default:
-                return true;
-        }
+                res = nextChar.matches("[01]");
+                break;
 
+        }
+        assert res : "BR_G62_ruleProofOfWork zeros okay, next : " + nextChar + " , remainder " + head.powRemainder;
+        return res;
     }
 
     /**
@@ -2615,7 +2641,7 @@ public interface GlobalValid {
 
 
     default Map<String, List<BINDEX>> issuersMap() {
-        return IndexB.stream().collect(Collectors.groupingBy(BINDEX::getIssuer));
+        return IndexB.subList(IndexB.size() - head_1().getIssuersFrame() - 1, IndexB.size() - 1).stream().collect(Collectors.groupingBy(BINDEX::getIssuer));
     }
 
     default BINDEX prepareIndexForForge(String issuer) {
@@ -2636,7 +2662,6 @@ public interface GlobalValid {
         BR_G07_setAvgBlockSize(res);
 
         BR_G09_setDiffNumber(res);
-        //res.setDiffTime(); // FIXME ?
         BR_G10_setMembersCount(res);
         BR_G11_setUdTime(res);
         BR_G12_setUnitBase(res);
@@ -2655,19 +2680,19 @@ public interface GlobalValid {
 
         BR_G17_setPowMin(res);
         BR_G18_setPowZero(res);
-        //res.setDiffTime(); //FIXME ?
+        //res.setDiffNumber(); //FIXME ?
         return res;
     }
 
     default boolean isValid(BINDEX head, DBBlock block) {
-        if(BR_G61_rulePowMin(head, block) && BR_G62_ruleProofOfWork(head)){
+        if (BR_G61_rulePowMin(head, block) && BR_G62_ruleProofOfWork(head)) {
             LOG.info("Forged PoW is valid, testing it all");
-            if(BR_G97_TestIndex(head, block, true)){
+            if (BR_G97_TestIndex(head, block, true)) {
                 return true;
             }
         }
 
-        return false ;
+        return false;
     }
 
 
@@ -3259,23 +3284,26 @@ public interface GlobalValid {
         //  ==================  TEST   ==================
         //
         if (complete)
-            success = BR_G97_TestIndex(newHead, block, false);
+            success = BR_G97_TestIndex(newHead, block, true);
 
 
-        //  ==================  Index implicit rules   ==================
-        //
-        final var bstamp = new BStamp(block.getNumber(), block.getHash(), block.getMedianTime());
-        BR_G91_IndexDividend(newHead, bstamp);
-        BR_G106_IndexLowAccounts(newHead, bstamp);
-        BR_G92_IndexCertificationExpiry(newHead);
-        BR_G93_IndexMembershipExpiry(newHead);
-        BR_G94_IndexExclusionByMembership(bstamp);
-        BR_G95_IndexExclusionByCertification(bstamp);
-        BR_G96_IndexImplicitRevocation(newHead);
+        if (success) {
+            //  ==================  Index implicit rules   ==================
+            //
+            final var bstamp = new BStamp(block.getNumber(), block.getHash(), block.getMedianTime());
+            BR_G91_IndexDividend(newHead, bstamp);
+            BR_G106_IndexLowAccounts(newHead, bstamp);
+            BR_G92_IndexCertificationExpiry(newHead);
+            BR_G93_IndexMembershipExpiry(newHead);
+            BR_G94_IndexExclusionByMembership(bstamp);
+            BR_G95_IndexExclusionByCertification(bstamp);
+            BR_G96_IndexImplicitRevocation(newHead);
 
-        IndexB.add(newHead);
-        success &= commit(newHead, localI, localM, localC, localS);
-        success &= trimAndCleanup(newHead, block);
+            IndexB.add(newHead);
+            success &= commit(newHead, localI, localM, localC, localS);
+            success &= trimAndCleanup(newHead, block);
+
+        }
 
 
         return success;

@@ -34,9 +34,11 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 
 @Service
@@ -75,6 +77,8 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
     private ExecutorService executor;
 
     private Future<DBBlock> prover;
+
+    private List<Thread> threads = new CopyOnWriteArrayList<>();
 
 
     @PostConstruct
@@ -124,35 +128,34 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
     }
 
     private DBBlock parallelProver(String ccy) {
-
-        prover = executor.submit(() -> {
-            var tryHead = index.prepareIndexForForge(sb.getPublicKey());
-            var newBlock = forge(tryHead);
-            LOG.info("Forged : " + newBlock);
-            String hash = "XXXXX";
-            var nonce = Long.parseLong("100" + Thread.currentThread().getId() + "0000000000");
-            while (!Thread.currentThread().isInterrupted() && !index.isValid(tryHead, newBlock)) {
-                newBlock.setNonce(nonce++);
-                hash = Crypto.hash(newBlock.signedPartSigned());
-                LOG.info("trying nonce:" + nonce + ", and found hash:" + hash);
-                tryHead.setHash(hash);
-            }
-            newBlock.setHash(hash);
-            return newBlock;
-        });
+        AtomicReference<DBBlock> found = new AtomicReference<>();
+        for (int i = 0; i < 4; i++) {
+            int finalI = i;
+            threads.add(i, new Thread(() -> {
+                var tryHead = index.prepareIndexForForge(sb.getPublicKey());
+                var newBlock = forge(tryHead);
+                LOG.info("Forged : " + newBlock);
+                String hash = "XXXXX";
+                var nonce = Long.parseLong("100" + finalI + "0000000000");
+                while (!Thread.currentThread().isInterrupted() && !index.isValid(tryHead, newBlock)) {
+                    newBlock.setNonce(nonce++);
+                    hash = Crypto.hash(newBlock.signedPartSigned());
+                    LOG.info("trying nonce:" + nonce + ", and found hash:" + hash);
+                    tryHead.setHash(hash);
+                }
+                newBlock.setHash(hash);
+                found.setRelease(newBlock);
+                threads.forEach(Thread::interrupt);
+            }));
+        }
 
 
         try {
 
-            executor.awaitTermination(5, TimeUnit.MINUTES);
-            System.out.println("result1 = " + prover.get());
+            threads.forEach(Thread::run);
 
-            return prover.get();
-        } catch (InterruptedException e) {
-            LOG.error("Prover interrupted ", e);
-        } catch (ExecutionException e) {
-            LOG.error("Prover ExecutionException", e);
-        } catch (Exception e) {
+            return found.get();
+        }  catch (Exception e) {
             LOG.error("Prover Exception", e);
         }
         return null;
@@ -220,9 +223,9 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
             LOG.info("newBlockEvent " + newBlockEvent);
 
             if (index.head_().getNumber() < bl.getNumber()) {
-                if (prover != null) {
+                if (threads != null) {
                     LOG.info("Killing the current PoW execution");
-                    prover.cancel(true);
+                    threads.forEach(Thread::interrupt);
                 }
                 index.indexUntil(bl.getNumber(), false, bl.getCurrency());
             }
@@ -230,7 +233,7 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
         } else if (event instanceof NewBINDEX) {
             var what = (BINDEX) event.getWhat();
             if (what.getNumber().equals(blockService.currentBlockNumber())) {
-                LOG.info("new BINDEX, no higher block => starting proving next " + what.getCurrency() + " block");
+                LOG.info("new BINDEX, no higher block => starting proving next " + what.getCurrency() + " block ");
                 DBBlock proved = parallelProver(what.getCurrency());
                 if (postBlock(proved)) {
                     LOG.info("Bitch please " + proved.getNumber());

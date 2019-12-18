@@ -227,14 +227,14 @@ public class ChainParameters implements DUPDocument {
     }
 
     public double maxSpeed() {
-        return 1 / minGenTime();
+        return 1 / minGenTime(); // 0.003968253968253968 after 12 blocks
     }
 
     private double minGenTime() {
         return Math.floor(avgGenTime / 1.189);
     }
 
-    public double minSpeed() {
+    public double minSpeed() { // 0.0028011204481792717 after 12 blocks
         return 1 / maxGenTime();
     }
 
