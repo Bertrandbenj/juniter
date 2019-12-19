@@ -1,4 +1,4 @@
-package juniter.core.model;
+package juniter.core.model.technical;
 
 public interface DUPDocument extends DUPComponent {
 

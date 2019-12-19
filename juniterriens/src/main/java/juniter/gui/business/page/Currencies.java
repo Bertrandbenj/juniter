@@ -12,7 +12,7 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.ComboBox;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
-import juniter.core.model.CcyStats;
+import juniter.core.model.technical.CcyStats;
 import juniter.gui.technical.AbstractJuniterFX;
 import juniter.gui.technical.I18N;
 import juniter.service.core.BlockService;

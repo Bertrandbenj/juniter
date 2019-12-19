@@ -114,7 +114,7 @@ public class PeerService {
 
                         try {
                             LOG.info("code : {}, message: {}", response.getRawStatusCode(), response.getStatusText());
-                            LOG.info("Headers  : {}", response.getHeaders());
+                            LOG.debug("Headers  : {}", response.getHeaders());
                             LOG.info("Response body: {}", StreamUtils.copyToString(response.getBody(), Charset.defaultCharset()));
                         } catch (IOException e) {
                             LOG.error("IO during Error investigation  ", e);
@@ -162,7 +162,7 @@ public class PeerService {
                     reportError(EndPointType.BMAS, url.toString().substring(url.toString().indexOf(url.getPath())) + "/");
 
                 } else if (response.getStatusCode().is4xxClientError()) {
-                    LOG.error("WRITE NEW WAY TO HANDLE THIS ");
+                    reportError(EndPointType.BMAS, url.toString().substring(url.toString().indexOf(url.getPath())) + "/");
                 } else {
                     LOG.error("WRITE NEW WAY TO HANDLE THIS ");
                 }
@@ -370,7 +370,7 @@ public class PeerService {
 
         var queue = getQueue(type);
 
-        synchronized (queue) {
+        try{
             var h = queue.get(url);
             var x = h.getError().incrementAndGet();
             if (x > 100) {
@@ -379,6 +379,8 @@ public class PeerService {
                 h.getCount().set(1);
                 h.setLastNormalizedScore(Math.random() * 0.2);
             }
+        }catch (Exception e){
+            LOG.error("Problem reporting net error "+ e.getMessage());
         }
     }
 

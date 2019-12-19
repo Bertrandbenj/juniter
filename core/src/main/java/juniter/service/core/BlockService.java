@@ -3,7 +3,7 @@ package juniter.service.core;
 import juniter.core.event.DecrementCurrent;
 import juniter.core.event.NewBINDEX;
 import juniter.core.event.NewBlock;
-import juniter.core.model.CcyStats;
+import juniter.core.model.technical.CcyStats;
 import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.ChainParameters;
 import juniter.core.model.dbo.DBBlock;

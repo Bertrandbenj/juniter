@@ -1,7 +1,7 @@
 package juniter.core.model.dbo.sandbox;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import juniter.core.model.DUPDocument;
+import juniter.core.model.technical.DUPDocument;
 import juniter.core.model.dbo.BStamp;
 import juniter.core.utils.Constants;
 import lombok.Data;

@@ -2651,6 +2651,8 @@ public interface GlobalValid {
 
         res.setIssuer(issuer);
         res.setTime(System.currentTimeMillis() / 1000 + 1000 * 150); // FIXME static 2.5 min after NOW
+        res.setPowMin(prev.getPowMin());
+        res.setVersion(prev.getVersion());
 
         BR_G01_setNumber(res);
         BR_G02_setPreviousHash(res);
@@ -2679,18 +2681,23 @@ public interface GlobalValid {
         BR_G99_setCurrency(res);
         BR_G100_setIssuerIsMember(res);
 
-        BR_G17_setPowMin(res);
         BR_G18_setPowZero(res);
         //res.setDiffNumber(); //FIXME ?
         return res;
     }
 
     default boolean isValid(BINDEX head, DBBlock block) {
-        if (BR_G61_rulePowMin(head, block) && BR_G62_ruleProofOfWork(head)) {
-            LOG.info("Forged PoW is valid, testing it all");
-            if (BR_G97_TestIndex(head, block, true)) {
-                return true;
+        try{
+            if (BR_G61_rulePowMin(head, block) && BR_G62_ruleProofOfWork(head)) {
+                //LOG.info("Forged PoW is valid, testing it all");
+                if (BR_G97_TestIndex(head, block, true)) {
+                    return true;
+                }
             }
+
+        }catch (AssertionError | Exception e){
+            //LOG.error("Forged PoW is NOT valid, testing it all" );
+            return false;
         }
 
         return false;

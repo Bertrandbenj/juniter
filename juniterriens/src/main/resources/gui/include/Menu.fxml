@@ -78,6 +78,19 @@
                         <Tooltip text="%menu.tooltip.network"/>
                     </tooltip>
                 </Hyperlink>
+                <Hyperlink onAction="#viewUser">
+                    <graphic>
+                        <ImageView fx:id="logoUser" fitHeight="60.0" fitWidth="72.0" pickOnBounds="true"
+                                   preserveRatio="true">
+                            <image>
+                                <Image url="@../images/user_default.png"/>
+                            </image>
+                        </ImageView>
+                    </graphic>
+                    <tooltip>
+                        <Tooltip text="%menu.tooltip.network"/>
+                    </tooltip>
+                </Hyperlink>
                 <Hyperlink onAction="#viewDatabase">
                     <graphic>
                         <ImageView fx:id="logoDatabase" fitHeight="60.0" fitWidth="72.0" pickOnBounds="true"

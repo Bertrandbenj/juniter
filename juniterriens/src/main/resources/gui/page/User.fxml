@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane styleClass="pane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="juniter.gui.business.page.User">
+    <right>
+        <fx:include fx:id="menu" source="../include/Menu.fxml"/>
+    </right>
+    <bottom>
+        <fx:include source="../include/Footer.fxml"/>
+    </bottom>
+    <center>
+
+    </center>
+    <center>
+        <ScrollPane minHeight="400.0"  BorderPane.alignment="CENTER">
+            <content>
+                <VBox alignment="CENTER"   spacing="10.0">
+                    <children>
+                        <ComboBox fx:id="wallet" minWidth="300.0" VBox.vgrow="ALWAYS"/>
+                        <HBox prefWidth="200.0">
+                            <children>
+                                <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0" text="Pubkey"/>
+                                <TextField fx:id="pk" maxWidth="1.7976931348623157E308" prefHeight="30.0"
+                                           HBox.hgrow="ALWAYS"/>
+                            </children>
+                        </HBox>
+                        <HBox prefWidth="200.0">
+                            <children>
+                                <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0" text="Identity"/>
+                                <TextField fx:id="uid" maxWidth="1.7976931348623157E308" prefHeight="30.0"
+                                           HBox.hgrow="ALWAYS"/>
+                            </children>
+                        </HBox>
+                        <HBox prefWidth="200.0">
+                            <children>
+                                <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0" text="Status"/>
+                                <Label fx:id="status" alignment="CENTER" maxWidth="1.7976931348623157E308"
+                                       prefHeight="30.0" text="Label" HBox.hgrow="ALWAYS"/>
+                            </children>
+                        </HBox>
+                        <HBox prefWidth="200.0" VBox.vgrow="ALWAYS">
+                            <children>
+                                <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0" text="Available Amount "/>
+                                <Label fx:id="account" alignment="CENTER" maxWidth="1.7976931348623157E308"
+                                       prefHeight="30.0" text="Label" HBox.hgrow="ALWAYS"/>
+                            </children>
+                        </HBox>
+                        <HBox prefWidth="200.0">
+                            <children>
+                                <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0"
+                                       text="Received Transactions"/>
+                                <Label fx:id="txReceived" alignment="CENTER" maxWidth="1.7976931348623157E308"
+                                       prefHeight="30.0" text="Label" HBox.hgrow="ALWAYS"/>
+                            </children>
+                        </HBox>
+                        <HBox prefWidth="200.0">
+                            <children>
+                                <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0" text="Sent Transaction"/>
+                                <Label fx:id="txSent" alignment="CENTER" maxWidth="1.7976931348623157E308"
+                                       prefHeight="30.0" text="Label" HBox.hgrow="ALWAYS"/>
+                            </children>
+                        </HBox>
+                        <LineChart fx:id="txChart">
+                            <xAxis>
+                                <NumberAxis fx:id="txTime" side="BOTTOM"/>
+                            </xAxis>
+                            <yAxis>
+                                <NumberAxis fx:id="txAccount" side="LEFT"/>
+                            </yAxis>
+                        </LineChart>
+                        <HBox prefHeight="100.0" prefWidth="200.0">
+                            <children>
+                                <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0"
+                                       text="Sent Certification"/>
+                                <ListView fx:id="sentCerts" prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS"/>
+                            </children>
+                        </HBox>
+                        <HBox prefHeight="100.0" prefWidth="200.0">
+                            <children>
+                                <Label alignment="CENTER" prefHeight="30.0" prefWidth="150.0"
+                                       text="Received Certification"/>
+                                <ListView fx:id="receiveCerts" prefHeight="200.0" prefWidth="200.0"
+                                          HBox.hgrow="ALWAYS"/>
+                            </children>
+                        </HBox>
+                    </children>
+                    <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                    </padding>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>

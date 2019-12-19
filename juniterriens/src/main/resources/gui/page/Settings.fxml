@@ -118,6 +118,7 @@
                                 <Label alignment="CENTER" prefWidth="200.0" text="%settings.node.key" />
                                 <PasswordField fx:id="salt" promptText="Secret Key" />
                                 <PasswordField fx:id="pass" promptText="Secret Password" />
+                                <Label fx:id="pk" />
                             </children>
                             <opaqueInsets>
                                 <Insets />

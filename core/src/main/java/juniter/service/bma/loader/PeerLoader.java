@@ -105,7 +105,7 @@ public class PeerLoader {
 
                     if (maxBlockDB < maxBlockPeer.getAsLong()) {
                         var batch = (int) Math.min(maxBlockPeer.getAsLong() - maxBlockDB, bulkSize);
-                        blockLoader.fetchBlocks(batch, maxBlockDB)
+                        blockLoader.fetchBlocks(batch, (int) maxBlockPeer.getAsLong())
                                 .forEach(b -> blockService.safeSave(b));
                     }
 

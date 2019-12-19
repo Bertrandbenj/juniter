@@ -1,6 +1,6 @@
 package juniter.repository.jpa.block;
 
-import juniter.core.model.CcyStats;
+import juniter.core.model.technical.CcyStats;
 import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dto.node.BlockNetworkMeta;
 import org.apache.logging.log4j.LogManager;
@@ -102,7 +102,7 @@ public interface BlockRepository extends JpaRepository<DBBlock, Long> {
     @Query("SELECT number FROM DBBlock c WHERE dividend IS NOT NULL ORDER BY number")
     List<Integer> withUD();
 
-    @Query("SELECT new juniter.core.model.CcyStats(number, medianTime, membersCount, monetaryMass)  FROM DBBlock c WHERE dividend IS NOT NULL ORDER BY number")
+    @Query("SELECT new juniter.core.model.technical.CcyStats(number, medianTime, membersCount, monetaryMass)  FROM DBBlock c WHERE dividend IS NOT NULL ORDER BY number")
     List<CcyStats> statsWithUD();
 
     @Query("SELECT c FROM DBBlock c WHERE number >= ?1 AND number < ?2")

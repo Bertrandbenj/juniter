@@ -5,9 +5,14 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
+import juniter.service.bma.NodeService;
+import juniter.service.core.Sandboxes;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
@@ -29,7 +34,17 @@ public class Footer implements Initializable {
     @FXML private Label peerLog;
     @FXML private Label memoryLog;
     @FXML private Label docPoolLog;
+    @Autowired
+    private Sandboxes sandboxes;
 
+    @Value("${juniter.sandboxTxField:100}")
+    private Integer sandboxTxSize;
+
+    @Value("${juniter.sandboxIMem:100}")
+    private Integer sandboxMemSize;
+
+    @Value("${juniter.sandboxIdtyField:100}")
+    private Integer sandboxIdtySize;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -52,6 +67,13 @@ public class Footer implements Initializable {
                 .concat(memoryLogMessage).concat(" - "));
         docPoolLog.textProperty().bind(new SimpleStringProperty("Pools : ")
                 .concat(" - ").concat(docPoolLogMessage));
+    }
+
+    @Scheduled(fixedDelay = 1000 * 60 )
+    private void refreshPools(){
+        docPoolLogMessage.setValue("Identities:" + sandboxes.getPendingIdentities().size() + "/" + sandboxIdtySize +
+                " TX:" + sandboxes.getPendingTransactions().size() + "/" + sandboxTxSize +
+                " Memberships:" + sandboxes.getPendingMemberships().size() + "/" + sandboxMemSize );
     }
 
 }

@@ -2,6 +2,7 @@ package juniter.repository.jpa.block;
 
 import juniter.core.model.dbo.tx.Transaction;
 import juniter.core.model.dbo.tx.TxType;
+import juniter.core.model.technical.Dividend;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -92,12 +93,14 @@ public interface TxRepository extends JpaRepository<Transaction, Long> {
     List<Transaction> transactionsOfIssuer_(Object pubkey);
 
 
-
     @Query(value = "SELECT DISTINCT t.blockstamp.number FROM  Transaction t ORDER BY blockstampTime ")
     List<Integer> withTx();
 
+    @Query("SELECT new juniter.core.model.technical.Dividend(number, medianTime, dividend) FROM DBBlock WHERE dividend IS NOT null AND number >= ?1")
+    List<Dividend> dividendsFrom(Integer number);
 
-
+    @Query("SELECT new juniter.core.model.technical.Dividend(number, medianTime, dividend) FROM DBBlock WHERE dividend IS NOT null AND number >= (SELECT MIN(written.number) FROM Member m WHERE pubkey = ?1)")
+    List<Dividend> dividendsOf(String pubkey);
 
 
 }

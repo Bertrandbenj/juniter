@@ -1,12 +1,10 @@
 package juniter.service.core;
 
 
+import com.google.common.collect.Lists;
 import juniter.core.crypto.Crypto;
 import juniter.core.crypto.SecretBox;
-import juniter.core.event.CoreEvent;
-import juniter.core.event.NewBINDEX;
-import juniter.core.event.NewBlock;
-import juniter.core.event.PossibleFork;
+import juniter.core.event.*;
 import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dbo.index.BINDEX;
 import juniter.core.model.dbo.net.EndPointType;
@@ -101,10 +99,14 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
         block.setPreviousIssuer(indexForForge.getPreviousIssuer());
         block.setTime(indexForForge.getTime());
         block.setMedianTime(indexForForge.getMedianTime());
-        block.setDividend(indexForForge.getDividend());
+
+        block.setDividend(null); // FIXME ?
+
         block.setIssuersFrame(indexForForge.getIssuersFrame());
         block.setIssuersCount(indexForForge.getIssuersCount());
         block.setIssuersFrameVar(indexForForge.getIssuersFrameVar());
+        block.setPowMin(indexForForge.getPowMin());
+        block.setUnitbase(indexForForge.getUnitBase());
 
         // FIXME complete
         block.setExcluded(new ArrayList<>());
@@ -127,33 +129,42 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
         return block;
     }
 
+    private AtomicBoolean forge = new AtomicBoolean(false);
+
     private DBBlock parallelProver(String ccy) {
         AtomicReference<DBBlock> found = new AtomicReference<>();
+        var tryHead = index.prepareIndexForForge(sb.getPublicKey());
+        var newBlock = forge(tryHead);
+        LOG.info("Forged : " + newBlock.toDUP());
+
         for (int i = 0; i < 4; i++) {
             int finalI = i;
-            threads.add(i, new Thread(() -> {
-                var tryHead = index.prepareIndexForForge(sb.getPublicKey());
-                var newBlock = forge(tryHead);
-                LOG.info("Forged : " + newBlock);
-                String hash = "XXXXX";
-                var nonce = Long.parseLong("100" + finalI + "0000000000");
-                while (!Thread.currentThread().isInterrupted() && !index.isValid(tryHead, newBlock)) {
-                    newBlock.setNonce(nonce++);
+            threads.add( new Thread(() -> {
+
+                String hash;
+                long nonce = Long.parseLong("100" + finalI + "0000000000");
+                do {
+                    nonce++;
+                    newBlock.setNonce(nonce);
                     hash = Crypto.hash(newBlock.signedPartSigned());
-                    LOG.info("trying nonce:" + nonce + ", and found hash:" + hash);
+                    if(hash.startsWith("0000")){
+                        LOG.debug("nonce:" + nonce + ", hash:" + hash);
+                    }
                     tryHead.setHash(hash);
-                }
+                }while ( !index.isValid(tryHead, newBlock) && forge.get()  );
+                newBlock.setNonce(nonce);
                 newBlock.setHash(hash);
-                found.setRelease(newBlock);
+
+                if(index.isValid(tryHead, newBlock)) found.set(newBlock);
+                forge.set(false);
                 threads.forEach(Thread::interrupt);
             }));
         }
 
 
         try {
-
-            threads.forEach(Thread::run);
-
+            forge.set(true);
+            threads.parallelStream().forEach(Thread::run);
             return found.get();
         }  catch (Exception e) {
             LOG.error("Prover Exception", e);
@@ -163,18 +174,18 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
 
     private boolean postBlock(DBBlock block) {
         AtomicBoolean success = new AtomicBoolean(false);
-        Wrapper reqBodyData = new WrapperBlock(block.toDUP());
+        Wrapper reqBodyData = new WrapperBlock(block.toDUP(true,true) +"\n");
 
 
-        peerService.nextHosts(EndPointType.BMAS, 5).forEach(n -> {
+        Lists.newArrayList("https://duniter.moul.re","https://g1.presles.fr:443","https://g1.duniter.fr").forEach(host -> {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
             String dest = "blockchain/block";
 
-            var reqURL = peerService.nextHost(EndPointType.BMAS).orElseThrow().getHost();
+
             //var reqURL = "https://g1.presles.fr"; // FIXME remove when fixed
-            reqURL += (reqURL.endsWith("/") ? "" : "/") + dest;
+            var reqURL = host + (host.endsWith("/") ? "" : "/") + dest;
 
             LOG.info("posting Forged Block to {}\n{}", reqURL, reqBodyData);
 
@@ -199,9 +210,7 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
                 LOG.warn("ignored ResourceAccessException (handled as duniter ucode )", ignored);
             } catch (Exception | AssertionError e) {
                 StringWriter sw = new StringWriter();
-                e.printStackTrace(new PrintWriter(sw));
-
-                LOG.error("Notary.sendDoc ", e);
+                LOG.error("ForkHead.sendBlock ", e);
             }
 
         });
@@ -225,6 +234,7 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
             if (index.head_().getNumber() < bl.getNumber()) {
                 if (threads != null) {
                     LOG.info("Killing the current PoW execution");
+                    forge.set(false);
                     threads.forEach(Thread::interrupt);
                 }
                 index.indexUntil(bl.getNumber(), false, bl.getCurrency());
@@ -235,9 +245,9 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
             if (what.getNumber().equals(blockService.currentBlockNumber())) {
                 LOG.info("new BINDEX, no higher block => starting proving next " + what.getCurrency() + " block ");
                 DBBlock proved = parallelProver(what.getCurrency());
-                if (postBlock(proved)) {
-                    LOG.info("Bitch please " + proved.getNumber());
-                    System.exit(0);
+                if (proved != null && postBlock(proved)) {
+                    LOG.info("Bitch please " + proved.getNumber() +" "+ proved.getMedianTime() + " "+ proved.getHash());
+                    //System.exit(0);
                 }
             }
         } else if (event instanceof PossibleFork) {
@@ -251,10 +261,10 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
                     index.revert1("g1");
                 reverted.incrementAndGet();
             }
-
+        }else if(event instanceof ServerLogin){
+            sb = ((ServerLogin) event).getWhat();
         } else {
             LOG.debug("unssuported event " + event);
-
         }
     }
 }

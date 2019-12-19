@@ -1,6 +1,6 @@
 package juniter.service.core;
 
-import juniter.core.model.DUPDocument;
+import juniter.core.model.technical.DUPDocument;
 import juniter.core.model.dbo.sandbox.CertificationSandboxed;
 import juniter.core.model.dbo.sandbox.IdentitySandboxed;
 import juniter.core.model.dbo.sandbox.MemberSandboxed;

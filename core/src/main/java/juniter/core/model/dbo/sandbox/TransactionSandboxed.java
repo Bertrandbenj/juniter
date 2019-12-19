@@ -2,7 +2,7 @@ package juniter.core.model.dbo.sandbox;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import juniter.core.crypto.Crypto;
-import juniter.core.model.DUPDocument;
+import juniter.core.model.technical.DUPDocument;
 import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.tx.TxInput;
 import juniter.core.model.dbo.tx.TxOutput;

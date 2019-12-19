@@ -7,6 +7,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
+import juniter.core.crypto.SecretBox;
+import juniter.core.event.ServerLogin;
 import juniter.core.validation.BlockLocalValid;
 import juniter.gui.JuniterBindings;
 import juniter.gui.business.popup.AlertBox;
@@ -20,8 +22,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
+import java.beans.EventHandler;
 import java.net.URL;
 import java.util.Locale;
 import java.util.Optional;
@@ -36,6 +40,7 @@ import static juniter.gui.technical.Theme.JMetroBase;
 public class Settings extends AbstractJuniterFX implements Initializable {
 
     private static final Logger LOG = LogManager.getLogger(Settings.class);
+    public Label pk;
     @FXML
     private TextField delSome;
     @FXML
@@ -77,10 +82,13 @@ public class Settings extends AbstractJuniterFX implements Initializable {
     @Autowired
     private Optional<Interplanetary> interplanetary;
 
+    @Autowired
+    private ApplicationEventPublisher coreEvents;
+
 
     @Override
     public void start(Stage primaryStage) {
-        LOG.info("Starting Notary");
+        LOG.info("Starting Settings");
         primaryStage.setTitle("Juniter - " + I18N.get("settings"));
         primaryStage.show();
     }
@@ -164,8 +172,16 @@ public class Settings extends AbstractJuniterFX implements Initializable {
                 "https://www.gchange.fr/#/app/market/lg"));
 
 
+        salt.setOnAction(ev -> updateKey());
+        pass.setOnAction(ev -> updateKey());
+
     }
 
+    private void updateKey(){
+        var sb = new SecretBox(salt.getText(),pass.getText());
+        coreEvents.publishEvent(new ServerLogin(sb));
+        pk.setText(sb.getPublicKey());
+    }
 
     @FXML
     public void deleteSome() {

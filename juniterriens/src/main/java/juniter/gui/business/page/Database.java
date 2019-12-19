@@ -384,9 +384,6 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
         indexBar.progressProperty().bind(indexRatio);
 
-        txCountB.textProperty().bind(new SimpleStringProperty("Count ").concat(Bindings.size(bindex)));
-
-
         // ===================   MAP  COLUMNS =================
         mapColumn(bNumberCol, "number");
         mapColumn(bHashCol, "hash");

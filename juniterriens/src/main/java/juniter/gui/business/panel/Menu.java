@@ -36,6 +36,7 @@ public class Menu implements Initializable {
     private Image NOTARY_LOGO;
     private Image SETTINGS_LOGO;
     private Image CURRENCIES_LOGO;
+    private Image USER_LOGO;
 
 
     @FXML
@@ -55,6 +56,8 @@ public class Menu implements Initializable {
 
     @FXML
     private ImageView logoCurrencies;
+    @FXML
+    private ImageView logoUser;
 
 
     @FXML
@@ -107,6 +110,11 @@ public class Menu implements Initializable {
         screenController.viewGeneric(SPARK, event);
     }
 
+
+    public void viewUser(ActionEvent event) {
+        screenController.viewGeneric(USER, event);
+    }
+
     @FXML
     public void viewSettings(ActionEvent event) {
         screenController.viewGeneric(SETTINGS, event);
@@ -115,7 +123,7 @@ public class Menu implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         if (getClass().getResource("/gui/Spark.fxml") == null) {
-            vMenu.getChildren().remove(7); // dirty hack
+            vMenu.getChildren().remove(8); // dirty hack
         }
 
         DEFAULT_LOGO = new Image("/gui/images/logo.png");
@@ -127,6 +135,7 @@ public class Menu implements Initializable {
         NOTARY_LOGO = new Image("/gui/images/keep_calm_im_the_notary_puzzle.jpg");
         SETTINGS_LOGO = new Image("/gui/images/settings.png");
         CURRENCIES_LOGO = new Image("/gui/images/g1.png");
+        USER_LOGO = new Image("/gui/images/user_default.png");
 
         currentPageName.addListener((observable, oldValue, newValue) -> {
             LOG.info("currentPageName " + newValue);
@@ -136,6 +145,7 @@ public class Menu implements Initializable {
             logoNotary.imageProperty().setValue(NOTARY.equals(newValue) ? DEFAULT_LOGO: NOTARY_LOGO );
             logoNetwork.setImage(NETWORK.equals(newValue) ? DEFAULT_LOGO: NETWORK_LOGO  );
             logoNetwork.setImage(CURRENCIES.equals(newValue) ? DEFAULT_LOGO: CURRENCIES_LOGO  );
+            logoNetwork.setImage(USER.equals(newValue) ? DEFAULT_LOGO: USER_LOGO  );
             logoDatabase.setImage(DATABASE.equals(newValue) ? DEFAULT_LOGO: DATABASE_LOGO );
             logoSpark.setImage(SPARK.equals(newValue) ? DEFAULT_LOGO: SPARK_LOGO );
             logoSettings.setImage(SETTINGS.equals(newValue) ? DEFAULT_LOGO: SETTINGS_LOGO );

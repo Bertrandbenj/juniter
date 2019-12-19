@@ -1,7 +1,6 @@
-package juniter.core.model;
+package juniter.core.model.technical;
 
 import lombok.Data;
-import lombok.Setter;
 
 @Data
 public class CcyStats implements Comparable<CcyStats> {

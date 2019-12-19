@@ -42,6 +42,7 @@ public class ScreenController {
             {PageName.SETTINGS, "/gui/page/Settings.fxml"},
             {PageName.SPARK, "/gui/Spark.fxml"},
             {PageName.DATABASE, "/gui/page/Database.fxml"},
+            {PageName.USER, "/gui/page/User.fxml"}
 
     }).collect(Collectors.toMap(data -> (PageName) data[0], data -> (String) data[1]));
 

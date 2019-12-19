@@ -2,7 +2,7 @@ package juniter.core.model.dbo;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import juniter.core.model.DUPDocument;
+import juniter.core.model.technical.DUPDocument;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

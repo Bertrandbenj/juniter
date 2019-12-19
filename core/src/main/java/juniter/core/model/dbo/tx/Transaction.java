@@ -3,7 +3,7 @@ package juniter.core.model.dbo.tx;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import juniter.core.crypto.Crypto;
 import juniter.core.model.dbo.BStamp;
-import juniter.core.model.DUPDocument;
+import juniter.core.model.technical.DUPDocument;
 import juniter.core.utils.Constants;
 import lombok.AllArgsConstructor;
 import lombok.Data;

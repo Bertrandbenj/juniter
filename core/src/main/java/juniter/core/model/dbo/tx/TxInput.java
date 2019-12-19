@@ -1,6 +1,6 @@
 package juniter.core.model.dbo.tx;
 
-import juniter.core.model.DUPComponent;
+import juniter.core.model.technical.DUPComponent;
 import juniter.core.utils.Constants;
 import lombok.AllArgsConstructor;
 import lombok.Data;

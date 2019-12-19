@@ -4,7 +4,7 @@ import com.codahale.metrics.annotation.CachedGauge;
 import com.codahale.metrics.annotation.Counted;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import juniter.core.model.DUPDocument;
+import juniter.core.model.technical.DUPDocument;
 import juniter.core.model.dbo.tx.Transaction;
 import juniter.core.model.dbo.wot.*;
 import juniter.core.utils.Constants;
@@ -379,7 +379,7 @@ public class DBBlock implements DUPDocument, Serializable {
                 "Actives:\n"
                 + renewed.stream().map(Renew::toDUP).collect(Collectors.joining("\n"))
                 + (renewed.size() > 0 ? "\n" : "") +
-                "Leaver:\n"
+                "Leavers:\n"
                 + leavers.stream().map(Leaver::toDUP).collect(Collectors.joining("\n"))
                 + (leavers.size() > 0 ? "\n" : "") +
                 "Revoked:\n"
