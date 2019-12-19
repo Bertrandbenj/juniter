@@ -20,6 +20,7 @@ import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
 import java.io.IOException;
 import java.net.ConnectException;
+import java.net.NoRouteToHostException;
 import java.net.URI;
 import java.nio.channels.NotYetConnectedException;
 import java.util.HashMap;
@@ -32,15 +33,16 @@ import java.util.Map;
 public class WS2PClient extends WebSocketClient {
 
     private static final Logger LOG = LogManager.getLogger(WS2PClient.class);
-    private Map<String, Request> sentRequests = new HashMap<String, Request>();
+    private Map<String, Request> sentRequests = new HashMap<>();
 
 
-    private WebSocketPool webSocketPool;
+    private WebSocketPool pool;
 
 
-    public WS2PClient(URI uri, WebSocketPool webSocketPool) {
+    WS2PClient(URI uri, WebSocketPool webSocketPool) {
         super(uri);
-        this.webSocketPool = webSocketPool;
+        this.pool = webSocketPool;
+        setSocketFactory(webSocketPool.factory);
     }
 
 //    public WS2PClient(URI serverUri, Draft draft) {
@@ -64,21 +66,21 @@ public class WS2PClient extends WebSocketClient {
 
         try {
 
-            final var challenge = webSocketPool.jsonMapper.readValue(message, Connect.class);
+            final var challenge = pool.jsonMapper.readValue(message, Connect.class);
 
             LOG.debug("Challenge ... " + challenge);
 
             if (challenge.isACK()) {
                 send(challenge.okJson());
-                LOG.info("ACK, sending OK ");
+                LOG.debug("ACK, sending OK ");
 
             } else if (challenge.isConnect()) {
                 send(challenge.ackJson());
-                LOG.info("CONNECT, sent ACK ");
+                LOG.debug("CONNECT, sent ACK ");
 
             } else if (challenge.isOK()) {
-                LOG.info("OK, connected !! ");
-                webSocketPool.getClients().offer(this);
+                LOG.info("OK, connected !! " + getURI());
+                pool.getClients().offer(this);
                 actionOnConnect();
 
             }
@@ -97,10 +99,10 @@ public class WS2PClient extends WebSocketClient {
     }
 
     private void handleRequest(String message) {
-        LOG.info("handle Request " + webSocketPool.status());
+        LOG.info("handle Request " + pool.status() + " " + message);
         try {
-            final var request = webSocketPool.jsonMapper.readValue(message, Request.class);
-            LOG.debug(request);
+            final var request = pool.jsonMapper.readValue(message, Request.class);
+            LOG.info("handleRequest" + request);
             // TODO respond
         } catch (final JsonParseException e) {
             LOG.error("handleRequest JSON parsing error ", e);
@@ -118,7 +120,7 @@ public class WS2PClient extends WebSocketClient {
 
             final var req = sentRequests.remove(resid);
             final var params = req.getBody().getParams();
-            final var jsonMapper = webSocketPool.jsonMapper;
+            final var jsonMapper = pool.jsonMapper;
 
             switch (req.getBody().getName()) {
                 case "BLOCK_BY_NUMBER":
@@ -131,9 +133,11 @@ public class WS2PClient extends WebSocketClient {
                     break;
                 case "CURRENT":
                     final var current = jsonMapper.readValue(message, ResponseBlock.class);
-                    LOG.info("CURRENT " + current.getBody());
-                    if (webSocketPool.blockService.currentBlockNumber() < current.getBody().getNumber())
-                        webSocketPool.coreEventBus.publishEvent(new NewBlock(current.getBody()));
+
+                    if (pool.blockService.currentBlockNumber() < current.getBody().getNumber()) {
+                        LOG.info("New current " + current.getBody());
+                        pool.coreEventBus.publishEvent(new NewBlock(current.getBody()));
+                    }
                     break;
                 case "WOT_REQUIREMENTS_OF_PENDING":
                     final var wot = jsonMapper.readValue(message, ResponseWotPending.class);
@@ -168,16 +172,11 @@ public class WS2PClient extends WebSocketClient {
 
     @Override
     public void onClose(int code, String reason, boolean remote) {
-        if (webSocketPool.getClients().contains(this)) {
+        if (pool.getClients().contains(this)) {
             // The codecodes are documented in class org.java_websocket.framing.CloseFrame
-            LOG.info("Connection closed by " + (remote ? "remote peer" : "us") + " Code: " + code + " on URI " + getURI());
-            LOG.info(" - Reason: " + reason);
-            LOG.info(" - " + webSocketPool.status());
+            LOG.info("WS closed by " + (remote ? "remote peer" : "us") + " Code: " + code + " on " + getURI() + " because " + reason );
         }
-
-
-        webSocketPool.getClients().remove(this);
-
+        pool.getClients().remove(this);
     }
 
     @Override
@@ -189,7 +188,9 @@ public class WS2PClient extends WebSocketClient {
         } else if (ex instanceof SSLException) {
             LOG.warn("WS SSL onError " + getURI() + ex);
         } else if (ex instanceof ConnectException) {
-            LOG.warn("WS ConnectException onError " + getURI() + ex);
+            LOG.warn("WS " + getURI() + ex);
+        } else if (ex instanceof NoRouteToHostException) {
+            LOG.warn("WS " + getURI() + ex);
         } else {
             LOG.error("WS unknown onError " + getURI(), ex);
         }
@@ -197,15 +198,16 @@ public class WS2PClient extends WebSocketClient {
 
     @Override
     public void onMessage(String message) {
-        LOG.info("received: " + message.substring(0, 50) + "...");
 
         if (message.startsWith("{\"auth\":")) {
             handleChallenge(message);
         } else if (message.startsWith("{\"resId")) {
             handleResponse(message);
         } else if (message.startsWith("{\"reqId")) {
+            LOG.info("received Request : " + message.substring(0, 80) + "...");
             handleRequest(message);
         } else if (message.startsWith("Version:")) {
+            LOG.info("received DUP: " + message.substring(0, 50) + "...");
             handleDUP(message);
         } else {
             LOG.warn("received unknown message: " + message);
@@ -214,7 +216,7 @@ public class WS2PClient extends WebSocketClient {
 
     @Override
     public void onOpen(ServerHandshake handshakedata) {
-        LOG.info("WS connection - http " + handshakedata.getHttpStatus() + " - " + webSocketPool.status());
+        LOG.info("WS connection - http " + handshakedata.getHttpStatus() + " - " + pool.status() + " " + getURI());
 
 //		while (true) {
 //			try {
@@ -235,11 +237,11 @@ public class WS2PClient extends WebSocketClient {
         // onWebsocketHandshakeReceivedAsClient
     }
 
-    void send(Request req) {
+    private void send(Request req) {
         try {
             sentRequests.put(req.getReqId(), req); // save for reuse
 
-            send(webSocketPool.jsonMapper.writeValueAsString(req));
+            send(pool.jsonMapper.writeValueAsString(req));
         } catch (NotYetConnectedException | JsonProcessingException e) {
             LOG.error(e);
         }
@@ -247,7 +249,7 @@ public class WS2PClient extends WebSocketClient {
 
     @Override
     public void send(String text) throws NotYetConnectedException {
-        LOG.info("sending : " + text);
+        LOG.debug("sending : " + text);
         super.send(text);
     }
 

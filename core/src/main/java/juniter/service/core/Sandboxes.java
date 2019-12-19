@@ -18,6 +18,7 @@ import juniter.repository.jpa.sandbox.TxSandboxRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -98,9 +99,32 @@ public class Sandboxes {
     }
 
     @Transactional(readOnly = true)
-    public List<Certification> getPendingCertifications() {
+    List<Certification> getPendingCertifications() {
         return cSandRepo.findAll().stream().map(is -> modelMapper.map(is, Certification.class)).collect(Collectors.toList());
     }
 
+    @Transactional
+    @Modifying
+    void removeTx(List<String> collect) {
+        for (String s : collect) {
+            tSandRepo.deleteByHash(s);
+        }
 
+    }
+
+    @Transactional
+    @Modifying
+    void removeIdty(List<String> collect) {
+        for (String s : collect) {
+            iSandRepo.deleteByPubkey(s);
+        }
+    }
+
+    @Transactional
+    @Modifying
+    void removeMemberships(List<String> collect) {
+        for (String s : collect) {
+            mSandRepo.deleteByPubkey(s);
+        }
+    }
 }

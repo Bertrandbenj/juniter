@@ -9,6 +9,9 @@ import juniter.core.event.NewBINDEX;
 import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dbo.index.*;
+import juniter.core.model.dbo.tx.Transaction;
+import juniter.core.model.dbo.wot.Identity;
+import juniter.core.model.dbo.wot.Member;
 import juniter.core.utils.TimeUtils;
 import juniter.core.validation.GlobalValid;
 import juniter.repository.jpa.index.*;
@@ -68,6 +71,9 @@ public class Index implements GlobalValid {
 
     @Autowired
     private BlockService blockService;
+
+    @Autowired
+    private Sandboxes sandboxes;
 
 
     @Value("${juniter.startIndex:false}")
@@ -325,6 +331,9 @@ public class Index implements GlobalValid {
 
     @Override
     public void trimSandbox(DBBlock block) {
+     //   sandboxes.removeTx(block.getTransactions().stream().map(Transaction::getHash).collect(Collectors.toList()));
+     //   sandboxes.removeIdty(block.getIdentities().stream().map(Identity::getPubkey).collect(Collectors.toList()));
+     //   sandboxes.removeMemberships(block.getMembers().stream().map(Member::getPubkey).collect(Collectors.toList()));
 
     }
 

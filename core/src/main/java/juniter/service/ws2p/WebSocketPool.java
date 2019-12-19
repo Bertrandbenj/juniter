@@ -18,7 +18,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
+import javax.net.ssl.*;
+import java.io.File;
+import java.io.FileInputStream;
 import java.net.URI;
+import java.security.KeyStore;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
@@ -36,10 +40,28 @@ import java.util.stream.Collectors;
 public class WebSocketPool {
 
     private static final Logger LOG = LogManager.getLogger(WebSocketPool.class);
+// Create a trust manager that does not validate certificate chains like the default
+
+    TrustManager[] trustAllCerts = new TrustManager[]{
+            new X509TrustManager() {
+
+                public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                    return null;
+                }
+
+                public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {
+                    //No need to implement.
+                }
+
+                public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {
+                    //No need to implement.
+                }
+            }
+    };
 
 
     @Getter
-    private AtomicBoolean running = new AtomicBoolean(false);
+    private AtomicBoolean running = new AtomicBoolean(true);
 
 
     @Value("${juniter.network.webSocketPoolSize:5}")
@@ -61,27 +83,59 @@ public class WebSocketPool {
     @Autowired
     public BlockService blockService;
 
+    SSLSocketFactory factory;
+
+    @Value("server.ssl.keyStoreType")
+    private String STORETYPE;
+    @Value("server.ssl.key-store")
+    private String KEYSTORE;
+    @Value("server.ssl.key-store-password")
+    private String STOREPASSWORD;
+    @Value("server.ssl.keyAlias")
+    private String KEYPASSWORD;
 
     @PostConstruct
     public void start() {
+
+        try {
+
+            KeyStore ks = KeyStore.getInstance(STORETYPE);
+            File kf = new File(KEYSTORE);
+            ks.load(new FileInputStream(kf), STOREPASSWORD.toCharArray());
+
+            KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
+            kmf.init(ks, KEYPASSWORD.toCharArray());
+            TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
+            tmf.init(ks);
+
+            SSLContext sslContext = null;
+            sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(kmf.getKeyManagers(), trustAllCerts, null);
+            // sslContext.init( null, null, null ); // will use java's default key and trust store which is sufficient unless you deal with self-signed certificates
+
+            factory = sslContext.getSocketFactory();// (SSLSocketFactory) SSLSocketFactory.getDefault();
+
+        } catch (Exception e) {
+            LOG.error("problem setup ssl", e);
+        }
+
         clients = new LinkedBlockingDeque<>(WEB_SOCKET_POOL_SIZE);
+
     }
 
 
     @Transactional
-    @Scheduled(initialDelay = 3 * 60 * 1000, fixedDelay = 20 * 1000)
+    @Scheduled(initialDelay = 3 * 60 * 1000, fixedDelay = 10 * 1000)
     public void refreshCurrents() {
 
         if (running.get())
-            clients.stream()
-                    .peek(c -> LOG.info("Refreshing Current "
-                            + running + " on wss://" + c.getURI()
-                            + " " + clients.remainingCapacity() + " " + status()))
-                    .forEach(c -> c.send(new Request().getCurrent()));
+            clients.parallelStream()
+                    //.peek(c -> LOG.info("Refreshing Current " + running + " on " + c.getURI() + status()))
+                    .forEach(WebSocketClient::sendPing);
     }
 
     @Transactional
-    @Scheduled(initialDelay = 60 * 1000, fixedDelay = 100 * 1000)//, initialDelay = 10 * 60 * 1000)
+    @Scheduled(initialDelay = 60 * 1000, fixedDelay = 60 * 1000)//, initialDelay = 10 * 60 * 1000)
     public void reconnectWebSockets() {
 
         while (clients.remainingCapacity() > 0 && running.get()) {
@@ -90,7 +144,7 @@ public class WebSocketPool {
                 LOG.debug("Connecting to WS endpoint " + client.getURI());
 
                 try {
-                    client.connectBlocking(10, TimeUnit.SECONDS);
+                    client.connectBlocking(15, TimeUnit.SECONDS);
                 } catch (InterruptedException e) {
                     if (running.get())
                         LOG.error("reconnectWebSockets ", e);
@@ -111,8 +165,7 @@ public class WebSocketPool {
 
 
     public String status() {
-        return " Pool status : " + clients.size() + "/" + WEB_SOCKET_POOL_SIZE + " - " + clients.remainingCapacity()
-                + " - " + clients.stream().map(WebSocketClient::getURI).collect(Collectors.toList());
+        return "WS pool : " + clients.size() + "/" + WEB_SOCKET_POOL_SIZE + " - " + clients.stream().map(WebSocketClient::getURI).collect(Collectors.toList());
     }
 
 

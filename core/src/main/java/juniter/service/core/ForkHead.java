@@ -177,7 +177,7 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
         Wrapper reqBodyData = new WrapperBlock(block.toDUP(true,true) +"\n");
 
 
-        Lists.newArrayList("https://duniter.moul.re","https://g1.presles.fr:443","https://g1.duniter.fr").forEach(host -> {
+        Lists.newArrayList("https://duniter.moul.re","https://g1.presles.fr:443","https://g1.duniter.fr:443").forEach(host -> {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));

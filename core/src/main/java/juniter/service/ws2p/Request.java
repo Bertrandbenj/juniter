@@ -21,8 +21,8 @@ public class Request {
 	/**
 	 * https://git.duniter.org/nodes/common/doc/blob/master/rfc/0004_ws2p_v1.md#getblock
 	 *
-	 * @param number
-	 * @return
+	 * @param number the block number
+	 * @return the block wrapped
 	 */
 	Request getBlock(Integer number) {
 
@@ -37,7 +37,7 @@ public class Request {
 	/**
 	 * https://git.duniter.org/nodes/common/doc/blob/master/rfc/0004_ws2p_v1.md#getblocks
 	 *
-	 * @return
+	 * @return blocks wrapped in  request object
 	 */
 	Request getBlocks(Integer count, Integer from) {
 
@@ -52,7 +52,7 @@ public class Request {
 	/**
 	 * https://git.duniter.org/nodes/common/doc/blob/master/rfc/0004_ws2p_v1.md#getcurrent
 	 *
-	 * @return
+	 * @return current block wrapped in a request object
 	 */
 	Request getCurrent() {
 
@@ -66,7 +66,7 @@ public class Request {
 	/**
 	 * https://git.duniter.org/nodes/common/doc/blob/master/rfc/0004_ws2p_v1.md#getrequirementspending
 	 *
-	 ** @return
+	 ** @return requirement pending wrapped
 	 */
 	Request getRequirementsPending(Integer minCert) {
 
@@ -77,19 +77,19 @@ public class Request {
 		return res;
 	}
 
-	String randomReqId() {
+	private String randomReqId() {
 		final var rand = new Random();
 		final char[] charset = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e',
 				'f' };
-		var res = "";
+		StringBuilder res = new StringBuilder();
 
 		for (int i = 0; i < 8; i++) {
 			final int myRandomNumber = rand.nextInt(16); // Generates a random number between 0x10 and 0x20
-			res += charset[myRandomNumber]; // Random hex number in result
+			res.append(charset[myRandomNumber]); // Random hex number in result
 		}
 //		LOG.info("randomReqId " + res);
 
-		return res;
+		return res.toString();
 	}
 
 }

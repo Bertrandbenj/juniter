@@ -5,8 +5,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
-import juniter.service.bma.NodeService;
 import juniter.service.core.Sandboxes;
+import juniter.service.ws2p.WebSocketPool;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import static javafx.beans.binding.Bindings.*;
+import static javafx.beans.binding.Bindings.format;
 import static juniter.gui.JuniterBindings.*;
 
 
@@ -28,14 +28,23 @@ public class Footer implements Initializable {
 
     private static final Logger LOG = LogManager.getLogger(Footer.class);
 
-    @FXML private ProgressIndicator downloadIndic;
-    @FXML private ProgressIndicator indexIndic;
-    @FXML private Label indexLog;
-    @FXML private Label peerLog;
-    @FXML private Label memoryLog;
-    @FXML private Label docPoolLog;
+    @FXML
+    private ProgressIndicator downloadIndic;
+    @FXML
+    private ProgressIndicator indexIndic;
+    @FXML
+    private Label indexLog;
+    @FXML
+    private Label peerLog;
+    @FXML
+    private Label memoryLog;
+    @FXML
+    private Label docPoolLog;
     @Autowired
     private Sandboxes sandboxes;
+
+    @Autowired
+    private WebSocketPool wsPool;
 
     @Value("${juniter.sandboxTxField:100}")
     private Integer sandboxTxSize;
@@ -48,7 +57,7 @@ public class Footer implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        LOG.debug("initialize Footer.fxml " );
+        LOG.debug("initialize Footer.fxml ");
 
         // bind indicators
         indexIndic.progressProperty().bind(indexRatio);
@@ -62,18 +71,21 @@ public class Footer implements Initializable {
                 .concat(" - ").concat(indexLogMessage));
         peerLog.textProperty().bind(new SimpleStringProperty("Peers : ")
                 .concat(maxPeerBlock)
-                .concat(" - ").concat(peerLogMessage));
-        memoryLog.textProperty().bind(new SimpleStringProperty("Memory : ")
+                .concat(" - ").concat(peerLogMessage)
+                .concat(" - ").concat(ws2pLogMessage));
+        memoryLog.textProperty().bind(new SimpleStringProperty("Memory: ")
                 .concat(memoryLogMessage).concat(" - "));
         docPoolLog.textProperty().bind(new SimpleStringProperty("Pools : ")
-                .concat(" - ").concat(docPoolLogMessage));
+                .concat(docPoolLogMessage));
     }
 
-    @Scheduled(fixedDelay = 1000 * 60 )
-    private void refreshPools(){
+    @Scheduled(fixedDelay = 1000 * 60)
+    private void refreshPools() {
         docPoolLogMessage.setValue("Identities:" + sandboxes.getPendingIdentities().size() + "/" + sandboxIdtySize +
                 " TX:" + sandboxes.getPendingTransactions().size() + "/" + sandboxTxSize +
-                " Memberships:" + sandboxes.getPendingMemberships().size() + "/" + sandboxMemSize );
+                " Memberships:" + sandboxes.getPendingMemberships().size() + "/" + sandboxMemSize);
+
+        ws2pLogMessage.set(wsPool.status());
     }
 
 }

@@ -66,6 +66,8 @@ public interface JuniterBindings {
 
     StringProperty indexLogMessage = new SimpleStringProperty(" ... ");
     StringProperty peerLogMessage = new SimpleStringProperty(" ... ");
+    StringProperty ws2pLogMessage = new SimpleStringProperty(" ... ");
+
     StringProperty memoryLogMessage = new SimpleStringProperty(" ... ");
     StringProperty docPoolLogMessage = new SimpleStringProperty(" ... ");
 
