@@ -6,6 +6,8 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import juniter.core.event.NewBlock;
+import juniter.core.model.dbo.net.EndPointType;
+import juniter.core.model.wso.Wrapper;
 import juniter.core.model.wso.ResponseBlock;
 import juniter.core.model.wso.ResponseBlocks;
 import juniter.core.model.wso.ResponseWotPending;
@@ -54,9 +56,10 @@ public class WS2PClient extends WebSocketClient {
 //    }
 
     private void actionOnConnect() {
-        //send(new Request().getBlock(1));
-        //send(new Request().getBlocks(2, 3));
-        send(new Request().getCurrent());
+        pool.peerService.reportSuccess(EndPointType.WS2P,getURI().toString());
+
+        //send(new Request().getCurrent());
+        send(Wrapper.buildPeerDoc(pool.peerService.endPointPeer().toDUP(true)));
         //send(new Request().getRequirementsPending(5));
 
 
@@ -114,7 +117,7 @@ public class WS2PClient extends WebSocketClient {
     }
 
     private void handleResponse(String message) {
-        LOG.info("handle Response");
+        LOG.info("handle Response " + message);
         try {
             final var resid = message.substring(10, 18);
 
@@ -135,6 +138,7 @@ public class WS2PClient extends WebSocketClient {
                     final var current = jsonMapper.readValue(message, ResponseBlock.class);
 
                     if (pool.blockService.currentBlockNumber() < current.getBody().getNumber()) {
+                        pool.blockService.safeSave(current.getBody());
                         LOG.info("New current " + current.getBody());
                         pool.coreEventBus.publishEvent(new NewBlock(current.getBody()));
                     }
@@ -174,7 +178,7 @@ public class WS2PClient extends WebSocketClient {
     public void onClose(int code, String reason, boolean remote) {
         if (pool.getClients().contains(this)) {
             // The codecodes are documented in class org.java_websocket.framing.CloseFrame
-            LOG.info("WS closed by " + (remote ? "remote peer" : "us") + " Code: " + code + " on " + getURI() + " because " + reason );
+            LOG.info("WS closed by " + (remote ? "remote" : "us") + " Code: " + code + " on " + getURI() + " because " + reason);
         }
         pool.getClients().remove(this);
     }
@@ -182,15 +186,16 @@ public class WS2PClient extends WebSocketClient {
     @Override
     public void onError(Exception ex) {
 
+        pool.peerService.reportError(EndPointType.WS2P, getURI().toString());
 
         if (ex instanceof SSLHandshakeException) {
-            LOG.warn("WS SSL Handshake onError " + getURI() + ex);
+            LOG.warn("WS SSL Handshake onError " + getURI() + " "+ ex);
         } else if (ex instanceof SSLException) {
-            LOG.warn("WS SSL onError " + getURI() + ex);
+            LOG.warn("WS SSL onError " + getURI() +" "+ ex);
         } else if (ex instanceof ConnectException) {
-            LOG.warn("WS " + getURI() + ex);
+            LOG.warn("WS " + getURI() + " "+ ex);
         } else if (ex instanceof NoRouteToHostException) {
-            LOG.warn("WS " + getURI() + ex);
+            LOG.warn("WS " + getURI() + " "+ ex);
         } else {
             LOG.error("WS unknown onError " + getURI(), ex);
         }
@@ -237,11 +242,20 @@ public class WS2PClient extends WebSocketClient {
         // onWebsocketHandshakeReceivedAsClient
     }
 
-    private void send(Request req) {
+    void send(Request req) {
         try {
             sentRequests.put(req.getReqId(), req); // save for reuse
-
             send(pool.jsonMapper.writeValueAsString(req));
+        } catch (NotYetConnectedException | JsonProcessingException e) {
+            LOG.error(e);
+        }
+    }
+
+    public void send(Wrapper req) {
+        try {
+            var doc = pool.jsonMapper.writeValueAsString(req);
+            LOG.info("sending doc " + doc );
+            send(doc);
         } catch (NotYetConnectedException | JsonProcessingException e) {
             LOG.error(e);
         }

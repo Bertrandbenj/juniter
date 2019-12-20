@@ -6,8 +6,6 @@ import io.leangen.graphql.annotations.GraphQLMutation;
 import io.leangen.graphql.annotations.GraphQLNonNull;
 import io.leangen.graphql.annotations.GraphQLQuery;
 import juniter.core.model.dbo.index.SINDEX;
-import juniter.repository.jpa.block.TxRepository;
-import juniter.repository.jpa.index.SINDEXRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
@@ -15,24 +13,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class TransactionService {
+public class TransactionServiceGVA {
 
-    private static final Logger LOG = LogManager.getLogger(TransactionService.class);
-
-    @Autowired
-    private TxRepository txRepository;
+    private static final Logger LOG = LogManager.getLogger(TransactionServiceGVA.class);
 
     @Autowired
-    private SINDEXRepository sRepo;
-
-
+    private juniter.service.core.TransactionService txService;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -49,7 +39,7 @@ public class TransactionService {
     @GraphQLQuery(name = "transactionsOfIssuer", description = "find pending Transactions ")
     @GraphQLNonNull
     public List<@GraphQLNonNull Transaction> transactionsOfIssuer(@GraphQLNonNull @GraphQLArgument(name = "issuer") String issuer) {
-        return txRepository.transactionsOfIssuer(issuer)
+        return txService.transactionsOfIssuer(issuer).stream()
                 .map(t -> modelMapper.map(t, Transaction.class))
                 .collect(Collectors.toList());
     }
@@ -58,7 +48,7 @@ public class TransactionService {
     @GraphQLQuery(name = "transactionsOfReceiver", description = "find Transactions of Receiver")
     @GraphQLNonNull
     public List<@GraphQLNonNull Transaction> transactionsOfReceiver(@GraphQLNonNull @GraphQLArgument(name = "receiver") String receiver) {
-        return txRepository.transactionsOfReceiver(receiver)
+        return txService.transactionsOfReceiver(receiver).stream()
                 .map(t -> modelMapper.map(t, Transaction.class))
                 .collect(Collectors.toList());
     }
@@ -66,8 +56,8 @@ public class TransactionService {
     @Transactional(readOnly = true)
     @GraphQLQuery(name = "transactionByHash", description = "find Transactions ")
     public List<Transaction> transactionByHash(@GraphQLNonNull @GraphQLArgument(name = "hash") String hash) {
-        LOG.info("transactionByHash " + hash + " " + txRepository.findByTHash(hash).size());
-        return txRepository.findByTHash(hash).stream()
+        LOG.info("transactionByHash " + hash + " " + txService.findByTHash(hash).size());
+        return txService.findByTHash(hash).stream()
                 .map(t -> modelMapper.map(t, Transaction.class))
                 .collect(Collectors.toList());
     }
@@ -76,7 +66,7 @@ public class TransactionService {
     @GraphQLQuery(name = "sourcesOfPubkey", description = "find a wallet's sources  ")
     @GraphQLNonNull
     public List<@GraphQLNonNull Source> sourcesOfPubkey(@GraphQLNonNull @GraphQLArgument(name = "pub") String pub) {
-        return sRepo.sourcesOfPubkey(pub).map(SINDEX::asSourceGVA).collect(Collectors.toList());
+        return txService.sourcesOfPubkey(pub).stream().map(SINDEX::asSourceGVA).collect(Collectors.toList());
     }
 
 

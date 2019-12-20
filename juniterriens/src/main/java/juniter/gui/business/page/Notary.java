@@ -107,7 +107,7 @@ public class Notary extends AbstractJuniterFX implements Initializable {
             try {
                 final var parser = juniterParser(CharStreams.fromString(newValue));
                 var doc = parser.doc();
-                assert doc != null : "doc is null";
+                assert doc != null : "Doc is null";
 
 
                 LOG.debug("parsed document \n {}", doc);
@@ -180,7 +180,7 @@ public class Notary extends AbstractJuniterFX implements Initializable {
             //var reqURL = "https://g1.presles.fr"; // FIXME remove when fixed
             reqURL += (reqURL.endsWith("/") ? "" : "/") + dest;
 
-            LOG.info("posting doc to {}\n{}", reqURL, reqBodyData);
+            LOG.info("posting Doc to {}\n{}", reqURL, reqBodyData);
 
             var request = new HttpEntity<>(reqBodyData, headers);
             ResponseEntity response = null;
@@ -190,16 +190,16 @@ public class Notary extends AbstractJuniterFX implements Initializable {
                 response = restTemplate.postForEntity(reqURL, request, Object.class);
 
                 if (response.getStatusCodeValue() != 200) {
-                    throw new AssertionError("post doc error, code {} " + response);
+                    throw new AssertionError("post Doc error, code {} " + response);
                 } else {
-                    LOG.info("successfully sent doc, response : {}", response);
-                    logLocalValid.setText("successfully sent doc, response : " + response);
+                    LOG.info("successfully sent Doc, response : {}", response);
+                    logLocalValid.setText("successfully sent Doc, response : " + response);
                 }
 
             } catch (HttpServerErrorException http) {
-                LOG.warn("error sending doc response {} " + response, http);
+                LOG.warn("error sending Doc response {} " + response, http);
 
-                logLocalValid.setText("error sending doc, response : " + response);
+                logLocalValid.setText("error sending Doc, response : " + response);
             } catch (ResourceAccessException ignored) {
                 LOG.warn("ignored ResourceAccessException (handled as duniter ucode )", ignored );
             } catch (Exception | AssertionError e) {

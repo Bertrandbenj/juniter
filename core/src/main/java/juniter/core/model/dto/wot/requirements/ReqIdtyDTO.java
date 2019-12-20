@@ -24,6 +24,6 @@ public class ReqIdtyDTO {
     List<IdtyCerts> pendingCerts;
     List<IdtyCerts> pendingMemberships;
     Integer membershipPendingExpiresIn ;
-    Integer membershipExpiresIn;
+    Long membershipExpiresIn;
 
 }

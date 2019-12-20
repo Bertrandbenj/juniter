@@ -92,7 +92,7 @@ public class GVAConf implements WebSocketConfigurer {
 
     }
 
-    public boolean simpleWsDispatch(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler) {
+    private boolean simpleWsDispatch(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler) {
         LOG.info("Simple dispatcher " + request.getURI().getPath() + " will use " + wsHandler.getClass().getCanonicalName());
         AtomicBoolean res = new AtomicBoolean(false);
 

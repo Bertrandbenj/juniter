@@ -3,8 +3,8 @@ package juniter.service.web;
 import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dbo.tx.*;
 import juniter.repository.jpa.block.CertsRepository;
-import juniter.repository.jpa.block.TxRepository;
 import juniter.service.core.BlockService;
+import juniter.service.core.TransactionService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,7 +94,7 @@ public class GraphvizService {
     private BlockService blockService;
 
     @Autowired
-    private TxRepository txRepo;
+    private TransactionService txService;
 
     /**
      * Fail safe command execution
@@ -475,7 +475,7 @@ public class GraphvizService {
 
         StringBuilder res = new StringBuilder();
 
-        final var tx = txRepo.findByTHash(hash).get(0);
+        final var tx = txService.findByTHash(hash).get(0);
 
         res.append("digraph{\n" //
                 + "\tgraph [rankdir=").append(rankdir).append("];\n");

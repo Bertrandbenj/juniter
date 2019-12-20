@@ -82,8 +82,8 @@ public class Footer implements Initializable {
     @Scheduled(fixedDelay = 1000 * 60)
     private void refreshPools() {
         docPoolLogMessage.setValue("Identities:" + sandboxes.getPendingIdentities().size() + "/" + sandboxIdtySize +
-                " TX:" + sandboxes.getPendingTransactions().size() + "/" + sandboxTxSize +
-                " Memberships:" + sandboxes.getPendingMemberships().size() + "/" + sandboxMemSize);
+                " - Transaction:" + sandboxes.getPendingTransactions().size() + "/" + sandboxTxSize +
+                " - Memberships:" + sandboxes.getPendingMemberships().size() + "/" + sandboxMemSize);
 
         ws2pLogMessage.set(wsPool.status());
     }

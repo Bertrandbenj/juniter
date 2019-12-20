@@ -63,37 +63,30 @@ public interface TxRepository extends JpaRepository<Transaction, Long> {
     Stream<Transaction> streamAll();
 
 
-    @Query("SELECT t FROM Transaction t INNER JOIN t.issuers i WHERE i = ?1 AND blockstampTime >= ?2 AND blockstampTime <= ?3")
-    Stream<Transaction> transactionsOfIssuerWindowedByTime(String pubkey, String start, String end);
+    @Query("SELECT t FROM Transaction t INNER JOIN t.issuers i WHERE i = ?1 AND t.blockstamp.medianTime >= ?2 AND t.blockstamp.medianTime <= ?3")
+    List<Transaction> transactionsOfIssuerWindowedByTime(String pubkey, Long start, Long end);
 
-    @Query("SELECT t FROM Transaction t WHERE pub = ?1 AND blockstampTime >= ?2 AND blockstampTime <= ?3")
-    Stream<Transaction> transactionsOfReceiverWindowedByTime(String pubkey, String start, String end);
+    @Query("SELECT t FROM Transaction t  INNER JOIN t.outputs o WHERE o.condition LIKE CONCAT('%',?1,'%') AND t.blockstamp.medianTime >= ?2 AND t.blockstamp.medianTime <= ?3")
+    List<Transaction> transactionsOfReceiverWindowedByTime(String pubkey, Long start, Long end);
 
 
     @Query("SELECT t FROM Transaction t INNER JOIN t.issuers i WHERE i = ?1 ")
-    Stream<Transaction> transactionsOfIssuerWindowedByBlock(String pubkey, String start, String end);
+    List<Transaction> transactionsOfIssuerWindowedByBlock(String pubkey, Integer start, Integer end);
 
-    @Query("SELECT t FROM Transaction t WHERE pub = ?1 ")
-    Stream<Transaction> transactionsOfReceiverWindowedByBlock(String pubkey, String start, String end);
+    @Query("SELECT t FROM Transaction t INNER JOIN t.outputs o WHERE o.condition LIKE CONCAT('%',?1,'%') AND t.blockstamp.number >= ?2 AND t.blockstamp.number <= ?3 ")
+    List<Transaction> transactionsOfReceiverWindowedByBlock(String pubkey, Integer start, Integer end);
 
 
     @Query("SELECT t FROM Transaction t INNER JOIN t.outputs o WHERE o.condition LIKE CONCAT('%',:pubkey,'%')")
-    Stream<Transaction> transactionsOfReceiver(@Param("pubkey") String pubkey);
+    List<Transaction> transactionsOfReceiver(@Param("pubkey") String pubkey);
 
-
-    @Query("SELECT t FROM Transaction t INNER JOIN t.outputs o WHERE o.condition LIKE CONCAT('%',:pubkey,'%')")
-    List<Transaction> transactionsOfReceiver_(@Param("pubkey") String pubkey);
 
 
     @Query("SELECT t FROM Transaction t INNER JOIN t.issuers i WHERE i = ?1 ")
-    Stream<Transaction> transactionsOfIssuer(Object pubkey);
+    List<Transaction> transactionsOfIssuer(String pubkey);
 
 
-    @Query("SELECT t FROM Transaction t INNER JOIN t.issuers i WHERE i = ?1 ")
-    List<Transaction> transactionsOfIssuer_(Object pubkey);
-
-
-    @Query(value = "SELECT DISTINCT t.blockstamp.number FROM  Transaction t ORDER BY blockstampTime ")
+    @Query(value = "SELECT DISTINCT blockstamp.number FROM  Transaction t ORDER BY blockstamp.number ")
     List<Integer> withTx();
 
     @Query("SELECT new juniter.core.model.technical.Dividend(number, medianTime, dividend) FROM DBBlock WHERE dividend IS NOT null AND number >= ?1")

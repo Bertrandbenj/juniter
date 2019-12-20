@@ -13,6 +13,7 @@ import juniter.repository.jpa.block.CertsRepository;
 import juniter.repository.jpa.index.CINDEXRepository;
 import juniter.repository.jpa.index.IINDEXRepository;
 import juniter.repository.jpa.index.MINDEXRepository;
+import juniter.service.core.Index;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.apache.logging.log4j.LogManager;
@@ -29,6 +30,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -50,24 +53,52 @@ public class WotService {
     @Autowired
     IINDEXRepository iRepo;
 
+    @Autowired
+    Index index;
+
+
 
     @GetMapping(value = "/requirements/{pubkey}")
     public ReqDTO requirements(@PathVariable("pubkey") String pubkeyOrUid) {
         LOG.info("Entering /wot/requirements/{pubkey= " + pubkeyOrUid + "}");
-        return ReqDTO.builder()
-                .identities(iRepo.search(pubkeyOrUid).stream()
-                        .map(i -> {
 
-                            var certs = cRepo.receivedBy(i.getPub()).stream()
-                                    .map(c -> IdtyCerts.builder()
 
-                                            .build())
-                                    .collect(Collectors.toList());
-                            return ReqIdtyDTO.builder()
-                                    .certifications(certs)
-                                    .build();
-                        })
-                        .collect(Collectors.toList()))
+        return ReqDTO.builder().identities(iRepo.search(pubkeyOrUid).stream()
+                .map(i -> {
+
+                    var mindex = index.reduceM(pubkeyOrUid);
+                    long now = new Date().getTime();
+
+                    var certs = cRepo.receivedBy(i.getPub()).stream()
+                            .map(c -> IdtyCerts.builder()
+                                    .from(c.getIssuer())
+                                    .to(c.getReceiver())
+                                    .expiresIn( c.getExpires_on() - now)
+                                    .sig(c.getSig())
+                                    .timestamp(c.getWritten().getMedianTime())
+                                    .build())
+                            .collect(Collectors.toList());
+
+                    return ReqIdtyDTO.builder()
+                            .expired(false)
+                            .isSentry(true)
+                            .pubkey(i.getPub())
+                            .uid(i.getUid())
+                            .outdistanced(false)
+                            .revoked(false)
+                            .revocation_sig(null)
+                            .revoked_on(null)
+                            .sig(i.getSig())
+                            .certifications(certs)
+                            .pendingCerts(new ArrayList<>())
+                            .pendingMemberships(new ArrayList<>())
+                            .membershipExpiresIn(mindex.map(m->m.getExpires_on()- now).orElse(0L))
+                            .membershipPendingExpiresIn(0)
+                            .wasMember(true)
+                            .meta(MetaLookupString.builder().timestamp(i.getSigned().stamp()).build())
+                            .build();
+                })
+                .collect(Collectors.toList()))
                 .build();
     }
 
@@ -105,7 +136,7 @@ public class WotService {
                     .map(cert -> OtherLookup.builder()
                             .isMember(true)
                             .meta(MetaLookup.builder()
-                                    .timestamp( cert.getWritten())
+                                    .timestamp(cert.getWritten())
                                     .build())
                             .pubkey(cert.getIssuer())
                             .wasMember(true)

@@ -1,16 +1,16 @@
 package juniter.service.bma;
 
+import juniter.core.model.dbo.index.SINDEX;
+import juniter.core.model.dbo.sandbox.TransactionSandboxed;
+import juniter.core.model.dbo.tx.Transaction;
+import juniter.core.model.dto.tx.History;
 import juniter.core.model.dto.tx.Source;
 import juniter.core.model.dto.tx.TransactionDTO;
 import juniter.core.model.dto.tx.TxHistory;
-import juniter.core.model.dbo.index.SINDEX;
-import juniter.core.model.dbo.tx.Transaction;
-import juniter.repository.jpa.block.TxRepository;
-import juniter.repository.jpa.index.SINDEXRepository;
+import juniter.service.core.Sandboxes;
+import juniter.service.core.TransactionService;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
@@ -26,7 +26,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,114 +43,125 @@ public class TxService {
     private static final Logger LOG = LogManager.getLogger(TxService.class);
 
     @Autowired
-    private TxRepository repository;
-
-    @Autowired
-    private SINDEXRepository sRepo;
-
+    private TransactionService txService;
 
     @Autowired
     private ModelMapper modelMapper;
 
-//	@Autowired
-//	private TxInRepository inRepo;
+    @Autowired
+    private Sandboxes sandboxes;
 
 
     @Transactional(readOnly = true)
     @GetMapping(value = "/history/{pubkey}")
     public TxHistory history(@PathVariable("pubkey") String pubkey) {
         // TODO: COMPLETE the history and tidy the result if need be to match the duniter api exactly
-        var sent = new ArrayList<TransactionDTO>();
-        var received = new ArrayList<TransactionDTO>();
+        var sent = txService
+                .transactionsOfIssuer(pubkey).stream()
+                .map(tx -> modelMapper.map(tx, TransactionDTO.class))
+                .collect(Collectors.toList());
+
+        var received = txService.transactionsOfReceiver(pubkey).stream()
+                .map(tx -> modelMapper.map(tx, TransactionDTO.class))
+                .collect(Collectors.toList());
+
         var receiving = new ArrayList<TransactionDTO>();
         var sending = new ArrayList<TransactionDTO>();
         var pending = new ArrayList<TransactionDTO>();
 
-        try (var s = repository.transactionsOfIssuer(pubkey)) {
-            sent.addAll(s.map(tx -> modelMapper.map(tx, TransactionDTO.class)).collect(Collectors.toList()));
-        } catch (Exception e) {
-            LOG.error("tx/history TransactionSentBy ", e);
-        }
 
-        try (var s = repository.transactionsOfReceiver(pubkey)) {
-            received.addAll(s.map(tx -> modelMapper.map(tx, TransactionDTO.class)).collect(Collectors.toList()));
-        } catch (Exception e) {
-            LOG.error("tx/history TransactionReceivedBy ", e);
-        }
-
-        return new TxHistory(pubkey, sent, received, receiving, sending, pending);
+        return TxHistory.builder()
+                .currency("g1")
+                .pubkey(pubkey)
+                .history(History.builder()
+                        .pending(pending)
+                        .received(received)
+                        .receiving(receiving)
+                        .sending(sending)
+                        .sent(sent)
+                        .build())
+                .build();
     }
 
     @Transactional(readOnly = true)
-    @GetMapping(value = "/history/{pubkey}/pending" )
+    @GetMapping(value = "/history/{pubkey}/pending")
     public TxHistory pendingHistory(@PathVariable("pubkey") String pubkey) {
-        LOG.info("Entering /history/{pubkey}/pending " + pubkey  );
+        LOG.info("Entering /history/{pubkey}/pending " + pubkey);
 
         var sent = new ArrayList<TransactionDTO>();
         var received = new ArrayList<TransactionDTO>();
         var receiving = new ArrayList<TransactionDTO>();
         var sending = new ArrayList<TransactionDTO>();
-        var pending = new ArrayList<TransactionDTO>();
+        var pending = sandboxes.getPendingTransactions().stream()
+                .map(tx -> modelMapper.map(tx, TransactionDTO.class))
+                .collect(Collectors.toList());
 
-        //TODO fill from sandboxes AND / OR branch getSize
-
-        return new TxHistory(pubkey, sent, received, receiving, sending, pending);
+        return TxHistory.builder()
+                .currency("g1")
+                .pubkey(pubkey)
+                .history(History.builder()
+                        .pending(pending)
+                        .received(received)
+                        .receiving(receiving)
+                        .sending(sending)
+                        .sent(sent)
+                        .build())
+                .build();
     }
 
     @Transactional(readOnly = true)
-    @GetMapping(value = "/history/{pubkey}/blocks/{from}/{to}" )
+    @GetMapping(value = "/history/{pubkey}/blocks/{from}/{to}")
     public TxHistory historyFilterByBlockRange(@PathVariable("pubkey") String pubkey,
-                                            @PathVariable("pubkey") String from,
-                                            @PathVariable("pubkey") String to) {
+                                               @PathVariable("from") String from,
+                                               @PathVariable("to") String to) {
         LOG.info("Entering /history/{pubkey}/blocks/{from}/{to}.. " + pubkey + " " + from + "->" + to);
 
-        var sent = new ArrayList<TransactionDTO>();
-        var received = new ArrayList<TransactionDTO>();
+        var sent = txService.transactionsOfIssuerWindowedByBlock(pubkey, Integer.parseInt(from), Integer.parseInt(to))
+                .stream()
+                .map(tx -> modelMapper.map(tx, TransactionDTO.class))
+                .collect(Collectors.toList());
+        var received = txService.transactionsOfReceiverWindowedByBlock(pubkey, Integer.parseInt(from), Integer.parseInt(to))
+                .stream().map(tx -> modelMapper.map(tx, TransactionDTO.class)).collect(Collectors.toList());
         var receiving = new ArrayList<TransactionDTO>();
         var sending = new ArrayList<TransactionDTO>();
         var pending = new ArrayList<TransactionDTO>();
-
-        try (var s = repository.transactionsOfIssuerWindowedByBlock(pubkey, from, to)) {
-            sent.addAll(s.map(tx -> modelMapper.map(tx, TransactionDTO.class)).collect(Collectors.toList()));
-        } catch (Exception e) {
-            LOG.error("tx/history TransactionSentBy ", e);
-        }
-
-        try (var s = repository.transactionsOfReceiverWindowedByBlock(pubkey, from, to)) {
-            received.addAll(s.map(tx -> modelMapper.map(tx, TransactionDTO.class)).collect(Collectors.toList()));
-        } catch (Exception e) {
-            LOG.error("tx/history TransactionReceivedBy ", e);
-        }
-
-        return new TxHistory(pubkey, sent, received, receiving, sending, pending);
+        return TxHistory.builder()
+                .currency("g1")
+                .pubkey(pubkey)
+                .history(History.builder()
+                        .pending(pending)
+                        .received(received)
+                        .receiving(receiving)
+                        .sending(sending)
+                        .sent(sent)
+                        .build())
+                .build();
     }
 
 
     @Transactional(readOnly = true)
-    @GetMapping(value = "/history/{pubkey}/times/{from}/{to}" )
-    public TxHistory historyFilterByTimeRange(@PathVariable("pubkey") String pubkey, @PathVariable("pubkey") String from,
-                                           @PathVariable("pubkey") String to) {
+    @GetMapping(value = "/history/{pubkey}/times/{from}/{to}")
+    public TxHistory historyFilterByTimeRange(@PathVariable("pubkey") String pubkey,
+                                              @PathVariable("from") String from,
+                                              @PathVariable("to") String to) {
         LOG.info("Entering /history/{pubkey}/times/{from}/{to}.. " + pubkey + " " + from + "->" + to);
 
-        var sent = new ArrayList<TransactionDTO>();
-        var received = new ArrayList<TransactionDTO>();
+        var sent = txService.transactionsOfIssuerWindowedByTime(pubkey, Long.parseLong(from), Long.parseLong(to)).stream()
+                .map(tx -> modelMapper.map(tx, TransactionDTO.class))
+                .collect(Collectors.toList());
+        var received = txService.transactionsOfReceiver(pubkey).stream() //txService.transactionsOfReceiverWindowedByTime(pubkey, Long.parseLong(from), Long.parseLong(to)).stream()
+                .map(tx -> {
+                    var res = modelMapper.map(tx, TransactionDTO.class);
+                    res.setBlockstampTime(tx.getWritten().getMedianTime());
+                    return res;
+                })
+                .collect(Collectors.toList());
+
         var receiving = new ArrayList<TransactionDTO>();
         var sending = new ArrayList<TransactionDTO>();
         var pending = new ArrayList<TransactionDTO>();
 
-        try (var s = repository.transactionsOfIssuerWindowedByTime(pubkey, from, to)) {
-            sent.addAll(s.map(tx -> modelMapper.map(tx, TransactionDTO.class)).collect(Collectors.toList()));
-        } catch (Exception e) {
-            LOG.error("tx/history TransactionSentBy ", e);
-        }
-
-        try (var s = repository.transactionsOfReceiverWindowedByTime(pubkey, from, to)) {
-            received.addAll(s.map(tx -> modelMapper.map(tx, TransactionDTO.class)).collect(Collectors.toList()));
-        } catch (Exception e) {
-            LOG.error("tx/history TransactionReceivedBy ", e);
-        }
-
-        return new TxHistory(pubkey, sent, received, receiving, sending, pending);
+        return new TxHistory("g1", pubkey, new History(sent, received, receiving, sending, pending));
     }
 
 
@@ -161,7 +171,7 @@ public class TxService {
         LOG.info("Entering /sources/{pubkey= " + pubkey + "}");
         return new Wrapper(
                 pubkey,
-                sRepo.sourcesOfPubkey(pubkey).map(SINDEX::asSourceBMA).collect(Collectors.toList())
+                txService.sourcesOfPubkey(pubkey).stream().map(SINDEX::asSourceBMA).collect(Collectors.toList())
         );
 
     }
@@ -169,7 +179,7 @@ public class TxService {
 
     @Data
     @NoArgsConstructor
-    public class Wrapper   {
+    public class Wrapper {
 
         String currency = "g1";
         String pubkey;
@@ -188,9 +198,13 @@ public class TxService {
 
         LOG.info("POSTING /tx/process ..." + request.getRemoteHost());
 
+
         try {
             BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
             LOG.info(in.lines().collect(Collectors.joining("\n")));
+
+
+            sandboxes.put(new TransactionSandboxed());
         } catch (Exception e) {
             LOG.error("error reading network/peering/peers inputStream ", e);
         }
@@ -198,7 +212,6 @@ public class TxService {
 
         var tx = new Transaction();
         final var headers = new HttpHeaders();
-
 
         return new ResponseEntity<>(tx, headers, HttpStatus.OK);
     }

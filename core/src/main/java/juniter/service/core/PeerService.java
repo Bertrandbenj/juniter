@@ -2,7 +2,10 @@ package juniter.service.core;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import juniter.core.crypto.SecretBox;
+import juniter.core.event.CoreEvent;
+import juniter.core.event.NewBINDEX;
 import juniter.core.event.RenormalizedNet;
+import juniter.core.event.ServerLogin;
 import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dbo.net.EndPoint;
 import juniter.core.model.dbo.net.EndPointType;
@@ -18,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
@@ -47,7 +51,7 @@ import java.util.stream.Collectors;
 @ConditionalOnExpression("${juniter.loader.useDefault:true}") // Must be up for dependencies
 @Service
 @Order(10)
-public class PeerService {
+public class PeerService implements ApplicationListener<CoreEvent> {
 
 
     public static final Logger LOG = LogManager.getLogger(PeerService.class);
@@ -78,6 +82,7 @@ public class PeerService {
     private List<String> configuredNodes;
 
     private SecretBox secretBox = new SecretBox("salt", "password");
+
     @Value("${server.port:8443}")
     private Integer port;
 
@@ -384,6 +389,10 @@ public class PeerService {
         }
     }
 
+    public Peer endPointPeer(){
+        return endPointPeer(blockService.currentBlockNumber());
+    }
+
     /**
      * Create the peer card of this node
      *
@@ -391,7 +400,7 @@ public class PeerService {
      * @return the Peer object
      */
     public Peer endPointPeer(Integer number) {
-        LOG.info("endPointPeer " + number);
+        LOG.debug("endPointPeer " + number);
 
         DBBlock current = blockService.block(number).or(() -> blockService.current()).orElseThrow();
         var peer = new Peer();
@@ -401,12 +410,11 @@ public class PeerService {
         peer.setPubkey(secretBox.getPublicKey());
         peer.setStatus("UP");
 
-        //peer.endpoints().add(new EndPoint("BMAS " + serverName + " " + port));
-        //peer.endpoints().add(new EndPoint("WS2P " + serverName + " " + port));
 
         whatsMyIp().ifPresent(ip -> {
             peer.endpoints().add(new EndPoint("BMAS " + ip + " " + port));
             peer.endpoints().add(new EndPoint("BASIC_MERKLED_API " + ip + " " + port));
+            peer.endpoints().add(new EndPoint("WS2P " + ip + " " + port+" /ws2p"));
         });
 
         //peer.endpoints().add(new EndPoint("BASIC_MERKLED_API " + serverName + " " + " " + port));
@@ -434,4 +442,10 @@ public class PeerService {
         }
     }
 
+    @Override
+    public void onApplicationEvent(CoreEvent event) {
+        if(event instanceof ServerLogin){
+            secretBox = ((ServerLogin)event).getWhat();
+        }
+    }
 }

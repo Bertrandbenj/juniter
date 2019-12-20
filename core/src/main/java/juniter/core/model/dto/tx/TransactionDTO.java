@@ -19,7 +19,7 @@ public class TransactionDTO  {
 
 	private String blockstamp;
 
-	private String blockstampTime;
+	private Long blockstampTime;
 
 
 	private List<String> issuers = new ArrayList<>(); //
@@ -33,6 +33,7 @@ public class TransactionDTO  {
 	private List<String> signatures = new ArrayList<>();
 
 	private String comment;
+
 
 
 }

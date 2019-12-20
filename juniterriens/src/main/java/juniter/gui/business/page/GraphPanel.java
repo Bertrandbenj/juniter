@@ -151,9 +151,9 @@ public class GraphPanel extends AbstractJuniterFX implements Initializable {
                 };
 
                 Document doc = webEngine.getDocument();
-                LOG.debug("doc : " + doc);
+                LOG.debug("Doc : " + doc);
                 if (doc != null) {
-                    // Element el = doc.getElementById("a");
+                    // Element el = Doc.getElementById("a");
                     NodeList aaa = doc.getElementsByTagName("a");
                     LOG.debug("list: " + aaa.getLength());
 

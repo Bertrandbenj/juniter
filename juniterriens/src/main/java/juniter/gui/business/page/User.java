@@ -26,9 +26,9 @@ import juniter.core.model.dbo.tx.Transaction;
 import juniter.core.model.dbo.tx.TxUnlock;
 import juniter.gui.technical.AbstractJuniterFX;
 import juniter.repository.jpa.block.BlockRepository;
-import juniter.repository.jpa.block.TxRepository;
 import juniter.repository.jpa.index.AccountRepository;
 import juniter.service.core.Index;
+import juniter.service.core.TransactionService;
 import juniter.user.UserSettings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -83,7 +83,7 @@ public class User extends AbstractJuniterFX implements Initializable {
     @Autowired
     private Index index;
     @Autowired
-    private TxRepository txRepository;
+    private TransactionService txRepository;
     @Autowired
     private BlockRepository blockRepo;
 
@@ -134,8 +134,8 @@ public class User extends AbstractJuniterFX implements Initializable {
         wallet.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
 
             Platform.runLater(() -> {
-                sentTxList.setAll(txRepository.transactionsOfIssuer_(newValue));
-                receivedTxList.setAll(txRepository.transactionsOfReceiver_(newValue));
+                sentTxList.setAll(txRepository.transactionsOfIssuer(newValue));
+                receivedTxList.setAll(txRepository.transactionsOfReceiver(newValue));
                 refreshAccountOverTime(newValue);
             });
 

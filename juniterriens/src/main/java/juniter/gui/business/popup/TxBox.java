@@ -192,7 +192,7 @@ public class TxBox extends AbstractJuniterFX implements Initializable {
             tx.getOutputs().add(rest);
 
 
-            // set doc to emit
+            // set Doc to emit
             tx.setSignatures(List.of(secretBox.get().sign(tx.toDUPdoc(false))));
 
             doc.setText(tx.toDUPdoc(true));
@@ -230,7 +230,7 @@ public class TxBox extends AbstractJuniterFX implements Initializable {
                             LOG.info("sendDoc response {}", response);
 
                             if (response.getStatusCodeValue() != 200)
-                                throw new AssertionError("post doc status code {} " + response);
+                                throw new AssertionError("post Doc status code {} " + response);
                             else
                                 LOG.info("sendDoc response : {}", response);
 

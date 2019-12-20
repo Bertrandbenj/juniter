@@ -10,10 +10,10 @@ import juniter.core.crypto.SecretBox;
 import juniter.core.model.dbo.index.SINDEX;
 import juniter.core.model.dbo.tx.TxInput;
 import juniter.gui.game.GameBindings;
-import juniter.repository.jpa.block.TxRepository;
 import juniter.repository.jpa.index.AccountRepository;
 import juniter.repository.jpa.index.CINDEXRepository;
 import juniter.repository.jpa.index.SINDEXRepository;
+import juniter.service.core.TransactionService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +53,7 @@ public class LoginPanel implements Initializable {
 
 
     @Autowired
-    private TxRepository txRepo;
+    private TransactionService txService;
 
 
     @Autowired
@@ -87,8 +87,8 @@ public class LoginPanel implements Initializable {
 
 
                 updateMessage("Loading Transactions ");
-                var t1 = txRepo.transactionsOfIssuer_(sb.getPublicKey());
-                var t2 = txRepo.transactionsOfReceiver_(sb.getPublicKey());
+                var t1 = txService.transactionsOfIssuer(sb.getPublicKey());
+                var t2 = txService.transactionsOfReceiver(sb.getPublicKey());
                 txRelated.addAll(t1);
                 txRelated.addAll(t2);
 

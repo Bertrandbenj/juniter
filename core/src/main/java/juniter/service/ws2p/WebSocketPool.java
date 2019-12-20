@@ -2,6 +2,7 @@ package juniter.service.ws2p;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import juniter.core.model.dbo.net.EndPointType;
+import juniter.core.model.wso.Wrapper;
 import juniter.service.core.BlockService;
 import juniter.service.core.PeerService;
 import lombok.Getter;
@@ -72,7 +73,7 @@ public class WebSocketPool {
 
 
     @Autowired
-    private PeerService peerService;
+    PeerService peerService;
 
     @Autowired
     public ObjectMapper jsonMapper;
@@ -85,14 +86,15 @@ public class WebSocketPool {
 
     SSLSocketFactory factory;
 
-    @Value("server.ssl.keyStoreType")
+    @Value("${server.ssl.keyStoreType}")
     private String STORETYPE;
-    @Value("server.ssl.key-store")
+
+    @Value("${server.ssl.key-store}")
     private String KEYSTORE;
-    @Value("server.ssl.key-store-password")
+
+    @Value("${server.ssl.key-store-password}")
     private String STOREPASSWORD;
-    @Value("server.ssl.keyAlias")
-    private String KEYPASSWORD;
+
 
     @PostConstruct
     public void start() {
@@ -104,7 +106,7 @@ public class WebSocketPool {
             ks.load(new FileInputStream(kf), STOREPASSWORD.toCharArray());
 
             KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
-            kmf.init(ks, KEYPASSWORD.toCharArray());
+            kmf.init(ks, STOREPASSWORD.toCharArray());
             TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
             tmf.init(ks);
 
@@ -127,40 +129,46 @@ public class WebSocketPool {
     @Transactional
     @Scheduled(initialDelay = 3 * 60 * 1000, fixedDelay = 10 * 1000)
     public void refreshCurrents() {
-
+        LOG.info("Refreshing Current ");
         if (running.get())
             clients.parallelStream()
                     //.peek(c -> LOG.info("Refreshing Current " + running + " on " + c.getURI() + status()))
-                    .forEach(WebSocketClient::sendPing);
+                    .forEach(c -> c.send(Wrapper.buildPeerDoc(peerService.endPointPeer(blockService.currentBlockNumber()).toDUP(true))));
     }
 
     @Transactional
     @Scheduled(initialDelay = 60 * 1000, fixedDelay = 60 * 1000)//, initialDelay = 10 * 60 * 1000)
     public void reconnectWebSockets() {
 
-        while (clients.remainingCapacity() > 0 && running.get()) {
-            peerService.nextHost(EndPointType.WS2P).ifPresent(ep -> {
-                var client = new WS2PClient(URI.create(ep.getHost()), this);
-                LOG.debug("Connecting to WS endpoint " + client.getURI());
+        if(!running.get())
+            return;
+       // while (clients.remainingCapacity() > 0 && running.get()) {
+            peerService.nextHosts(EndPointType.WS2P, clients.remainingCapacity())
+                    .parallelStream()
+                    .forEach(ep -> {
+                        var client = new WS2PClient(URI.create(ep.getHost()), this);
+                        LOG.debug("Connecting to WS endpoint " + client.getURI());
 
-                try {
-                    client.connectBlocking(15, TimeUnit.SECONDS);
-                } catch (InterruptedException e) {
-                    if (running.get())
-                        LOG.error("reconnectWebSockets ", e);
-                    else
-                        LOG.warn("reconnectWebSockets "); // may be ignored
+                        try {
+                            client.setConnectionLostTimeout(0);
+                            client.connectBlocking();
+                        } catch (Exception e) {
+                            if (running.get())
+                                LOG.error("reconnectWebSockets ", e);
+                            else
+                                LOG.warn("reconnectWebSockets "); // may be ignored
+                        }
+                    });
+        //}
 
-                }
-            });
-        }
 
     }
 
 
     @Scheduled(fixedRate = 1000 * 60, initialDelay = 60 * 1000)
     public void renormalize() {
-        peerService.renormalize(EndPointType.WS2P);
+        if(running.get())
+            peerService.renormalize(EndPointType.WS2P);
     }
 
 

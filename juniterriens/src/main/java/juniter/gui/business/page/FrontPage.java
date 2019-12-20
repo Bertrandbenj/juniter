@@ -162,7 +162,7 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
 
         number.textProperty().bind(currentBindexN.asString());
 
-        // test.setText(txRepo.transactionsOfIssuer_("4weakHxDBMJG9NShULG1g786eeGh7wwntMeLZBDhJFni").singleton(0).getWrittenOn()+"");
+        // test.setText(txRepo.transactionsOfIssuer("4weakHxDBMJG9NShULG1g786eeGh7wwntMeLZBDhJFni").singleton(0).getWrittenOn()+"");
 
         // INIT Binded Properties
         highestDBBlock.setValue(blockService.currentBlockNumber());

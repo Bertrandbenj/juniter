@@ -14,8 +14,8 @@ import juniter.repository.jpa.block.MemberRepository;
 import juniter.repository.jpa.block.ParamsRepository;
 import juniter.repository.jpa.block.TxRepository;
 import juniter.repository.jpa.index.MINDEXRepository;
-import juniter.service.core.BlockService;
 import juniter.service.bma.loader.BlockLoader;
+import juniter.service.core.BlockService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
@@ -130,16 +130,16 @@ public class BlockchainService {
         LOG.info("Entering /blockchain/blocks/{count=" + count + "}/{from=" + from + "}");
 
         final List<Integer> blocksToFind = IntStream.range(from, from + count).boxed().collect(toList());
-        LOG.debug("---blocksToFind: " + blocksToFind);
+        LOG.info("---blocksToFind: " + blocksToFind);
 
         final List<DBBlock> knownBlocks = blockService.blocksIn(blocksToFind).collect(toList());
-        LOG.debug("---known blocks: " + knownBlocks.stream().map(DBBlock::getNumber).collect(toList()));
+        LOG.info("---known blocks: " + knownBlocks.stream().map(DBBlock::getNumber).collect(toList()));
 
         final List<DBBlock> blocksToSave = blocksToFind.stream()
                 .filter(b -> knownBlocks.stream().noneMatch(kb -> kb.getNumber().equals(b)))
                 .map(lg -> defaultLoader.fetchAndSaveBlock(lg)).collect(toList());
 
-        LOG.debug("---fetchTrimmed blocks: " + Stream.concat(blocksToSave.stream(), knownBlocks.stream())
+        LOG.info("---fetchTrimmed blocks: " + Stream.concat(blocksToSave.stream(), knownBlocks.stream())
                 .map(b -> b.getNumber().toString()).collect(joining(",")));
 
         blockService.saveAll(blocksToSave);
@@ -156,7 +156,7 @@ public class BlockchainService {
     public Block current() {
         LOG.info("Entering /blockchain/current");
         final var b = blockService.current()
-                .orElse(defaultLoader.fetchAndSaveBlock("current"));
+                .orElseGet(() -> defaultLoader.fetchAndSaveBlock("current"));
 
         return modelMapper.map(b, Block.class);
     }
@@ -226,6 +226,13 @@ public class BlockchainService {
     public ChainParametersDTO parameters(@PathVariable(name = "ccy", required = false) Optional<String> ccy) {
         return modelMapper.map(blockService.paramsByCCY(ccy.orElse("g1")), ChainParametersDTO.class);
     }
+
+    @CrossOrigin(origins = "*")
+    @GetMapping(value = "/parameters")
+    public ChainParametersDTO parameter() {
+        return modelMapper.map(blockService.paramsByCCY("g1"), ChainParametersDTO.class);
+    }
+
 
     @CrossOrigin(origins = "*")
     @Transactional(readOnly = true)

@@ -7,9 +7,8 @@ import juniter.core.crypto.SecretBox;
 import juniter.core.event.*;
 import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dbo.index.BINDEX;
-import juniter.core.model.dbo.net.EndPointType;
-import juniter.core.model.dto.raw.Wrapper;
 import juniter.core.model.dto.raw.WrapperBlock;
+import juniter.core.model.wso.Wrapper;
 import juniter.service.ws2p.WebSocketPool;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,7 +27,6 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
-import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -174,7 +172,7 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
 
     private boolean postBlock(DBBlock block) {
         AtomicBoolean success = new AtomicBoolean(false);
-        Wrapper reqBodyData = new WrapperBlock(block.toDUP(true,true) +"\n");
+        juniter.core.model.dto.raw.Wrapper reqBodyData = new WrapperBlock(block.toDUP(true,true) +"\n");
 
 
         Lists.newArrayList("https://duniter.moul.re","https://g1.presles.fr:443","https://g1.duniter.fr:443").forEach(host -> {
@@ -197,14 +195,14 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
                 response = restTemplate.postForEntity(reqURL, request, Object.class);
 
                 if (response.getStatusCodeValue() != 200) {
-                    throw new AssertionError("post doc error, code {} " + response);
+                    throw new AssertionError("post Doc error, code {} " + response);
                 } else {
-                    LOG.info("successfully sent doc, response : {}", response);
+                    LOG.info("successfully sent Doc, response : {}", response);
                     success.set(true);
                 }
 
             } catch (HttpServerErrorException http) {
-                LOG.warn("error sending doc response {} " + response, http);
+                LOG.warn("error sending Doc response {} " + response, http);
 
             } catch (ResourceAccessException ignored) {
                 LOG.warn("ignored ResourceAccessException (handled as duniter ucode )", ignored);
@@ -215,9 +213,9 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
 
         });
 
-        wsPool.getClients().forEach(wsClient -> {
-            wsClient.send(reqBodyData.toString());
-        });
+        wsPool.getClients()
+                .parallelStream()
+                .forEach(wsClient -> wsClient.send(Wrapper.buildBlockDoc(block.toDUP())));
 
         return success.get();
     }

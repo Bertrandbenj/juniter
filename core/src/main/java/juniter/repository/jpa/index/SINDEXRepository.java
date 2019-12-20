@@ -51,7 +51,7 @@ public interface SINDEXRepository extends JpaRepository<SINDEX, Long> {
     Stream<SINDEX> sourceNotConsumed();
 
     @Query("SELECT sindex from SINDEX sindex WHERE identifier = ?1 AND  consumed = false")
-    Stream<SINDEX> sourcesOfPubkey(String pubkey);
+    List<SINDEX> sourcesOfPubkey(String pubkey);
 
     @Query("SELECT sindex from SINDEX sindex WHERE  ( identifier = ?1 OR conditions = CONCAT('SIG(',?1,')')) AND  consumed = false")
     List<SINDEX> sourcesOfPubkeyL(String pubkey);

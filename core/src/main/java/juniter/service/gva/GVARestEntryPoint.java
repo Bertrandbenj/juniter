@@ -41,7 +41,7 @@ public class GVARestEntryPoint  {
     @Autowired
     private ObjectMapper objectMapper;
 
-    public GVARestEntryPoint(GVABlockService bService, TransactionService tService, WoTService wService) {
+    public GVARestEntryPoint(GVABlockService bService, TransactionServiceGVA tService, WoTService wService) {
 
         // configure
         final GraphQLSchema schema = new GraphQLSchemaGenerator()
@@ -49,7 +49,7 @@ public class GVARestEntryPoint  {
                 .withResolverBuilders(new AnnotatedResolverBuilder())
                 .withOperationsFromSingleton(new Ticker())
                 .withOperationsFromSingleton(bService, GVABlockService.class)
-                .withOperationsFromSingleton(tService, TransactionService.class)
+                .withOperationsFromSingleton(tService, TransactionServiceGVA.class)
                 .withOperationsFromSingleton(wService, WoTService.class)
                 //.withOperationsFromSingleton(wMutate, WoTMutation.class)
                 .withValueMapperFactory(new JacksonValueMapperFactory())

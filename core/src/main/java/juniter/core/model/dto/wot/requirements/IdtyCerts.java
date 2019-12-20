@@ -7,6 +7,10 @@ import lombok.Data;
 @Data
 public class IdtyCerts {
 
-
+    String from;
+    String to;
+    String sig ;
+    Long timestamp;
+    Long expiresIn;
 
 }

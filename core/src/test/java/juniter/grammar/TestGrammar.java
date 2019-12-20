@@ -56,7 +56,7 @@ public class TestGrammar implements BlockExamples {
 	public void testCertification() throws Exception {
 		final var parser = juniterParser(CharStreams.fromFileName(folder + "certif.dup"));
 		var doc = parser.doc();
-		assert doc !=null : "doc is null" ;
+		assert doc !=null : "Doc is null" ;
 		System.out.println(doc);
 	}
 
@@ -68,7 +68,7 @@ public class TestGrammar implements BlockExamples {
 
 		var doc = parser.doc();
 
-		assert doc !=null : "doc is null" ;
+		assert doc !=null : "Doc is null" ;
 		LOG.info(doc);
 	}
 
@@ -100,8 +100,8 @@ public class TestGrammar implements BlockExamples {
 				wot.signature().getText(), //
 				idty.issuer().getText()));
 
-		// assertTrue("Assert generated doc is valid",
-		// visitor.visit(parser.doc()).isValid());
+		// assertTrue("Assert generated Doc is valid",
+		// visitor.visit(parser.Doc()).isValid());
 
 	}
 
@@ -139,7 +139,7 @@ public class TestGrammar implements BlockExamples {
 	public void testMembership() throws Exception {
 		final var parser = juniterParser(CharStreams.fromFileName(folder + "membership.dup"));
 		var doc = parser.doc();
-		assert doc !=null : "doc is null" ;
+		assert doc !=null : "Doc is null" ;
 	}
 
 	@Test
@@ -147,7 +147,7 @@ public class TestGrammar implements BlockExamples {
 		final var parser = juniterParser(CharStreams.fromFileName(folder + "peer.dup"));
 		var doc = parser.doc();
 
-		assert doc !=null : "doc is null" ;
+		assert doc !=null : "Doc is null" ;
 		LOG.info(doc);
 	}
 
@@ -158,10 +158,10 @@ public class TestGrammar implements BlockExamples {
 		final var parser = juniterParser(CharStreams.fromFileName(folder + "revocation.dup"));
 
 		var doc = parser.doc();
-		assert  doc !=null : "doc is null" ;
+		assert  doc !=null : "Doc is null" ;
 		LOG.info(doc);
 
-		//Document d = visitor.visitDoc(doc);
+		//Document d = visitor.visitDoc(Doc);
 		//assert ! d.isValid() : "document is invalid ";
 
 	}
@@ -311,13 +311,13 @@ public class TestGrammar implements BlockExamples {
 
 	private void testOneDoc(String docString){
 		var doc = juniterParser(CharStreams.fromString(docString)).doc();
-		assert doc !=null : "doc is null" ;
+		assert doc !=null : "Doc is null" ;
 		LOG.info(doc);
 	}
 
 	private void testFailDoc(String docString){
 		var doc = juniterParser(CharStreams.fromString(docString)).doc();
-		assert doc == null : "doc should be null" ;
+		assert doc == null : "Doc should be null" ;
 		LOG.info(doc);
 	}
 
@@ -326,7 +326,7 @@ public class TestGrammar implements BlockExamples {
 	public void WRONG_SIGNATURE() {
 		final var parser = juniterParser(CharStreams.fromString(WRONG_SIGNATURE));
 		var doc = parser.doc();
-		assert  doc !=null : "doc is null" ;
+		assert  doc !=null : "Doc is null" ;
 		LOG.info(doc);
 	}
 
@@ -334,7 +334,7 @@ public class TestGrammar implements BlockExamples {
 	public void VALID_ROOT() {
 		final var parser = juniterParser(CharStreams.fromString(VALID_ROOT));
 		var doc = parser.doc();
-		assert  doc !=null : "doc is null" ;
+		assert  doc !=null : "Doc is null" ;
 		LOG.info(doc);
 	}
 
@@ -342,7 +342,7 @@ public class TestGrammar implements BlockExamples {
 	public void WRONG_PROOF_OF_WORK() {
 		final var parser = juniterParser(CharStreams.fromString(WRONG_PROOF_OF_WORK));
 		var doc = parser.doc();
-		assert  doc !=null : "doc is null" ;
+		assert  doc !=null : "Doc is null" ;
 		LOG.info(doc);
 	}
 
@@ -350,7 +350,7 @@ public class TestGrammar implements BlockExamples {
 	public void ROOT_WITHOUT_PARAMETERS() {
 		final var parser = juniterParser(CharStreams.fromString(ROOT_WITHOUT_PARAMETERS));
 		var doc = parser.doc();
-		assert  doc !=null : "doc is null" ;
+		assert  doc !=null : "Doc is null" ;
 		LOG.info(doc);
 	}
 
@@ -358,7 +358,7 @@ public class TestGrammar implements BlockExamples {
 	public void NON_ROOT_WITH_PARAMETERS() {
 		final var parser = juniterParser(CharStreams.fromString(NON_ROOT_WITH_PARAMETERS));
 		var doc = parser.doc();
-		assert  doc !=null : "doc is null" ;
+		assert  doc !=null : "Doc is null" ;
 		LOG.info(doc);
 	}
 
@@ -366,67 +366,67 @@ public class TestGrammar implements BlockExamples {
 	public void ROOT_WITH_PREVIOUS_HASH() {
 		final var parser = juniterParser(CharStreams.fromString(ROOT_WITH_PREVIOUS_HASH));
 		var doc = parser.doc();
-		assert  doc !=null : "doc is null" ;
+		assert  doc !=null : "Doc is null" ;
 		LOG.info(doc);
 	}
 	@Test
 	public void ROOT_WITH_PREVIOUS_ISSUER() {
 		final var parser = juniterParser(CharStreams.fromString(ROOT_WITH_PREVIOUS_ISSUER));
 		var doc = parser.doc();
-		assert  doc !=null : "doc is null" ;
+		assert  doc !=null : "Doc is null" ;
 		LOG.info(doc);
 	}	@Test
 	public void NON_ROOT_WITHOUT_PREVIOUS_HASH() {
 		final var parser = juniterParser(CharStreams.fromString(NON_ROOT_WITHOUT_PREVIOUS_HASH));
 		var doc = parser.doc();
-		assert  doc !=null : "doc is null" ;
+		assert  doc !=null : "Doc is null" ;
 		LOG.info(doc);
 	}
 	@Test
 	public void NON_ROOT_WITHOUT_PREVIOUS_ISSUER() {
 		final var parser = juniterParser(CharStreams.fromString(NON_ROOT_WITHOUT_PREVIOUS_ISSUER));
 		var doc = parser.doc();
-		assert  doc !=null : "doc is null" ;
+		assert  doc !=null : "Doc is null" ;
 		LOG.info(doc);
 	}
 	@Test
 	public void COLLIDING_UIDS() {
 		final var parser = juniterParser(CharStreams.fromString(COLLIDING_UIDS));
 		var doc = parser.doc();
-		assert  doc !=null : "doc is null" ;
+		assert  doc !=null : "Doc is null" ;
 		LOG.info(doc);
 	}	@Test
 	public void COLLIDING_PUBKEYS() {
 		final var parser = juniterParser(CharStreams.fromString(COLLIDING_PUBKEYS));
 		var doc = parser.doc();
-		assert  doc !=null : "doc is null" ;
+		assert  doc !=null : "Doc is null" ;
 		LOG.info(doc);
 	}
 	@Test
 	public void WRONG_DATE_LOWER() {
 		final var parser = juniterParser(CharStreams.fromString(WRONG_DATE_LOWER));
 		var doc = parser.doc();
-		assert  doc !=null : "doc is null" ;
+		assert  doc !=null : "Doc is null" ;
 		LOG.info(doc);
 	}
 	@Test
 	public void WRONG_DATE_HIGHER_BUT_TOO_FEW() {
 		final var parser = juniterParser(CharStreams.fromString(WRONG_DATE_HIGHER_BUT_TOO_FEW));
 		var doc = parser.doc();
-		assert  doc !=null : "doc is null" ;
+		assert  doc !=null : "Doc is null" ;
 		LOG.info(doc);
 	}	@Test
 	public void WRONG_DATE_HIGHER_BUT_TOO_HIGH() {
 		final var parser = juniterParser(CharStreams.fromString(WRONG_DATE_HIGHER_BUT_TOO_HIGH));
 		var doc = parser.doc();
-		assert  doc !=null : "doc is null" ;
+		assert  doc !=null : "Doc is null" ;
 		LOG.info(doc);
 	}
 	@Test
 	public void WRONG_ROOT_TIMES() {
 		final var parser = juniterParser(CharStreams.fromString(WRONG_ROOT_TIMES));
 		var doc = parser.doc();
-		assert  doc !=null : "doc is null" ;
+		assert  doc !=null : "Doc is null" ;
 		LOG.info(doc);
 	}
 
@@ -434,7 +434,7 @@ public class TestGrammar implements BlockExamples {
 	public void GOOD_DATE_HIGHER() {
 		final var parser = juniterParser(CharStreams.fromString(GOOD_DATE_HIGHER));
 		var doc = parser.doc();
-		assert  doc !=null : "doc is null" ;
+		assert  doc !=null : "Doc is null" ;
 		LOG.info(doc);
 	}
 
@@ -444,7 +444,7 @@ public class TestGrammar implements BlockExamples {
 	public void WRONG_IDTY_MATCH_JOINS() {
 		final var parser = juniterParser(CharStreams.fromString(WRONG_IDTY_MATCH_JOINS));
 		var doc = parser.doc();
-		assert  doc !=null : "doc is null" ;
+		assert  doc !=null : "Doc is null" ;
 		LOG.info(doc);
 	}
 
@@ -453,7 +453,7 @@ public class TestGrammar implements BlockExamples {
 	public void MULTIPLE_JOINERS() {
 		final var parser = juniterParser(CharStreams.fromString(MULTIPLE_JOINERS));
 		var doc = parser.doc();
-		assert  doc !=null : "doc is null" ;
+		assert  doc !=null : "Doc is null" ;
 		LOG.info(doc);
 	}
 
@@ -461,7 +461,7 @@ public class TestGrammar implements BlockExamples {
 	public void MULTIPLE_ACTIVES() {
 		final var parser = juniterParser(CharStreams.fromString(MULTIPLE_ACTIVES));
 		var doc = parser.doc();
-		assert  doc !=null : "doc is null" ;
+		assert  doc !=null : "Doc is null" ;
 		LOG.info(doc);
 	}
 
@@ -470,7 +470,7 @@ public class TestGrammar implements BlockExamples {
 	public void MULTIPLE_LEAVES() {
 		final var parser = juniterParser(CharStreams.fromString(MULTIPLE_LEAVES));
 		var doc = parser.doc();
-		assert  doc !=null : "doc is null" ;
+		assert  doc !=null : "Doc is null" ;
 		LOG.info(doc);
 	}
 
@@ -478,7 +478,7 @@ public class TestGrammar implements BlockExamples {
 	public void MULTIPLE_EXCLUDED() {
 		final var parser = juniterParser(CharStreams.fromString(MULTIPLE_EXCLUDED));
 		var doc = parser.doc();
-		assert  doc !=null : "doc is null" ;
+		assert  doc !=null : "Doc is null" ;
 		LOG.info(doc);
 	}
 
@@ -486,7 +486,7 @@ public class TestGrammar implements BlockExamples {
 	public void MULTIPLE_OVER_ALL() {
 		final var parser = juniterParser(CharStreams.fromString(MULTIPLE_OVER_ALL));
 		var doc = parser.doc();
-		assert  doc !=null : "doc is null" ;
+		assert  doc !=null : "Doc is null" ;
 		LOG.info(doc);
 	}
 
@@ -495,7 +495,7 @@ public class TestGrammar implements BlockExamples {
 	public void MULTIPLE_CERTIFICATIONS_FROM_SAME_ISSUER() {
 		final var parser = juniterParser(CharStreams.fromString(MULTIPLE_CERTIFICATIONS_FROM_SAME_ISSUER));
 		var doc = parser.doc();
-		assert  doc !=null : "doc is null" ;
+		assert  doc !=null : "Doc is null" ;
 		LOG.info(doc);
 	}
 
@@ -503,7 +503,7 @@ public class TestGrammar implements BlockExamples {
 	public void IDENTICAL_CERTIFICATIONS() {
 		final var parser = juniterParser(CharStreams.fromString(IDENTICAL_CERTIFICATIONS));
 		var doc = parser.doc();
-		assert  doc !=null : "doc is null" ;
+		assert  doc !=null : "Doc is null" ;
 		LOG.info(doc);
 	}
 
@@ -511,7 +511,7 @@ public class TestGrammar implements BlockExamples {
 	public void LEAVER_WITH_CERTIFICATIONS() {
 		final var parser = juniterParser(CharStreams.fromString(LEAVER_WITH_CERTIFICATIONS));
 		var doc = parser.doc();
-		assert  doc !=null : "doc is null" ;
+		assert  doc !=null : "Doc is null" ;
 		LOG.info(doc);
 	}
 
@@ -519,7 +519,7 @@ public class TestGrammar implements BlockExamples {
 	public void EXCLUDED_WITH_CERTIFICATIONS() {
 		final var parser = juniterParser(CharStreams.fromString(EXCLUDED_WITH_CERTIFICATIONS));
 		var doc = parser.doc();
-		assert  doc !=null : "doc is null" ;
+		assert  doc !=null : "Doc is null" ;
 		LOG.info(doc);
 	}
 
