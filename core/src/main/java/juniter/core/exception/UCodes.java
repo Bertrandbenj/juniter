@@ -2,16 +2,6 @@ package juniter.core.exception;
 
 public interface UCodes {
 
-    class UCode {
-        int number;
-        String message;
-
-        UCode(int number, String message) {
-            this.number = number;
-            this.message = message;
-        }
-    }
-
     // Technical errors
     UCode UNKNOWN = new UCode(1001, "An unknown error occured");
     UCode UNHANDLED = new UCode(1002, "An unhandled error occured");

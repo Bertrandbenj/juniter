@@ -186,3 +186,15 @@ management.endpoint.prometheus.enabled: true
 management.metrics.export.prometheus.enabled: true
     
 
+
+
+management.metrics.export.atlas:
+  # The location of your Atlas server
+  uri: http://localhost:7101/api/v1/publish
+
+  # You will probably want to conditionally disable Atlas publishing in local development.
+  enabled: true
+
+  # The interval at which metrics are sent to Atlas. The default is 1 minute.
+  step: 1m
+

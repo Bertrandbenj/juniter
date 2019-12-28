@@ -2,6 +2,7 @@ package juniter.service.core;
 
 
 import com.google.common.collect.Lists;
+import io.micrometer.core.annotation.Timed;
 import juniter.core.crypto.Crypto;
 import juniter.core.crypto.SecretBox;
 import juniter.core.event.*;
@@ -70,7 +71,8 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
     @Autowired
     private Sandboxes sandboxes;
 
-    private SecretBox sb = new SecretBox("salt", "password");
+    @Autowired
+    private SecretBox serverSecret;
 
     private ExecutorService executor;
 
@@ -121,7 +123,7 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
         block.setMembers(sandboxes.getPendingMemberships());
         block.setIdentities(sandboxes.getPendingIdentities());
         block.setTransactions(sandboxes.getPendingTransactions());
-        block.setIssuer(sb.getPublicKey());
+        block.setIssuer(serverSecret.getPublicKey());
 
         indexForForge.setSize(block.getSize());
 
@@ -132,9 +134,10 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
 
     private AtomicBoolean forge = new AtomicBoolean(false);
 
+    @Timed(longTask = true, histogram = true, value = "forkhead.parallelProver")
     private DBBlock parallelProver(String ccy) {
         AtomicReference<DBBlock> found = new AtomicReference<>();
-        var tryHead = index.prepareIndexForForge(sb.getPublicKey());
+        var tryHead = index.prepareIndexForForge(serverSecret.getPublicKey());
         var newBlock1 = forge(tryHead);
         LOG.info("Searching for powMin {}, powZeros {}, powRemainder {} on Forged block \n{}" ,
                 tryHead.getPowMin(), tryHead.getPowZeros(), tryHead.getPowRemainder(), newBlock1.toDUP());
@@ -148,7 +151,7 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
                 do {
                     nonce++;
                     newBlock.setNonce(nonce);
-                    newBlock.setSignature(sb.sign(newBlock.signedPart()));
+                    newBlock.setSignature(serverSecret.sign(newBlock.signedPart()));
 
                     hash = Crypto.hash(newBlock.signedPartSigned());
                     if (hash.startsWith("0000")) {
@@ -260,7 +263,7 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
                 reverted.incrementAndGet();
             }
         } else if (event instanceof ServerLogin) {
-            sb = ((ServerLogin) event).getWhat();
+            serverSecret = ((ServerLogin) event).getWhat();
 
         } else if (event instanceof Indexing) {
             if (!((Indexing) event).getWhat()) { // if we stopped indexing

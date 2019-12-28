@@ -2,9 +2,7 @@ package juniter.grammar;
 
 import juniter.core.validation.LocalValid;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 
 @Data
@@ -47,6 +45,7 @@ public class MembershipDoc implements WotDocument, LocalValid {
 		return unsignedDoc() + signature + "\n";
 	}
 
+	@Override
 	public String unsignedDoc() {
 		return "Version: " + version + "\n" +
 				"Type: Membership\n" +

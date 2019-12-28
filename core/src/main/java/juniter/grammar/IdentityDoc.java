@@ -2,9 +2,7 @@ package juniter.grammar;
 
 import juniter.core.validation.LocalValid;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 
 @Data
@@ -41,6 +39,7 @@ public class IdentityDoc implements WotDocument, LocalValid {
     public String toString() {
         return unsignedDoc() + signature + "\n";
     }
+    @Override
 
     public String unsignedDoc() {
         return "Version: " + version + "\n" + //

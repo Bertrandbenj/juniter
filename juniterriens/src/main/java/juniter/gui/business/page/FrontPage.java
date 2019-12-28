@@ -15,11 +15,11 @@ import javafx.stage.Stage;
 import juniter.core.model.dbo.index.BINDEX;
 import juniter.gui.technical.AbstractJuniterFX;
 import juniter.gui.technical.PageName;
-import juniter.repository.jpa.index.BINDEXRepository;
-import juniter.service.core.BlockService;
-import juniter.service.core.PeerService;
 import juniter.service.bma.loader.BlockLoader;
 import juniter.service.bma.loader.MissingBlocksLoader;
+import juniter.service.core.BlockService;
+import juniter.service.core.Index;
+import juniter.service.core.PeerService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,7 +72,7 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
     private MissingBlocksLoader mBlockLoader;
 
     @Autowired
-    private BINDEXRepository bRepo;
+    private Index index;
 
     @Autowired
     private BlockService blockService;
@@ -129,7 +129,7 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-        currentBindexN.bind(Bindings.createIntegerBinding(()->currentBindex.get().getNumber(),currentBindex));
+        currentBindexN.bind(Bindings.createIntegerBinding(() -> currentBindex.get().getNumber(), currentBindex));
         loadBar.progressProperty().bind(dlRatio);
 
         peerProp.set(peers);
@@ -139,7 +139,7 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
 
         n.textProperty().bind(Bindings.createStringBinding(() -> {
                     var mc = currentBindex.get().getMembersCount();
-                    var h24 = bRepo.byNum(currentBindexN.get() - 288, "g1")
+                    var h24 = index.getBRepo().byNum(currentBindexN.get() - 288, "g1")
                             .map(BINDEX::getMembersCount)
                             .map(x -> mc - x)
                             .orElse(0);
@@ -166,9 +166,9 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
 
         // INIT Binded Properties
         highestDBBlock.setValue(blockService.currentBlockNumber());
-        currenBlock.setValue(blockService.current().orElseGet(() -> blockLoader.fetchAndSaveBlock("current")));
+        currenBlock.setValue(blockService.currentOrFetch());
         currentDBBlockNum.setValue(blockService.currentBlockNumber());
-        currentBindex.setValue(bRepo.head().orElse(BINDEX.before0()));
+        currentBindex.setValue(index.head().orElse(BINDEX.before0()));
 
     }
 

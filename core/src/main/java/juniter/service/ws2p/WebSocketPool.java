@@ -42,7 +42,7 @@ public class WebSocketPool {
     private static final Logger LOG = LogManager.getLogger(WebSocketPool.class);
 // Create a trust manager that does not validate certificate chains like the default
 
-    TrustManager[] trustAllCerts = new TrustManager[]{
+    private TrustManager[] trustAllCerts = new TrustManager[]{
             new X509TrustManager() {
 
                 public java.security.cert.X509Certificate[] getAcceptedIssuers() {
@@ -109,8 +109,7 @@ public class WebSocketPool {
             TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
             tmf.init(ks);
 
-            SSLContext sslContext = null;
-            sslContext = SSLContext.getInstance("TLS");
+            SSLContext sslContext = SSLContext.getInstance("TLS");
             sslContext.init(kmf.getKeyManagers(), trustAllCerts, null);
             // sslContext.init( null, null, null ); // will use java's default key and trust store which is sufficient unless you deal with self-signed certificates
 
@@ -139,25 +138,25 @@ public class WebSocketPool {
     @Scheduled(initialDelay = 60 * 1000, fixedDelay = 60 * 1000)//, initialDelay = 10 * 60 * 1000)
     public void reconnectWebSockets() {
 
-        if(!running.get())
+        if (!running.get())
             return;
-       // while (clients.remainingCapacity() > 0 && running.get()) {
-            peerService.nextHosts(EndPointType.WS2P, clients.remainingCapacity())
-                    .parallelStream()
-                    .forEach(ep -> {
-                        var client = new WS2PClient(URI.create(ep.getHost()), this);
-                        LOG.debug("Connecting to WS endpoint " + client.getURI());
+        // while (clients.remainingCapacity() > 0 && running.get()) {
+        peerService.nextHosts(EndPointType.WS2P, clients.remainingCapacity())
+                .parallelStream()
+                .forEach(ep -> {
+                    var client = new WS2PClient(URI.create(ep.getHost()), this);
+                    LOG.debug("Connecting to WS endpoint " + client.getURI());
 
-                        try {
-                            client.setConnectionLostTimeout(0);
-                            client.connectBlocking();
-                        } catch (Exception e) {
-                            if (running.get())
-                                LOG.error("reconnectWebSockets ", e);
-                            else
-                                LOG.warn("reconnectWebSockets "); // may be ignored
-                        }
-                    });
+                    try {
+                        client.setConnectionLostTimeout(0);
+                        client.connectBlocking();
+                    } catch (Exception e) {
+                        if (running.get())
+                            LOG.error("reconnectWebSockets ", e);
+                        else
+                            LOG.warn("reconnectWebSockets "); // may be ignored
+                    }
+                });
         //}
 
 
@@ -166,7 +165,7 @@ public class WebSocketPool {
 
     @Scheduled(fixedRate = 1000 * 60, initialDelay = 60 * 1000)
     public void renormalize() {
-        if(running.get())
+        if (running.get())
             peerService.renormalize(EndPointType.WS2P);
     }
 

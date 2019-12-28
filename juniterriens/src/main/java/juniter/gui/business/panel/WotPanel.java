@@ -7,7 +7,7 @@ import javafx.scene.layout.VBox;
 import juniter.core.crypto.SecretBox;
 import juniter.core.model.dbo.index.IINDEX;
 import juniter.grammar.*;
-import juniter.repository.jpa.index.IINDEXRepository;
+import juniter.service.core.Index;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
@@ -90,10 +90,8 @@ public class WotPanel implements Initializable {
 
 
     @Autowired
-    private IINDEXRepository iRepo;
+    private Index index;
 
-    @Autowired
-    private IINDEXRepository mRepo;
 
     private Document doc;
 
@@ -123,8 +121,8 @@ public class WotPanel implements Initializable {
         boxMembership.managedProperty().bind(boxMembership.visibleProperty());
         boxRevocation.managedProperty().bind(boxRevocation.visibleProperty());
         pk.textProperty().addListener(c -> {
-            var assocIdentity = iRepo.byUidOrPubkey(null, pk.getText()).get(0);
-            var assocMembership = mRepo.byUidOrPubkey(null, pk.getText()).get(0);
+            var assocIdentity = index.getIRepo().byUidOrPubkey(null, pk.getText()).get(0);
+            var assocMembership = index.getIRepo().byUidOrPubkey(null, pk.getText()).get(0);
 
             useridMem.setText(assocIdentity.getUid());
             certTSMem.setText(assocMembership.getSigned().toString());
@@ -143,14 +141,14 @@ public class WotPanel implements Initializable {
 
         switchIdty();
 
-        cbReceiver.getItems().setAll(iRepo.findAll().stream()
+        cbReceiver.getItems().setAll(index.getIRepo().findAll().stream()
                 .filter(i -> i.getUid() != null)
                 .sorted(Comparator.comparing(IINDEX::getUid)).collect(Collectors.toList()));
 
         cbReceiver.setCellFactory(t -> new IdentityListCell());
 
         cbReceiver.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            var assocIdentity = iRepo.byUidOrPubkey(null, newValue.getPub()).get(0);
+            var assocIdentity = index.getIRepo().byUidOrPubkey(null, newValue.getPub()).get(0);
             idtyIssuerCert.setText(assocIdentity.getPub());
             idtyUniqueIDCert.setText(assocIdentity.getUid());
             idtyTimestampCert.setText(assocIdentity.getSigned().toString());

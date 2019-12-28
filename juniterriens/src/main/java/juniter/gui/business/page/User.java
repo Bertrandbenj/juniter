@@ -79,13 +79,10 @@ public class User extends AbstractJuniterFX implements Initializable {
     private UserSettings userSettings = new UserSettings();
 
     @Autowired
-    private AccountRepository accountRepository;
-    @Autowired
     private Index index;
     @Autowired
     private TransactionService txRepository;
-    @Autowired
-    private BlockRepository blockRepo;
+
 
     @Autowired
     private EntityManager em;
@@ -145,7 +142,7 @@ public class User extends AbstractJuniterFX implements Initializable {
             });
 
             Platform.runLater(() -> {
-                account.setText(accountRepository.accountOf(newValue).getBSum() + "");
+                account.setText(index.getAccountRepo().accountOf(newValue).getBSum() + "");
             });
 
         });

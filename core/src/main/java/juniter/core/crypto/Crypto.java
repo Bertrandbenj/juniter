@@ -7,8 +7,6 @@ import org.abstractj.kalium.NaCl.Sodium;
 import org.abstractj.kalium.crypto.Util;
 
 import java.nio.charset.Charset;
-import java.util.Random;
-import java.util.stream.IntStream;
 
 import static org.abstractj.kalium.NaCl.sodium;
 
@@ -19,7 +17,7 @@ public class Crypto extends Util {
 		public final A a;
 		public final B b;
 
-		public Tuple(A a, B b) {
+		Tuple(A a, B b) {
 			this.a = a;
 			this.b = b;
 		}
@@ -33,13 +31,13 @@ public class Crypto extends Util {
 		}
 
 	}
-	public static final Charset CHARSET_UTF8 = Charset.forName("UTF-8");
+	private static final Charset CHARSET_UTF8 = Charset.forName("UTF-8");
 
-	public static final Charset CHARSET_ASCII = Charset.forName("US-ASCII");
+	private static final Charset CHARSET_ASCII = Charset.forName("US-ASCII");
 
 	private static final int SIGNATURE_BYTES = 64;
 
-	protected final static char[] HEX_CHARS = "0123456789ABCDEF".toCharArray();
+	private final static char[] HEX_CHARS = "0123456789ABCDEF".toCharArray();
 
 	private static final Sodium naCl = NaCl.sodium();
 
@@ -63,7 +61,7 @@ public class Crypto extends Util {
 		return new String(hexChars);
 	}
 
-	public static byte[] decodeAscii(String string) {
+	static byte[] decodeAscii(String string) {
 		return string.getBytes(CHARSET_ASCII);
 	}
 
@@ -75,25 +73,25 @@ public class Crypto extends Util {
 		}
 	}
 
-	public static byte[] decodeBase64(String data) {
+	private static byte[] decodeBase64(String data) {
 		return Base64.decode(data.toCharArray());
 	}
 
-	public static byte[] decodeUTF8(String string) {
+	static byte[] decodeUTF8(String string) {
 		return string.getBytes(CHARSET_UTF8);
 	}
 
-	public static String encodeBase58(byte[] data) {
-		return Base58.encode(data);
-	}
+//	public static String encodeBase58(byte[] data) {
+//		return Base58.encode(data);
+//	}
 
-	public static String encodeBase64(byte[] data) {
+	static String encodeBase64(byte[] data) {
 		return new String(Base64.encode(data));
 	}
 
-	public static String encodeUTF8(byte[] bytes) {
-		return new String(bytes, CHARSET_UTF8);
-	}
+//	public static String encodeUTF8(byte[] bytes) {
+//		return new String(bytes, CHARSET_UTF8);
+//	}
 
 	//	private static Charset initCharset(String charsetName) {
 	//		final Charset result = Charset.forName(charsetName);
@@ -109,64 +107,26 @@ public class Crypto extends Util {
 		return bytesToHex(hash).toUpperCase();
 	}
 
-	public static String pow(int difficulty, String innerHash) {
-		final IntStream is;
-
-		return new Random()
-				.ints()
-				.mapToObj(nonce -> "InnerHash: " + innerHash + "\nNonce: " + nonce + "\n")
-				.map(signedPartSigned -> hash(signedPartSigned))
-				.takeWhile(hash -> hash.startsWith("000"))
-				.findAny()
-				.get();
-	}
-
-	public static Tuple<String, Integer> pow2(int difficulty, String innerHash) {
-
-		final var found = false;
-
-		while (!found) {
-
-			final Integer nonce = new Random().nextInt();
-			final String signPartSign = "InnerHash: " + innerHash + "\nNonce: " + nonce + "\n";
-			final String hash = hash(signPartSign);
-
-			final boolean unvalid = hash
-					.substring(0, difficulty)
-					.chars()
-					.anyMatch(c -> (char) c != '0');
-
-			if (!unvalid)
-				return new Tuple<String, Integer>(hash, nonce);
-
-		}
-
-	}
 
 	private static boolean verify(byte[] message, byte[] signature, byte[] publicKey) {
 		final byte[] sigAndMsg = new byte[SIGNATURE_BYTES + message.length];
-		for (int i = 0; i < SIGNATURE_BYTES; i++) {
-			sigAndMsg[i] = signature[i];
-		}
-		for (int i = 0; i < message.length; i++) {
-			sigAndMsg[i + SIGNATURE_BYTES] = message[i];
-		}
+		System.arraycopy(signature, 0, sigAndMsg, 0, SIGNATURE_BYTES);
+		System.arraycopy(message, 0, sigAndMsg, 64, message.length);
 		final byte[] buffer = new byte[SIGNATURE_BYTES + message.length];
 		final LongLongByReference bufferLength = new LongLongByReference(0);
 
 		final int result = sodium().crypto_sign_ed25519_open(buffer, bufferLength, sigAndMsg, sigAndMsg.length,
 				publicKey);
-		final boolean validSignature = result == 0;
-		return validSignature;
+		return result == 0;
 	}
 
 	/**
 	 * Verify a signature against data & public key. Return true of false as
 	 * callback argument.
 	 *
-	 * @param rawMsg
-	 * @param rawSig
-	 * @param rawPub
+	 * @param rawMsg the message to verify
+	 * @param rawSig the signature of the message
+	 * @param rawPub the author of the message
 	 */
 
 	public static boolean verify(String rawMsg, String rawSig, String rawPub) {

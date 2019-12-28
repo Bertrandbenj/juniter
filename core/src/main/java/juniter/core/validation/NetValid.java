@@ -41,8 +41,8 @@ public class NetValid {
 	 * return crypto .createHash("sha256") .update(str) .digest("hex")
 	 * .toUpperCase()
 	 *
-	 * @param b
-	 * @return
+	 * @param b a block
+	 * @return the hash of a block
 	 */
 	public static String hash(DBBlock b) {
 		final var res = "";

@@ -1,5 +1,6 @@
 package juniter.service.core;
 
+import io.micrometer.core.annotation.Timed;
 import juniter.core.event.DecrementCurrent;
 import juniter.core.event.NewBINDEX;
 import juniter.core.event.NewBlock;
@@ -15,6 +16,7 @@ import juniter.core.model.dto.node.BlockNetworkMeta;
 import juniter.core.validation.BlockLocalValid;
 import juniter.repository.jpa.block.BlockRepository;
 import juniter.repository.jpa.block.ParamsRepository;
+import juniter.service.bma.loader.BlockLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
@@ -37,6 +39,9 @@ public class BlockService implements BlockLocalValid, ApplicationListener<NewBIN
     private BlockRepository blockRepo;
 
     @Autowired
+    private BlockLoader blockLoader;
+
+    @Autowired
     private ApplicationEventPublisher coreEventBus;
 
     @Autowired
@@ -57,6 +62,11 @@ public class BlockService implements BlockLocalValid, ApplicationListener<NewBIN
         return blockRepo.block(num);
     }
 
+    public DBBlock blockOrFetch(Integer num) {
+        return block(num).orElseGet(() -> blockLoader.fetchAndSaveBlock(num));
+    }
+
+
     public long count() {
         return blockRepo.count();
     }
@@ -70,9 +80,9 @@ public class BlockService implements BlockLocalValid, ApplicationListener<NewBIN
         return blockRepo.findTop1ByNumber(num);
     }
 
-    public Optional<DBBlock> current(Integer num) {
-        return blockRepo.findTop1ByNumber(num);
-    }
+    //public Optional<DBBlock> current(Integer num) {
+    //    return blockRepo.findTop1ByNumber(num);
+    //}
 
 
     private Optional<DBBlock> blockOpt(Integer num, String hash) {
@@ -108,9 +118,15 @@ public class BlockService implements BlockLocalValid, ApplicationListener<NewBIN
         blockRepo.saveAll(blocksToSave);
     }
 
+    @Timed(value = "blockservice_current")
     public Optional<DBBlock> current() {
         return blockRepo.findTop1ByOrderByNumberDesc();
     }
+
+    public DBBlock currentOrFetch() {
+        return current().orElseGet(() -> blockLoader.fetchAndSaveBlock("current"));
+    }
+
 
     private DBBlock current(String ccy) {
         return blockRepo.current(ccy, currents.get(ccy));

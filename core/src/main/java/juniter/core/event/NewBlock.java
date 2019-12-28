@@ -5,7 +5,7 @@ import juniter.core.model.dbo.DBBlock;
 
 public class NewBlock extends CoreEvent<DBBlock> {
 
-    public NewBlock(DBBlock what, String message) {
+    private NewBlock(DBBlock what, String message) {
         super(what, message);
         name = getClass().getSimpleName();
     }

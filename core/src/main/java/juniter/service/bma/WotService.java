@@ -10,9 +10,6 @@ import juniter.core.model.dto.wot.requirements.IdtyCerts;
 import juniter.core.model.dto.wot.requirements.ReqDTO;
 import juniter.core.model.dto.wot.requirements.ReqIdtyDTO;
 import juniter.repository.jpa.block.CertsRepository;
-import juniter.repository.jpa.index.CINDEXRepository;
-import juniter.repository.jpa.index.IINDEXRepository;
-import juniter.repository.jpa.index.MINDEXRepository;
 import juniter.service.core.Index;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -45,35 +42,24 @@ public class WotService {
     private CertsRepository certsRepo;
 
     @Autowired
-    private CINDEXRepository cRepo;
-
-    @Autowired
-    private MINDEXRepository mRepo;
-
-    @Autowired
-    private IINDEXRepository iRepo;
-
-    @Autowired
     private Index index;
-
-
 
     @GetMapping(value = "/requirements/{pubkey}")
     public ReqDTO requirements(@PathVariable("pubkey") String pubkeyOrUid) {
         LOG.info("Entering /wot/requirements/{pubkey= " + pubkeyOrUid + "}");
 
 
-        return ReqDTO.builder().identities(iRepo.search(pubkeyOrUid).stream()
+        return ReqDTO.builder().identities(index.getIRepo().search(pubkeyOrUid).stream()
                 .map(i -> {
 
                     var mindex = index.reduceM(pubkeyOrUid);
-                    long now = new Date().getTime()/1000;
+                    long now = new Date().getTime() / 1000;
 
-                    var certs = cRepo.receivedBy(i.getPub()).stream()
+                    var certs = index.getCRepo().receivedBy(i.getPub()).stream()
                             .map(c -> IdtyCerts.builder()
                                     .from(c.getIssuer())
                                     .to(c.getReceiver())
-                                    .expiresIn( c.getExpires_on() - now)
+                                    .expiresIn(c.getExpires_on() - now)
                                     .sig(c.getSig())
                                     .timestamp(c.getWritten().getMedianTime())
                                     .build())
@@ -92,7 +78,7 @@ public class WotService {
                             .certifications(certs)
                             .pendingCerts(new ArrayList<>())
                             .pendingMemberships(new ArrayList<>())
-                            .membershipExpiresIn(mindex.map(m->m.getExpires_on() - now).orElse(0L))
+                            .membershipExpiresIn(mindex.map(m -> m.getExpires_on() - now).orElse(0L))
                             .membershipPendingExpiresIn(0)
                             .wasMember(true)
                             .meta(MetaLookupString.builder().timestamp(i.getSigned().stamp()).build())
@@ -130,9 +116,9 @@ public class WotService {
         LOG.info("Entering /wot/lookup/{pubkeyOrUid= " + pubkeyOrUid + "}");
 
 
-        var ids = iRepo.search(pubkeyOrUid).stream().map(i -> {
-            var m = mRepo.member(i.getPub()).stream().reduce(MINDEX.reducer);
-            var c = cRepo.receivedBy(i.getPub()).stream()
+        var ids = index.getIRepo().search(pubkeyOrUid).stream().map(i -> {
+            var m = index.getMRepo().member(i.getPub()).stream().reduce(MINDEX.reducer);
+            var c = index.getCRepo().receivedBy(i.getPub()).stream()
                     .map(cert -> OtherLookup.builder()
                             .isMember(true)
                             .meta(MetaLookup.builder()
@@ -175,7 +161,7 @@ public class WotService {
     @GetMapping(value = "/members")
     public MembersDTO members() {
         LOG.info("Entering /wot/members");
-        return new MembersDTO(iRepo.members());
+        return new MembersDTO(index.getIRepo().members());
     }
 
     @Data

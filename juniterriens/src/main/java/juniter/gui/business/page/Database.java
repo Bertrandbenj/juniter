@@ -1,7 +1,6 @@
 package juniter.gui.business.page;
 
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -26,7 +25,6 @@ import javafx.util.Callback;
 import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.index.*;
 import juniter.gui.technical.AbstractJuniterFX;
-import juniter.repository.jpa.index.*;
 import juniter.service.core.BlockService;
 import juniter.service.core.Index;
 import org.apache.logging.log4j.LogManager;
@@ -44,8 +42,6 @@ import java.net.URL;
 import java.util.Date;
 import java.util.ResourceBundle;
 import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static juniter.gui.JuniterBindings.*;
 import static juniter.gui.technical.Formats.DATETIME_FORMAT;
@@ -57,17 +53,8 @@ public class Database extends AbstractJuniterFX implements Initializable {
     private static final Logger LOG = LogManager.getLogger(Database.class);
 
     @Autowired
-    private BINDEXRepository bRepo;
-    @Autowired
-    private CINDEXRepository cRepo;
-    @Autowired
-    private IINDEXRepository iRepo;
-    @Autowired
-    private MINDEXRepository mRepo;
-    @Autowired
-    private SINDEXRepository sRepo;
-    @Autowired
     private Index index;
+
     @Autowired
     private BlockService blockService;
 
@@ -104,7 +91,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
     private ComboBox<String> jpql;
 
     @FXML
-    private  Button
+    private Button
             index1Button,
             pauseButton,
             indexUntilButton;
@@ -228,7 +215,6 @@ public class Database extends AbstractJuniterFX implements Initializable {
     private ProgressBar indexBar;
 
 
-
     @FXML
     public void indexUntil() {
 
@@ -345,7 +331,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
         col.getColumns().setAll(numCol, hashCol, timeCol);
     }
 
-    private void clipboardOnClick(TableView<?> table ){
+    private void clipboardOnClick(TableView<?> table) {
         final Clipboard clipboard = Clipboard.getSystemClipboard();
 
         table.getSelectionModel().selectedItemProperty().addListener((obs, old, newSelection) -> {
@@ -506,8 +492,8 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
 
         // ===================   FANCY COLORS  =================
-        final var headTime = bRepo.head().map(BINDEX::getNumber);
-        final var bindexsize = bRepo.count();
+        final var headTime = index.head().map(BINDEX::getNumber);
+        final var bindexsize = index.getBRepo().count();
         bNumberCol.setCellFactory(t -> new TextFieldTableCell<>() {
 
 
@@ -541,13 +527,13 @@ public class Database extends AbstractJuniterFX implements Initializable {
             if (newSelection != null) {
                 LOG.info("onSelect  " + newSelection.getNumber() + "-" + newSelection.getHash() + "   " + newSelection);
 
-                iindex.setAll(iRepo.writtenOn(newSelection.getNumber(), newSelection.getHash()));
+                iindex.setAll(index.getIRepo().writtenOn(newSelection.getNumber(), newSelection.getHash()));
 
-                cindex.setAll(cRepo.writtenOn(newSelection.getNumber(), newSelection.getHash()));
+                cindex.setAll(index.getCRepo().writtenOn(newSelection.getNumber(), newSelection.getHash()));
 
-                mindex.setAll(mRepo.writtenOn(newSelection.getNumber(), newSelection.getHash()));
+                mindex.setAll(index.getMRepo().writtenOn(newSelection.getNumber(), newSelection.getHash()));
 
-                sindex.setAll(sRepo.writtenOn(newSelection.getNumber(), newSelection.getHash()));
+                sindex.setAll(index.getSRepo().writtenOn(newSelection.getNumber(), newSelection.getHash()));
 
             }
         });
@@ -561,10 +547,10 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
         indexRatio.isEqualTo(1).addListener((observable, oldValue, newValue) -> {
             if (newValue)
-                bindex.setAll(bRepo.findAll());
+                bindex.setAll(index.getBRepo().findAll());
         });
 
-        bindex.setAll(bRepo.findAll());
+        bindex.setAll(index.getBRepo().findAll());
 
         Platform.runLater(this::reload);
     }
@@ -698,7 +684,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
                 fields[i] = (fields[i].contains("AS") ? fields[i].substring(fields[i].indexOf("AS") + 2) : fields[i]).trim();
 
                 var tc = new TableColumn<>(fields[i]);
-                tableQuery .getColumns().add(tc);
+                tableQuery.getColumns().add(tc);
                 tc.setCellValueFactory(createArrayValueFactory(o -> (Object[]) o, i));
                 tableQuery.getItems().clear();
                 list.forEach(c -> {
@@ -745,19 +731,19 @@ public class Database extends AbstractJuniterFX implements Initializable {
             var currentPage = page.get();
             paging.getChildren().clear();
 
-            var b0 = new Hyperlink(  "<<");
+            var b0 = new Hyperlink("<<");
             b0.setOnAction(ev -> page.set(0));
             paging.getChildren().add(b0);
 
-            for(int i = Math.max(0,currentPage-3); i< currentPage+3; i++){
+            for (int i = Math.max(0, currentPage - 3); i < currentPage + 3; i++) {
                 int finalI = i;
                 var b = new Hyperlink(i + "");
                 b.setOnAction(ev -> page.set(finalI));
                 paging.getChildren().add(b);
             }
 
-            var bmax = new Hyperlink(  ">>");
-            bmax.setOnAction(ev -> page.set((int)Math.ceil(cnt/(double)pageSize)));
+            var bmax = new Hyperlink(">>");
+            bmax.setOnAction(ev -> page.set((int) Math.ceil(cnt / (double) pageSize)));
             paging.getChildren().add(bmax);
 
             list.setAll(repo.findAll(PageRequest.of(page.getValue(), pageSize)).getContent());
@@ -768,11 +754,11 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
     @FXML
     public void reload() {
-        reload(bindex, bRepo, pagingB, pageB, txCountB);
-        reload(cindex, cRepo, pagingC, pageC, txCountC);
-        reload(iindex, iRepo, pagingI, pageI, txCountI);
-        reload(mindex, mRepo, pagingM, pageM, txCountM);
-        reload(sindex, sRepo, pagingS, pageS, txCountS);
+        reload(bindex, index.getBRepo(), pagingB, pageB, txCountB);
+        reload(cindex, index.getCRepo(), pagingC, pageC, txCountC);
+        reload(iindex, index.getIRepo(), pagingI, pageI, txCountI);
+        reload(mindex, index.getMRepo(), pagingM, pageM, txCountM);
+        reload(sindex, index.getSRepo(), pagingS, pageS, txCountS);
 
         tabPane.requestLayout();
     }

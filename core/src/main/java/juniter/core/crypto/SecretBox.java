@@ -7,9 +7,11 @@ import org.abstractj.kalium.crypto.Util;
 
 import java.security.GeneralSecurityException;
 
-import static org.abstractj.kalium.NaCl.Sodium.*;
+import static org.abstractj.kalium.NaCl.Sodium.CRYPTO_BOX_CURVE25519XSALSA20POLY1305_PUBLICKEYBYTES;
+import static org.abstractj.kalium.NaCl.Sodium.CRYPTO_BOX_CURVE25519XSALSA20POLY1305_SECRETKEYBYTES;
 import static org.abstractj.kalium.NaCl.sodium;
-import static org.abstractj.kalium.crypto.Util.*;
+import static org.abstractj.kalium.crypto.Util.checkLength;
+import static org.abstractj.kalium.crypto.Util.isValid;
 
 /*
  * #%L
@@ -37,31 +39,19 @@ public class SecretBox {
 
     // Length of the key
     private static int SEED_LENGTH = 32;
-    private static int SIGNATURE_BYTES = 64;
-    private static int SCRYPT_PARAMS_N = 4096;
-    private static int SCRYPT_PARAMS_r = 16;
-    private static int SCRYPT_PARAMS_p = 1;
-
-    private static byte[] computeSeedFromSaltAndPassword(String salt, String password) {
-        try {
-            final byte[] seed = SCrypt.scrypt(Crypto.decodeAscii(password), Crypto.decodeAscii(salt),
-                    SCRYPT_PARAMS_N, SCRYPT_PARAMS_r, SCRYPT_PARAMS_p, SEED_LENGTH);
-            return seed;
-        } catch (final GeneralSecurityException e) {
-            throw new TechnicalException("Unable to salt password, using Scrypt library", e);
-        }
-    }
 
     private final String pubKey;
     private final byte[] secretKey;
 
-    private final byte[] seed;
+    public SecretBox(String pub, byte[] sec) {
+        secretKey = sec;
+        pubKey = pub;
+    }
 
     public SecretBox(byte[] seed) {
         checkLength(seed, SEED_LENGTH);
-        this.seed = seed;
-        secretKey = Crypto.zeros(SECRETKEY_BYTES * 2);
-        final byte[] publicKey = Crypto.zeros(PUBLICKEY_BYTES);
+        secretKey = Crypto.zeros(CRYPTO_BOX_CURVE25519XSALSA20POLY1305_SECRETKEYBYTES * 2);
+        final byte[] publicKey = Crypto.zeros(CRYPTO_BOX_CURVE25519XSALSA20POLY1305_PUBLICKEYBYTES);
         isValid(sodium().crypto_sign_ed25519_seed_keypair(publicKey, secretKey, seed), "Failed to generate a key pair");
         pubKey = Base58.encode(publicKey);
     }
@@ -70,27 +60,41 @@ public class SecretBox {
         this(computeSeedFromSaltAndPassword(salt, password));
     }
 
-    public byte[] decrypt(byte[] nonce, byte[] ciphertext) {
-        checkLength(nonce, XSALSA20_POLY1305_SECRETBOX_NONCEBYTES);
-        final byte[] ct = Util.prependZeros(BOXZERO_BYTES, ciphertext);
-        final byte[] message = Util.zeros(ct.length);
-        isValid(sodium().crypto_secretbox_xsalsa20poly1305_open(message, ct, ct.length, nonce, seed),
-                "Decryption failed. Ciphertext failed verification");
-        return removeZeros(ZERO_BYTES, message);
+    private static byte[] computeSeedFromSaltAndPassword(String salt, String password) {
+        try {
+            int SCRYPT_PARAMS_N = 4096;
+            int SCRYPT_PARAMS_r = 16;
+            int SCRYPT_PARAMS_p = 1;
+
+            return SCrypt.scrypt(Crypto.decodeAscii(password), Crypto.decodeAscii(salt),
+                    SCRYPT_PARAMS_N, SCRYPT_PARAMS_r, SCRYPT_PARAMS_p, SEED_LENGTH);
+        } catch (final GeneralSecurityException e) {
+            throw new TechnicalException("Unable to salt password, using Scrypt library", e);
+        }
     }
 
-    public byte[] encrypt(byte[] nonce, byte[] message) {
-        checkLength(nonce, XSALSA20_POLY1305_SECRETBOX_NONCEBYTES);
-        final byte[] msg = Util.prependZeros(ZERO_BYTES, message);
-        final byte[] ct = Util.zeros(msg.length);
-        isValid(sodium().crypto_secretbox_xsalsa20poly1305(ct, msg, msg.length, nonce, seed), "Encryption failed");
-        return removeZeros(BOXZERO_BYTES, ct);
-    }
+
+
+//    public byte[] decrypt(byte[] nonce, byte[] ciphertext) {
+//        checkLength(nonce, CRYPTO_SECRETBOX_XSALSA20POLY1305_NONCEBYTES);
+//        final byte[] ct = Util.prependZeros(CRYPTO_BOX_CURVE25519XSALSA20POLY1305_BOXZEROBYTES, ciphertext);
+//        final byte[] message = Util.zeros(ct.length);
+//        //isValid(sodium().crypto_secretbox_xsalsa20poly1305_open(message, ct, ct.length, nonce, seed),"Decryption failed. Ciphertext failed verification");
+//        return removeZeros(CRYPTO_BOX_CURVE25519XSALSA20POLY1305_ZEROBYTES, message);
+//    }
+
+//    public byte[] encrypt(byte[] nonce, byte[] message) {
+//        checkLength(nonce, CRYPTO_SECRETBOX_XSALSA20POLY1305_NONCEBYTES);
+//        final byte[] msg = Util.prependZeros(CRYPTO_BOX_CURVE25519XSALSA20POLY1305_ZEROBYTES, message);
+//        final byte[] ct = Util.zeros(msg.length);
+//        //isValid(sodium().crypto_secretbox_xsalsa20poly1305(ct, msg, msg.length, nonce, seed), "Encryption failed");
+//        return removeZeros(CRYPTO_BOX_CURVE25519XSALSA20POLY1305_BOXZEROBYTES, ct);
+//    }
 
     /**
      * Retrun the public key, encode in Base58
      *
-     * @return
+     * @return the public Key
      */
     public String getPublicKey() {
         return pubKey;
@@ -99,13 +103,14 @@ public class SecretBox {
     /**
      * Return the secret key, encode in Base58
      *
-     * @return
+     * @return the secretKey
      */
     public String getSecretKey() {
         return Base58.encode(secretKey);
     }
 
-    public byte[] sign(byte[] message) {
+    private byte[] sign(byte[] message) {
+        int SIGNATURE_BYTES = 64;
         byte[] signature = Util.prependZeros(SIGNATURE_BYTES, message);
         final LongLongByReference bufferLen = new LongLongByReference(0);
         sodium().crypto_sign_ed25519(signature, bufferLen, message, message.length, secretKey);

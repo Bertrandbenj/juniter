@@ -6,6 +6,9 @@ import io.leangen.graphql.annotations.GraphQLMutation;
 import io.leangen.graphql.annotations.GraphQLNonNull;
 import io.leangen.graphql.annotations.GraphQLQuery;
 import juniter.core.model.dbo.index.SINDEX;
+import juniter.core.model.gva.Source;
+import juniter.core.model.gva.Transaction;
+import juniter.service.core.TransactionService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
@@ -22,7 +25,7 @@ public class TransactionServiceGVA {
     private static final Logger LOG = LogManager.getLogger(TransactionServiceGVA.class);
 
     @Autowired
-    private juniter.service.core.TransactionService txService;
+    private TransactionService txService;
 
     @Autowired
     private ModelMapper modelMapper;

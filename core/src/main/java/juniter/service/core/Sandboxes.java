@@ -1,6 +1,6 @@
 package juniter.service.core;
 
-import juniter.core.model.technical.DUPDocument;
+import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dbo.sandbox.CertificationSandboxed;
 import juniter.core.model.dbo.sandbox.IdentitySandboxed;
 import juniter.core.model.dbo.sandbox.MemberSandboxed;
@@ -11,6 +11,7 @@ import juniter.core.model.dbo.wot.Identity;
 import juniter.core.model.dbo.wot.Member;
 import juniter.core.model.dto.node.SandBoxesDTO;
 import juniter.core.model.dto.node.UnitDTO;
+import juniter.core.model.technical.DUPDocument;
 import juniter.repository.jpa.sandbox.CertsSandboxRepository;
 import juniter.repository.jpa.sandbox.IdtySandboxRepository;
 import juniter.repository.jpa.sandbox.MembershipSandboxRepository;
@@ -18,7 +19,6 @@ import juniter.repository.jpa.sandbox.TxSandboxRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -103,22 +103,19 @@ public class Sandboxes {
         return cSandRepo.findAll().stream().map(is -> modelMapper.map(is, Certification.class)).collect(Collectors.toList());
     }
 
+    /**
+     *
+     * @param block the block that contains data to be cleared from the sandbox
+     */
     @Transactional
-    void removeTx(List<String> collect) {
-        tSandRepo.deleteByHashs(collect);
+    void trim(DBBlock block){
+
+        block.getTransactions().stream().map(Transaction::getHash).forEach(t->tSandRepo.deleteByHash(t));
+
+        block.getIdentities().stream().map(Identity::getPubkey).forEach(i-> iSandRepo.deleteByPubkey(i));
+
+        block.getMembers().stream().map(Member::getPubkey).forEach(m->mSandRepo.deleteByPubkey(m));
     }
 
-    @Transactional
-    void removeIdty(List<String> collect) {
-        for (String s : collect) {
-            iSandRepo.deleteByPubkey(s);
-        }
-    }
 
-    @Transactional
-    void removeMemberships(List<String> collect) {
-        for (String s : collect) {
-            mSandRepo.deleteByPubkey(s);
-        }
-    }
 }

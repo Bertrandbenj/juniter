@@ -24,8 +24,6 @@ public class GVABlockService {
 	@Autowired
 	private BlockService blockService;
 
-
-
 	@Autowired
 	private ModelMapper modelMapper;
 

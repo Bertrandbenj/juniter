@@ -10,9 +10,7 @@ import juniter.core.crypto.SecretBox;
 import juniter.core.model.dbo.index.SINDEX;
 import juniter.core.model.dbo.tx.TxInput;
 import juniter.gui.game.GameBindings;
-import juniter.repository.jpa.index.AccountRepository;
-import juniter.repository.jpa.index.CINDEXRepository;
-import juniter.repository.jpa.index.SINDEXRepository;
+import juniter.service.core.Index;
 import juniter.service.core.TransactionService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -49,19 +47,12 @@ public class LoginPanel implements Initializable {
 
 
     @Autowired
-    private CINDEXRepository cRepo;
+    private Index index;
 
 
     @Autowired
     private TransactionService txService;
 
-
-    @Autowired
-    private SINDEXRepository sRepo;
-
-
-    @Autowired
-    private AccountRepository accountRepository;
 
     public LoginPanel() {
     }
@@ -77,11 +68,11 @@ public class LoginPanel implements Initializable {
         Task<Void> task = new Task<>() {
 
             @Override
-            protected Void call() throws InterruptedException{
+            protected Void call() throws InterruptedException {
 
                 updateMessage("Loading certificates ");
-                var c1 = cRepo.receivedBy(sb.getPublicKey());
-                var c2 = cRepo.issuedBy(sb.getPublicKey());
+                var c1 = index.getCRepo().receivedBy(sb.getPublicKey());
+                var c2 = index.getCRepo().issuedBy(sb.getPublicKey());
                 certsRelated.addAll(c1);
                 certsRelated.addAll(c2);
 
@@ -93,7 +84,7 @@ public class LoginPanel implements Initializable {
                 txRelated.addAll(t2);
 
                 updateMessage("Loading Sources ");
-                var ss = sRepo.sourcesOfPubkeyL(sb.getPublicKey()).stream()
+                var ss = index.getSRepo().sourcesOfPubkeyL(sb.getPublicKey()).stream()
                         //.peek(x -> LOG.info("found SINDEX " + x))
                         .sorted(Comparator.comparingInt(SINDEX::getAmount))
                         .map(s -> new TxInput(s.getAmount() + ":" + s.getBase() + ":" + s.type() + ":" + s.getIdentifier() + ":" + s.getPos()))
@@ -103,7 +94,7 @@ public class LoginPanel implements Initializable {
 
                 updateMessage("Loading account");
                 playing.set(true);
-                GameBindings.money.setValue(accountRepository.accountOf(sb.getPublicKey()).getBSum());
+                GameBindings.money.setValue(index.getAccountRepo().accountOf(sb.getPublicKey()).getBSum());
 
                 return null;
             }

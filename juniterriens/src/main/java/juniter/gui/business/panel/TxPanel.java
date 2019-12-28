@@ -16,9 +16,8 @@ import juniter.core.model.dbo.tx.Transaction;
 import juniter.core.model.dbo.tx.TxInput;
 import juniter.core.model.dbo.tx.TxOutput;
 import juniter.core.model.dbo.tx.TxUnlock;
-import juniter.repository.jpa.index.SINDEXRepository;
+import juniter.service.core.Index;
 import juniter.user.UnitDisplay;
-import juniter.user.UserSettings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,7 +93,7 @@ public class TxPanel implements Initializable {
     private Transaction tx;
 
     @Autowired
-    private SINDEXRepository sRepo;
+    private Index index;
 
 
     @Override
@@ -186,7 +185,7 @@ public class TxPanel implements Initializable {
 
                 inputs.addAll(
 
-                        sRepo.availableSourcesOfPub(sb.getPublicKey()).stream()
+                        index.getSRepo().availableSourcesOfPub(sb.getPublicKey()).stream()
                                 .sorted(Comparator.comparingInt(SINDEX::getAmount))
                                 .limit(40)
                                 .takeWhile(s -> ai.getAndAdd(s.getAmount()) < amount)

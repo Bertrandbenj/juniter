@@ -18,13 +18,6 @@ public class TestCrypto {
 		// TODO
 	}
 
-	@Test
-	public void testPowFunction(){
-		final var powHashNonce = Crypto.pow2(4, "huhuhahaha");
-
-		assertTrue("POW not starting with four 0 ", powHashNonce.getA().startsWith("0000"));
-
-	}
 
 	@Test
 	public void testSignatureFunction() {

@@ -15,35 +15,6 @@ import java.util.Map;
 @RequestMapping("/html")
 public class HtmlService {
 	private static final Logger LOG = LogManager.getLogger(HtmlService.class);
-	
-//	@Autowired
-//	private RequestMappingHandlerMapping handlerMapping;
-//
-//	@RequestMapping(value = {"","/"},  method = RequestMethod.GET)
-//	public String home(Map<String, Object> model) {
-//		LOG.info("Entering /html ...");
-//		var mappings = handlerMapping.getHandlerMethods();
-//		var paths = mappings.keySet()//
-//				.stream()//
-//				.flatMap(h -> h.getPatternsCondition().getPatterns().stream())//
-//				.sorted() //
-//				.collect(toList());
-//
-//		var tpath = paths.stream().collect(toMap(
-//									k -> k.split("/")[1],
-//									v -> Stream.of(v.substring(v.split("/")[1].length()+1)).filter(s-> s.length()>1).collect(toList()),
-//									(v1,v2) -> Stream.concat(v1.stream(), v2.stream()).collect(toList()) ));
-//		var treeMap = new TreeMap<String, List<String>>();
-//		treeMap.putAll(tpath);
-////		LOG.info("mappings "+ mappings);
-////		LOG.info("paths " +  paths);
-//		LOG.info("tpath " + tpath);
-//		model.queue("time", new Date());
-//		model.queue("mappings",treeMap);
-//		model.queue("message", "Welcome");
-//		model.queue("title", "Welcome");
-//		return "home";
-//	}
 
 	@GetMapping(value = "/tx")
 	public String tx(Map<String, Object> model) {

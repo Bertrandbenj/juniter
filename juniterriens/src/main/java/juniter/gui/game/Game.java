@@ -15,7 +15,7 @@ import juniter.gui.game.characters.WhiteRabbit;
 import juniter.gui.game.screens.Room;
 import juniter.gui.game.screens.TheBeginning;
 import juniter.gui.technical.I18N;
-import juniter.repository.jpa.index.MINDEXRepository;
+import juniter.service.core.Index;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +52,7 @@ public class Game implements Initializable {
 
 
     @Autowired
-    public MINDEXRepository mRepo;
+    public Index index;
 
     public static List<String> expiryList;
 
@@ -99,7 +99,7 @@ public class Game implements Initializable {
             long today = System.currentTimeMillis() / 1000L;
             long yesterday = today - 86400;
 
-            expiryList = mRepo.expiresBetween(yesterday, today);
+            expiryList = index.getMRepo().expiresBetween(yesterday, today);
             expiryList.add(0, I18N.get("game.moul.expire"));
             expiryList.add(0, I18N.get("game.moul.hi"));
         });
@@ -108,12 +108,12 @@ public class Game implements Initializable {
         var r = new TheBeginning();
 
         isIndexing.addListener((observable, oldValue, newValue) -> {
-            if(newValue)
-                if(indexRatio.doubleValue()<.95)
+            if (newValue)
+                if (indexRatio.doubleValue() < .95)
                     r.getTimeline().stop();
-            else{
-                r.getTimeline().play();
-            }
+                else {
+                    r.getTimeline().play();
+                }
         });
 
         Player.get().setPosition(canvas.getWidth() / 2, canvas.getHeight() / 2);

@@ -1,5 +1,6 @@
 package juniter.service.bma;
 
+import io.micrometer.core.annotation.Timed;
 import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dbo.index.MINDEX;
 import juniter.core.model.dto.ChainParametersDTO;
@@ -11,11 +12,10 @@ import juniter.core.model.dto.node.WithDTO;
 import juniter.core.model.dto.wot.MembershipDTO;
 import juniter.repository.jpa.block.CertsRepository;
 import juniter.repository.jpa.block.MemberRepository;
-import juniter.repository.jpa.block.ParamsRepository;
 import juniter.repository.jpa.block.TxRepository;
-import juniter.repository.jpa.index.MINDEXRepository;
 import juniter.service.bma.loader.BlockLoader;
 import juniter.service.core.BlockService;
+import juniter.service.core.Index;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
@@ -69,6 +69,7 @@ import static java.util.stream.Collectors.toList;
 @RestController
 @ConditionalOnExpression("${juniter.useBMA:false}")
 @RequestMapping("/blockchain")
+//@Timed("blockchain.bma")
 public class BlockchainService {
 
     private static final Logger LOG = LogManager.getLogger(BlockchainService.class);
@@ -86,15 +87,14 @@ public class BlockchainService {
     private TxRepository txRepo;
 
     @Autowired
-    private MINDEXRepository mRepo;
+    private Index index;
 
     @Autowired
     private BlockLoader defaultLoader;
 
     @Autowired
     private ModelMapper modelMapper;
-    @Autowired
-    private ParamsRepository paramsRepository;
+
 
     @Transactional(readOnly = true)
     @GetMapping(value = "/all")
@@ -155,10 +155,7 @@ public class BlockchainService {
     @GetMapping(value = "/current")
     public Block current() {
         LOG.info("Entering /blockchain/current");
-        final var b = blockService.current()
-                .orElseGet(() -> defaultLoader.fetchAndSaveBlock("current"));
-
-        return modelMapper.map(b, Block.class);
+        return modelMapper.map(blockService.currentOrFetch(), Block.class);
     }
 
 
@@ -172,7 +169,7 @@ public class BlockchainService {
      * Sort by number
      * </p>
      *
-     * @param what
+     * @param what any of newcomers,certs,actives,revoked,leavers,excluded,ud,tx
      * @return A Wrapped List of Blocks
      */
     @CrossOrigin(origins = "*")
@@ -217,7 +214,7 @@ public class BlockchainService {
     @Transactional(readOnly = true)
     @GetMapping(value = "/memberships/{search}")
     public Stream<MINDEX> memberships(@PathVariable("search") String search) {
-        return mRepo.search(search);
+        return index.getMRepo().search(search);
     }
 
 
@@ -229,6 +226,7 @@ public class BlockchainService {
 
     @CrossOrigin(origins = "*")
     @GetMapping(value = "/parameters")
+    @Timed(value = "blockchain_parameters")
     public ChainParametersDTO parameter() {
         return modelMapper.map(blockService.paramsByCCY("g1"), ChainParametersDTO.class);
     }

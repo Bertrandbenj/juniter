@@ -26,8 +26,6 @@ import java.util.stream.Collectors;
 @RequestMapping("/ud")
 public class UDService {
 
-    private static final Logger LOG = LogManager.getLogger(UDService.class);
-
     @Autowired
     private TransactionService txService;
 

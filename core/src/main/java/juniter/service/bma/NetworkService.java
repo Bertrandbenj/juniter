@@ -3,7 +3,6 @@ package juniter.service.bma;
 import juniter.core.model.dbo.net.EndPointType;
 import juniter.core.model.dbo.net.Peer;
 import juniter.core.model.dto.net.*;
-import juniter.repository.jpa.net.PeersRepository;
 import juniter.service.core.BlockService;
 import juniter.service.core.PeerService;
 import org.apache.http.message.BasicNameValuePair;
@@ -45,9 +44,6 @@ public class NetworkService {
 
     public static final Logger LOG = LogManager.getLogger(NetworkService.class);
 
-    @Autowired
-    private PeersRepository peerRepo;
-
 
     @Autowired
     private BlockService blockService;
@@ -64,7 +60,7 @@ public class NetworkService {
     @GetMapping("/")
     public List<String> index() {
         LOG.info("Entering /network/ ... ");
-        return peerRepo.streamAllPeers()
+        return peerService.all().stream()
                 .flatMap(p -> getUris(p).stream())
                 .map(URI::toString)
                 .collect(Collectors.toList());
@@ -147,16 +143,8 @@ public class NetworkService {
     @Transactional(readOnly = true)
     @GetMapping(value = "/peers")
     public PeersDTO peers() {
-
         LOG.info("Entering /network/peers ...");
-
-        try (var peers = peerRepo.streamAllPeers()) {
-            final var peerL = peers.map(p -> modelMapper.map(p, PeerDTO.class)).collect(Collectors.toList());
-            return new PeersDTO(peerL);
-        } catch (final Exception e) {
-            LOG.error("NetworkService.peers() peerRepo.streamAllPeers ->  ", e);
-        }
-        return new PeersDTO();
+        return new PeersDTO(peerService.all().stream().map(p -> modelMapper.map(p, PeerDTO.class)).collect(Collectors.toList()));
     }
 
     @Autowired

@@ -1,4 +1,4 @@
-package juniter.service.gva;
+package juniter.core.model.gva;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

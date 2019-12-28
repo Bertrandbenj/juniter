@@ -1,5 +1,6 @@
 package juniter.core.validation;
 
+import io.micrometer.core.annotation.Timed;
 import juniter.core.crypto.Crypto;
 import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.ChainParameters;
@@ -127,7 +128,6 @@ public interface GlobalValid {
         int bIndexSize = bIndexSize() + Conf.forksize;
         trimLocal(head, bIndexSize);
         trimGlobal(head, bIndexSize);
-
         trimSandbox(block);
         return true;
 
@@ -3229,6 +3229,7 @@ public interface GlobalValid {
      * @param block to completeGlobalScope
      * @return true or false or perhaps true
      */
+    @Timed(longTask = true, histogram = true, value = "index.completeGlobalScope", description="indexing of a single Block")
     @Transactional
     default boolean completeGlobalScope(DBBlock block, boolean complete) {
         var quick = !complete;

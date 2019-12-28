@@ -41,6 +41,7 @@ public class RevocationDoc implements WotDocument, LocalValid {
 		return unsignedDoc() + signature + "\n";
 	}
 
+	@Override
 	public String unsignedDoc() {
 		return "Version: " + version + "\n" +
 				"Type: Revocation\n" +

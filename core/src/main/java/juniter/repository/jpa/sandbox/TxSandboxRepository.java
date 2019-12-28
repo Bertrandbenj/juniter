@@ -14,6 +14,11 @@ public interface TxSandboxRepository extends JpaRepository<TransactionSandboxed,
 
     @Transactional
     @Modifying
-    @Query("DELETE FROM TransactionSandboxed t ")
+    @Query("DELETE FROM TransactionSandboxed t WHERE hash IN (:hashs) ")
     void deleteByHashs(List<String> hashs);
+
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM TransactionSandboxed t WHERE hash = ?1")
+    void deleteByHash(String t);
 }

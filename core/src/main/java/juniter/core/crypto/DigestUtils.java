@@ -31,7 +31,7 @@ import java.security.NoSuchAlgorithmException;
  * take the ENCODING into account, they both use the system's default encoding which is wrong
  * in a web environment.
  * <p/>
- * @see: https://github.com/MyMalcom/malcom-lib-android/blob/master/src/main/java/com/malcom/library/android/utils/DigestUtils.java
+ * see: https://github.com/MyMalcom/malcom-lib-android/blob/master/src/main/java/com/malcom/library/android/utils/DigestUtils.java
  * @author Malcom Ventures, S.L.
  * @since 2012
  */
@@ -45,11 +45,12 @@ public class DigestUtils {
      * The returned array will be double the length of the passed array, as it takes two characters to represent any
      * given byte.
      *
+     * see http://stackoverflow.com/questions/332079/in-java-how-do-i-convert-a-byte-array-to-a-string-of-hex-digits-while-keeping-le
+     *
      * @param data a byte[] to convert to Hex characters
-     * @return A char[] containing hexidecimal characters
-     * @see: http://stackoverflow.com/questions/332079/in-java-how-do-i-convert-a-byte-array-to-a-string-of-hex-digits-while-keeping-le
+     * @return A char[] containing hexidecimal character
      */
-    public static String encodeHex(byte[] data) {
+    private static String encodeHex(byte[] data) {
         char[] out = new char[data.length << 1]; // == new char[data.length * 2];
         for (int i = 0, j = 0; i < data.length; i++) {
             out[j++] = HEXITS[(0xF0 & data[i]) >>> 4]; // HEXITS[(data[i] & 0xFF) / 16];
@@ -68,7 +69,7 @@ public class DigestUtils {
         return sha1Hex(message, UTF_8);
     }
 
-    public static String sha1Hex(String message, String encoding) {
+    private static String sha1Hex(String message, String encoding) {
         try {
             MessageDigest md = getSHA1Instance();
             return encodeHex(md.digest(message.getBytes(encoding)));
@@ -77,7 +78,7 @@ public class DigestUtils {
         }
     }
 
-    public static MessageDigest getSHA1Instance() {
+    private static MessageDigest getSHA1Instance() {
         try {
             return MessageDigest.getInstance(SHA1_ALGORITHM);
         } catch (NoSuchAlgorithmException e) {

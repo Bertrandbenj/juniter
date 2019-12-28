@@ -14,6 +14,7 @@ import juniter.core.model.dbo.net.Peer;
 import juniter.core.model.dto.node.NodeSummaryDTO;
 import juniter.core.model.dto.raw.WrapperResponse;
 import juniter.repository.jpa.net.EndPointsRepository;
+import juniter.repository.jpa.net.PeersRepository;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -61,6 +62,9 @@ public class PeerService implements ApplicationListener<CoreEvent> {
 
     @Autowired
     private EndPointsRepository endPointRepo;
+
+    @Autowired
+    private PeersRepository peerRepo;
 
     @Autowired
     private BlockService blockService;
@@ -447,5 +451,9 @@ public class PeerService implements ApplicationListener<CoreEvent> {
         if(event instanceof ServerLogin){
             secretBox = ((ServerLogin)event).getWhat();
         }
+    }
+
+    public List<Peer> all() {
+        return peerRepo.streamAllPeers().collect(Collectors.toList());
     }
 }

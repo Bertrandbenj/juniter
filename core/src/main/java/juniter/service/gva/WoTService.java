@@ -6,7 +6,8 @@ import io.reactivex.BackpressureStrategy;
 import io.reactivex.Observable;
 import juniter.core.model.dbo.index.IINDEX;
 import juniter.core.model.dbo.wot.Identity;
-import juniter.repository.jpa.index.IINDEXRepository;
+import juniter.core.model.gva.PendingIdentity;
+import juniter.service.core.Index;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
@@ -26,10 +27,10 @@ public class WoTService {
     private static final Logger LOG = LogManager.getLogger(WoTService.class);
 
     @Autowired
-    ModelMapper modelMapper;
+    private ModelMapper modelMapper;
 
     @Autowired
-    IINDEXRepository iRepo;
+    private Index index;
 
 
 //@GraphQLArgument(name = "like", description = "SQL like on either userid or pubkey ") String like
@@ -40,7 +41,7 @@ public class WoTService {
                            @GraphQLArgument(name = "pubkey", description = "Identifier") String pubkey) {
         LOG.info(" GVA - getIdentity " + uid + " , pub: " + pubkey);
 
-        var idty = iRepo.byUidOrPubkey(uid, pubkey).stream().reduce(IINDEX.reducer).filter(IINDEX::getMember);
+        var idty = index.getIRepo().byUidOrPubkey(uid, pubkey).stream().reduce(IINDEX.reducer).filter(IINDEX::getMember);
         if (idty.isPresent()) {
             var res = new Identity();
             res.setSigned(idty.get().getSigned());
@@ -58,7 +59,7 @@ public class WoTService {
     @GraphQLNonNull
     public List<@GraphQLNonNull PendingIdentity> pendingIdentities(@GraphQLNonNull @GraphQLArgument(name = "search") String search) {
         LOG.info(" GVA - pendingIdentities");
-        return iRepo.byUidOrPubkey(search, search)
+        return index.getIRepo().byUidOrPubkey(search, search)
                 .stream()
                 .map(x -> modelMapper.map(x, PendingIdentity.class))
                 .collect(Collectors.toList());
@@ -68,7 +69,7 @@ public class WoTService {
     @GraphQLQuery(name = "pendingIdentityByHash", description = "return an identity")
     public PendingIdentity pendingIdentityByHash(@GraphQLNonNull @GraphQLArgument(name = "hash") String hash) {
         LOG.info(" GVA - pendingIdentityByHash");
-        return modelMapper.map(iRepo.pendingIdentityByHash(hash), PendingIdentity.class);
+        return modelMapper.map(index.getIRepo().pendingIdentityByHash(hash), PendingIdentity.class);
     }
 
     // 						=============  Next comes the mutations =============
@@ -109,7 +110,7 @@ public class WoTService {
         Preconditions.checkNotNull(pubkey, "Missing pubkey");
         Preconditions.checkArgument(pubkey.length() > 6, "Invalid pubkey");
 
-        IINDEX person = iRepo.idtyByPubkey(pubkey).get(0);
+        IINDEX person = index.getIRepo().idtyByPubkey(pubkey).get(0);
         return Observable.interval(minIntervalInSecond, TimeUnit.SECONDS)
                 .flatMap(n -> Observable.fromArray(person))
                 .toFlowable(BackpressureStrategy.BUFFER);

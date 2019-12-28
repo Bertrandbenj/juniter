@@ -38,14 +38,14 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-public class GraphQLHelper {
+class GraphQLHelper {
 
     private GraphQLHelper() {
         // helper class
     }
 
 
-    public static Map<String, Object> getVariables(Map<String, Object> request, ObjectMapper objectMapper) {
+    static Map<String, Object> getVariables(Map<String, Object> request, ObjectMapper objectMapper) {
         Object variablesObj = request.get("variables");
         if (variablesObj == null) {
             return null;
@@ -70,7 +70,7 @@ public class GraphQLHelper {
         return null;
     }
 
-    public static Map<String, Object> processExecutionResult(ExecutionResult executionResult) {
+    static Map<String, Object> processExecutionResult(ExecutionResult executionResult) {
         if (CollectionUtils.isEmpty(executionResult.getErrors())) return executionResult.toSpecification();
 
         Map<String, Object> specifications = Maps.newHashMap();
@@ -90,7 +90,7 @@ public class GraphQLHelper {
         return specifications;
     }
 
-    public static Map<String, Object> processError(Throwable throwable) {
+    static Map<String, Object> processError(Throwable throwable) {
 
         Map<String, Object> payload = Maps.newHashMap();
         List<Map<String, Object>> errors = Lists.newArrayList();
@@ -110,7 +110,7 @@ public class GraphQLHelper {
         return payload;
     }
 
-    public static GraphQLError processGraphQLError(final GraphQLError error) {
+    private static GraphQLError processGraphQLError(final GraphQLError error) {
         if (error instanceof ExceptionWhileDataFetching) {
             ExceptionWhileDataFetching exError = (ExceptionWhileDataFetching) error;
             Throwable baseException = getSqlExceptionOrRootCause(exError.getException());
@@ -124,7 +124,7 @@ public class GraphQLHelper {
     }
 
 
-    public static Throwable getSqlExceptionOrRootCause(Throwable t) {
+    private static Throwable getSqlExceptionOrRootCause(Throwable t) {
         if (t instanceof java.sql.SQLException) {
             return t;
         }

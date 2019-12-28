@@ -1,6 +1,5 @@
 package juniter.service.core;
 
-import com.codahale.metrics.annotation.Counted;
 import io.micrometer.core.annotation.Timed;
 import juniter.core.event.CurrentBNUM;
 import juniter.core.event.Indexing;
@@ -8,17 +7,13 @@ import juniter.core.event.NewBINDEX;
 import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dbo.index.*;
-import juniter.core.model.dbo.tx.Transaction;
-import juniter.core.model.dbo.wot.Identity;
-import juniter.core.model.dbo.wot.Member;
 import juniter.core.utils.TimeUtils;
 import juniter.core.validation.GlobalValid;
 import juniter.repository.jpa.index.*;
-import juniter.service.bma.loader.BlockLoader;
+import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -49,22 +44,22 @@ public class Index implements GlobalValid {
     @Autowired
     private ApplicationEventPublisher coreEventBuss;
 
-
+    @Getter
     @Autowired
     private CINDEXRepository cRepo;
-
+    @Getter
     @Autowired
     private IINDEXRepository iRepo;
-
+    @Getter
     @Autowired
     private MINDEXRepository mRepo;
-
+    @Getter
     @Autowired
     private SINDEXRepository sRepo;
-
+    @Getter
     @Autowired
     private BINDEXRepository bRepo;
-
+    @Getter
     @Autowired
     private AccountRepository accountRepo;
 
@@ -73,10 +68,6 @@ public class Index implements GlobalValid {
 
     @Autowired
     private Sandboxes sandboxes;
-
-
-    @Value("${juniter.startIndex:false}")
-    private boolean startIndex;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -126,7 +117,7 @@ public class Index implements GlobalValid {
     }
 
     @Transactional
-    @Counted(absolute = true)
+    @Timed(value="index_init")
     private void init(boolean resetDB, String ccy) {
         try {
             var params = blockService.paramsByCCY(ccy);
@@ -174,8 +165,7 @@ public class Index implements GlobalValid {
 
         if (bstamp.getNumber().equals(0))
             return blockService.block(0);
-        return Optional.of(blockService.block(bstamp.getNumber())
-                .orElseGet(() -> blockLoader.fetchAndSaveBlock(bstamp.getNumber())));
+        return Optional.of(blockService.blockOrFetch(bstamp.getNumber()) );
     }
 
     @Override
@@ -185,7 +175,7 @@ public class Index implements GlobalValid {
 
     @Transactional
     @Override
-    @Counted(absolute = true)
+    @Timed(value="index_commit")
     public boolean commit(BINDEX indexB,
                           Set<IINDEX> indexI, Set<MINDEX> indexM, Set<CINDEX> indexC, Set<SINDEX> indexS) {
 
@@ -232,10 +222,10 @@ public class Index implements GlobalValid {
         if (receiver != null && issuer != null) {
             return cRepo.getCert(issuer, receiver).stream();
 
-        } else if (receiver != null && issuer == null) {
+        } else if (receiver != null) {
             return cRepo.receivedBy(receiver).stream();
 
-        } else if (receiver == null && issuer != null) {
+        } else if (issuer != null) {
             return cRepo.issuedBy(issuer).stream();
         }
 
@@ -314,7 +304,7 @@ public class Index implements GlobalValid {
         return cRepo.certStock(issuer, asOf);
     }
 
-    @Timed
+    @Timed(value="index_trimGlobal", longTask = true)
     @Override
     public void trimGlobal(BINDEX head, int bIndexSize) {
 
@@ -330,13 +320,10 @@ public class Index implements GlobalValid {
 
     @Override
     public void trimSandbox(DBBlock block) {
-       sandboxes.removeTx(block.getTransactions().stream().map(Transaction::getHash).collect(Collectors.toList()));
-       sandboxes.removeIdty(block.getIdentities().stream().map(Identity::getPubkey).collect(Collectors.toList()));
-       sandboxes.removeMemberships(block.getMembers().stream().map(Member::getPubkey).collect(Collectors.toList()));
+        sandboxes.trim(block);
     }
 
-    @Autowired
-    private BlockLoader blockLoader;
+
 
     /**
      * mostly technical function to error handle, parametrized, log the validation function
@@ -348,7 +335,7 @@ public class Index implements GlobalValid {
      * @param quick     whether or not to index quickly
      */
     @Async
-    @Timed(longTask = true, histogram = true)
+    @Timed(longTask = true, histogram = true, value = "index_indexUntil")
     public synchronized void indexUntil(int syncUntil, boolean quick, String ccy) {
 
          coreEventBuss.publishEvent(new Indexing(true,"indexUntil " + syncUntil + " , quick? " + quick + " , ccy? " + ccy));
@@ -357,13 +344,10 @@ public class Index implements GlobalValid {
         var baseTime = System.currentTimeMillis();
         var time = System.currentTimeMillis();
         long delta;
-        int reverted = 0;
 
         for (int bnum = head().map(h -> h.getNumber() + 1).orElse(0); bnum <= syncUntil; bnum++) {
-            final int finalBnum = bnum;
 
-
-            final var block = blockService.block(finalBnum).orElseGet(() -> blockLoader.fetchAndSaveBlock(finalBnum));
+            final var block = blockService.blockOrFetch(bnum) ;
 
             try {
                 if (completeGlobalScope(block, !quick)) {

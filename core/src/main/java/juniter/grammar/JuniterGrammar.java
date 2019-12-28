@@ -15,7 +15,7 @@ public class JuniterGrammar extends JuniterParserBaseVisitor<Document> implement
 
 	/**
 	 * FIXME for some reason, I manually visit children here, there must be some missing piece
-	 * @param ctx
+	 * @param ctx context
 	 * @return the Wot related document including signature
 	 */
 	@Override

@@ -3,7 +3,7 @@ package juniter.core.model.dbo.index;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.tx.TxType;
-import juniter.service.gva.Source;
+import juniter.core.model.gva.Source;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.lang.NonNull;
