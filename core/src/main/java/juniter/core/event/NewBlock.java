@@ -12,6 +12,6 @@ public class NewBlock extends CoreEvent<DBBlock> {
 
 
     public NewBlock(DBBlock what) {
-        this(what, "new Block");
+        this(what, "");
     }
 }

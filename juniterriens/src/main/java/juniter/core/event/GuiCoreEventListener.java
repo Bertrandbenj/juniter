@@ -72,16 +72,11 @@ public class GuiCoreEventListener implements ApplicationListener<CoreEvent> {
 
             case "RenormalizedNet":
                 var list = (List<NetStats>) event.getWhat();
-                //LOG.info("RenormalizedNet " +list.stream().sorted().limit(5));
-                Platform.runLater(() -> Network.observableNetStats.setAll(list));
+                 Platform.runLater(() -> Network.observableNetStats.setAll(list));
                 break;
 
             case "LogNetwork":
                 Platform.runLater(() -> peerLogMessage.setValue((String) event.getWhat()));
-                break;
-
-            case "LogIndex":
-                Platform.runLater(() -> indexLogMessage.setValue((String) event.getWhat()));
                 break;
 
             case "LogMemory":
@@ -90,7 +85,7 @@ public class GuiCoreEventListener implements ApplicationListener<CoreEvent> {
 
             case "Indexing":
                 Platform.runLater(() -> isIndexing.setValue((Boolean) event.getWhat()));
-
+                Platform.runLater(() -> indexLogMessage.setValue(event.getMessage()));
                 break;
 
             default:

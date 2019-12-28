@@ -4,7 +4,6 @@ import com.codahale.metrics.annotation.Counted;
 import io.micrometer.core.annotation.Timed;
 import juniter.core.event.CurrentBNUM;
 import juniter.core.event.Indexing;
-import juniter.core.event.LogIndex;
 import juniter.core.event.NewBINDEX;
 import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.DBBlock;
@@ -82,7 +81,7 @@ public class Index implements GlobalValid {
     @PersistenceContext
     private EntityManager entityManager;
 
-    private Boolean indexing = false;
+
 
 
     @PostConstruct
@@ -331,10 +330,9 @@ public class Index implements GlobalValid {
 
     @Override
     public void trimSandbox(DBBlock block) {
-     //   sandboxes.removeTx(block.getTransactions().stream().map(Transaction::getHash).collect(Collectors.toList()));
-     //   sandboxes.removeIdty(block.getIdentities().stream().map(Identity::getPubkey).collect(Collectors.toList()));
-     //   sandboxes.removeMemberships(block.getMembers().stream().map(Member::getPubkey).collect(Collectors.toList()));
-
+       sandboxes.removeTx(block.getTransactions().stream().map(Transaction::getHash).collect(Collectors.toList()));
+       sandboxes.removeIdty(block.getIdentities().stream().map(Identity::getPubkey).collect(Collectors.toList()));
+       sandboxes.removeMemberships(block.getMembers().stream().map(Member::getPubkey).collect(Collectors.toList()));
     }
 
     @Autowired
@@ -353,7 +351,8 @@ public class Index implements GlobalValid {
     @Timed(longTask = true, histogram = true)
     public synchronized void indexUntil(int syncUntil, boolean quick, String ccy) {
 
-        LOG.info("indexUntil " + syncUntil + " , quick? " + quick + " , ccy? " + ccy);
+         coreEventBuss.publishEvent(new Indexing(true,"indexUntil " + syncUntil + " , quick? " + quick + " , ccy? " + ccy));
+
         init(false, ccy);
         var baseTime = System.currentTimeMillis();
         var time = System.currentTimeMillis();
@@ -368,20 +367,15 @@ public class Index implements GlobalValid {
 
             try {
                 if (completeGlobalScope(block, !quick)) {
-                    LOG.debug("Validated " + block);
-                    coreEventBuss.publishEvent(new NewBINDEX(head_()));
+                    coreEventBuss.publishEvent(new NewBINDEX(head_() ,""));
                 } else {
-                    coreEventBuss.publishEvent(new LogIndex("NOT Validated " + block));
-
-
+                    coreEventBuss.publishEvent(new Indexing(false,"NOT Valid " + block));
                     break;
                 }
             } catch (AssertionError | Exception e) {
                 LOG.error("ERROR Validating " + block + " - " + e.getMessage(), e);
 
-                coreEventBuss.publishEvent(new LogIndex("ERROR Validating " + block + " - " + e.getMessage()));
-                //coreEventBuss.publishEvent(new PossibleFork());
-
+                coreEventBuss.publishEvent(new Indexing(false, "ERROR Validating " + block + " - " + e.getMessage()));
                 break;
             }
 
@@ -395,14 +389,13 @@ public class Index implements GlobalValid {
                 var log = "Validation : elapsed time " + TimeUtils.format(baseDelta) + " which is " + perBlock
                         + " ms per node, estimating: " + TimeUtils.format(estimate) + "left";
 
-                coreEventBuss.publishEvent(new LogIndex(log));
+                coreEventBuss.publishEvent(new Indexing(true,log));
                 time = newTime;
             }
         }
 
         delta = System.currentTimeMillis() - time;
-        LOG.info("Finished validation, took :  " + TimeUtils.format(delta));
-        coreEventBuss.publishEvent(new Indexing(false));
+        coreEventBuss.publishEvent(new Indexing(false, "Finished validation, took :  " + TimeUtils.format(delta)));
 
     }
 
@@ -430,7 +423,7 @@ public class Index implements GlobalValid {
 
             coreEventBuss.publishEvent(new CurrentBNUM(h.getNumber() - 1));
 
-            coreEventBuss.publishEvent(new LogIndex("Reverted to " + h.getNumber() + " from " + h));
+            coreEventBuss.publishEvent(new Indexing(false, "Reverted to " + h.getNumber() + " from " + h));
 
             reset(false, ccy);
         });

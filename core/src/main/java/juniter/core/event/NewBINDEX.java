@@ -10,7 +10,4 @@ public class NewBINDEX extends CoreEvent<BINDEX> {
         name = getClass().getSimpleName();
     }
 
-    public NewBINDEX(BINDEX what) {
-        this(what, "Validated " + what);
-    }
 }

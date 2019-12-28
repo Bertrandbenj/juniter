@@ -8,7 +8,7 @@ import java.util.List;
 public class RenormalizedNet extends CoreEvent<List<NetStats>> {
 
     public RenormalizedNet(List<NetStats> list) {
-        super(list, "RenormalizedNet : ");
+        super(list, "");
         name = getClass().getSimpleName();
     }
 }

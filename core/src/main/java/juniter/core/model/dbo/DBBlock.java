@@ -4,9 +4,9 @@ import com.codahale.metrics.annotation.CachedGauge;
 import com.codahale.metrics.annotation.Counted;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import juniter.core.model.technical.DUPDocument;
 import juniter.core.model.dbo.tx.Transaction;
 import juniter.core.model.dbo.wot.*;
+import juniter.core.model.technical.DUPDocument;
 import juniter.core.utils.Constants;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,8 +23,8 @@ import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * The top / main class of the model is the Block class
@@ -355,48 +355,74 @@ public class DBBlock implements DUPDocument, Serializable {
             paramOrPrevious += "\nPreviousIssuer: " + previousIssuer;
         }
 
-        return "Version: " + version +
-                "\nType: Block" +
-                "\nCurrency: " + currency +
-                "\nNumber: " + number +
-                "\nPoWMin: " + powMin +
-                "\nTime: " + getTime() +
-                "\nMedianTime: " + getMedianTime() +
-                div +
-                "\nUnitBase: " + unitbase +
-                "\nIssuer: " + issuer +
-                "\nIssuersFrame: " + issuersFrame +
-                "\nIssuersFrameVar: " + issuersFrameVar +
-                "\nDifferentIssuersCount: " + issuersCount +
-                paramOrPrevious +
-                "\nMembersCount: " + membersCount +
-                "\nIdentities:\n"
-                + identities.stream().map(Identity::toDUP).collect(Collectors.joining("\n"))
-                + (identities.size() > 0 ? "\n" : "") +
-                "Joiners:\n"
-                + joiners.stream().map(Joiner::toDUP).collect(Collectors.joining("\n"))
-                + (joiners.size() > 0 ? "\n" : "") +
-                "Actives:\n"
-                + renewed.stream().map(Renew::toDUP).collect(Collectors.joining("\n"))
-                + (renewed.size() > 0 ? "\n" : "") +
-                "Leavers:\n"
-                + leavers.stream().map(Leaver::toDUP).collect(Collectors.joining("\n"))
-                + (leavers.size() > 0 ? "\n" : "") +
-                "Revoked:\n"
-                + revoked.stream().map(Revoked::toDUP).collect(Collectors.joining("\n"))
-                + (revoked.size() > 0 ? "\n" : "") +
-                "Excluded:\n"
-                + excluded.stream().map(Excluded::toDUP).collect(Collectors.joining("\n"))
-                + (excluded.size() > 0 ? "\n" : "") +
-                "Certifications:\n"
-                + certifications.stream().map(Certification::toDUP).collect(Collectors.joining("\n"))
-                + (certifications.size() > 0 ? "\n" : "") +
-                "Transactions:\n"
-                + transactions.stream().map(Transaction::toDUPshort).collect(Collectors.joining("\n"))
-                + (transactions.size() > 0 ? "\n" : "") //
-                + (innerHash ? "InnerHash: " + inner_hash : "")
-                + (signed || innerHash ? "\nNonce: " + nonce + "\n" : "")
-                + (signed ? signature : "");
+        //
+        var idtis = new StringJoiner("\n");
+        for (Identity identity : identities) {
+            String toDUP = identity.toDUP();
+            idtis.add(toDUP);
+        }
+        var joins = new StringJoiner("\n");
+        for (Joiner joiner1 : joiners) {
+            String toDUP = joiner1.toDUP();
+            joins.add(toDUP);
+        }
+        var renews = new StringJoiner("\n");
+        for (Renew renew : renewed) {
+            String toDUP = renew.toDUP();
+            renews.add(toDUP);
+        }
+        var leavs = new StringJoiner("\n");
+        for (Leaver leaver : leavers) {
+            String toDUP = leaver.toDUP();
+            leavs.add(toDUP);
+        }
+        var revks = new StringJoiner("\n");
+        for (Revoked revoked1 : revoked) {
+            String toDUP = revoked1.toDUP();
+            revks.add(toDUP);
+        }
+        var excls = new StringJoiner("\n");
+        for (Excluded excluded1 : excluded) {
+            String toDUP = excluded1.toDUP();
+            excls.add(toDUP);
+        }
+        var certs = new StringJoiner("\n");
+        for (Certification certification : certifications) {
+            String toDUP = certification.toDUP();
+            certs.add(toDUP);
+        }
+        var txs = new StringJoiner("\n");
+        for (Transaction transaction : transactions) {
+            String toDUPshort = transaction.toDUPshort();
+            txs.add(toDUPshort);
+        }
+        return new StringBuilder()
+                .append("Version: ").append(version)
+                .append("\nType: Block")
+                .append("\nCurrency: ").append(currency)
+                .append("\nNumber: ").append(number)
+                .append("\nPoWMin: ").append(powMin)
+                .append("\nTime: ").append(getTime())
+                .append("\nMedianTime: ").append(getMedianTime())
+                .append(div).append("\nUnitBase: ").append(unitbase)
+                .append("\nIssuer: ").append(issuer)
+                .append("\nIssuersFrame: ").append(issuersFrame)
+                .append("\nIssuersFrameVar: ").append(issuersFrameVar)
+                .append("\nDifferentIssuersCount: ").append(issuersCount)
+                .append(paramOrPrevious)
+                .append("\nMembersCount: ").append(membersCount)
+                .append("\nIdentities:\n").append(idtis.toString()).append(identities.size() > 0 ? "\n" : "")
+                .append("Joiners:\n").append(joins.toString()).append(joiners.size() > 0 ? "\n" : "")
+                .append("Actives:\n").append(renews.toString()).append(renewed.size() > 0 ? "\n" : "")
+                .append("Leavers:\n").append(leavs.toString()).append(leavers.size() > 0 ? "\n" : "")
+                .append("Revoked:\n").append(revks.toString()).append(revoked.size() > 0 ? "\n" : "")
+                .append("Excluded:\n").append(excls.toString()).append(excluded.size() > 0 ? "\n" : "")
+                .append("Certifications:\n").append(certs.toString()).append(certifications.size() > 0 ? "\n" : "")
+                .append("Transactions:\n").append(txs.toString()).append(transactions.size() > 0 ? "\n" : "")
+                .append(innerHash ? "InnerHash: " + inner_hash : "")
+                .append(signed || innerHash ? "\nNonce: " + nonce + "\n" : "")
+                .append(signed ? signature : "")
+                .toString();
     }
 
 

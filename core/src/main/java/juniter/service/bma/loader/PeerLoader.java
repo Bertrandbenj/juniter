@@ -12,7 +12,6 @@ import juniter.core.utils.TimeUtils;
 import juniter.repository.jpa.net.EndPointsRepository;
 import juniter.repository.jpa.net.PeersRepository;
 import juniter.service.core.BlockService;
-import juniter.service.bma.NetworkService;
 import juniter.service.core.PeerService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,7 +39,8 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Objects;
 
 @ConditionalOnExpression("${juniter.loader.useDefault:true}") // Must be up for dependencies
 @Component
@@ -76,13 +76,13 @@ public class PeerLoader {
     private Integer bulkSize;
 
     @Async
-    @Scheduled(fixedDelay =  60 * 1000, initialDelay = 60 * 1000)
+    @Scheduled(fixedDelay = 60 * 1000, initialDelay = 60 * 1000)
     public void runPeerCheck() {
 
         LOG.info("@Scheduled runPeerCheck ");
         final var start = System.nanoTime();
 
-         PeersDTO peersDTO = null;
+        PeersDTO peersDTO = null;
         while (peersDTO == null || peersDTO.getPeers().isEmpty()) {
 
             final var host = peerService.nextHost(EndPointType.BMAS).orElseThrow().getHost();
@@ -105,7 +105,7 @@ public class PeerLoader {
 
                     if (maxBlockDB < maxBlockPeer.getAsLong()) {
                         var batch = (int) Math.min(maxBlockPeer.getAsLong() - maxBlockDB, bulkSize);
-                        blockLoader.fetchBlocks(batch, (int) maxBlockPeer.getAsLong())
+                        blockLoader.fetchBlocks(batch, maxBlockDB+1)
                                 .forEach(b -> blockService.safeSave(b));
                     }
 
@@ -114,7 +114,7 @@ public class PeerLoader {
                             "  db: " + maxBlockDB +
                             " Elapsed time: " + TimeUtils.format(elapsed));
 
-                }  else {
+                } else {
                     LOG.info("Couldn't find maxPeerBlock peers: " + host + "while having received " + peersDTO);
                 }
 
@@ -131,10 +131,11 @@ public class PeerLoader {
     @Async
     public void doPairing() {
 
-        LOG.info("Entering doPairing " + endPointRepo.endpointsBMAS().count());
+        var eps = endPointRepo.get(EndPointType.BMAS, EndPointType.BASIC_MERKLED_API);
 
-        var max = endPointRepo.endpointsBMAS()
-                .parallel()
+        LOG.info("Entering doPairing " + eps.size());
+
+        var max = eps.parallelStream()
                 .map(bma -> fetchPeeringNumber(bma.url()))
                 .filter(Objects::nonNull)
                 .findAny()

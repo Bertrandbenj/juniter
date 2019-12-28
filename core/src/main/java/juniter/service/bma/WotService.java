@@ -48,13 +48,13 @@ public class WotService {
     private CINDEXRepository cRepo;
 
     @Autowired
-    MINDEXRepository mRepo;
+    private MINDEXRepository mRepo;
 
     @Autowired
-    IINDEXRepository iRepo;
+    private IINDEXRepository iRepo;
 
     @Autowired
-    Index index;
+    private Index index;
 
 
 
@@ -67,7 +67,7 @@ public class WotService {
                 .map(i -> {
 
                     var mindex = index.reduceM(pubkeyOrUid);
-                    long now = new Date().getTime();
+                    long now = new Date().getTime()/1000;
 
                     var certs = cRepo.receivedBy(i.getPub()).stream()
                             .map(c -> IdtyCerts.builder()
@@ -92,7 +92,7 @@ public class WotService {
                             .certifications(certs)
                             .pendingCerts(new ArrayList<>())
                             .pendingMemberships(new ArrayList<>())
-                            .membershipExpiresIn(mindex.map(m->m.getExpires_on()- now).orElse(0L))
+                            .membershipExpiresIn(mindex.map(m->m.getExpires_on() - now).orElse(0L))
                             .membershipPendingExpiresIn(0)
                             .wasMember(true)
                             .meta(MetaLookupString.builder().timestamp(i.getSigned().stamp()).build())

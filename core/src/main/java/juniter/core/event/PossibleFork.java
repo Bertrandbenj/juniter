@@ -8,7 +8,7 @@ public class PossibleFork extends CoreEvent<Boolean> {
     }
 
     public PossibleFork(Boolean fork) {
-        super(fork, "revert ");
+        super(fork, "");
         name = getClass().getSimpleName();
     }
 }

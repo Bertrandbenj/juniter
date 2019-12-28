@@ -22,7 +22,7 @@ public interface LocalValid {
 
 	default void assertBlockHash(String signPartSigned, String expectedHash) {
 		assert Crypto.hash(signPartSigned).equals(expectedHash) : //
-			"BR_L01 - Block Hash - \n  signing: " + signPartSigned + "\n  hash  : " + expectedHash;
+			"BR_L01 - Block Hash -  signPartSigned:\n" + signPartSigned + "\nhash  : " + expectedHash;
 
 	}
 

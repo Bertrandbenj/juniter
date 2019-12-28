@@ -8,6 +8,6 @@ public class MaxDBBlock extends CoreEvent<Integer> {
     }
 
     public MaxDBBlock(Integer what) {
-        this(what, "maxDB");
+        this(what, "");
     }
 }

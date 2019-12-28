@@ -104,16 +104,11 @@ public class Sandboxes {
     }
 
     @Transactional
-    @Modifying
     void removeTx(List<String> collect) {
-        for (String s : collect) {
-            tSandRepo.deleteByHash(s);
-        }
-
+        tSandRepo.deleteByHashs(collect);
     }
 
     @Transactional
-    @Modifying
     void removeIdty(List<String> collect) {
         for (String s : collect) {
             iSandRepo.deleteByPubkey(s);
@@ -121,7 +116,6 @@ public class Sandboxes {
     }
 
     @Transactional
-    @Modifying
     void removeMemberships(List<String> collect) {
         for (String s : collect) {
             mSandRepo.deleteByPubkey(s);

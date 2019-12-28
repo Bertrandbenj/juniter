@@ -34,7 +34,7 @@ public interface BlockLocalValid extends LocalValid {
             assertBlockLocalValid(block, false);
             return true;
         } catch (final AssertionError ea) {
-            LOG.info("check Block " + block.getNumber() + " is LocalValid - " + ea.getMessage());
+            LOG.error("check Block " + block.getNumber() + " is LocalValid - " + ea.getMessage());
         }
 
         return false;
@@ -161,7 +161,7 @@ public interface BlockLocalValid extends LocalValid {
     private void checkBlockTimes(DBBlock block) {
         if (block.getNumber() > 0) {
             assert block.getTime() >= block.getMedianTime() && block.getTime() <= block.getMedianTime() + conf.maxAcceleration()
-                    : "A block must have its Time field be between [MedianTime ; MedianTime + maxAcceleration].";
+                    : "A block must have its Time field be between [MedianTime ; MedianTime + maxAcceleration]." + block.getMedianTime() + " <= " + block.getTime() + " <= " + block.getMedianTime() + conf.maxAcceleration();
         } else {
             assert block.getTime().equals(block.getMedianTime())
                     : "Root block's Time & MedianTime must be equal.";

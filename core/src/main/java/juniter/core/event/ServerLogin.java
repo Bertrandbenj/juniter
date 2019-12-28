@@ -5,7 +5,7 @@ import juniter.core.crypto.SecretBox;
 public class ServerLogin extends CoreEvent<SecretBox> {
 
     public ServerLogin(SecretBox secret) {
-        super(secret, "login");
+        super(secret, "");
         name = getClass().getSimpleName();
     }
 

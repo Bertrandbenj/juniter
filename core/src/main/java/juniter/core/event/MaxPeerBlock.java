@@ -8,6 +8,6 @@ public class MaxPeerBlock extends CoreEvent<Integer> {
     }
 
     public MaxPeerBlock(Integer what) {
-        this(what, "maxPeer");
+        this(what, "");
     }
 }

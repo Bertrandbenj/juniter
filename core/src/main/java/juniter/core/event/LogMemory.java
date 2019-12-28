@@ -6,7 +6,7 @@ import java.text.NumberFormat;
 public class LogMemory extends CoreEvent<String> {
 
     public LogMemory() {
-        super(memInfo(), "Current Block : ");
+        super(memInfo(), "usage: ");
         name = getClass().getSimpleName();
     }
 

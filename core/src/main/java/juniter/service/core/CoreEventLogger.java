@@ -16,6 +16,10 @@ public class CoreEventLogger implements ApplicationListener<CoreEvent> {
     @Override
     public void onApplicationEvent(CoreEvent event) {
 
-        LOG.debug(event.getName() + " " + event.getMessage() + " " + event.getWhat());
+        if(event.getMessage() != null && !event.getMessage().isEmpty()){
+            LOG.info(event.getName() + " " + event.getMessage() + " " + event.getWhat());
+        }else{
+            LOG.debug(event.getName() + " " + event.getMessage() + " " + event.getWhat());
+        }
     }
 }

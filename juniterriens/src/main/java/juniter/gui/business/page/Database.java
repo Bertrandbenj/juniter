@@ -680,6 +680,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
         LOG.info("params " + em.createQuery(q).getParameters());
 
         var list = em.createQuery(q).setMaxResults(1000).getResultList();
+        LOG.info("jpql " + list.size());
 
         if (list.size() <= 0)
             return;

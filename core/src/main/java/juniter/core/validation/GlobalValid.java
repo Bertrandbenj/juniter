@@ -2642,7 +2642,7 @@ public interface GlobalValid {
 
 
     default Map<String, List<BINDEX>> issuersMap() {
-        return IndexB.subList(IndexB.size() - head_1().getIssuersFrame()  , IndexB.size()  ).stream().collect(Collectors.groupingBy(BINDEX::getIssuer));
+        return IndexB.subList(IndexB.size() - head_1().getIssuersFrame(), IndexB.size()).stream().collect(Collectors.groupingBy(BINDEX::getIssuer));
     }
 
     default BINDEX prepareIndexForForge(String issuer) {
@@ -2687,20 +2687,27 @@ public interface GlobalValid {
     }
 
     default boolean isValid(BINDEX head, DBBlock block) {
-        try{
-            if (BR_G61_rulePowMin(head, block) && BR_G62_ruleProofOfWork(head)) {
-                //LOG.info("Forged PoW is valid, testing it all");
-                if (BR_G97_TestIndex(head, block, true)) {
-                    return true;
-                }
-            }
-
-        }catch (AssertionError | Exception e){
-            //LOG.error("Forged PoW is NOT valid, testing it all" );
+        try {
+            BR_G61_rulePowMin(head, block);
+            BR_G62_ruleProofOfWork(head);
+            LOG.info("Forged PoW is valid, now checking BR_G97_TestIndex");
+        } catch (AssertionError | Exception e) {
             return false;
         }
 
-        return false;
+        try {
+            BR_G97_TestIndex(head, block, true);
+        } catch (AssertionError | Exception e) {
+            LOG.error("not valid", e);
+        }
+
+        try {
+            BlockLocalValid.Static.assertBlock(block);
+        } catch (AssertionError | Exception e) {
+            LOG.error("not valid", e);
+        }
+
+        return true;
     }
 
 
@@ -3309,7 +3316,7 @@ public interface GlobalValid {
 
 
             success &= commit(newHead, localI, localM, localC, localS);
-            if(success) IndexB.add(newHead);
+            if (success) IndexB.add(newHead);
             success &= trimAndCleanup(newHead, block);
 
         }
