@@ -304,7 +304,7 @@
                     <children>
                         <Button mnemonicParsing="false" onAction="#indexReset" text="Reset" />
                         <ProgressBar fx:id="indexBar" maxWidth="1.7976931348623157E308" progress="0.0" HBox.hgrow="ALWAYS" />
-                        <Button mnemonicParsing="false" onAction="#revert1" text="&lt;" />
+                        <Button fx:id="reverseButton" mnemonicParsing="false" onAction="#revert1" text="&lt;" />
                         <Button fx:id="pauseButton" mnemonicParsing="false" onAction="#pause" text="||" />
                         <Button fx:id="index1Button" mnemonicParsing="false" onAction="#index1" text="&gt;" />
                         <Button fx:id="indexUntilButton" mnemonicParsing="false" onAction="#indexUntil" text="&gt;&gt;" />

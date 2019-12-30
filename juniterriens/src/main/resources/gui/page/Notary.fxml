@@ -71,6 +71,8 @@
                             <children>
                                 <Label fx:id="isValidLabel" text="%notary.isValid"/>
                                 <Button fx:id="sendButton" mnemonicParsing="false" onAction="#sendDoc" text="%notary.send"/>
+                                <Button fx:id="sandboxButton" mnemonicParsing="false" onAction="#sandboxIt" text="%notary.sandbox"/>
+
                             </children>
                         </HBox>
                         <TextArea fx:id="logLocalValid" editable="false" promptText="%notary.localph" wrapText="true">

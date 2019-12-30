@@ -1,5 +1,6 @@
 package juniter.conf;
 
+import juniter.core.crypto.Crypto;
 import juniter.core.crypto.SecretBox;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
@@ -23,6 +24,6 @@ public class ServerSecretConf {
         var pub = properties.getProperty("pub", "3LJRrLQCio4GL7Xd48ydnYuuaeWAgqX4qXYFbXDTJpAa");
         var sec = properties.getProperty("sec", "5jf8kATgxw8QxFugnh8cEPYYf8BVzPQLWcEq1vHhQHyUTLL5CHd1qbhJmwEsWEeBQSfLYGQU7dhbuyLizyHb28Kx");
 
-        return new SecretBox(pub, sec.getBytes());
+        return new SecretBox(pub, Crypto.decodeBase58(sec));
     }
 }

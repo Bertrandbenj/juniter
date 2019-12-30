@@ -52,6 +52,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
     private static final Logger LOG = LogManager.getLogger(Database.class);
 
+
     @Autowired
     private Index index;
 
@@ -94,7 +95,8 @@ public class Database extends AbstractJuniterFX implements Initializable {
     private Button
             index1Button,
             pauseButton,
-            indexUntilButton;
+            indexUntilButton,
+    reverseButton;
     @FXML
     private HBox pagingB,
             pagingC,
@@ -357,6 +359,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
         jpql.getSelectionModel().select(0);
 
         indexUntilButton.disableProperty().bind(isIndexing);
+        reverseButton.disableProperty().bind(isIndexing);
         index1Button.disableProperty().bind(isIndexing);
         pauseButton.disableProperty().bind(isIndexing.not());
 

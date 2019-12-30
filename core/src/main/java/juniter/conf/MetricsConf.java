@@ -9,7 +9,6 @@ import com.ryantenney.metrics.spring.config.annotation.MetricsConfigurerAdapter;
 import io.micrometer.atlas.AtlasMeterRegistry;
 import io.micrometer.core.instrument.Clock;
 import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics;
 import io.micrometer.core.instrument.composite.CompositeMeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
@@ -23,8 +22,6 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 @Configuration
 @EnableMetrics
@@ -41,7 +38,7 @@ public class MetricsConf extends MetricsConfigurerAdapter {
                 .outputTo(System.out)
                 .filter(MetricFilter.ALL)
                 .build())
-                .start(30, TimeUnit.SECONDS);
+                .start(300, TimeUnit.SECONDS);
 
     }
 
@@ -81,7 +78,7 @@ public class MetricsConf extends MetricsConfigurerAdapter {
     }
 
     @Bean
-    public MeterRegistry configure() {
+    public MeterRegistry metricsRegistry() {
         var compositeMeterRegistry = new CompositeMeterRegistry();
         var simpleMeterRegistry = new SimpleMeterRegistry();
         var collectorRegistry = new CollectorRegistry();

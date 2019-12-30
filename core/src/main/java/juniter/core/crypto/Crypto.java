@@ -65,7 +65,7 @@ public class Crypto extends Util {
 		return string.getBytes(CHARSET_ASCII);
 	}
 
-	private static byte[] decodeBase58(String data) {
+	public static byte[] decodeBase58(String data) {
 		try {
 			return Base58.decode(data);
 		} catch (final Exception e) {

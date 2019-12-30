@@ -2698,13 +2698,15 @@ public interface GlobalValid {
         try {
             BR_G97_TestIndex(head, block, true);
         } catch (AssertionError | Exception e) {
-            LOG.error("not valid", e);
+            LOG.error("not valid Global " + e.getMessage());
+            return false;
         }
 
         try {
             BlockLocalValid.Static.assertBlock(block);
         } catch (AssertionError | Exception e) {
-            LOG.error("not valid", e);
+            LOG.error("not valid Local", e);
+            return false;
         }
 
         return true;

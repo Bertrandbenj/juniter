@@ -7,11 +7,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import juniter.core.event.NewBlock;
 import juniter.core.model.dbo.net.EndPointType;
-import juniter.core.model.wso.Wrapper;
 import juniter.core.model.wso.ResponseBlock;
 import juniter.core.model.wso.ResponseBlocks;
 import juniter.core.model.wso.ResponseWotPending;
-import juniter.grammar.JuniterGrammar;
+import juniter.core.model.wso.Wrapper;
 import org.antlr.v4.runtime.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -56,12 +55,11 @@ public class WS2PClient extends WebSocketClient {
 //    }
 
     private void actionOnConnect() {
-        pool.peerService.reportSuccess(EndPointType.WS2P,getURI().toString());
+        pool.peerService.reportSuccess(EndPointType.WS2P, getURI().toString());
 
-        //send(new Request().getCurrent());
-        send(Wrapper.buildPeerDoc(pool.peerService.endPointPeer().toDUP(true)));
+        send(new Request().getCurrent());
+        //send(Wrapper.buildPeerDoc(pool.peerService.endPointPeer().toDUP(true)));
         //send(new Request().getRequirementsPending(5));
-
 
     }
 
@@ -94,11 +92,11 @@ public class WS2PClient extends WebSocketClient {
     }
 
     private void handleDUP(String message) {
-        LOG.info("handle Document");
-        final var parser = juniterParser(CharStreams.fromString(message));
-        final var doc = new JuniterGrammar().visitDoc(parser.doc());
-        LOG.debug(doc);
-
+        try {
+            pool.sandbox.put(message);
+        } catch (Exception e) {
+            LOG.info("Problem handling DUP document " + message);
+        }
     }
 
     private void handleRequest(String message) {
@@ -189,13 +187,13 @@ public class WS2PClient extends WebSocketClient {
         pool.peerService.reportError(EndPointType.WS2P, getURI().toString());
 
         if (ex instanceof SSLHandshakeException) {
-            LOG.warn("WS SSL Handshake onError " + getURI() + " "+ ex);
+            LOG.warn("WS SSL Handshake onError " + getURI() + " " + ex);
         } else if (ex instanceof SSLException) {
-            LOG.warn("WS SSL onError " + getURI() +" "+ ex);
+            LOG.warn("WS SSL onError " + getURI() + " " + ex);
         } else if (ex instanceof ConnectException) {
-            LOG.warn("WS " + getURI() + " "+ ex);
+            LOG.warn("WS " + getURI() + " " + ex);
         } else if (ex instanceof NoRouteToHostException) {
-            LOG.warn("WS " + getURI() + " "+ ex);
+            LOG.warn("WS " + getURI() + " " + ex);
         } else {
             LOG.error("WS unknown onError " + getURI(), ex);
         }
@@ -213,6 +211,7 @@ public class WS2PClient extends WebSocketClient {
             handleRequest(message);
         } else if (message.startsWith("Version:")) {
             LOG.info("received DUP: " + message.substring(0, 50) + "...");
+
             handleDUP(message);
         } else {
             LOG.warn("received unknown message: " + message);
@@ -254,7 +253,7 @@ public class WS2PClient extends WebSocketClient {
     public void send(Wrapper req) {
         try {
             var doc = pool.jsonMapper.writeValueAsString(req);
-            LOG.info("sending doc " + doc );
+            LOG.info("sending doc " + doc);
             send(doc);
         } catch (NotYetConnectedException | JsonProcessingException e) {
             LOG.error(e);

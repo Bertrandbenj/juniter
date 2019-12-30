@@ -5,6 +5,7 @@ import juniter.core.model.dbo.net.EndPointType;
 import juniter.core.model.wso.Wrapper;
 import juniter.service.core.BlockService;
 import juniter.service.core.PeerService;
+import juniter.service.core.Sandboxes;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -78,6 +79,9 @@ public class WebSocketPool {
     public ObjectMapper jsonMapper;
 
     @Autowired
+    public Sandboxes sandbox;
+
+    @Autowired
     public ApplicationEventPublisher coreEventBus;
 
     @Autowired
@@ -125,13 +129,15 @@ public class WebSocketPool {
 
 
     @Transactional
-    @Scheduled(initialDelay = 3 * 60 * 1000, fixedDelay = 10 * 1000)
+    @Scheduled(initialDelay = 3 * 60 * 1000, fixedDelay = 30 * 1000)
     public void refreshCurrents() {
-        LOG.info("Refreshing Current ");
-        if (running.get())
+        if (running.get()){
+            LOG.info("Refreshing Current ");
             clients.parallelStream()
                     //.peek(c -> LOG.info("Refreshing Current " + running + " on " + c.getURI() + status()))
                     .forEach(c -> c.send(Wrapper.buildPeerDoc(peerService.endPointPeer(blockService.currentBlockNumber()).toDUP(true))));
+
+        }
     }
 
     @Transactional

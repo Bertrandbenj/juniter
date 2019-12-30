@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import juniter.core.model.technical.DUPDocument;
 import juniter.core.model.dbo.BStamp;
 import juniter.core.utils.Constants;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.lang.NonNull;
@@ -21,6 +23,8 @@ import javax.validation.constraints.Size;
 @Entity
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name = "sb_identity", schema = "public")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class IdentitySandboxed implements DUPDocument, Comparable<IdentitySandboxed> {

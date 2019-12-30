@@ -33,39 +33,39 @@ public class Interplanetary {
 
 
     // ====== FILES AND DIRS ========
-    public static final String ROOT_DIR = "/Juniter";
+    private static final String ROOT_DIR = "/Juniter";
 
-    public static final String G1_DIR = ROOT_DIR + "/ğ1";
-    public static final String G1_TEST_DIR = ROOT_DIR + "/ğ1-test";
+    private static final String G1_DIR = ROOT_DIR + "/ğ1";
+    private static final String G1_TEST_DIR = ROOT_DIR + "/ğ1-test";
 
-    public static final String CHAIN_DIR = G1_DIR + "/chain";
-    public static final String BLOCKS_DIR = G1_DIR + "/blocks";
-    public static final String DAILY_DIR = G1_DIR + "/daily";
-    public static final String INDEX_DIR = G1_DIR + "/index";
+    private static final String CHAIN_DIR = G1_DIR + "/chain";
+    private static final String BLOCKS_DIR = G1_DIR + "/blocks";
+    private static final String DAILY_DIR = G1_DIR + "/daily";
+    private static final String INDEX_DIR = G1_DIR + "/index";
 
 
     // Services
-    public static final String SERVICE_DIR = G1_DIR + "/service";
-    public static final String WITH_DIR = SERVICE_DIR + "/with";
-    public static final String WOT_DIR = SERVICE_DIR + "/wot";
-    public static final String PARAMETERS_FILE = SERVICE_DIR + "/parameters";
-    public static final String DIFFICULTIES_DIR = SERVICE_DIR + "/difficulties";
-    public static final String BRANCHES_FILE = SERVICE_DIR + "/branches";
-    public static final String MEMEBERSHIPS_DIR = SERVICE_DIR + "/memberships";
+    private static final String SERVICE_DIR = G1_DIR + "/service";
+    private static final String WITH_DIR = SERVICE_DIR + "/with";
+    private static final String WOT_DIR = SERVICE_DIR + "/wot";
+    private static final String PARAMETERS_FILE = SERVICE_DIR + "/parameters";
+    private static final String DIFFICULTIES_DIR = SERVICE_DIR + "/difficulties";
+    private static final String BRANCHES_FILE = SERVICE_DIR + "/branches";
+    private static final String MEMEBERSHIPS_DIR = SERVICE_DIR + "/memberships";
 
 
     /**
      * * newcomers,certs,actives,revoked,leavers,excluded,ud,tx"
      */
 
-    public static final String WITH_UD_FILE = WITH_DIR + "/ud";
-    public static final String WITH_TX_FILE = WITH_DIR + "/tx";
-    public static final String WITH_LEAVERS_FILE = WITH_DIR + "/leavers";
-    public static final String WITH_ACTIVES_FILE = WITH_DIR + "/actives";
-    public static final String WITH_EXCLUDED_FILE = WITH_DIR + "/excluded";
-    public static final String WITH_REVOKED_FILE = WITH_DIR + "/revoked";
-    public static final String WITH_CERTS_FILE = WITH_DIR + "/certs";
-    public static final String WITH_NEWCOMERS_FILE = WITH_DIR + "/newcomers";
+    private static final String WITH_UD_FILE = WITH_DIR + "/ud";
+    private static final String WITH_TX_FILE = WITH_DIR + "/tx";
+    private static final String WITH_LEAVERS_FILE = WITH_DIR + "/leavers";
+    private static final String WITH_ACTIVES_FILE = WITH_DIR + "/actives";
+    private static final String WITH_EXCLUDED_FILE = WITH_DIR + "/excluded";
+    private static final String WITH_REVOKED_FILE = WITH_DIR + "/revoked";
+    private static final String WITH_CERTS_FILE = WITH_DIR + "/certs";
+    private static final String WITH_NEWCOMERS_FILE = WITH_DIR + "/newcomers";
 
 
     @Autowired
@@ -79,7 +79,7 @@ public class Interplanetary {
 
 
     @PostConstruct
-    public IPFS ipfs() {
+    private IPFS ipfs() {
         IPFS ipfs = null;
         try {
 //            ipfs = new IPFS(new MultiAddress("/ip4/127.0.0.1/tcp/5001"));
@@ -416,7 +416,7 @@ public class Interplanetary {
         saveWith("revoked", WITH_REVOKED_FILE);
         saveWith("actives", WITH_ACTIVES_FILE);
         saveWith("certs", WITH_CERTS_FILE);
-        //saveWith("newcomers", WITH_NEWCOMERS_FILE);
+        saveWith("newcomers", WITH_NEWCOMERS_FILE);
         //saveWith("ud", WITH_UD_FILE);
 
 

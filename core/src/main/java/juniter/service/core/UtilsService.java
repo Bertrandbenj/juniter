@@ -90,7 +90,7 @@ public class UtilsService {
     }
 
 
-    @Scheduled(fixedRate = 30 * 1000, initialDelay = 60 * 1000)
+    @Scheduled(fixedRate = 60 * 1000, initialDelay = 60 * 1000)
     public void checkMemory() {
         coreEventBus.publishEvent(new LogMemory());
     }

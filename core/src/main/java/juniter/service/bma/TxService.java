@@ -149,7 +149,7 @@ public class TxService {
         var sent = txService.transactionsOfIssuerWindowedByTime(pubkey, Long.parseLong(from), Long.parseLong(to)).stream()
                 .map(tx -> modelMapper.map(tx, TransactionDTO.class))
                 .collect(Collectors.toList());
-        var received = txService.transactionsOfReceiver(pubkey).stream() //txService.transactionsOfReceiverWindowedByTime(pubkey, Long.parseLong(from), Long.parseLong(to)).stream()
+        var received = txService.transactionsOfReceiverWindowedByTime(pubkey, Long.parseLong(from), Long.parseLong(to)).stream() // txService.transactionsOfReceiver(pubkey).stream() //
                 .map(tx -> {
                     var res = modelMapper.map(tx, TransactionDTO.class);
                     res.setBlockstampTime(tx.getWritten().getMedianTime());

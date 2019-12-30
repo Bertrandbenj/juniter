@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import juniter.core.model.technical.DUPDocument;
 import juniter.core.model.dbo.BStamp;
 import juniter.core.utils.Constants;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.lang.NonNull;
@@ -15,6 +16,7 @@ import java.io.Serializable;
 @Entity
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "sb_member", schema = "public")
 @Inheritance(strategy = InheritanceType.JOINED)
 

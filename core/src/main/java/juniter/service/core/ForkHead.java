@@ -11,7 +11,6 @@ import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dbo.index.BINDEX;
 import juniter.core.model.dto.raw.WrapperBlock;
 import juniter.core.model.wso.Wrapper;
-import juniter.core.validation.BlockLocalValid;
 import juniter.service.ws2p.WebSocketPool;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -132,22 +131,26 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
         return block;
     }
 
-    private AtomicBoolean forge = new AtomicBoolean(false);
+    private AtomicBoolean isForging = new AtomicBoolean(false);
 
     @Timed(longTask = true, histogram = true, value = "forkhead.parallelProver")
     private DBBlock parallelProver(String ccy) {
-        AtomicReference<DBBlock> found = new AtomicReference<>();
-        var tryHead = index.prepareIndexForForge(serverSecret.getPublicKey());
-        var newBlock1 = forge(tryHead);
-        LOG.info("Searching for powMin {}, powZeros {}, powRemainder {} on Forged block \n{}" ,
-                tryHead.getPowMin(), tryHead.getPowZeros(), tryHead.getPowRemainder(), newBlock1.toDUP());
-
+        LOG.info("entered parallelProver ");
+        var found = new AtomicReference<DBBlock>();
         for (int i = 0; i < Runtime.getRuntime().availableProcessors(); i++) {
             int finalI = i;
             threads.add(new Thread(() -> {
                 String hash;
+                var tryHead = index.prepareIndexForForge(serverSecret.getPublicKey());
                 var newBlock = forge(tryHead);
-                long nonce = Long.parseLong("100" + finalI + "0000000000");
+                var nonce = Long.parseLong("100" + finalI + "0000000000");
+                newBlock.setNonce(nonce);
+
+                if(finalI==0){
+                    LOG.info("Searching for powMin {}, powZeros {}, powRemainder {} on Forged block \n{}" ,
+                            tryHead.getPowMin(), tryHead.getPowZeros(), tryHead.getPowRemainder(), newBlock.toDUP());
+                }
+
                 do {
                     nonce++;
                     newBlock.setNonce(nonce);
@@ -160,17 +163,17 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
                     tryHead.setHash(hash);
                     newBlock.setHash(hash);
 
-                } while (!index.isValid(tryHead, newBlock) && forge.get());
+                } while (!index.isValid(tryHead, newBlock) && isForging.get());
 
                 if (index.isValid(tryHead, newBlock)) found.set(newBlock);
-                forge.set(false);
+                isForging.set(false);
                 threads.forEach(Thread::interrupt);
             }));
         }
 
 
         try {
-            forge.set(true);
+            isForging.set(true);
             threads.parallelStream().forEach(Thread::run);
             return found.get();
         } catch (Exception e) {
@@ -239,10 +242,10 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
             var bl = newBlockEvent.getWhat();
             LOG.info("newBlockEvent " + newBlockEvent);
 
-            if (index.head_().getNumber() < bl.getNumber()) {
+            if (index.getBRepo().head().get().getNumber() < bl.getNumber()) {
                 if (threads != null) {
                     LOG.info("Killing the current PoW execution");
-                    forge.set(false);
+                    isForging.set(false);
                     threads.forEach(Thread::interrupt);
                 }
                 index.indexUntil(bl.getNumber(), false, bl.getCurrency());

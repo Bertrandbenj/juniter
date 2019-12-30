@@ -1,5 +1,9 @@
 package juniter.service.core;
 
+import antlr.generated.JuniterLexer;
+import antlr.generated.JuniterParser;
+import juniter.core.model.technical.DocumentType;
+import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dbo.sandbox.CertificationSandboxed;
 import juniter.core.model.dbo.sandbox.IdentitySandboxed;
@@ -12,10 +16,14 @@ import juniter.core.model.dbo.wot.Member;
 import juniter.core.model.dto.node.SandBoxesDTO;
 import juniter.core.model.dto.node.UnitDTO;
 import juniter.core.model.technical.DUPDocument;
+import juniter.grammar.*;
 import juniter.repository.jpa.sandbox.CertsSandboxRepository;
 import juniter.repository.jpa.sandbox.IdtySandboxRepository;
 import juniter.repository.jpa.sandbox.MembershipSandboxRepository;
 import juniter.repository.jpa.sandbox.TxSandboxRepository;
+import org.antlr.v4.runtime.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,6 +35,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class Sandboxes {
+    private static final Logger LOG = LogManager.getLogger(Sandboxes.class);
 
 
     @Autowired
@@ -53,6 +62,8 @@ public class Sandboxes {
 
     @Value("${juniter.sandboxIdtyField:100}")
     private Integer sandboxIdtySize;
+
+    private JuniterGrammar visitor = new JuniterGrammar();
 
 
     public SandBoxesDTO status() {
@@ -82,6 +93,60 @@ public class Sandboxes {
         }
     }
 
+    public void put(String rawDoc) throws AssertionError, Exception {
+        LOG.info("received raw Document without type " + rawDoc.substring(0, 80) + "...");
+        var type = rawDoc.substring(rawDoc.indexOf("Type:") + 5);
+        type = type.substring(0, type.indexOf("\n")).trim().toUpperCase();
+        put(rawDoc, DocumentType.valueOf(type));
+    }
+
+    public void put(String rawDoc, DocumentType type) throws AssertionError, Exception {
+        LOG.info("received raw Document with type " + type);
+        final var parser = juniterParser(CharStreams.fromString(rawDoc));
+        var doc = parser.doc();
+        assert doc != null : "Doc is null";
+
+        var docObject = visitor.visitDoc(doc);
+        LOG.info("Visited : " + docObject.getClass().getSimpleName() + " : " + docObject);
+
+
+        switch (type) {
+            case MEMBERSHIP:
+                MembershipDoc mem = (MembershipDoc) docObject;
+                var sbMem = new MemberSandboxed();
+                sbMem.setPubkey(mem.getIssuer());
+                sbMem.setSignature(mem.getSignature());
+                mSandRepo.save(sbMem);
+                break;
+            case IDENTITY:
+                IdentityDoc idty = (IdentityDoc) docObject;
+
+                iSandRepo.save(IdentitySandboxed.builder()
+                        .pubkey(idty.getIssuer())
+                        .signature(idty.getSignature())
+                        .signed(new BStamp(idty.getTimestamp()))
+                        .uid(idty.getUniqueID())
+                        .build());
+
+                break;
+            case PEER:
+                PeerDoc peer = (PeerDoc) docObject;
+
+                break;
+            case REVOCATION:
+                RevocationDoc rev = (RevocationDoc) docObject;
+
+                break;
+            case TRANSACTION:
+                break;
+            default:
+                LOG.error("Unknown doc class name " + docObject.getClass().getSimpleName());
+                break;
+        }
+
+
+    }
+
 
     @Transactional(readOnly = true)
     public List<Transaction> getPendingTransactions() {
@@ -104,18 +169,32 @@ public class Sandboxes {
     }
 
     /**
-     *
      * @param block the block that contains data to be cleared from the sandbox
      */
     @Transactional
-    void trim(DBBlock block){
+    void trim(DBBlock block) {
 
-        block.getTransactions().stream().map(Transaction::getHash).forEach(t->tSandRepo.deleteByHash(t));
+        block.getTransactions().stream().map(Transaction::getHash).forEach(t -> tSandRepo.deleteByHash(t));
 
-        block.getIdentities().stream().map(Identity::getPubkey).forEach(i-> iSandRepo.deleteByPubkey(i));
+        block.getIdentities().stream().map(Identity::getPubkey).forEach(i -> iSandRepo.deleteByPubkey(i));
 
-        block.getMembers().stream().map(Member::getPubkey).forEach(m->mSandRepo.deleteByPubkey(m));
+        block.getMembers().stream().map(Member::getPubkey).forEach(m -> mSandRepo.deleteByPubkey(m));
     }
 
+
+    private JuniterParser juniterParser(CharStream file) {
+        final JuniterLexer l = new JuniterLexer(file);
+        final JuniterParser p = new JuniterParser(new CommonTokenStream(l));
+
+        p.addErrorListener(new BaseErrorListener() {
+            @Override
+            public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line,
+                                    int charPositionInLine, String msg, RecognitionException e) {
+                throw new IllegalStateException("failed to parse at line " + line + " due to " + msg, e);
+            }
+        });
+
+        return p;
+    }
 
 }
