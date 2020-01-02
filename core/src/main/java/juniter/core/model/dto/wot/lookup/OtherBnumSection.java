@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 @Data
 @Builder
-public class BnumSection  implements Serializable {
-    private Integer block;
+public class OtherBnumSection implements Serializable {
+    private Integer block_number;
     private String block_hash;
 }

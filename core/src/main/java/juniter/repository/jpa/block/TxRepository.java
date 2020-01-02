@@ -63,10 +63,10 @@ public interface TxRepository extends JpaRepository<Transaction, Long> {
     Stream<Transaction> streamAll();
 
 
-    @Query("SELECT t FROM Transaction t INNER JOIN t.issuers i WHERE i = ?1 AND t.blockstamp.medianTime >= ?2 AND t.blockstamp.medianTime <= ?3")
+    @Query("SELECT t FROM Transaction t INNER JOIN t.issuers i WHERE i = ?1 AND t.written.medianTime >= ?2 AND t.written.medianTime <= ?3")
     List<Transaction> transactionsOfIssuerWindowedByTime(String pubkey, Long start, Long end);
 
-    @Query("SELECT t FROM Transaction t JOIN FETCH t.outputs o WHERE o.condition LIKE CONCAT('%',?1,'%') AND t.blockstamp.medianTime >= ?2 AND t.blockstamp.medianTime <= ?3")
+    @Query("SELECT t FROM Transaction t INNER JOIN t.outputs o WHERE o.condition LIKE CONCAT('%',?1,'%') AND t.written.medianTime >= ?2 AND t.written.medianTime <= ?3")
     List<Transaction> transactionsOfReceiverWindowedByTime(String pubkey, Long start, Long end);
 
 
@@ -79,8 +79,6 @@ public interface TxRepository extends JpaRepository<Transaction, Long> {
 
     @Query("SELECT t FROM Transaction t INNER JOIN t.outputs o WHERE o.condition LIKE CONCAT('%',:pubkey,'%')")
     List<Transaction> transactionsOfReceiver(@Param("pubkey") String pubkey);
-
-
 
     @Query("SELECT t FROM Transaction t INNER JOIN t.issuers i WHERE i = ?1 ")
     List<Transaction> transactionsOfIssuer(String pubkey);

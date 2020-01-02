@@ -5,6 +5,8 @@ import lombok.Data;
 
 @Data
 @Builder
-public class MetaLookup  {
-    private String timestamp;
+public class Certtime {
+
+    Integer block;
+    Long medianTime;
 }

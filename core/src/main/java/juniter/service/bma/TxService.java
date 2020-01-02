@@ -51,7 +51,7 @@ public class TxService {
     @Autowired
     private Sandboxes sandboxes;
 
-
+    @CrossOrigin(origins = "*")
     @Transactional(readOnly = true)
     @GetMapping(value = "/history/{pubkey}")
     public TxHistory history(@PathVariable("pubkey") String pubkey) {
@@ -83,6 +83,7 @@ public class TxService {
                 .build();
     }
 
+    @CrossOrigin(origins = "*")
     @Transactional(readOnly = true)
     @GetMapping(value = "/history/{pubkey}/pending")
     public TxHistory pendingHistory(@PathVariable("pubkey") String pubkey) {
@@ -109,6 +110,7 @@ public class TxService {
                 .build();
     }
 
+    @CrossOrigin(origins = "*")
     @Transactional(readOnly = true)
     @GetMapping(value = "/history/{pubkey}/blocks/{from}/{to}")
     public TxHistory historyFilterByBlockRange(@PathVariable("pubkey") String pubkey,
@@ -138,7 +140,7 @@ public class TxService {
                 .build();
     }
 
-
+    @CrossOrigin(origins = "*")
     @Transactional(readOnly = true)
     @GetMapping(value = "/history/{pubkey}/times/{from}/{to}")
     public TxHistory historyFilterByTimeRange(@PathVariable("pubkey") String pubkey,
@@ -146,13 +148,21 @@ public class TxService {
                                               @PathVariable("to") String to) {
         LOG.info("Entering /history/{pubkey}/times/{from}/{to}.. " + pubkey + " " + from + "->" + to);
 
+
         var sent = txService.transactionsOfIssuerWindowedByTime(pubkey, Long.parseLong(from), Long.parseLong(to)).stream()
-                .map(tx -> modelMapper.map(tx, TransactionDTO.class))
+                .map(tx -> {
+                    var res = modelMapper.map(tx, TransactionDTO.class);
+                    res.setBlock_number(tx.getWritten().getNumber());
+                    res.setTime(tx.getWritten().getMedianTime());
+                    return res;
+                })
                 .collect(Collectors.toList());
         var received = txService.transactionsOfReceiverWindowedByTime(pubkey, Long.parseLong(from), Long.parseLong(to)).stream() // txService.transactionsOfReceiver(pubkey).stream() //
                 .map(tx -> {
                     var res = modelMapper.map(tx, TransactionDTO.class);
                     res.setBlockstampTime(tx.getWritten().getMedianTime());
+                    res.setBlock_number(tx.getWritten().getNumber());
+                    res.setTime(tx.getWritten().getMedianTime());
                     return res;
                 })
                 .collect(Collectors.toList());
@@ -164,7 +174,7 @@ public class TxService {
         return new TxHistory("g1", pubkey, new History(sent, received, receiving, sending, pending));
     }
 
-
+    @CrossOrigin(origins = "*")
     @Transactional(readOnly = true)
     @GetMapping(value = "/sources/{pubkey}")
     public Wrapper sources(@PathVariable("pubkey") String pubkey) {

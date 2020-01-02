@@ -121,8 +121,8 @@ public class WotPanel implements Initializable {
         boxMembership.managedProperty().bind(boxMembership.visibleProperty());
         boxRevocation.managedProperty().bind(boxRevocation.visibleProperty());
         pk.textProperty().addListener(c -> {
-            var assocIdentity = index.getIRepo().byUidOrPubkey(null, pk.getText()).get(0);
-            var assocMembership = index.getIRepo().byUidOrPubkey(null, pk.getText()).get(0);
+            var assocIdentity = index.reduceI( pk.getText()).get();
+            var assocMembership = index.reduceM(  pk.getText()).get( );
 
             useridMem.setText(assocIdentity.getUid());
             certTSMem.setText(assocMembership.getSigned().toString());

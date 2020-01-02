@@ -34,6 +34,12 @@ public class TransactionDTO  {
 
 	private String comment;
 
+	private Long time = System.currentTimeMillis();
+
+	private Integer block_number ;
+
+	private Boolean received = null;
+
 
 
 }

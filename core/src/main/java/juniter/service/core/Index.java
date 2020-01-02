@@ -73,7 +73,13 @@ public class Index implements GlobalValid {
     private EntityManager entityManager;
 
 
+    public String hashAt(Integer number){
+        return blockService.block(number).map(DBBlock::getHash).orElseThrow();
+    }
 
+    public Long medianAt(Integer number){
+        return blockService.block(number).map(DBBlock::getMedianTime).orElseThrow();
+    }
 
     @PostConstruct
     public void init() {

@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 @Builder
-public class ReqDTO {
+public class Requirements {
 
     List<ReqIdtyDTO> identities;
 

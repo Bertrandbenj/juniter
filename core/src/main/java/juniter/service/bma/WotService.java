@@ -1,5 +1,6 @@
 package juniter.service.bma;
 
+import juniter.core.model.dbo.index.CINDEX;
 import juniter.core.model.dbo.index.MINDEX;
 import juniter.core.model.dbo.wot.Certification;
 import juniter.core.model.dbo.wot.Identity;
@@ -7,8 +8,8 @@ import juniter.core.model.dbo.wot.Revoked;
 import juniter.core.model.dto.wot.MemberDTO;
 import juniter.core.model.dto.wot.lookup.*;
 import juniter.core.model.dto.wot.requirements.IdtyCerts;
-import juniter.core.model.dto.wot.requirements.ReqDTO;
 import juniter.core.model.dto.wot.requirements.ReqIdtyDTO;
+import juniter.core.model.dto.wot.requirements.Requirements;
 import juniter.repository.jpa.block.CertsRepository;
 import juniter.service.core.Index;
 import lombok.AllArgsConstructor;
@@ -28,6 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,18 +46,20 @@ public class WotService {
     @Autowired
     private Index index;
 
+    @CrossOrigin("*")
     @GetMapping(value = "/requirements/{pubkey}")
-    public ReqDTO requirements(@PathVariable("pubkey") String pubkeyOrUid) {
+    public Requirements requirements(@PathVariable("pubkey") String pubkeyOrUid) {
         LOG.info("Entering /wot/requirements/{pubkey= " + pubkeyOrUid + "}");
 
 
-        return ReqDTO.builder().identities(index.getIRepo().search(pubkeyOrUid).stream()
+        return Requirements.builder().identities(index.getIRepo().search(pubkeyOrUid).stream()
                 .map(i -> {
 
                     var mindex = index.reduceM(pubkeyOrUid);
                     long now = new Date().getTime() / 1000;
 
                     var certs = index.getCRepo().receivedBy(i.getPub()).stream()
+                            .sorted(Comparator.comparing(CINDEX::getWritten))
                             .map(c -> IdtyCerts.builder()
                                     .from(c.getIssuer())
                                     .to(c.getReceiver())
@@ -88,25 +92,92 @@ public class WotService {
                 .build();
     }
 
+    @CrossOrigin("*")
     @Transactional(readOnly = true)
     @GetMapping(value = "/certifiers-of/{pubkeyOrUid}")
-    public List<Certification> certifiersOf(@PathVariable("pubkeyOrUid") String pubkeyOrUid) {
+    public CertLookup certifiersOf(@PathVariable("pubkeyOrUid") String pubkeyOrUid) {
         LOG.info("Entering /wot/certifiers-of/{pubkeyOrUid= " + pubkeyOrUid + "}");
 
-        return certsRepo.streamCertifiersOf(pubkeyOrUid).collect(Collectors.toList());
+        var idty = index.reduceI(pubkeyOrUid).orElseThrow();
+
+
+        return CertLookup.builder()
+                .isMember(idty.getMember())
+                .sigDate(idty.getSigned().stamp())
+                .pubkey(pubkeyOrUid)
+                .uid(idty.getUid())
+                .certifications(
+                        index.getCRepo().receivedBy(pubkeyOrUid).stream()
+                                .sorted(Comparator.comparing(CINDEX::getCreatedOn))
+                                .map(c -> {
+                                    var idt = index.reduceI(c.getIssuer()).orElseThrow();
+
+                                    return CertificationSection.builder()
+                                            .cert_time(Certtime.builder()
+                                                    .block(c.getCreatedOn())
+                                                    .medianTime(index.medianAt(c.getCreatedOn()))
+                                                    .build())
+                                            .pubkey(c.getIssuer())
+                                            .isMember(idt.getMember())
+                                            .wasMember(idt.getWasMember())
+                                            .sigDate(idt.getSigned().stamp())
+                                            .signature(idt.getSig())
+                                            .written(idt.getWritten())
+
+                                            .build();
+                                })
+                                .collect(Collectors.toList()))
+                .build();
+
+        //return certsRepo.streamCertifiersOf(pubkeyOrUid).collect(Collectors.toList());
     }
 
+    @CrossOrigin("*")
     @Transactional(readOnly = true)
     @GetMapping(value = "/certified-by/{pubkeyOrUid}")
-    public List<Certification> certifiedBy(@PathVariable("pubkeyOrUid") String pubkeyOrUid) {
+    public CertLookup certifiedBy(@PathVariable("pubkeyOrUid") String pubkeyOrUid) {
         LOG.info("Entering /wot/certified-by/{pubkeyOrUid= " + pubkeyOrUid + "}");
-        return certsRepo.streamCertifiedBy(pubkeyOrUid).collect(Collectors.toList());
+
+        var idty = index.reduceI(pubkeyOrUid).orElseThrow();
+
+
+        return CertLookup.builder()
+                .isMember(idty.getMember())
+                .sigDate(idty.getSigned().stamp())
+                .pubkey(pubkeyOrUid)
+                .uid(idty.getUid())
+                .certifications(
+                        index.getCRepo().issuedBy(pubkeyOrUid).stream()
+                                .map(c -> {
+                                    var idt = index.reduceI(c.getReceiver()).orElseThrow();
+
+                                    return CertificationSection.builder()
+                                            .cert_time(Certtime.builder()
+                                                    .block(c.getCreatedOn())
+                                                    .medianTime(index.medianAt(c.getCreatedOn()))
+                                                    .build())
+                                            .pubkey(idt.getPub())
+                                            .isMember(idt.getMember())
+                                            .wasMember(idt.getWasMember())
+                                            .sigDate(idt.getSigned().stamp())
+                                            .signature(idt.getSig())
+                                            .written(idt.getWritten())
+                                            .build();
+                                })
+                                .collect(Collectors.toList()))
+                .build();
+
     }
 
+    @CrossOrigin("*")
     @GetMapping(value = "/identity-of/{pubkeyOrUid}")
-    public String identityOf(@PathVariable("pubkeyOrUid") String pubkeyOrUid) {
-        LOG.info("Entering /wot/identity-of/{pubkeyOrUid= " + pubkeyOrUid + "}");
-        return "not implemented yet";
+    public IdentityOf identityOf(@PathVariable("pubkeyOrUid") String pubkeyOrUid) {
+        return index.reduceI(pubkeyOrUid).map(i -> IdentityOf.builder()
+                .pubkey(i.getPub())
+                .uid(i.getUid())
+                .sigDate(i.getSigned().stamp())
+                .build())
+                .orElseThrow();
     }
 
     @CrossOrigin(origins = "*")
@@ -118,42 +189,68 @@ public class WotService {
 
         var ids = index.getIRepo().search(pubkeyOrUid).stream().map(i -> {
             var m = index.getMRepo().member(i.getPub()).stream().reduce(MINDEX.reducer);
-            var c = index.getCRepo().receivedBy(i.getPub()).stream()
-                    .map(cert -> OtherLookup.builder()
-                            .isMember(true)
-                            .meta(MetaLookup.builder()
-                                    .timestamp(cert.getWritten())
-                                    .build())
-                            .pubkey(cert.getIssuer())
-                            .wasMember(true)
-                            .uids(List.of(""))
-                            .signature(cert.getSig())
-                            .build())
+
+            var others = index.getCRepo().receivedBy(i.getPub()).stream()
+                    .map(cert -> {
+                        var idt = index.reduceI(cert.getIssuer()).get();
+                        return OtherLookup.builder()
+                                .isMember(idt.getMember())
+                                .meta(OtherBnumSection.builder()
+                                        .block_hash(idt.getSigned().getHash())
+                                        .block_number(idt.getSigned().getNumber())
+                                        .build())
+                                .pubkey(cert.getIssuer())
+                                .wasMember(idt.getWasMember())
+                                .uids(List.of(idt.getUid()))
+                                .signature(cert.getSig())
+                                .build();
+                    })
                     .collect(Collectors.toList());
+
 
             return UserID.builder()
                     .meta(MetaLookup.builder()
-                            .timestamp(i.getWritten())
+                            .timestamp(i.getSigned().stamp())
                             .build())
                     .uid(i.getUid())
                     .revoked(m.get().getRevoked() != null)
                     .revocation_sig(m.get().getRevocation())
                     .revoked_on(null)
-                    .others(c)
-                    .self("self")
+                    .others(others)
+                    .self(i.getSig())
                     .build();
         }).collect(Collectors.toList());
 
-        var res = WotLookup.builder()
+        var signedSection = index.getCRepo().issuedBy(pubkeyOrUid).stream()
+                .map(cert -> {
+                            var idt = index.reduceI(cert.getReceiver()).get();
+
+                            return SignedSection.builder()
+                                    .meta(MetaLookupString.builder()
+                                            .timestamp(idt.getSigned().stamp())
+                                            .build())
+                                    .pubkey(cert.getReceiver())
+                                    .uid(idt.getUid())
+                                    .signature(cert.getSig())
+                                    .isMember(idt.getMember())
+                                    .wasMember(idt.getWasMember())
+                                    .cert_time(BnumSection.builder()
+                                            .block(cert.getCreatedOn())
+                                            .block_hash(index.hashAt(cert.getCreatedOn()))
+                                            .build())
+                                    .build();
+                        }
+                ).collect(Collectors.toList());
+
+        return WotLookup.builder()
                 .partial(false)
-                .results(List.of(WotLookupResult.builder()
-                        .signed(null)
+                .results(List.of(WotLookupResult
+                        .builder()
+                        .signed(signedSection)
                         .uids(ids)
                         .pubkey(pubkeyOrUid)
                         .build()))
                 .build();
-
-        return res;
     }
 
 
