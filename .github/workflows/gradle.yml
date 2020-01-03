@@ -34,7 +34,7 @@ jobs:
         with:
           java-version: 11
       - name: Build with Gradle
-        run: ./gradlew :core:javadoc -DskipTests
+        run: ./gradlew junigeek:javadoc -DskipTests
 
   deploy:
     runs-on: ubuntu-latest

@@ -60,6 +60,8 @@ configurations {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
+    compileOnly 'org.projectlombok:lombok:1.18.4'
+    annotationProcessor 'org.projectlombok:lombok:1.18.4'
 
     compile("org.springframework.boot:spring-boot-starter-web") {
         exclude module: "spring-boot-starter-tomcat"
