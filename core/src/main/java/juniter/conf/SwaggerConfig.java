@@ -44,7 +44,9 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
                 .apiInfo(metaData()
                         .title("RDF api using Jena")
                         .version("0.0.1")
-                        .description("Ex : run https://localhost:8443/jena/rdf/ontology/dbo  then load it into  http://www.visualdataweb.de/webvowl/# \n <br/>http://localhost:8000/#juniter_dbo<br/>http://localhost:8000/#bindex")
+                        .description("Ex : run https://localhost:8443/jena/rdf/ontology/dbo  then load it into  http://www.visualdataweb.de/webvowl/# " +
+                                "\n<br/>http://localhost:8000/#juniter_dbo<br/>http://localhost:8000/#bindex" +
+                                "\n<br/>http://localhost:8000/#file=test.json")
                         .build());
     }
 

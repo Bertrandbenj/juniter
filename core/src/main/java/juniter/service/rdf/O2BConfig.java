@@ -105,10 +105,7 @@ public interface O2BConfig {
         NAMED_QUERIES.put("bindex", "FROM BINDEX ");
         NAMED_QUERIES.put("cindex", "FROM CINDEX ");
         NAMED_QUERIES.put("iindex", "FROM IINDEX");
-        NAMED_QUERIES.put("txhistory", "SELECT t FROM Transaction t " +
-                " join fetch t.outputs out " +
-                " join fetch t.inputs in " +
-                " join fetch t.unlocks un");
+        NAMED_QUERIES.put("txhistory", "FROM Transaction");
 
 
 //        URI_2_CLASS.queue("definedURI", TaxonomicLevel.class);

@@ -15,3 +15,7 @@ jobs:
         java-version: 11
     - name: Build with Gradle
       run: ./gradlew bootJar -DskipTests
+
+  deploy:
+    stage: deploy
+    script: ./gradlew deploy -DskipTests

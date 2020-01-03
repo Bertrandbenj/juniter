@@ -1,6 +1,6 @@
 package juniter.service.rdf;
-//import de.uni_stuttgart.vis.vowl.owl2vowl.Owl2Vowl;
 
+import juniter.core.utils.ExecUtils;
 import org.apache.jena.ontology.OntModel;
 import org.apache.jena.rdf.model.Model;
 import org.apache.logging.log4j.LogManager;
@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -102,7 +103,7 @@ public abstract class OpenDataController implements Synchro {
                                  @RequestParam(defaultValue = "false") String disjoints,
                                  @RequestParam(defaultValue = "false") String methods,
                                  @RequestParam(defaultValue = "false") String packages) {
-        fillObjectWithStdAttribute(null,null,null);
+        fillObjectWithStdAttribute(null, null, null);
         return doWrite(execute(q, name, disjoints, methods, packages), "TriX");
     }
 
@@ -143,12 +144,18 @@ public abstract class OpenDataController implements Synchro {
 
         try {
             //save ontology as file
-            File owl = File.createTempFile(name, "owl");
+            File owl = Paths.get("/opt/juniterriens/WebVOWL/deploy/data/", name + ".owl").toFile();
+            File json = Paths.get("/opt/juniterriens/WebVOWL/deploy/data/", name + ".json").toFile();
+            owl.createNewFile();
+            LOG.info("saving ontology " + owl);
             res.write(new FileOutputStream(owl), "N3");
+            res.close();
+
+            ExecUtils.run("java -jar /opt/juniterriens/lib/OWL2VOWL-0.3.7-shaded.jar -file "+owl+" -output "+json);
 
             //convert to webVowl
 //            new Owl2Vowl(new FileInputStream(owl))
-//                    .writeToFile(new File("/home/bbertran/ws/WebVOWL/deploy/data/" + name + ".json"));
+//                    .writeToFile(new File("/opt/juniterriens/WebVOWL/deploy/data/" + name + ".json"));
 
         } catch (Exception e) {
             LOG.warn("error saving OWL and VOWL", e);
