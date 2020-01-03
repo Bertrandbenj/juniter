@@ -16,7 +16,7 @@ jobs:
     - name: BootJar
       run: ./gradlew :juniterriens:bootJar -DskipTests
 
-  deb:
+  packages:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
@@ -24,10 +24,13 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
-      - name: Build Debian / RPM using Gradle
+      - name: deb
         run: |
           ./gradlew :junigeek:buildDeb -DskipTests
           ./gradlew :juniterriens:buildDeb -DskipTests
+
+      - name: rpm
+        run: |
           ./gradlew :junigeek:buildRpm -DskipTests
           ./gradlew :juniterriens:buildRpm -DskipTests
 
