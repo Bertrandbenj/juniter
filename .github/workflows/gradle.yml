@@ -3,7 +3,7 @@ name: Java CI
 on: [push]
 
 jobs:
-  build:
+  juniterriens:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
@@ -11,8 +11,10 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 11
-    - name: Build with Gradle
-      run: ./gradlew bootJar -DskipTests
+    - name: Jar
+      run: ./gradlew :juniterriens:jar -DskipTests
+    - name: BootJar
+      run: ./gradlew :juniterriens:bootJar -DskipTests
 
   deb:
     runs-on: ubuntu-latest
@@ -29,7 +31,7 @@ jobs:
           ./gradlew :junigeek:buildRpm -DskipTests
           ./gradlew :juniterriens:buildRpm -DskipTests
 
-  javadoc:
+  junigeek:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
@@ -37,18 +39,9 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
-      - name: Build with Gradle
-        run: ./gradlew junigeek:javadoc -DskipTests
-
-  jarjar:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - name: Set up JDK 11
-        uses: actions/setup-java@v1
-        with:
-          java-version: 11
-      - name: Build with Gradle
+      - name: Build
         run:  ./gradlew :junigeek:jar -DskipTests
+      - name: Javadoc
+          run: ./gradlew junigeek:javadoc -DskipTests
       - name: Deploy junigeek
         run:  ./gradlew :junigeek:deploy

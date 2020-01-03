@@ -215,18 +215,19 @@ remotes {
     }
 }
 
-task deploy{
-    ssh.run {
-        session(remotes.juniter) {
-            //execute 'killall java'
-
-            put from: "build/libs/junigeek-${project.version}.jar", into: '/home/ben'
-
-            //execute 'sudo service tomcat restart'
-            execute "java -jar junigeek-${project.version}.jar -Djuniter.useJavaFX=false --headless "
-        }
-    }
-}
+//task deploy{
+//    dependsOn jar, bootJar
+//    ssh.run {
+//        session(remotes.juniter) {
+//            //execute 'killall java'
+//
+//            put from: "${project.projectDir}/build/libs/junigeek-${project.version}.jar", into: '/home/ben'
+//
+//            //execute 'sudo service tomcat restart'
+//            execute "java -jar junigeek-${project.version}.jar --headless "
+//        }
+//    }
+//}
 
 task checkServer {
     doLast {
