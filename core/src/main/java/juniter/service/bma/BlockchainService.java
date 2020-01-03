@@ -111,7 +111,8 @@ public class BlockchainService {
     }
 
     @CrossOrigin(origins = "*")
-    @GetMapping(value = "/block/{id}")
+    @GetMapping(value = "/block/{id}",produces = "application/json")
+
     public Block block(@PathVariable("id") Integer id) {
 
         LOG.info("Entering /blockchain/block/{number=" + id + "}");

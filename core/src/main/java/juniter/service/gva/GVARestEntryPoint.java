@@ -17,6 +17,7 @@ import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Description;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -92,15 +93,16 @@ public class GVARestEntryPoint  {
     /**
      * The entry point handling all GraphQL requests
      *
-     * @param request
-     * @param raw
-     * @return
+     * @param request request object
+     * @param raw for context
+     * @return the graphql end point
      */
    // @CrossOrigin(origins = "*", allowedHeaders = "*")
     @PostMapping(value = "/graphql",
             //headers = "*",
             consumes = MediaType.ALL_VALUE,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+
     @ResponseBody
     public Map<String, Object> graphql(@RequestBody Map<String, Object> request, HttpServletRequest raw) {
         LOG.info("[POST] /graphql ");

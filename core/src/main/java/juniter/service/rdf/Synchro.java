@@ -15,7 +15,7 @@ import static juniter.service.rdf.Helpers.delta;
 public interface Synchro extends OwlMappers {
     Logger LOG = LogManager.getLogger(Synchro.class);
 
-    String BASE_SYNCHRONIZE_MODEL_PACKAGE = "net.sumaris.core.model.referential";
+    String BASE_SYNCHRONIZE_MODEL_PACKAGE = "juniter.core.model.dbo";
 
 
     default OntModel overwriteFromRemote(String url, String ontIRI) {

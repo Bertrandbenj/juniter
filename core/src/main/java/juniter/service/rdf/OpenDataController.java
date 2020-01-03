@@ -102,15 +102,15 @@ public abstract class OpenDataController implements Synchro {
                                  @RequestParam(defaultValue = "false") String disjoints,
                                  @RequestParam(defaultValue = "false") String methods,
                                  @RequestParam(defaultValue = "false") String packages) {
-        //fillObjectWithStdAttribute(null,null,null);
+        fillObjectWithStdAttribute(null,null,null);
         return doWrite(execute(q, name, disjoints, methods, packages), "TriX");
     }
 
 
     // ===========  protected methods =============
     @Transactional
-    protected Model execute(String q, String name, String disjoints, String methods, String packages) {
-        LOG.info("executing /jena/{fmt}/{" + q + "}/{" + name + "}?disjoints=" + disjoints + "&methods=" + methods + "&packages=" + packages);
+    protected Model execute(String query, String name, String disjoints, String methods, String packages) {
+        LOG.info("executing /jena/{fmt}/{" + query + "}/{" + name + "}?disjoints=" + disjoints + "&methods=" + methods + "&packages=" + packages);
         Map<String, String> opts = new HashMap<>();
         opts.put("disjoints", disjoints);
         opts.put("methods", methods);
@@ -118,11 +118,11 @@ public abstract class OpenDataController implements Synchro {
 
         OntModel res = null;
 
-        switch (q) {
+        switch (query) {
             case "query":
-                String query = NAMED_QUERIES.getOrDefault(name, "from DBBlock");
+                String queryy = NAMED_QUERIES.getOrDefault(name, "from DBBlock");
                 res = ontOfData(MY_PREFIX + name,
-                        getEntityManager().createQuery(query)
+                        getEntityManager().createQuery(queryy)
                                 .setMaxResults(200)
                                 .getResultList(),
                         opts);

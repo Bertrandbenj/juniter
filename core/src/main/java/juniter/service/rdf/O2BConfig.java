@@ -102,22 +102,13 @@ public interface O2BConfig {
 
 
         // ============== NAMED_QUERIES ==============
-        NAMED_QUERIES.put("taxons", "select tn from TaxonName as tn" +
-                " left join fetch tn.taxonomicLevel as tl" +
-                " join fetch tn.referenceTaxon as rt" +
-                " join fetch tn.status st" +
-                " where tn.updateDate > '2015-01-01 23:59:50'");
-        NAMED_QUERIES.put("transcriptions", "select ti from TranscribingItem ti" +
-                " join fetch ti.type tit " +
-                " join fetch ti.status st");
-        NAMED_QUERIES.put("locations", "select l from Location l " +
-                " join fetch l.locationLevel ll " +
-                " join fetch l.validityStatus vs " +
-                " join fetch l.status st");
-        NAMED_QUERIES.put("gears", "select g from Gear g " +
-                " join fetch g.gearLevel gl " +
-                " join fetch g.strategies s " +
-                " join fetch g.status st");
+        NAMED_QUERIES.put("bindex", "FROM BINDEX ");
+        NAMED_QUERIES.put("cindex", "FROM CINDEX ");
+        NAMED_QUERIES.put("iindex", "FROM IINDEX");
+        NAMED_QUERIES.put("txhistory", "SELECT t FROM Transaction t " +
+                " join fetch t.outputs out " +
+                " join fetch t.inputs in " +
+                " join fetch t.unlocks un");
 
 
 //        URI_2_CLASS.queue("definedURI", TaxonomicLevel.class);
