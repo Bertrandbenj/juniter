@@ -4,7 +4,7 @@ on: [push]
 
 jobs:
   build:
-
+    stage: build
     runs-on: ubuntu-latest
 
     steps:
@@ -16,6 +16,28 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew bootJar -DskipTests
 
+  deb:
+    stage: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Build Debian / RPM using Gradle
+        run: ./gradlew buildDeb -DskipTests
+
   deploy:
     stage: deploy
-    script: ./gradlew deploy -DskipTests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Build with Gradle
+        run: ./gradlew deploy -DskipTests
