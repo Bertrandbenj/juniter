@@ -43,4 +43,4 @@ juniterriens/build/tmp/
 juniterriens/owl2vowl_logs/
 juniterriens/src/main/resources/gui/images/abstract-user-flat-3.svg
 scripts/data/
-/docs/
+*.docs/javadoc/
