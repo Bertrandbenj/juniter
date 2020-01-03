@@ -28,10 +28,9 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 //apply plugin: 'com.github.honourednihilist.gradle-postgresql-embedded'
 apply plugin: 'application'
-apply plugin: 'docker'
 //apply plugin: 'docker-spring-boot-application'
 apply plugin: "nebula.ospackage"
-
+apply plugin: 'docker'
 
 
 dependencies {

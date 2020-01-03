@@ -23,7 +23,8 @@ jobs:
         with:
           java-version: 11
       - name: Build Debian / RPM using Gradle
-        run: ./gradlew buildDeb -DskipTests
+        run: ./gradlew :junigeek:buildDeb -DskipTests
+
   javadoc:
     runs-on: ubuntu-latest
     steps:
@@ -33,7 +34,8 @@ jobs:
         with:
           java-version: 11
       - name: Build with Gradle
-        run: ./gradlew javadoc -DskipTests
+        run: ./gradlew :core:javadoc -DskipTests
+
   deploy:
     runs-on: ubuntu-latest
     steps:
@@ -43,4 +45,4 @@ jobs:
         with:
           java-version: 11
       - name: Build with Gradle
-        run: ./gradlew deploy -DskipTests
+        run: ./gradlew :juniterriens:jar -DskipTests
