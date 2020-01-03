@@ -23,7 +23,11 @@ jobs:
         with:
           java-version: 11
       - name: Build Debian / RPM using Gradle
-        run: ./gradlew :junigeek:buildDeb -DskipTests
+        run: |
+          ./gradlew :junigeek:buildDeb -DskipTests
+          ./gradlew :juniterriens:buildDeb -DskipTests
+          ./gradlew :junigeek:buildRpm -DskipTests
+          ./gradlew :juniterriens:buildRpm -DskipTests
 
   javadoc:
     runs-on: ubuntu-latest
@@ -36,7 +40,7 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew junigeek:javadoc -DskipTests
 
-  deploy:
+  jarjar:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
@@ -45,4 +49,6 @@ jobs:
         with:
           java-version: 11
       - name: Build with Gradle
-        run: ./gradlew :juniterriens:jar -DskipTests
+        run:  ./gradlew :junigeek:jar -DskipTests
+      - name: Deploy junigeek
+        run:  ./gradlew :junigeek:deploy
