@@ -29,10 +29,10 @@ jobs:
           ./gradlew :junigeek:buildDeb -DskipTests
           ./gradlew :juniterriens:buildDeb -DskipTests
 
-      - name: rpm
-        run: |
-          ./gradlew :junigeek:buildRpm -DskipTests
-          ./gradlew :juniterriens:buildRpm -DskipTests
+#      - name: rpm
+#        run: |
+#          ./gradlew :junigeek:buildRpm -DskipTests
+#          ./gradlew :juniterriens:buildRpm -DskipTests
 
   junigeek:
     runs-on: ubuntu-latest
