@@ -40,8 +40,8 @@ jobs:
         with:
           java-version: 11
       - name: Build
-        run:  ./gradlew :junigeek:jar -DskipTests
+        run: ./gradlew :junigeek:jar -DskipTests
       - name: Javadoc
-          run: ./gradlew junigeek:javadoc -DskipTests
+        run: ./gradlew junigeek:javadoc -DskipTests
       - name: Deploy junigeek
-        run:  ./gradlew :junigeek:deploy
+        run: ./gradlew :junigeek:bootJar
