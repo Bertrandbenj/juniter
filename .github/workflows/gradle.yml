@@ -6,15 +6,23 @@ jobs:
   juniterriens:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
-    - name: Set up JDK 11
-      uses: actions/setup-java@v1
-      with:
-        java-version: 11
-    - name: Boot Jar
-      run: ./gradlew :juniterriens:bootJar -DskipTests
-    - name: Javadoc
-      run: ./gradlew :juniterriens:javadoc -DskipTests
+      - uses: actions/checkout@v1
+      - name: Set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Boot Jar
+        run: ./gradlew :juniterriens:bootJar -DskipTests
+      - uses: actions/upload-artifact@v1
+        with:
+          name: juniterriens
+          path: juniterriens/build/libs/juniterriens-1.0.0-SNAPSHOT-boot.jar
+      - name: Javadoc
+        run: ./gradlew :juniterriens:javadoc -DskipTests
+      - uses: actions/upload-artifact@v1
+        with:
+          name: juniterriens
+          path: juniterriens/build/libs/junigeek-1.0.0-SNAPSHOT-javadoc.jar
 
 
   packages:
@@ -27,15 +35,13 @@ jobs:
           java-version: 11
       - name: Sources
         run: ./gradlew :core:sourcesJar -DskipTests
-      - name: Download sources
-        uses: actions/upload-artifact@v1.0.0
+      - uses: actions/upload-artifact@v1.0.0
         with:
           name: core
           path: core/build/libs/core-1.0.0-SNAPSHOT-sources.jar
       - name: Javadoc
         run: ./gradlew :core:javadocJar -DskipTests
-      - name: Download javadoc
-        uses: actions/upload-artifact@v1.0.0
+      - uses: actions/upload-artifact@v1.0.0
         with:
           name: core
           path: core/build/libs/core-1.0.0-SNAPSHOT-javadoc.jar
@@ -45,10 +51,10 @@ jobs:
           ./gradlew :juniterriens:buildDeb -DskipTests
 
 
-#      - name: rpm
-#        run: |
-#          ./gradlew :junigeek:buildRpm -DskipTests
-#          ./gradlew :juniterriens:buildRpm -DskipTests
+  #      - name: rpm
+  #        run: |
+  #          ./gradlew :junigeek:buildRpm -DskipTests
+  #          ./gradlew :juniterriens:buildRpm -DskipTests
 
   junigeek:
     runs-on: ubuntu-latest
