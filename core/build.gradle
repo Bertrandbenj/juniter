@@ -294,7 +294,7 @@ task sourcesJar(type: Jar) {
 
 task javadoc2(type: Jar) {
     compileJava
-    exec (javadoc)
+     javadoc 
     classifier = 'javadoc'
 }
 
