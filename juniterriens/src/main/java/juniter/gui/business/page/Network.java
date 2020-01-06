@@ -233,6 +233,7 @@ public class Network extends AbstractJuniterFX implements Initializable {
 
 
         observableNetStats.addListener((ListChangeListener<NetStats>) c -> {
+
             LOG.info("observableNetStats.addListener");
             netPieChartData.setAll(
                     c.getList().stream()

@@ -14,6 +14,7 @@ import org.controlsfx.control.Notifications;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 
 import static juniter.gui.JuniterBindings.*;
@@ -72,7 +73,9 @@ public class GuiCoreEventListener implements ApplicationListener<CoreEvent> {
 
             case "RenormalizedNet":
                 var list = (List<NetStats>) event.getWhat();
-                 Platform.runLater(() -> Network.observableNetStats.setAll(list));
+                list.sort(Comparator.comparing(NetStats::getLastNormalizedScore));
+                list.subList(list.size()-10, list.size()-1);
+                Platform.runLater(() -> Network.observableNetStats.setAll(list));
                 break;
 
             case "LogNetwork":

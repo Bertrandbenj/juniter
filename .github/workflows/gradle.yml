@@ -25,7 +25,7 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
-      - name: deb
+      - name: Build deb
         run: |
           ./gradlew :junigeek:buildDeb -DskipTests
           ./gradlew :juniterriens:buildDeb -DskipTests
@@ -58,7 +58,7 @@ jobs:
         with:
           java-version: 11
 
-      - name: Build
+      - name: Build Boot Jar
         run: ./gradlew :junigeek:bootJar -DskipTests
 
       - name: Javadoc
@@ -67,7 +67,7 @@ jobs:
       - uses: actions/upload-artifact@v1
         with:
           name: junigeek
-          path: build/libs/junigeek-1.0.0-SNAPSHOT.jar
+          path: build/libs/junigeek-1.0.0-SNAPSHOT-javadoc.jar
 
       - name: Test deploy
         run: ./gradlew :junigeek:checkServer

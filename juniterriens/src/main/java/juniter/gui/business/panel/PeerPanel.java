@@ -38,38 +38,20 @@ public class PeerPanel implements Initializable {
     private ComboBox<String> typeCombo;
 
     @FXML
-    private TextField salt;
-
-    @FXML
-    private TextField ip4;
-
-    @FXML
-    private TextField version;
-
-    @FXML
-    private TextField url;
-
-    @FXML
-    private TextField ip6;
-
-    @FXML
-    private TextField sessid;
-
-    @FXML
-    private TextField password;
-
-    @FXML
-    private TextField port;
+    private TextField
+            salt,
+            password,
+            ip4,
+            version,
+            url,
+            ip6,
+            sessid,
+            port,
+            currency,
+            block;
 
     @FXML
     private VBox endpointsContainer;
-
-    @FXML
-    private TextField currency;
-
-    @FXML
-    private TextField block;
-
     @FXML
     private Label pubkey;
 
