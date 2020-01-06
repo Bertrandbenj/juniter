@@ -103,12 +103,13 @@ task generateAvro(type: com.commercehub.gradle.plugin.avro.GenerateAvroJavaTask)
     def srcAvro = "${projectDir}/src/main/avro"
     def destAvro = "${projectDir}/src/main/generated"
 
+    println "Generate Avro"
     println "Sources from " + srcAvro
     println "Destination  " + destAvro
 
     source(srcAvro)
     outputDir = file(destAvro)
-    //compileJava.source(destAvro)
+    compileJava.source(destAvro)
 
 }
 
@@ -137,7 +138,7 @@ apply plugin: 'io.franzbecker.gradle-lombok'
 
 dependencies {
     // PRE COMPILE
-    compileOnly 'org.projectlombok:lombok:1.18.4'
+    compile  'org.projectlombok:lombok:1.18.4'
     annotationProcessor 'org.projectlombok:lombok:1.18.4'
     antlr "org.antlr:antlr4:4.7.1"
 //    apt "org.projectlombok:lombok:1.18.4"
@@ -292,17 +293,16 @@ task sourcesJar(type: Jar) {
     classifier = 'sources'
 }
 
-task javadoc2(type: Jar) {
-    compileJava
-     javadoc 
-    classifier = 'javadoc'
-}
+ 
 
 task javadocJar(type: Jar) {
-    from javadoc
+    //from javadoc
     classifier = 'javadoc'
 }
 
+javadoc{
+     
+}
 
 publishing {
     publications {
