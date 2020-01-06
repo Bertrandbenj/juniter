@@ -1,3 +1,5 @@
+
+
 buildscript {
     repositories {
         mavenCentral()
@@ -14,12 +16,17 @@ buildscript {
 //        classpath "org.apache.avro:avro-gradle-plugin:1.7.2"
 //        classpath "org.apache.avro:gradle-avro-plugin:1.7.2"
         //classpath "com.commercehub.gradle.plugin:gradle-avro-plugin:0.9.1"
+        classpath "io.franzbecker:gradle-lombok:1.7"
     }
 
 }
 
 plugins {
+
     id "com.commercehub.gradle.plugin.avro" version "0.9.1"
+
+    id 'io.franzbecker.gradle-lombok' version '1.8'
+    id 'maven-publish'
 }
 
 
@@ -32,10 +39,12 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 
 
+new File("docs/javadoc").mkdirs()
+
 javadoc {
     source = sourceSets.main.allJava
     classpath = configurations.compile
-    destinationDir = new File("docs/javadoc") // inside of build 
+    destinationDir = new File("docs/javadoc") // inside of build
 }
 
 
@@ -56,23 +65,82 @@ repositories {
 }
 
 configurations {
+
     all*.exclude group: "org.springframework.boot", module: "spring-boot-starter-logging"
     all*.exclude group: "ch.qos.logback"
     all*.exclude group: "org.slf4j", module: "log4j-over-slf4j" // allow using log4j 2.x
     all*.exclude group: "org.slf4j", module: "slf4j-simple"     // log4j is the configured backend
-
 
     all*.exclude group: "com.github.multiformats", module: "java-multibase"
     all*.exclude group: "com.github.multiformats", module: "java-multihash"
     all*.exclude group: "com.github.multiformats", module: "java-multiaddr"
     all*.exclude group: "com.github.ipld", module: "cid"
 
+    provided
+
+    compile.extendsFrom = extendsFrom.findAll { it != configurations.antlr }
+
+}
+
+bootJar {
+    enabled = false
+}
+
+//jar {
+//    enabled = true
+//}
+
+
+generateGrammarSource {
+    arguments << "-visitor" << "-lib" << "src/main/antlr"
+    outputDirectory = new File(projectDir.toString() + "/src/main/generated/juniter/antlr".toString())
+    maxHeapSize = "64m"
+}
+
+
+task generateAvro(type: com.commercehub.gradle.plugin.avro.GenerateAvroJavaTask) {
+
+    def srcAvro = "${projectDir}/src/main/avro"
+    def destAvro = "${projectDir}/src/main/generated"
+
+    println "Sources from " + srcAvro
+    println "Destination  " + destAvro
+
+    source(srcAvro)
+    outputDir = file(destAvro)
+    //compileJava.source(destAvro)
 
 }
 
 
+//artifacts {
+//    archives bootJar
+//    archives javadocJar
+//}
+apply plugin: 'io.franzbecker.gradle-lombok'
+//apply plugin: 'net.ltgt.apt'
+
+
+
+//// Delombok Task
+//task delombok( type: DelombokTask ) {
+//    description = 'Generates delomboked source.'
+//
+//    sourceSets.all {
+//        if ( it.name != SourceSet.TEST_SOURCE_SET_NAME ) {
+//            it.allJava.srcDirs.each {
+//                args( it, '-d', "${buildDir}/${delombok.name}" )
+//            }
+//        }
+//    }
+//}
+
 dependencies {
+    // PRE COMPILE
+    compileOnly 'org.projectlombok:lombok:1.18.4'
     annotationProcessor 'org.projectlombok:lombok:1.18.4'
+    antlr "org.antlr:antlr4:4.7.1"
+//    apt "org.projectlombok:lombok:1.18.4"
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
     compileOnly 'org.projectlombok:lombok:1.18.4'
@@ -141,8 +209,6 @@ dependencies {
     //  compile files(projectDir.toString() + "/../lib/kalium-0.5.0_blavenie.jar".toString())
     compile group: 'org.abstractj.kalium', name: 'kalium', version: '0.8.0'
 
-    // https://mvnrepository.com/artifact/org.apache.avro/avro-gradle-plugin
-    //compile group: 'org.apache.avro', name: 'avro-gradle-plugin', version: '1.7.2'
     // https://mvnrepository.com/artifact/org.apache.avro/avro
     compile group: 'org.apache.avro', name: 'avro', version: '1.9.1'
 
@@ -151,13 +217,6 @@ dependencies {
     testCompile("com.h2database:h2")
     testCompile("org.apache.httpcomponents:httpclient")
     testCompile("org.springframework.boot:spring-boot-starter-test")
-
-
-    // PRE COMPILE
-    compileOnly 'org.projectlombok:lombok:1.18.4'
-    annotationProcessor 'org.projectlombok:lombok:1.18.4'
-
-    antlr "org.antlr:antlr4:4.7.1"
 
 
     // MONITORING MEASUREMENT
@@ -228,59 +287,39 @@ dependencies {
 }
 
 
-configurations {
-    provided
-    //compileJava.source("${projectDir}/src/main/generated")
-    // add antlr4 to classpath
-    //compileJava.dependsOn generateGrammarSource
-    //compileJava.dependsOn compileScala
-    //compileScala.dependsOn.remove("compileJava")
-//    compile.extendsFrom(extendsFrom.findAll{})
-    compile.extendsFrom = extendsFrom.findAll { it != configurations.antlr }
-    //compile.extendsFrom antlr4
-   // compileJava.source("${projectDir}/src/main/generated")
-
-
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+    classifier = 'sources'
 }
 
-bootJar {
-    enabled = false
+task javadoc2(type: Jar) {
+    compileJava
+    exec (javadoc)
+    classifier = 'javadoc'
 }
 
-jar {
-    enabled = true
+task javadocJar(type: Jar) {
+    from javadoc
+    classifier = 'javadoc'
 }
 
 
-generateGrammarSource {
-    arguments << "-visitor" << "-lib" << "src/main/antlr"
-    outputDirectory = new File(projectDir.toString() + "/src/main/generated/juniter/antlr".toString())
-    maxHeapSize = "64m"
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = 'juniter'
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+        }
+    }
+    repositories {
+        maven {
+            url 'repo'
+        }
+        mavenLocal()
+    }
 }
-
-
-task generateAvro(type: com.commercehub.gradle.plugin.avro.GenerateAvroJavaTask) {
-
-    def srcAvro = "${projectDir}/src/main/avro"
-    def destAvro = "${projectDir}/src/main/generated"
-
-    println "Sources from "+srcAvro
-    println "Destination  "+ destAvro
-
-    source(srcAvro)
-    outputDir = file(destAvro)
-    //compileJava.source(destAvro)
-
-}
-
-//compileJava.source(generateAvro.outputs)
-
-
-
-
-
-
-
 
 
 

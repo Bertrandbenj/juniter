@@ -25,13 +25,24 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
-      - name: Javadoc
-        run: ./gradlew :core:javadoc -DskipTests
       - name: deb
         run: |
           ./gradlew :junigeek:buildDeb -DskipTests
           ./gradlew :juniterriens:buildDeb -DskipTests
-
+      - name: Sources
+        run: ./gradlew :core:sourcesJar -DskipTests
+      - name: Download sources
+        uses: actions/download-artifact@v1.0.0
+        with:
+          name: core
+          path: build/libs/core-1.0.0-SNAPSHOT-sources.jar
+      - name: Javadoc
+        run: ./gradlew :core:javadocJar -DskipTests
+      - name: Download javadoc
+        uses: actions/download-artifact@v1.0.0
+        with:
+          name: core
+          path: build/libs/core-1.0.0-SNAPSHOT-javadoc.jar
 #      - name: rpm
 #        run: |
 #          ./gradlew :junigeek:buildRpm -DskipTests
@@ -47,9 +58,18 @@ jobs:
           java-version: 11
       - name: Build
         run: ./gradlew :junigeek:assembleBootDist -DskipTests
+      - name: Download artifact
+        uses: actions/download-artifact@v1.0.0
+        with:
+          name: junigeek
+          path: build/libs/junigeek-1.0.0-SNAPSHOT.jar
       - name: Javadoc
         run: ./gradlew :junigeek:javadoc -DskipTests
+
       - name: Test deploy
         run: ./gradlew :junigeek:checkServer
       - name: Deploy junigeek
         run: ./gradlew :junigeek:deploy
+
+
+
