@@ -11,7 +11,7 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 11
-    - name: Boot Dist
+    - name: Boot Jar
       run: ./gradlew :juniterriens:bootJar -DskipTests
     - name: Javadoc
       run: ./gradlew :juniterriens:javadoc -DskipTests
@@ -59,13 +59,7 @@ jobs:
           java-version: 11
 
       - name: Build
-        run: ./gradlew :junigeek:assembleBootDist -DskipTests
-
-      - name: Download artifact
-        uses: actions/download-artifact@v1.0.0
-        with:
-          name: junigeek
-          path: build/libs/junigeek-1.0.0-SNAPSHOT.jar
+        run: ./gradlew :junigeek:bootJar -DskipTests
 
       - name: Javadoc
         run: ./gradlew :junigeek:javadoc -DskipTests

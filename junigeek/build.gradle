@@ -46,11 +46,7 @@ dependencies {
 //task buildAll(type: GradleBuild) {
 //    tasks = [ 'build' ]
 //}
-
-springBoot {
-
-}
-
+ 
 bootJar {
     mainClassName = 'juniter.Application'
     enabled = true
