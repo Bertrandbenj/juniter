@@ -90,7 +90,7 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
     }
 
 
-    private DBBlock forge(BINDEX indexForForge) {
+    public DBBlock forge(BINDEX indexForForge) {
         var block = new DBBlock();
         block.setNumber(indexForForge.getNumber());
         block.setVersion(indexForForge.getVersion().shortValue());

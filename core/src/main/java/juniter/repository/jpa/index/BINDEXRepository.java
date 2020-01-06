@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Repository to manage {@link BINDEX} instances.
@@ -20,8 +21,9 @@ public interface BINDEXRepository extends JpaRepository<BINDEX, Long> {
     @Override
     <S extends BINDEX> List<S> saveAll(Iterable<S> entities);
 
-    @Override
-    List<BINDEX> findAll();
+    @Transactional(readOnly = true)
+    @Query("FROM BINDEX")
+    Stream<BINDEX> all();
 
     @Query("FROM BINDEX b ORDER BY number")
     List<BINDEX> allAsc();

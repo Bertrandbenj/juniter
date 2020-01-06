@@ -24,8 +24,9 @@ public interface SINDEXRepository extends JpaRepository<SINDEX, Long> {
     @Override
     long count();
 
-    @Override
-    List<SINDEX> findAll();
+    @javax.transaction.Transactional
+    @Query("FROM SINDEX")
+    Stream<SINDEX> all();
 
     @Query("SELECT s FROM IINDEX i, SINDEX s WHERE " +
             "   i.uid LIKE CONCAT('%',?1,'%') AND " +

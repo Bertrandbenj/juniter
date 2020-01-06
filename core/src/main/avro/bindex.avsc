@@ -1,0 +1,37 @@
+{"namespace": "juniter.avro",
+ "type": "record",
+ "name": "BINDEX",
+ "fields": [
+
+     {"name": "id", "type": "int" },
+     {"name": "version", "type": "string" },
+     {"name": "size", "type": "int"  },
+     {"name": "hash", "type": ["string", "null"]  },
+     {"name": "issuer", "type": "string" },
+     {"name": "time", "type": ["string", "null"] },
+     {"name": "number", "type":  "string"  },
+     {"name": "currency", "type": "string" },
+     {"name": "previousHash", "type": "string" },
+     {"name": "previousIssuer", "type":  "string"  },
+     {"name": "membersCount", "type": "int" },
+     {"name": "issuerIsMember", "type": "boolean" },
+      {"name": "issuersCount", "type": "int" },
+      {"name": "issuersFrame", "type": "int" },
+      {"name": "issuersFrameVar", "type":"int" },
+      {"name": "issuerDiff", "type": "int"  },
+      {"name": "avgBlockSize", "type": "int" },
+      {"name": "medianTime", "type": ["long", "null"] },
+      {"name": "dividend", "type": ["int", "null"] },
+      {"name": "mass", "type": "long" },
+      {"name": "massReeval", "type": "long" },
+      {"name": "unitBase", "type": "int" },
+      {"name": "powMin", "type": "int" },
+      {"name": "udTime", "type": "long" },
+      {"name": "diffNumber", "type": "long" },
+      {"name": "speed", "type": ["double", "null"] },
+      {"name": "new_dividend", "type": "int" },
+      {"name": "udReevalTime", "type": "long" }
+
+
+ ]
+}

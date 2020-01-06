@@ -11,24 +11,26 @@ import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Pair;
 import javafx.util.StringConverter;
 import juniter.core.model.dbo.index.Account;
-import juniter.core.model.dbo.index.CINDEX;
+import juniter.core.model.dbo.index.CertRecord;
 import juniter.core.model.dbo.index.IINDEX;
 import juniter.core.model.dbo.index.MINDEX;
 import juniter.core.model.dbo.tx.Transaction;
 import juniter.core.model.dbo.tx.TxUnlock;
 import juniter.gui.technical.AbstractJuniterFX;
-import juniter.repository.jpa.block.BlockRepository;
-import juniter.repository.jpa.index.AccountRepository;
+import juniter.gui.technical.Formats;
 import juniter.service.core.Index;
 import juniter.service.core.TransactionService;
+import juniter.service.core.WebOfTrust;
 import juniter.user.UserSettings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -38,10 +40,7 @@ import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -59,8 +58,8 @@ public class User extends AbstractJuniterFX implements Initializable {
     private LineChart txChart;
     @FXML
     private ComboBox<String> wallet;
-    @FXML
-    private TextField pk;
+//    @FXML
+//    private TextField pk;
     @FXML
     private TextField uid;
     @FXML
@@ -72,16 +71,18 @@ public class User extends AbstractJuniterFX implements Initializable {
     @FXML
     private Label txSent;
     @FXML
-    private ListView<CINDEX> sentCerts;
-    @FXML
-    private ListView<CINDEX> receiveCerts;
+    private HBox sentCerts, receivedCerts;
 
     private UserSettings userSettings = new UserSettings();
 
     @Autowired
     private Index index;
+
     @Autowired
-    private TransactionService txRepository;
+    private WebOfTrust wot;
+
+    @Autowired
+    private TransactionService txService;
 
 
     @Autowired
@@ -93,8 +94,8 @@ public class User extends AbstractJuniterFX implements Initializable {
 
     private ObservableList<Transaction> sentTxList = FXCollections.observableArrayList();
     private ObservableList<Transaction> receivedTxList = FXCollections.observableArrayList();
-    private ObservableList<CINDEX> sentCertList = FXCollections.observableArrayList();
-    private ObservableList<CINDEX> receivedCertList = FXCollections.observableArrayList();
+    private ObservableList<CertRecord> sentCertList = FXCollections.observableArrayList();
+    private ObservableList<CertRecord> receivedCertList = FXCollections.observableArrayList();
     private ObjectProperty<IINDEX> idty = new SimpleObjectProperty<>();
     private ObjectProperty<MINDEX> mem = new SimpleObjectProperty<>();
     private ObjectProperty<Account> acc = new SimpleObjectProperty<>();
@@ -124,32 +125,67 @@ public class User extends AbstractJuniterFX implements Initializable {
         }
     }
 
+    public VBox drawCert(CertRecord c) {
+        var cert = c.getCert();
+        var iss = c.getIssuer();
+        var rec = c.getReceiver();
+        var date = new Date(cert.getWritten().getMedianTime() * 1000L);
+        var b = new Button("more...");
+        var iIss = new Image("https://g1.data.duniter.fr/user/profile/" + iss.getPub() + "/_image/avatar.png", 50, 50, true, true);
+        var iRec = new Image("https://g1.data.duniter.fr/user/profile/" + rec.getPub() + "/_image/avatar.png", 50, 50, true, true);
+
+        b.setTooltip(new Tooltip(iss.getPub() + " -> " + rec.getPub()));
+        var res = new VBox(5,
+                new Label(iss.getUid()),
+                new ImageView(iIss),
+                new Label(Formats.DATETIME_FORMAT.format(date)),
+                new ImageView(iRec),
+                new Label(rec.getUid())//,
+               // b
+        );
+        res.setPrefHeight(100);
+        res.setPrefWidth(200);
+        return res;
+    }
+
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        idty.addListener((observable, oldValue, newValue) -> {
+            uid.setText(newValue.getUid());
+
+        });
+
         wallet.setItems(FXCollections.observableArrayList(userSettings.getWallets()));
-        wallet.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+        wallet.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newWallet) -> {
+            index.reduceI(newWallet).ifPresentOrElse( i -> idty.setValue(i),()->{});
 
             Platform.runLater(() -> {
-                sentTxList.setAll(txRepository.transactionsOfIssuer(newValue));
-                receivedTxList.setAll(txRepository.transactionsOfReceiver(newValue));
-                refreshAccountOverTime(newValue);
+                sentTxList.setAll(txService.transactionsOfIssuer(newWallet));
+                receivedTxList.setAll(txService.transactionsOfReceiver(newWallet));
+                refreshAccountOverTime(newWallet);
             });
 
             Platform.runLater(() -> {
-                receivedCertList.setAll(index.getC(null, newValue).collect(Collectors.toList()));
-                sentCertList.setAll(index.getC(newValue, null).collect(Collectors.toList()));
+                var recs = wot.certRecord(newWallet);
+
+                sentCertList.setAll(recs.stream().filter(r -> r.getIssuer().getPub().equals(newWallet)).collect(Collectors.toList()));
+                receivedCertList.setAll(recs.stream().filter(r -> r.getReceiver().getPub().equals(newWallet)).collect(Collectors.toList()));
+
+                sentCerts.getChildren().setAll(sentCertList.stream().map(this::drawCert).collect(Collectors.toList()));
+                receivedCerts.getChildren().setAll(receivedCertList.stream().map(this::drawCert).collect(Collectors.toList()));
+
             });
 
             Platform.runLater(() -> {
-                account.setText(index.getAccountRepo().accountOf(newValue).getBSum() + "");
+                account.setText(index.getAccountRepo().accountOf(newWallet).getBSum() + "");
             });
 
         });
 
-        pk.textProperty().bind(wallet.valueProperty());
-        sentCerts.setItems(sentCertList);
-        receiveCerts.setItems(receivedCertList);
+       // pk.textProperty().bind(wallet.valueProperty());
+
+
         txSent.textProperty().bind(Bindings.createStringBinding(() -> sentTxList.size() + "", sentTxList));
         txReceived.textProperty().bind(Bindings.createStringBinding(() -> receivedTxList.size() + "", receivedTxList));
         status.textProperty().bind(Bindings.createStringBinding(() -> idty.get() != null ? "ok" : "not ok", idty));
@@ -189,10 +225,10 @@ public class User extends AbstractJuniterFX implements Initializable {
 
             }
 
-            txRepository
+            txService
                     .dividendsOf(newValue)
                     .forEach(b -> {
-                        LOG.info(b);
+                        //LOG.info(b);
                         tmp.add(new Pair(b.getMedianTime(), b.getDividend()));
                     });
 

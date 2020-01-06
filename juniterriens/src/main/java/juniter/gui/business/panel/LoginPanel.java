@@ -71,10 +71,7 @@ public class LoginPanel implements Initializable {
             protected Void call() throws InterruptedException {
 
                 updateMessage("Loading certificates ");
-                var c1 = index.getCRepo().receivedBy(sb.getPublicKey());
-                var c2 = index.getCRepo().issuedBy(sb.getPublicKey());
-                certsRelated.addAll(c1);
-                certsRelated.addAll(c2);
+                certsRelated.addAll(index.getC(sb.getPublicKey(), sb.getPublicKey()).collect(Collectors.toList()));
 
 
                 updateMessage("Loading Transactions ");

@@ -1,7 +1,6 @@
 package juniter.service.core;
 
 import io.micrometer.core.annotation.Timed;
-import juniter.core.event.CurrentBNUM;
 import juniter.core.event.Indexing;
 import juniter.core.event.NewBINDEX;
 import juniter.core.model.dbo.BStamp;
@@ -20,8 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -69,15 +66,11 @@ public class Index implements GlobalValid {
     @Autowired
     private Sandboxes sandboxes;
 
-    @PersistenceContext
-    private EntityManager entityManager;
-
-
-    public String hashAt(Integer number){
+    public String hashAt(Integer number) {
         return blockService.block(number).map(DBBlock::getHash).orElseThrow();
     }
 
-    public Long medianAt(Integer number){
+    public Long medianAt(Integer number) {
         return blockService.block(number).map(DBBlock::getMedianTime).orElseThrow();
     }
 
@@ -85,45 +78,13 @@ public class Index implements GlobalValid {
     public void init() {
         LOG.info("Init Indexes: ");
 
-        init(false,"g1");
+
+        init(false, "g1");
     }
 
-    /**
-     * hack to create account VIEW after SQL table's init.
-     * TODO: might not work on every SQL backend, please adapt
-     */
-    @PostConstruct
-    @Transactional
-    public void createAccountView() {
-        try {
-
-            if (accountRepo.count() <= 0) {
-                entityManager.getTransaction().begin();
-
-                var q1 = entityManager.createNativeQuery("DROP TABLE IF EXISTS account;");
-
-
-                var q2 = entityManager.createNativeQuery(
-                        "CREATE OR REPLACE VIEW account AS " +
-                                "SELECT conditions, sum(case WHEN consumed THEN 0-amount ELSE amount end) bSum " +
-                                "FROM index_s GROUP BY conditions ORDER by conditions;");
-
-                entityManager.joinTransaction();
-
-                q1.executeUpdate();
-                q2.executeUpdate();
-                entityManager.getTransaction().commit();
-                LOG.info("Successfully added Account view ");
-            }
-
-        } catch (Exception e) {
-            LOG.error("creating Account view failed, please do manually  ", e.getMessage());
-        }
-
-    }
 
     @Transactional
-    @Timed(value="index_init")
+    @Timed(value = "index_init")
     private void init(boolean resetDB, String ccy) {
         try {
             var params = blockService.paramsByCCY(ccy);
@@ -171,7 +132,7 @@ public class Index implements GlobalValid {
 
         if (bstamp.getNumber().equals(0))
             return blockService.block(0);
-        return Optional.of(blockService.blockOrFetch(bstamp.getNumber()) );
+        return Optional.of(blockService.blockOrFetch(bstamp.getNumber()));
     }
 
     @Override
@@ -181,7 +142,7 @@ public class Index implements GlobalValid {
 
     @Transactional
     @Override
-    @Timed(value="index_commit")
+    @Timed(value = "index_commit")
     public boolean commit(BINDEX indexB,
                           Set<IINDEX> indexI, Set<MINDEX> indexM, Set<CINDEX> indexC, Set<SINDEX> indexS) {
 
@@ -195,7 +156,7 @@ public class Index implements GlobalValid {
         if (indexB != null) {
             bRepo.save(indexB);
 
-            LOG.info("Commit " +indexB.getNumber() +
+            LOG.info("Commit " + indexB.getNumber() +
                     " - Certs: +" + indexC.size() + ",-" + cRepo.count() +
                     " Membship: +" + indexM.size() + ",-" + mRepo.count() +
                     " Idty: +" + indexI.size() + ",-" + iRepo.count() +
@@ -223,14 +184,22 @@ public class Index implements GlobalValid {
         return iRepo.findAll().stream();
     }
 
+    /**
+     * if issuer == receiver
+     * return the union of certifications issued by search and received by search
+     *
+     * @param issuer
+     * @param receiver
+     * @return certifiation
+     */
     @Override
     public Stream<CINDEX> getC(String issuer, String receiver) {
-        if (receiver != null && issuer != null) {
+        if (issuer != null && issuer.equals(receiver)) {
+            return Stream.concat(cRepo.receivedBy(receiver).stream(), cRepo.issuedBy(issuer).stream());
+        } else if (receiver != null && issuer != null) {
             return cRepo.getCert(issuer, receiver).stream();
-
         } else if (receiver != null) {
             return cRepo.receivedBy(receiver).stream();
-
         } else if (issuer != null) {
             return cRepo.issuedBy(issuer).stream();
         }
@@ -310,7 +279,7 @@ public class Index implements GlobalValid {
         return cRepo.certStock(issuer, asOf);
     }
 
-    @Timed(value="index_trimGlobal", longTask = true)
+    @Timed(value = "index_trimGlobal", longTask = true)
     @Override
     public void trimGlobal(BINDEX head, int bIndexSize) {
 
@@ -330,7 +299,6 @@ public class Index implements GlobalValid {
     }
 
 
-
     /**
      * mostly technical function to error handle, parametrized, log the validation function
      * <p>
@@ -344,7 +312,7 @@ public class Index implements GlobalValid {
     @Timed(longTask = true, histogram = true, value = "index_indexUntil")
     public synchronized void indexUntil(int syncUntil, boolean quick, String ccy) {
 
-         coreEventBuss.publishEvent(new Indexing(true,"indexUntil " + syncUntil + " , quick? " + quick + " , ccy? " + ccy));
+        coreEventBuss.publishEvent(new Indexing(true, "indexUntil " + syncUntil + " , quick? " + quick + " , ccy? " + ccy));
 
         init(false, ccy);
         var baseTime = System.currentTimeMillis();
@@ -353,13 +321,13 @@ public class Index implements GlobalValid {
 
         for (int bnum = head().map(h -> h.getNumber() + 1).orElse(0); bnum <= syncUntil; bnum++) {
 
-            final var block = blockService.blockOrFetch(bnum) ;
+            final var block = blockService.blockOrFetch(bnum);
 
             try {
                 if (completeGlobalScope(block, !quick)) {
-                    coreEventBuss.publishEvent(new NewBINDEX(head_() ,""));
+                    coreEventBuss.publishEvent(new NewBINDEX(head_(), ""));
                 } else {
-                    coreEventBuss.publishEvent(new Indexing(false,"NOT Valid " + block));
+                    coreEventBuss.publishEvent(new Indexing(false, "NOT Valid " + block));
                     break;
                 }
             } catch (AssertionError | Exception e) {
@@ -379,13 +347,13 @@ public class Index implements GlobalValid {
                 var log = "Validation : elapsed time " + TimeUtils.format(baseDelta) + " which is " + perBlock
                         + " ms per node, estimating: " + TimeUtils.format(estimate) + "left";
 
-                coreEventBuss.publishEvent(new Indexing(true,log));
+                coreEventBuss.publishEvent(new Indexing(true, log));
                 time = newTime;
             }
         }
 
         delta = System.currentTimeMillis() - time;
-        coreEventBuss.publishEvent(new Indexing(false, "Finished validation, took :  " + TimeUtils.format(delta)));
+        coreEventBuss.publishEvent(new Indexing(false, ""));
 
     }
 
@@ -409,9 +377,9 @@ public class Index implements GlobalValid {
             sRepo.deleteAll(
                     sRepo.writtenOn(h.getNumber(), h.getHash())
             );
+            blockService.delete(blockService.block(h.getNumber(), h.getHash()));
 
-
-            coreEventBuss.publishEvent(new CurrentBNUM(h.getNumber() - 1));
+            //coreEventBuss.publishEvent(new CurrentBNUM(h.getNumber() - 1));
 
             coreEventBuss.publishEvent(new Indexing(false, "Reverted to " + h.getNumber() + " from " + h));
 

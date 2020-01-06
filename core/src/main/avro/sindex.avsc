@@ -1,0 +1,19 @@
+{"namespace": "juniter.avro",
+ "type": "record",
+ "name": "SINDEX",
+ "fields": [
+
+     {"name": "id", "type": "int" },
+     {"name": "op", "type": "string" },
+     {"name": "tx", "type": ["string", "null"] },
+     {"name": "identifier", "type": ["string", "null"]  },
+     {"name": "pos", "type": "int" },
+     {"name": "signed", "type": ["string", "null"] },
+     {"name": "written", "type": ["string", "null"] },
+     {"name": "amount", "type": "string" },
+     {"name": "base", "type": "string" },
+     {"name": "locktime", "type": ["long", "null"] },
+     {"name": "consumed", "type": "boolean" },
+     {"name": "conditions", "type": "string" }
+ ]
+}

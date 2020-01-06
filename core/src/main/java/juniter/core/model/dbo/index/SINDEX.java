@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.tx.TxType;
 import juniter.core.model.gva.Source;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.lang.NonNull;
@@ -117,6 +119,8 @@ import java.util.function.BinaryOperator;
  */
 @Data
 @Entity
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "index_s", schema = "public", indexes = {
         @Index(columnList = "identifier"),

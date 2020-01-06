@@ -96,7 +96,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
             index1Button,
             pauseButton,
             indexUntilButton,
-    reverseButton;
+            reverseButton;
     @FXML
     private HBox pagingB,
             pagingC,
@@ -215,7 +215,8 @@ public class Database extends AbstractJuniterFX implements Initializable {
     private TextField indexTil;
     @FXML
     private ProgressBar indexBar;
-
+    @Autowired
+    private EntityManager em;
 
     @FXML
     public void indexUntil() {
@@ -647,8 +648,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
         LOG.info("showing node at " + blockNumber);
     }
 
-    @Autowired
-    private EntityManager em;
+
 
     static <S, T> Callback<TableColumn.CellDataFeatures<S, T>, ObservableValue<T>> createArrayValueFactory(Function<S, T[]> arrayExtractor, final int index) {
         if (index < 0) {

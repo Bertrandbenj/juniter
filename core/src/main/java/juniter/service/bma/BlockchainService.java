@@ -2,6 +2,7 @@ package juniter.service.bma;
 
 import io.micrometer.core.annotation.Timed;
 import juniter.core.model.dbo.DBBlock;
+import juniter.core.model.dbo.index.CertRecord;
 import juniter.core.model.dbo.index.MINDEX;
 import juniter.core.model.dto.ChainParametersDTO;
 import juniter.core.model.dto.net.DifficultiesDTO;
@@ -16,6 +17,7 @@ import juniter.repository.jpa.block.TxRepository;
 import juniter.service.bma.loader.BlockLoader;
 import juniter.service.core.BlockService;
 import juniter.service.core.Index;
+import juniter.service.core.WebOfTrust;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
@@ -95,6 +97,9 @@ public class BlockchainService {
     @Autowired
     private ModelMapper modelMapper;
 
+    @Autowired
+    private WebOfTrust wotService;
+
 
     @Transactional(readOnly = true)
     @GetMapping(value = "/all")
@@ -111,8 +116,7 @@ public class BlockchainService {
     }
 
     @CrossOrigin(origins = "*")
-    @GetMapping(value = "/block/{id}",produces = "application/json")
-
+    @GetMapping(value = "/block/{id}", produces = "application/json")
     public Block block(@PathVariable("id") Integer id) {
 
         LOG.info("Entering /blockchain/block/{number=" + id + "}");
@@ -212,6 +216,7 @@ public class BlockchainService {
 
     }
 
+    @CrossOrigin(origins = "*")
     @Transactional(readOnly = true)
     @GetMapping(value = "/memberships/{search}")
     public Stream<MINDEX> memberships(@PathVariable("search") String search) {
@@ -222,7 +227,8 @@ public class BlockchainService {
     @CrossOrigin(origins = "*")
     @GetMapping(value = "/parameters/{ccy}")
     public ChainParametersDTO parameters(@PathVariable(name = "ccy", required = false) Optional<String> ccy) {
-        return modelMapper.map(blockService.paramsByCCY(ccy.orElse("g1")), ChainParametersDTO.class);
+        return ccy.map(c -> modelMapper.map(blockService.paramsByCCY(c), ChainParametersDTO.class))
+                .orElse(parameter());
     }
 
     @CrossOrigin(origins = "*")
@@ -255,7 +261,7 @@ public class BlockchainService {
 
 
     // ======= POST =======
-
+    @CrossOrigin(origins = "*")
     @PostMapping(value = "/membership")
     public ResponseEntity<MembershipDTO> membership(HttpServletRequest request, HttpServletResponse response) {
 
@@ -274,7 +280,7 @@ public class BlockchainService {
         return new ResponseEntity<>(membership, headers, HttpStatus.OK);
     }
 
-
+    @CrossOrigin(origins = "*")
     @PostMapping(value = "/block")
     public ResponseEntity<DBBlock> block(HttpServletRequest request, HttpServletResponse response) {
 

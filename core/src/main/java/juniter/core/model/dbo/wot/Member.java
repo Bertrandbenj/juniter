@@ -60,8 +60,8 @@ public class Member implements DUPDocument, Serializable, Comparable<Member> {
         return pubkey + ":" + signature + ":" + signed.getNumber() + "-" + signed.getHash() + ":" + i_block_uid + ":" + uid;
     }
 
+    @Override
     public String toDUPdoc(boolean signed) {
-
         return "";
     }
 

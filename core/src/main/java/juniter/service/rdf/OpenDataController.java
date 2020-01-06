@@ -24,6 +24,9 @@ public abstract class OpenDataController implements Synchro {
 
     private static final Logger LOG = LogManager.getLogger(OpenDataController.class);
 
+
+    private final String WebVOWL_DATA = "/opt/juniterriens/WebVOWL/deploy/data/";
+
     public void initModule() {
         initConfig();
         new Reflections(BASE_SYNCHRONIZE_MODEL_PACKAGE, new SubTypesScanner(false))
@@ -144,8 +147,8 @@ public abstract class OpenDataController implements Synchro {
 
         try {
             //save ontology as file
-            File owl = Paths.get("/opt/juniterriens/WebVOWL/deploy/data/", name + ".owl").toFile();
-            File json = Paths.get("/opt/juniterriens/WebVOWL/deploy/data/", name + ".json").toFile();
+            File owl = Paths.get(WebVOWL_DATA , name + ".owl").toFile();
+            File json = Paths.get(WebVOWL_DATA, name + ".json").toFile();
             owl.createNewFile();
             LOG.info("saving ontology " + owl);
             res.write(new FileOutputStream(owl), "N3");

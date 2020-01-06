@@ -101,6 +101,7 @@ public class Neighbourhood extends Room {
 
         i = 0;
         for (CINDEX t : certsRelated) {
+
             var x = 50;
             ;
             var y = 50 + (i * 60);

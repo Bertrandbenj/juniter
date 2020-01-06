@@ -2,18 +2,12 @@ package juniter.repository.jpa.index;
 
 
 import juniter.core.model.dbo.index.MINDEX;
-
-import juniter.core.model.dbo.index.SINDEX;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.net.ContentHandler;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -27,8 +21,9 @@ public interface MINDEXRepository extends JpaRepository<MINDEX, Long> {
     @Override
     long count();
 
-    @Override
-    List<MINDEX> findAll();
+    @Transactional(readOnly = true)
+    @Query("FROM MINDEX")
+    List<MINDEX> all();
 
     @Override
     void deleteAll(Iterable<? extends MINDEX> entities);
@@ -107,12 +102,11 @@ public interface MINDEXRepository extends JpaRepository<MINDEX, Long> {
 //    List<MINDEX> findPubkeysThatShouldExpire(Long mtime);
 
 
-
     @Query(value = "SELECT pub FROM MINDEX GROUP BY pub HAVING max(expires_on) <= ?1 AND max(revokes_on) > ?1 ")
-    List<String> findPubkeysThatShouldExpire3(Long mtime) ;
+    List<String> findPubkeysThatShouldExpire3(Long mtime);
 
     @Query(value = "SELECT pub FROM MINDEX m WHERE expires_on <= ?1 AND revokes_on > ?1 ")
-    List<String> findPubkeysThatShouldExpire2(Long mtime) ;
+    List<String> findPubkeysThatShouldExpire2(Long mtime);
 
 
     @Query(value = "SELECT pub FROM MINDEX WHERE revoked IS NULL AND expires_on > ?1 GROUP BY pub HAVING max(revokes_on) <= ?1 ")

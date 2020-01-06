@@ -1,0 +1,20 @@
+{"namespace": "juniter.avro",
+ "type": "record",
+ "name": "IINDEX",
+ "fields": [
+
+     {"name": "id", "type": "long" },
+     {"name": "op", "type": "string" },
+     {"name": "uid", "type": ["string", "null"]  },
+     {"name": "pub", "type":  "string"  },
+     {"name": "hash", "type": ["string", "null"] },
+     {"name": "sig", "type": ["string", "null"] },
+     {"name": "signed", "type": ["string", "null"] },
+     {"name": "written", "type": "string"  },
+     {"name": "member", "type": ["boolean", "null"] },
+     {"name": "wasMember", "type": ["boolean", "null"] },
+     {"name": "kick", "type": ["boolean", "null"] },
+     {"name": "wotbid", "type": ["int", "null"] }
+
+ ]
+}

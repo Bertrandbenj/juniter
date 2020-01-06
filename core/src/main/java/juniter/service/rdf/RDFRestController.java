@@ -16,7 +16,6 @@ import java.util.Map;
 
 
 @RestController
-@Order(100000)
 @RequestMapping(value = "/jena")
 @ConditionalOnExpression("${juniter.useJenaRDF:false}")
 public class RDFRestController extends OpenDataController {

@@ -2,6 +2,7 @@ package juniter.core.model.dbo;
 
 import juniter.core.utils.Constants;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -16,6 +17,7 @@ import java.io.Serializable;
  * @author ben
  */
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Embeddable

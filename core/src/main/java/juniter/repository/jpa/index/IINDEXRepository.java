@@ -1,9 +1,9 @@
 package juniter.repository.jpa.index;
 
+import juniter.core.model.dbo.index.BINDEX;
+import juniter.core.model.dbo.index.CertRecord;
 import juniter.core.model.dbo.index.IINDEX;
 import juniter.core.model.dto.wot.MemberDTO;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -12,14 +12,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Repository to manage {@link IINDEX} instances.
  */
 @Repository
 public interface IINDEXRepository extends JpaRepository<IINDEX, Long> {
-    @Override
-    List<IINDEX> findAll();
+    @Transactional(readOnly = true)
+    @Query("FROM IINDEX")
+    List<IINDEX> all();
 
 
     @Query(value = "SELECT new juniter.core.model.dto.wot.MemberDTO(pub, uid) FROM IINDEX i WHERE i.member IS NOT NULL AND i.member IS TRUE")
@@ -37,14 +39,8 @@ public interface IINDEXRepository extends JpaRepository<IINDEX, Long> {
     @Query(value = "SELECT iindex from IINDEX iindex WHERE  uid = ?1 OR pub = ?2 ")
     List<IINDEX> byUidOrPubkey(String uid, String pub);
 
-    @Query(value = "SELECT iindex from IINDEX iindex WHERE  uid LIKE CONCAT('%',?1,'%') OR pub LIKE CONCAT('%',?1,'%') ")
+    @Query(value = "SELECT iindex from IINDEX iindex WHERE  uid = ?1 OR pub LIKE CONCAT('%',?1,'%') ")
     List<IINDEX> search(String search);
-
-//    @Query(value = "SELECT iindex from IINDEX iindex WHERE 'member' = TRUE AND uid = ?1 ")
-//    List<IINDEX> memberByUID(String uid);
-//
-//    @Query(value = "SELECT iindex from IINDEX iindex WHERE member IS TRUE AND pub = ?1 ")
-//    List<IINDEX> memberByPUB(String pub);
 
 
     @Query(value = "SELECT iindex from IINDEX iindex WHERE  uid = ?1 ")

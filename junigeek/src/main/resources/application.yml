@@ -24,7 +24,7 @@ juniter:
   startIndex: true
 
   ##  reset: true     # default false
-  dataPath: /tmp/juniter/
+  dataPath: /tmp/juniter/ # default ${user.home}/.config/juniter/data/
 
 spark:
   master: spark://ben:7077

@@ -1,31 +1,58 @@
 package juniter.repository.jpa.index;
 
 import juniter.core.model.dbo.index.CINDEX;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import juniter.core.model.dbo.index.SINDEX;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Repository to manage {@link CINDEX} instances.
  */
 @Repository
 public interface CINDEXRepository extends JpaRepository<CINDEX, Long> {
+    Logger LOG = LogManager.getLogger(CINDEXRepository.class);
 
-    @Override
-    void deleteAll(Iterable<? extends CINDEX> entities);
+    @Transactional(readOnly = true)
+    @Query("FROM CINDEX")
+    List<CINDEX> all();
 
-    @Override
-    long count();
+    @Query("select DISTINCT c from CINDEX c where c.receiver IN (:pub)  ")
+    List<String> receveiverDistinctIn(List<String> pub);
 
+    default List<String> distance(String knownKey) {
+        LOG.info("entering distance  " + knownKey);
+        var knownPubkey = new ArrayList<String>();
+        knownPubkey.add(knownKey);
 
-    @Override
-    List<CINDEX> findAll();
+        knownPubkey.addAll(receveiverDistinctIn(knownPubkey));
+        LOG.info("Step 1  " + knownPubkey.size());
+
+        knownPubkey.addAll(receveiverDistinctIn(knownPubkey));
+        LOG.info("Step 2  " + knownPubkey.size());
+
+        knownPubkey.addAll(receveiverDistinctIn(knownPubkey));
+        LOG.info("Step 3  " + knownPubkey.size());
+
+        knownPubkey.addAll(receveiverDistinctIn(knownPubkey));
+        LOG.info("Step 4  " + knownPubkey.size());
+
+        knownPubkey.addAll(receveiverDistinctIn(knownPubkey));
+        LOG.info("Step 5  " + knownPubkey.size());
+
+        //knownPubkey.addAll(receveiverDistinctIn(knownPubkey));
+        LOG.info("Step  6 " + knownPubkey.size());
+        return knownPubkey;
+    }
+
 
     @Query("select cert from CINDEX cert WHERE receiver = ?1")
     List<CINDEX> receivedBy(String pubkey);

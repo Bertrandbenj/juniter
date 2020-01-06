@@ -12,6 +12,7 @@ import juniter.core.model.dto.wot.requirements.ReqIdtyDTO;
 import juniter.core.model.dto.wot.requirements.Requirements;
 import juniter.repository.jpa.block.CertsRepository;
 import juniter.service.core.Index;
+import juniter.service.core.WebOfTrust;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.apache.logging.log4j.LogManager;
@@ -44,52 +45,16 @@ public class WotService {
     private CertsRepository certsRepo;
 
     @Autowired
+    private WebOfTrust wot;
+
+    @Autowired
     private Index index;
 
     @CrossOrigin("*")
-    @GetMapping(value = "/requirements/{pubkey}")
+    @Transactional(readOnly = true)
+    @GetMapping(value = "/requirements/{pubkey}", name = "Requirements ")
     public Requirements requirements(@PathVariable("pubkey") String pubkeyOrUid) {
-        LOG.info("Entering /wot/requirements/{pubkey= " + pubkeyOrUid + "}");
-
-
-        return Requirements.builder().identities(index.getIRepo().search(pubkeyOrUid).stream()
-                .map(i -> {
-
-                    var mindex = index.reduceM(pubkeyOrUid);
-                    long now = new Date().getTime() / 1000;
-
-                    var certs = index.getCRepo().receivedBy(i.getPub()).stream()
-                            .sorted(Comparator.comparing(CINDEX::getWritten))
-                            .map(c -> IdtyCerts.builder()
-                                    .from(c.getIssuer())
-                                    .to(c.getReceiver())
-                                    .expiresIn(c.getExpires_on() - now)
-                                    .sig(c.getSig())
-                                    .timestamp(c.getWritten().getMedianTime())
-                                    .build())
-                            .collect(Collectors.toList());
-
-                    return ReqIdtyDTO.builder()
-                            .expired(false)
-                            .isSentry(true)
-                            .pubkey(i.getPub())
-                            .uid(i.getUid())
-                            .outdistanced(false)
-                            .revoked(false)
-                            .revocation_sig(null)
-                            .revoked_on(null)
-                            .sig(i.getSig())
-                            .certifications(certs)
-                            .pendingCerts(new ArrayList<>())
-                            .pendingMemberships(new ArrayList<>())
-                            .membershipExpiresIn(mindex.map(m -> m.getExpires_on() - now).orElse(0L))
-                            .membershipPendingExpiresIn(0)
-                            .wasMember(true)
-                            .meta(MetaLookupString.builder().timestamp(i.getSigned().stamp()).build())
-                            .build();
-                })
-                .collect(Collectors.toList()))
-                .build();
+        return wot.requirements(pubkeyOrUid);
     }
 
     @CrossOrigin("*")
@@ -107,7 +72,7 @@ public class WotService {
                 .pubkey(pubkeyOrUid)
                 .uid(idty.getUid())
                 .certifications(
-                        index.getCRepo().receivedBy(pubkeyOrUid).stream()
+                        index.getC(null,pubkeyOrUid)
                                 .sorted(Comparator.comparing(CINDEX::getCreatedOn))
                                 .map(c -> {
                                     var idt = index.reduceI(c.getIssuer()).orElseThrow();
@@ -147,7 +112,7 @@ public class WotService {
                 .pubkey(pubkeyOrUid)
                 .uid(idty.getUid())
                 .certifications(
-                        index.getCRepo().issuedBy(pubkeyOrUid).stream()
+                        index.getC(pubkeyOrUid, null)
                                 .map(c -> {
                                     var idt = index.reduceI(c.getReceiver()).orElseThrow();
 
@@ -190,7 +155,7 @@ public class WotService {
         var ids = index.getIRepo().search(pubkeyOrUid).stream().map(i -> {
             var m = index.getMRepo().member(i.getPub()).stream().reduce(MINDEX.reducer);
 
-            var others = index.getCRepo().receivedBy(i.getPub()).stream()
+            var others = index.getC(null, i.getPub())
                     .map(cert -> {
                         var idt = index.reduceI(cert.getIssuer()).get();
                         return OtherLookup.builder()
@@ -221,7 +186,7 @@ public class WotService {
                     .build();
         }).collect(Collectors.toList());
 
-        var signedSection = index.getCRepo().issuedBy(pubkeyOrUid).stream()
+        var signedSection = index.getC(pubkeyOrUid, null)
                 .map(cert -> {
                             var idt = index.reduceI(cert.getReceiver()).get();
 
