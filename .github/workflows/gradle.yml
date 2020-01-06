@@ -31,14 +31,14 @@ jobs:
         uses: actions/upload-artifact@v1.0.0
         with:
           name: core
-          path: build/libs/core-1.0.0-SNAPSHOT-sources.jar
+          path: core/build/libs/core-1.0.0-SNAPSHOT-sources.jar
       - name: Javadoc
         run: ./gradlew :core:javadocJar -DskipTests
       - name: Download javadoc
         uses: actions/upload-artifact@v1.0.0
         with:
           name: core
-          path: build/libs/core-1.0.0-SNAPSHOT-javadoc.jar
+          path: core/build/libs/core-1.0.0-SNAPSHOT-javadoc.jar
       - name: Build deb
         run: |
           ./gradlew :junigeek:buildDeb -DskipTests

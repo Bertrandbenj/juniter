@@ -38,7 +38,7 @@ javafx {
 dependencies {
     compile project(":core")
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    compileOnly 'org.projectlombok:lombok:1.18.4'
+    compile 'org.projectlombok:lombok:1.18.4'
     annotationProcessor 'org.projectlombok:lombok:1.18.4'
 
     // compile 'org.openjfx:javafx-plugin:0.0.7'
