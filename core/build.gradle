@@ -1,5 +1,3 @@
-
-
 buildscript {
     repositories {
         mavenCentral()
@@ -23,8 +21,7 @@ buildscript {
 
 plugins {
 
-    id "com.commercehub.gradle.plugin.avro" version "0.9.1"
-
+    id "com.commercehub.gradle.plugin.avro" version "0.9.1" 
     id 'io.franzbecker.gradle-lombok' version '1.8'
     id 'maven-publish'
 }
@@ -39,23 +36,7 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 
 
-new File("docs/javadoc").mkdirs()
-
-javadoc {
-    source = sourceSets.main.allJava
-    classpath = configurations.compile
-    destinationDir = new File("docs/javadoc") // inside of build
-}
-
-
-//springBoot {
-//    mainClassName = 'juniter.Application'
-//}
-//
-//bootRun {
-//    enableAssertions = true // !!  BR_G[0-108] assertion
-//    //jvmArgs = ["-agentlib:jdwp=transport=dt_socket,server=y,address=5005,suspend=y"]
-//}
+ 
 
 repositories {
     mavenCentral()
@@ -109,15 +90,29 @@ task generateAvro(type: com.commercehub.gradle.plugin.avro.GenerateAvroJavaTask)
 
     source(srcAvro)
     outputDir = file(destAvro)
-    compileJava.source(destAvro)
+    //compileJava.source(destAvro)
 
 }
 
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+    classifier = 'sources'
+}
 
-//artifacts {
-//    archives bootJar
-//    archives javadocJar
-//}
+task javadocJar(type: Jar) {
+    //from javadoc
+    classifier = 'javadoc'
+}
+
+new File("docs/javadoc").mkdirs()
+
+javadoc {
+    source = sourceSets.main.allJava
+    classpath = configurations.compile
+    destinationDir = new File("docs/javadoc") // inside of build
+}
+
+
 apply plugin: 'io.franzbecker.gradle-lombok'
 //apply plugin: 'net.ltgt.apt'
 
@@ -288,21 +283,7 @@ dependencies {
 }
 
 
-task sourcesJar(type: Jar) {
-    from sourceSets.main.allJava
-    classifier = 'sources'
-}
 
- 
-
-task javadocJar(type: Jar) {
-    //from javadoc
-    classifier = 'javadoc'
-}
-
-javadoc{
-     
-}
 
 publishing {
     publications {
@@ -312,6 +293,11 @@ publishing {
             artifact sourcesJar
             artifact javadocJar
         }
+    }
+
+    artifacts {
+        archives sourcesJar
+        archives javadocJar
     }
     repositories {
         maven {
