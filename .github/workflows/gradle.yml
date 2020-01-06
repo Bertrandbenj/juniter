@@ -12,7 +12,9 @@ jobs:
       with:
         java-version: 11
     - name: Boot Dist
-      run: ./gradlew :juniterriens:assembleBootDist -DskipTests
+      run: ./gradlew :juniterriens:bootJar -DskipTests
+    - name: Javadoc
+      run: ./gradlew :juniterriens:javadoc -DskipTests
 
 
   packages:
@@ -23,6 +25,8 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
+      - name: Javadoc
+        run: ./gradlew :core:javadoc -DskipTests
       - name: deb
         run: |
           ./gradlew :junigeek:buildDeb -DskipTests
@@ -44,6 +48,8 @@ jobs:
       - name: Build
         run: ./gradlew :junigeek:assembleBootDist -DskipTests
       - name: Javadoc
-        run: ./gradlew :core:javadoc -DskipTests
+        run: ./gradlew :junigeek:javadoc -DskipTests
+      - name: Test deploy
+        run: ./gradlew :junigeek:checkServer
       - name: Deploy junigeek
         run: ./gradlew :junigeek:deploy

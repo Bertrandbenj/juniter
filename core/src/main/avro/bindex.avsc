@@ -3,7 +3,7 @@
  "name": "BINDEX",
  "fields": [
 
-     {"name": "id", "type": "int" },
+     {"name": "id", "type": "long" },
      {"name": "version", "type": "string" },
      {"name": "size", "type": "int"  },
      {"name": "hash", "type": ["string", "null"]  },
