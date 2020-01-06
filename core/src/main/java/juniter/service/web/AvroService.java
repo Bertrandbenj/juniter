@@ -1,5 +1,6 @@
 package juniter.service.web;
 
+
 import juniter.avro.*;
 import juniter.core.model.dbo.index.CertRecord;
 import juniter.service.core.Index;
@@ -29,6 +30,8 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -40,7 +43,9 @@ public class AvroService {
     @Value("${juniter.dataPath:${user.home}/.config/juniter/data/}")
     private String dataPath;
     private String AVRO_DATA;
-    private File AVRO_SCHEMA;
+    private File AVRO_SCHEMAS = new File("src/main/avro/");
+    private Path AVRO_FILES  ;
+
 
     @Autowired
     private WebOfTrust webOfTrust;
@@ -60,7 +65,7 @@ public class AvroService {
                 //dump(new File(AVRO_DATA, "bDump.avro"), SCHEMAB, streamB, BINDEX.class);
                 var bout = new DataFileWriter<>(new GenericDatumWriter<BINDEX>())
                         .setCodec(CodecFactory.deflateCodec(9))
-                        .create(SCHEMAB, new File(AVRO_DATA, "bDump.avro"));
+                        .create(SCHEMAB, AVRO_FILES.resolve("bDump.avro").toFile());
                 streamB.map(s -> modelMapper.map(s, BINDEX.class))
                         .forEach(index -> {
                             try {
@@ -81,7 +86,7 @@ public class AvroService {
 
     private void dumpI() {
         new Thread(() -> {
-            try (Stream<IINDEX> streamI = index.getIRepo().all().stream().map(s -> modelMapper.map(s, IINDEX.class))) {
+            try (Stream<juniter.avro.IINDEX> streamI = index.getIRepo().all().stream().map(s -> modelMapper.map(s, IINDEX.class))) {
                 //dump(new File(AVRO_DATA, "iDump.avro"), SCHEMAI, streamI, IINDEX.class);
                 var bout = new DataFileWriter<>(new GenericDatumWriter<IINDEX>())
                         .setCodec(CodecFactory.deflateCodec(9))
@@ -133,7 +138,7 @@ public class AvroService {
     private void dumpC() {
         new Thread(() -> {
             try (Stream<CINDEX> streamM = index.getCRepo().all().stream().map(s -> modelMapper.map(s, CINDEX.class))) {
-                //dump(new File(AVRO_DATA, "iDump.avro"), SCHEMAI, streamI, IINDEX.class);
+
                 var bout = new DataFileWriter<>(new GenericDatumWriter<CINDEX>())
                         .setCodec(CodecFactory.deflateCodec(9))
                         .create(SCHEMAC, new File(AVRO_DATA, "cDump.avro"));
@@ -158,7 +163,7 @@ public class AvroService {
     @Transactional(readOnly = true)
     private void dumpS() {
             try (Stream<juniter.core.model.dbo.index.SINDEX> streamM = index.getSRepo().all()) {
-                //dump(new File(AVRO_DATA, "iDump.avro"), SCHEMAI, streamI, IINDEX.class);
+
                 var bout = new DataFileWriter<>(new GenericDatumWriter<SINDEX>())
                         .setCodec(CodecFactory.deflateCodec(9))
                         .create(SCHEMAS, new File(AVRO_DATA, "sDump.avro"));
@@ -197,13 +202,14 @@ public class AvroService {
     public void buildSchemas() {
 
         AVRO_DATA = dataPath + "avro/";
-        AVRO_SCHEMA = new File(AVRO_DATA, "schema/");
+        AVRO_SCHEMAS = new File(AVRO_DATA, "schema/");
+        AVRO_FILES = Paths.get(AVRO_DATA);
         try {
-            SCHEMAB = new Schema.Parser().parse(new File(AVRO_SCHEMA, "bindex.avsc"));
-            SCHEMAC = new Schema.Parser().parse(new File(AVRO_SCHEMA, "cindex.avsc"));
-            SCHEMAI = new Schema.Parser().parse(new File(AVRO_SCHEMA, "iindex.avsc"));
-            SCHEMAM = new Schema.Parser().parse(new File(AVRO_SCHEMA, "mindex.avsc"));
-            SCHEMAS = new Schema.Parser().parse(new File(AVRO_SCHEMA, "sindex.avsc"));
+            SCHEMAB = new Schema.Parser().parse(new File(AVRO_SCHEMAS, "bindex.avsc"));
+            SCHEMAC = new Schema.Parser().parse(new File(AVRO_SCHEMAS, "cindex.avsc"));
+            SCHEMAI = new Schema.Parser().parse(new File(AVRO_SCHEMAS, "iindex.avsc"));
+            SCHEMAM = new Schema.Parser().parse(new File(AVRO_SCHEMAS, "mindex.avsc"));
+            SCHEMAS = new Schema.Parser().parse(new File(AVRO_SCHEMAS, "sindex.avsc"));
         } catch (IOException e) {
             LOG.error("postConstruct Avro ", e);
         }

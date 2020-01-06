@@ -64,19 +64,19 @@ bootJar {
 }
 
 
-
 jar {
     baseName = "junigeek"
     //group    = "juniter"
     version = "${project.version}"
-    mainClassName =  'juniter.Application'
+    mainClassName = 'juniter.Application'
 
     enabled = true
     manifest {
         attributes(
                 'Main-Class': 'juniter.Application'
         )
-    }}
+    }
+}
 
 docker {
     //baseImage "frolvlad/alpine-openjdk11:stretch"
@@ -129,7 +129,7 @@ buildDeb {
     link('/lib/systemd/system/ipfs-cluster.service', "/opt/${project.name}/bin/service/ipfs-custer.service")
     link('/lib/systemd/system/ipfs.service', "/opt/${project.name}/bin/service/ipfs.service")
 
-     link('/usr/local/bin/junigeek', "/opt/${project.name}/bin/junigeek.sh")
+    link('/usr/local/bin/junigeek', "/opt/${project.name}/bin/junigeek.sh")
 
 }
 
@@ -198,8 +198,6 @@ ospackage {
 }
 
 
-
-
 //
 // ==================== servers =======================
 //
@@ -208,26 +206,32 @@ ospackage {
 remotes {
     juniter {
         role 'masterNode'
-        host = 'g1.bertrandbenjamin.com'
+        host = '151.80.147.129'
         user = 'ben'
-        agent = true 	// If this is set, Putty Agent or ssh-agent will be used on authentication
+        agent = true    // If this is set, Putty Agent or ssh-agent will be used on authentication
         identity = file("${System.getProperty('user.home')}/.ssh/id_rsa")
     }
 }
 
-//task deploy{
-//    dependsOn jar, bootJar
-//    ssh.run {
-//        session(remotes.juniter) {
-//            //execute 'killall java'
-//
-//            put from: "${project.projectDir}/build/libs/junigeek-${project.version}.jar", into: '/home/ben'
-//
-//            //execute 'sudo service tomcat restart'
-//            execute "java -jar junigeek-${project.version}.jar --headless "
-//        }
-//    }
-//}
+task deploy {
+    //dependsOn jar, bootJar
+    doLast {
+        ssh.run {
+            session(remotes.juniter) {
+                //execute 'killall java'
+
+                jarFile = "junigeek-${project.version}-boot.jar"
+
+                println jar
+                //put from: "${project.projectDir}/build/libs/junigeek-${project.version}.jar", into: '/home/ben'
+                put from: "${project.projectDir}/" + jarFile, into: '/home/ben'
+
+                //execute 'sudo service tomcat restart'
+                execute "java -jar " + jarFile + " --headless "
+            }
+        }
+    }
+}
 
 task checkServer {
     doLast {

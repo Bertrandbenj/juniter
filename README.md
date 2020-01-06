@@ -151,4 +151,15 @@ export datafile
   - [CPU](http://localhost:9090/graph?g0.range_input=1h&g0.expr=process_cpu_usage&g0.tab=0)
   - [parameters](http://localhost:9090/new/graph?g0.expr=blockchain_parameters_seconds_sum&g0.tab=0&g0.stacked=0&g0.range_input=1h)
 
-## Atlas
+
+## WebVowl 
+start a WebVowl at localhost:8000 to visualize local file and access
+them with [#dbo](https://localhost:8443/jena/json/ontology/dbo),
+[#dto](https://localhost:8443/jena/json/ontology/dto),
+[#txHistory](https://localhost:8443/jena/json/query/txHistory),
+```
+git clone https://github.com/VisualDataWeb/WebVOWL
+cd WebVOWL
+npm install 
+grunt webserver
+```
