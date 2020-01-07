@@ -1,0 +1,46 @@
+name: Java CI
+
+on:
+  push:
+    branches:
+      - master
+      - release/*
+
+jobs:
+
+  junigeek:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+
+      - name: Build Boot Jar
+        run: ./gradlew :junigeek:bootJar -DskipTests
+
+      - name: Javadoc
+        run: ./gradlew :junigeek:javadoc -DskipTests
+
+      - uses: actions/upload-artifact@v1
+        with:
+          name: junigeek-boot
+          path: junigeek/build/libs/junigeek-1.0.0-SNAPSHOT-boot.jar
+
+#      - name: Test deploy
+#        run: ./gradlew :junigeek:checkServer
+#
+#      - name: Deploy junigeek
+#        run: ./gradlew :junigeek:deploy
+
+      - name: rsync deployments
+        uses: contention/rsync-deployments@v1.0.0
+        with:
+          RSYNC_OPTIONS: -avzr --delete --exclude node_modules --exclude '.git*'
+          RSYNC_TARGET: ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:${{ secrets.SERVER_TARGET_DIR }}
+        env:
+          DEPLOY_KEY: ${{ secrets.SERVER_PRIVATE_KEY }}
+
+
