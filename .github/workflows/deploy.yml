@@ -21,10 +21,10 @@ jobs:
       - name: Build Boot Jar
         run: ./gradlew :junigeek:bootJar
 
-      - name: Build deb
-        run: |
-          ./gradlew :junigeek:buildDeb -DskipTests
-          ./gradlew :juniterriens:buildDeb -DskipTests
+#      - name: Build deb
+#        run: |
+#          ./gradlew :junigeek:buildDeb -DskipTests
+#          ./gradlew :juniterriens:buildDeb -DskipTests
 
       - name: Javadoc
         run: ./gradlew :junigeek:javadoc -DskipTests
