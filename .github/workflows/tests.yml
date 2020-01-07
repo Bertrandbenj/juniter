@@ -1,4 +1,4 @@
-name: Java CI
+name: Tests CI
 
 on:
   push:
@@ -19,11 +19,11 @@ jobs:
           java-version: 11
 
       - name: Test core
-        run: ./gradlew :core:test -DskipTests
+        run: ./gradlew :core:test
 
       - name: Test junigeek
-        run: ./gradlew :junigeek:test -DskipTests
+        run: ./gradlew :junigeek:test
 
       - name: Test juniterriens
-        run: ./gradlew :juniterriens:test -DskipTests
+        run: ./gradlew :juniterriens:test
 

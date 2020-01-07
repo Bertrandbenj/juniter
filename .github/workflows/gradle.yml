@@ -17,43 +17,6 @@ jobs:
         with:
           name: juniterriens
           path: juniterriens/build/libs/juniterriens-1.0.0-SNAPSHOT-boot.jar
-      - name: Javadoc
-        run: ./gradlew :juniterriens:javadoc -DskipTests
-      - uses: actions/upload-artifact@v1
-        with:
-          name: juniterriens
-          path: juniterriens/build/libs/junigeek-1.0.0-SNAPSHOT-javadoc.jar
-
-
-  packages:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - name: Set up JDK 11
-        uses: actions/setup-java@v1
-        with:
-          java-version: 11
-      - name: Sources
-        run: ./gradlew :core:sourcesJar -DskipTests
-      - uses: actions/upload-artifact@v1.0.0
-        with:
-          name: core-sources
-          path: core/build/libs/core-1.0.0-SNAPSHOT-sources.jar
-      - name: Javadoc
-        run: ./gradlew :core:javadocJar -DskipTests
-      - uses: actions/upload-artifact@v1.0.0
-        with:
-          path: core/build/libs/core-1.0.0-SNAPSHOT-javadoc.jar
-      - name: Build deb
-        run: |
-          ./gradlew :junigeek:buildDeb -DskipTests
-          ./gradlew :juniterriens:buildDeb -DskipTests
-
-
-  #      - name: rpm
-  #        run: |
-  #          ./gradlew :junigeek:buildRpm -DskipTests
-  #          ./gradlew :juniterriens:buildRpm -DskipTests
 
   junigeek:
     runs-on: ubuntu-latest
@@ -68,26 +31,43 @@ jobs:
       - name: Build Boot Jar
         run: ./gradlew :junigeek:bootJar -DskipTests
 
-      - name: Javadoc
-        run: ./gradlew :junigeek:javadoc -DskipTests
 
       - uses: actions/upload-artifact@v1
         with:
           name: junigeek-boot
           path: junigeek/build/libs/junigeek-1.0.0-SNAPSHOT-boot.jar
 
-#      - name: Test deploy
-#        run: ./gradlew :junigeek:checkServer
-#
-#      - name: Deploy junigeek
-#        run: ./gradlew :junigeek:deploy
-
-      - name: rsync deployments
-        uses: contention/rsync-deployments@v1.0.0
+  sourcesAndDoc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Set up JDK 11
+        uses: actions/setup-java@v1
         with:
-          RSYNC_OPTIONS: -avzr --delete --exclude node_modules --exclude '.git*'
-          RSYNC_TARGET: ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:${{ secrets.SERVER_TARGET_DIR }}
-        env:
-          DEPLOY_KEY: ${{ secrets.SERVER_PRIVATE_KEY }}
+          java-version: 11
+
+      - name: Sources core
+        run: ./gradlew :core:sourcesJar -DskipTests
+      - uses: actions/upload-artifact@v1.0.0
+        with:
+          name: core-sources
+          path: core/build/libs/core-1.0.0-SNAPSHOT-sources.jar
+
+      - name: Javadoc core
+        run: ./gradlew :core:javadocJar -DskipTests
+      - uses: actions/upload-artifact@v1.0.0
+        with:
+          name: core-javadoc
+          path: core/build/libs/core-1.0.0-SNAPSHOT-javadoc.jar
+
+      - name: Javadoc juniterriens
+        run: ./gradlew :juniterriens:javadoc -DskipTests
+      - uses: actions/upload-artifact@v1.0.0
+        with:
+          name: juniterriens-javadoc
+          path: core/build/libs/juniterriens-1.0.0-SNAPSHOT-javadoc.jar
+
+
+
 
 
