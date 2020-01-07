@@ -37,13 +37,12 @@ jobs:
         run: ./gradlew :core:sourcesJar -DskipTests
       - uses: actions/upload-artifact@v1.0.0
         with:
-          name: core
+          name: core-sources
           path: core/build/libs/core-1.0.0-SNAPSHOT-sources.jar
       - name: Javadoc
         run: ./gradlew :core:javadocJar -DskipTests
       - uses: actions/upload-artifact@v1.0.0
         with:
-          name: core
           path: core/build/libs/core-1.0.0-SNAPSHOT-javadoc.jar
       - name: Build deb
         run: |
@@ -74,14 +73,21 @@ jobs:
 
       - uses: actions/upload-artifact@v1
         with:
-          name: junigeek
+          name: junigeek-boot
           path: junigeek/build/libs/junigeek-1.0.0-SNAPSHOT-boot.jar
 
-      - name: Test deploy
-        run: ./gradlew :junigeek:checkServer
+#      - name: Test deploy
+#        run: ./gradlew :junigeek:checkServer
+#
+#      - name: Deploy junigeek
+#        run: ./gradlew :junigeek:deploy
 
-      - name: Deploy junigeek
-        run: ./gradlew :junigeek:deploy
-
+      - name: rsync deployments
+        uses: contention/rsync-deployments@v1.0.0
+        with:
+          RSYNC_OPTIONS: -avzr --delete --exclude node_modules --exclude '.git*'
+          RSYNC_TARGET: ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:${{ secrets.SERVER_TARGET_DIR }}
+        env:
+          DEPLOY_KEY: ${{ secrets.SERVER_PRIVATE_KEY }}
 
 
