@@ -7,9 +7,7 @@ buildscript {
         jcenter()
 
     }
-    ext {
-        lombokVersion = '1.18.4'
-    }
+ 
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:2.0.2.RELEASE")
         classpath 'org.openjfx:javafx-plugin:0.0.7'

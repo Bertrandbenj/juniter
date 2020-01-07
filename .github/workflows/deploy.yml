@@ -41,7 +41,7 @@ jobs:
 #        run: ./gradlew :junigeek:deploy
 
       - name: rsync deployments
-        uses: contention/rsync-deployments@v1.0.0 x
+        uses: contention/rsync-deployments@v1.0.0
         with:
           RSYNC_OPTIONS: -avzr --delete --exclude node_modules --exclude '.git*'
           RSYNC_TARGET: ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:${{ secrets.SERVER_TARGET_DIR }}

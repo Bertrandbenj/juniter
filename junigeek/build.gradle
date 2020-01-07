@@ -124,7 +124,6 @@ buildDeb {
     link('/lib/systemd/system/juniter.service', "/opt/${project.name}/bin/service/juniter.service")
     link('/lib/systemd/system/ipfs-cluster.service', "/opt/${project.name}/bin/service/ipfs-custer.service")
     link('/lib/systemd/system/ipfs.service', "/opt/${project.name}/bin/service/ipfs.service")
-
     link('/usr/local/bin/junigeek', "/opt/${project.name}/bin/junigeek.sh")
 
 }

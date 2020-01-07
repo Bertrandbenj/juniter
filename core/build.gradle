@@ -14,7 +14,7 @@ buildscript {
 //        classpath "org.apache.avro:avro-gradle-plugin:1.7.2"
 //        classpath "org.apache.avro:gradle-avro-plugin:1.7.2"
         //classpath "com.commercehub.gradle.plugin:gradle-avro-plugin:0.9.1"
-        classpath "io.franzbecker:gradle-lombok:1.7"
+        //classpath "io.franzbecker:gradle-lombok:1.7"
     }
 
 }
@@ -22,7 +22,7 @@ buildscript {
 plugins {
 
     id "com.commercehub.gradle.plugin.avro" version "0.9.1" 
-    id 'io.franzbecker.gradle-lombok' version '1.8'
+   // id 'io.franzbecker.gradle-lombok' version '1.8'
     id 'maven-publish'
 }
 
@@ -113,7 +113,7 @@ javadoc {
 }
 
 
-apply plugin: 'io.franzbecker.gradle-lombok'
+//apply plugin: 'io.franzbecker.gradle-lombok'
 //apply plugin: 'net.ltgt.apt'
 
 
@@ -139,8 +139,7 @@ dependencies {
 //    apt "org.projectlombok:lombok:1.18.4"
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    compileOnly 'org.projectlombok:lombok:1.18.4'
-
+ 
 
     compile("org.springframework.boot:spring-boot-starter-web") {
         exclude module: "spring-boot-starter-tomcat"
