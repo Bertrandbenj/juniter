@@ -58,13 +58,7 @@ jobs:
           name: core-javadoc
           path: core/build/libs/core-1.0.0-SNAPSHOT-javadoc.jar
 
-      - name: Release Maven package
-        uses: samuelmeuli/action-maven-publish@v1
-        with:
-          gpg_private_key: ${{ secrets.gpg_private_key }}
-          gpg_passphrase: ${{ secrets.gpg_passphrase }}
-          nexus_username: ${{ secrets.nexus_username }}
-          nexus_password: ${{ secrets.nexus_password }}
+
 #      - name: Javadoc juniterriens
 #        run: ./gradlew :juniterriens:javadoc -DskipTests
 #      - uses: actions/upload-artifact@v1.0.0
@@ -72,6 +66,14 @@ jobs:
 #          name: juniterriens-javadoc
 #          path: core/build/libs/juniterriens-1.0.0-SNAPSHOT-javadoc.jar
 
+      - name: Release Maven package
+        uses: samuelmeuli/action-maven-publish@v1
+        with:
+          gpg_private_key: ${{ secrets.gpg_private_key }}
+          gpg_passphrase: ${{ secrets.gpg_passphrase }}
+          nexus_username: ${{ secrets.nexus_username }}
+          nexus_password: ${{ secrets.nexus_password }}
+          directory: core/build/libs/
 
 
 
