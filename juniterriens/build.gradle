@@ -7,7 +7,7 @@ buildscript {
         jcenter()
 
     }
- 
+
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:2.0.2.RELEASE")
         classpath 'org.openjfx:javafx-plugin:0.0.7'
@@ -36,8 +36,9 @@ javafx {
 dependencies {
     compile project(":core")
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    compile 'org.projectlombok:lombok:1.18.4'
+    compileOnly 'org.projectlombok:lombok:1.18.4'
     annotationProcessor 'org.projectlombok:lombok:1.18.4'
+    //javadocCompile 'org.projectlombok:lombok:1.18.4'
 
     // compile 'org.openjfx:javafx-plugin:0.0.7'
     //compile("org.apache.logging.log4j:log4j-core")

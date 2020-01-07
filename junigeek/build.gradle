@@ -13,31 +13,27 @@ buildscript {
         classpath('se.transmode.gradle:gradle-docker:1.2')
         classpath "com.netflix.nebula:gradle-ospackage-plugin:6.2.1"
 
-        // classpath("com.github.honourednihilist:gradle-postgresql-embedded:0.4.0")
     }
 
-}
-
-//plugins {
-//    id 'com.bmuschko.docker-spring-boot-application' version '4.4.1'
-//    id "com.github.honourednihilist.gradle-postgresql-embedded" version "0.4.0"
-//}
+} 
 
 apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
-//apply plugin: 'com.github.honourednihilist.gradle-postgresql-embedded'
-apply plugin: 'application'
-//apply plugin: 'docker-spring-boot-application'
 apply plugin: "nebula.ospackage"
+//apply plugin: 'com.github.honourednihilist.gradle-postgresql-embedded'
+//apply plugin: 'application'
+//apply plugin: 'docker-spring-boot-application'
+
 apply plugin: 'docker'
 
 
 dependencies {
     compile project(":core")
     testCompile group: 'junit', name: 'junit', version: '4.12'
-
-    runtime('org.springframework.boot:spring-boot-devtools')
+    compileOnly 'org.projectlombok:lombok:1.18.4'
+    annotationProcessor 'org.projectlombok:lombok:1.18.4'
+    //runtime('org.springframework.boot:spring-boot-devtools')
     //postgresql
     runtime('org.postgresql:postgresql')
 }
@@ -46,7 +42,7 @@ dependencies {
 //task buildAll(type: GradleBuild) {
 //    tasks = [ 'build' ]
 //}
- 
+
 bootJar {
     mainClassName = 'juniter.Application'
     enabled = true
@@ -64,7 +60,7 @@ jar {
     baseName = "junigeek"
     //group    = "juniter"
     version = "${project.version}"
-    mainClassName = 'juniter.Application'
+//    mainClassName = 'juniter.Application'
 
     enabled = true
     manifest {
@@ -93,18 +89,7 @@ bootRun {
     //jvmArgs = ["-agentlib:jdwp=transport=dt_socket,server=y,address=5005,suspend=y"]
 }
 
-//postgresEmbedded {
-//    version = "V10"
-//    host = "localhost"
-//    port = 0 // zero value means a random port
-//    dbName = "embedded"
-//    username = "testuser"
-//    password = "junipass"
-//    artifactStorePath = "~/.embedpostgresql" // where PostgreSQL distributions are stored after downloading, inside home directory by default
-//    stopWhenBuildFinished = true
-//    timeoutMillisBeforeStop = 0
-//}
-
+ 
 
 // ===================================================================================
 // =                                  .deb    .rpm                                   =

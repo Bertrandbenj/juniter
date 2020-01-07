@@ -67,9 +67,9 @@ bootJar {
     enabled = false
 }
 
-//jar {
-//    enabled = true
-//}
+jar {
+    enabled = true
+}
 
 
 generateGrammarSource {
@@ -133,13 +133,13 @@ javadoc {
 
 dependencies {
     // PRE COMPILE
-    compile  'org.projectlombok:lombok:1.18.4'
+    compileOnly  'org.projectlombok:lombok:1.18.4'
     annotationProcessor 'org.projectlombok:lombok:1.18.4'
     antlr "org.antlr:antlr4:4.7.1"
 //    apt "org.projectlombok:lombok:1.18.4"
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
- 
+
 
     compile("org.springframework.boot:spring-boot-starter-web") {
         exclude module: "spring-boot-starter-tomcat"
@@ -292,8 +292,21 @@ publishing {
             artifact sourcesJar
             artifact javadocJar
         }
-    }
 
+//        maven(MavenPublication) {
+//            name = "GitHubPackages"
+//            url = uri("https://maven.pkg.github.com/BertrandBenj/Juniter")
+//            credentials {
+//                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+//                password = project.findProperty("gpr.key") ?: System.getenv("PASSWORD")
+//            }
+//        }
+    }
+//    publications {
+//        gpr(MavenPublication) {
+//            from(components.java)
+//        }
+//    }
     artifacts {
         archives sourcesJar
         archives javadocJar
