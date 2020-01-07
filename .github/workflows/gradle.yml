@@ -30,8 +30,6 @@ jobs:
 
       - name: Build Boot Jar
         run: ./gradlew :junigeek:bootJar -DskipTests
-
-
       - uses: actions/upload-artifact@v1
         with:
           name: junigeek-boot
@@ -60,12 +58,12 @@ jobs:
           name: core-javadoc
           path: core/build/libs/core-1.0.0-SNAPSHOT-javadoc.jar
 
-      - name: Javadoc juniterriens
-        run: ./gradlew :juniterriens:javadoc -DskipTests
-      - uses: actions/upload-artifact@v1.0.0
-        with:
-          name: juniterriens-javadoc
-          path: core/build/libs/juniterriens-1.0.0-SNAPSHOT-javadoc.jar
+#      - name: Javadoc juniterriens
+#        run: ./gradlew :juniterriens:javadoc -DskipTests
+#      - uses: actions/upload-artifact@v1.0.0
+#        with:
+#          name: juniterriens-javadoc
+#          path: core/build/libs/juniterriens-1.0.0-SNAPSHOT-javadoc.jar
 
 
 
