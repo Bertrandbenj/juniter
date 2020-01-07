@@ -18,20 +18,26 @@ jobs:
         with:
           java-version: 11
 
+      - name: Test junigeek
+        run: ./gradlew :junigeek:test
+      - uses: actions/upload-artifact@v1.0.0
+        with:
+          name: junigeek-tests
+          path: core/build/reports/tests/
+
+      - name: Test juniterriens
+        run: ./gradlew :juniterriens:test
+      - uses: actions/upload-artifact@v1.0.0
+        with:
+          name: juniterriens-tests
+          path: core/build/reports/test-results/
+
       - name: Test core
         run: ./gradlew :core:test
       - uses: actions/upload-artifact@v1.0.0
         with:
           name: core-tests
           path: core/build/reports/tests/
-
-      - name: Test junigeek
-        run: ./gradlew :junigeek:test
-
-      - name: Test juniterriens
-        run: ./gradlew :juniterriens:test
-
-
 
   sourcesAndDoc:
     runs-on: ubuntu-latest
