@@ -73,8 +73,8 @@ jobs:
           gpg_passphrase: ${{ secrets.gpg_passphrase }}
           nexus_username: ${{ secrets.nexus_username }}
           nexus_password: ${{ secrets.nexus_password }}
-          directory: core/build/libs/
-
-
+          directory: core/build/publications/mavenJava
+          maven_goals_phases: publish
+          
 
 
