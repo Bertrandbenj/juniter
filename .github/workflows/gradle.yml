@@ -75,6 +75,6 @@ jobs:
           nexus_password: ${{ secrets.nexus_password }}
           directory: core/build/publications/mavenJava
           maven_goals_phases: publish
-          
+
 
 
