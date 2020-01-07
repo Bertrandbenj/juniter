@@ -23,7 +23,7 @@ jobs:
       - uses: actions/upload-artifact@v1.0.0
         with:
           name: junigeek-tests
-          path: core/build/reports/tests/
+          path: core/build/test-results/
 
       - name: Test juniterriens
         run: ./gradlew :juniterriens:test
