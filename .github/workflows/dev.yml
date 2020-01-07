@@ -1,4 +1,4 @@
-name: Java CI
+name: Dev CI
 
 on: [push]
 
@@ -32,7 +32,7 @@ jobs:
         run: ./gradlew :junigeek:bootJar -DskipTests
       - uses: actions/upload-artifact@v1
         with:
-          name: junigeek-boot
+          name: junigeek
           path: junigeek/build/libs/junigeek-1.0.0-SNAPSHOT-boot.jar
 
   sourcesAndDoc:
@@ -58,6 +58,12 @@ jobs:
           name: core-javadoc
           path: core/build/libs/core-1.0.0-SNAPSHOT-javadoc.jar
 
+      - name: Bin core
+        run: ./gradlew :core:jar -DskipTests
+      - uses: actions/upload-artifact@v1.0.0
+        with:
+          name: core-javadoc
+          path: core/build/libs/core-1.0.0-SNAPSHOT.jar
 
 #      - name: Javadoc juniterriens
 #        run: ./gradlew :juniterriens:javadoc -DskipTests

@@ -3,7 +3,6 @@ name: Staging CI
 on:
   push:
     branches:
-      - master
       - release/*
 
 jobs:
@@ -31,7 +30,7 @@ jobs:
 
       - uses: actions/upload-artifact@v1
         with:
-          name: junigeek-boot
+          name: junigeek
           path: junigeek/build/libs/junigeek-1.0.0-SNAPSHOT-boot.jar
 
 #      - name: Test deploy
