@@ -62,7 +62,7 @@ jobs:
         run: ./gradlew :core:jar -DskipTests
       - uses: actions/upload-artifact@v1.0.0
         with:
-          name: core-javadoc
+          name: core-bin
           path: core/build/libs/core-1.0.0-SNAPSHOT.jar
 
 #      - name: Javadoc juniterriens
