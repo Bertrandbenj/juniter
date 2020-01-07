@@ -66,15 +66,6 @@ jobs:
 #          name: juniterriens-javadoc
 #          path: core/build/libs/juniterriens-1.0.0-SNAPSHOT-javadoc.jar
 
-      - name: Release Maven package
-        uses: samuelmeuli/action-maven-publish@v1
-        with:
-          gpg_private_key: ${{ secrets.gpg_private_key }}
-          gpg_passphrase: ${{ secrets.gpg_passphrase }}
-          nexus_username: ${{ secrets.nexus_username }}
-          nexus_password: ${{ secrets.nexus_password }}
-          directory: core/build/publications/mavenJava
-          maven_goals_phases: publish
 
 
 
