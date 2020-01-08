@@ -57,7 +57,7 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
     private PeerService peerService;
 
     @Autowired
-    private RestTemplate restTemplate;
+    private RestTemplate POST;
 
     @Autowired
     private WebSocketPool wsPool;
@@ -204,7 +204,7 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
 
             try {
 
-                response = restTemplate.postForEntity(reqURL, request, Object.class);
+                response = POST.postForEntity(reqURL, request, Object.class);
 
                 if (response.getStatusCodeValue() != 200) {
                     throw new AssertionError("post Doc error, code {} " + response);
@@ -244,7 +244,7 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
 
             if (index.getBRepo().head().get().getNumber() < bl.getNumber()) {
                 if (threads != null) {
-                    LOG.info("Killing the current PoW execution");
+                    LOG.info("Killing the currentStrict PoW execution");
                     isForging.set(false);
                     threads.forEach(Thread::interrupt);
                 }

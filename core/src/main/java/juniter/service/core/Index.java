@@ -1,6 +1,7 @@
 package juniter.service.core;
 
 import io.micrometer.core.annotation.Timed;
+import juniter.core.event.CurrentBNUM;
 import juniter.core.event.Indexing;
 import juniter.core.event.NewBINDEX;
 import juniter.core.model.dbo.BStamp;
@@ -228,7 +229,7 @@ public class Index implements GlobalValid {
 
     @Override
     public Stream<String> findPubkeysThatShouldExpire(Long mTime) {
-        return mRepo.findPubkeysThatShouldExpire3(mTime).stream();
+        return mRepo.findPubkeysThatShouldExpire(mTime).stream();
     }
 
 
@@ -379,8 +380,7 @@ public class Index implements GlobalValid {
             );
             blockService.delete(blockService.block(h.getNumber(), h.getHash()));
 
-            //coreEventBuss.publishEvent(new CurrentBNUM(h.getNumber() - 1));
-
+            coreEventBuss.publishEvent(new CurrentBNUM(head_().getNumber()));
             coreEventBuss.publishEvent(new Indexing(false, "Reverted to " + h.getNumber() + " from " + h));
 
             reset(false, ccy);

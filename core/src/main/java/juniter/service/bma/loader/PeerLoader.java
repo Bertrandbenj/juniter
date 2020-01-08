@@ -52,7 +52,7 @@ public class PeerLoader {
     public static final Logger LOG = LogManager.getLogger(PeerLoader.class);
 
     @Autowired
-    private RestTemplate restTemplate;
+    private RestTemplate GET;
 
     @Autowired
     private PeersRepository peerRepo;
@@ -214,7 +214,7 @@ public class PeerLoader {
 
         LOG.info("fetchPeering try on " + url);
         try {
-            var peers = restTemplate.getForObject(url, Peer.class);
+            var peers = GET.getForObject(url, Peer.class);
 
             var bstamp = peers.getBlock();
 
@@ -240,7 +240,7 @@ public class PeerLoader {
         try {
 
 
-            var responseEntity = restTemplate.exchange(nodeURL + "network/peers",
+            var responseEntity = GET.exchange(nodeURL + "network/peers",
                     HttpMethod.GET, null, new ParameterizedTypeReference<PeersDTO>() {
                     });
 

@@ -52,7 +52,7 @@ public class Request {
 	/**
 	 * https://git.duniter.org/nodes/common/doc/blob/master/rfc/0004_ws2p_v1.md#getcurrent
 	 *
-	 * @return current block wrapped in a request object
+	 * @return currentStrict block wrapped in a request object
 	 */
 	Request getCurrent() {
 

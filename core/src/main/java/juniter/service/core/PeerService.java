@@ -3,7 +3,6 @@ package juniter.service.core;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import juniter.core.crypto.SecretBox;
 import juniter.core.event.CoreEvent;
-import juniter.core.event.NewBINDEX;
 import juniter.core.event.RenormalizedNet;
 import juniter.core.event.ServerLogin;
 import juniter.core.model.dbo.DBBlock;
@@ -80,7 +79,7 @@ public class PeerService implements ApplicationListener<CoreEvent> {
     private AtomicBoolean pinging = new AtomicBoolean(true);
 
     @Autowired
-    private RestTemplate restTemplate;
+    private RestTemplate GET;
 
     @Value("#{'${juniter.network.trusted}'.split(',')}")
     private List<String> configuredNodes;
@@ -94,8 +93,8 @@ public class PeerService implements ApplicationListener<CoreEvent> {
     @PostConstruct
     public void initConsumers() {
 
-        // buff the restTemplate
-        restTemplate.setErrorHandler(new ResponseErrorHandler() {
+        // buff the GET
+        GET.setErrorHandler(new ResponseErrorHandler() {
 
             final Logger LOG = LogManager.getLogger(ResponseErrorHandler.class);
 
@@ -230,7 +229,7 @@ public class PeerService implements ApplicationListener<CoreEvent> {
     public void test(EndPointType type, NetStats next) {
         var prevTime = System.nanoTime();
         try {
-            if (restTemplate.getForEntity(next.getHost() + "/node/summary", NodeSummaryDTO.class).getStatusCodeValue() == 200) {
+            if (GET.getForEntity(next.getHost() + "/node/summary", NodeSummaryDTO.class).getStatusCodeValue() == 200) {
                 next.setLastResponseTime(System.nanoTime() - prevTime);
                 reportSuccess(type, next.getHost());
             } else {
@@ -406,7 +405,7 @@ public class PeerService implements ApplicationListener<CoreEvent> {
     public Peer endPointPeer(Integer number) {
         LOG.debug("endPointPeer " + number);
 
-        DBBlock current = blockService.block(number).or(() -> blockService.current()).orElseThrow();
+        DBBlock current = blockService.block(number).or(() -> blockService.currentStrict()).orElseThrow();
         var peer = new Peer();
         peer.setVersion(10);
         peer.setBlock(current.bstamp());

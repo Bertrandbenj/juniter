@@ -19,7 +19,7 @@ public class Utils {
      * @param tlpy  the top left y co-ordinate where the image will be plotted (in canvas co-ordinates).
      */
     public static void drawRotatedImage(GraphicsContext gc, Image image, double angle, double tlpx, double tlpy) {
-        gc.save(); // saves the current state on stack, including the current transform
+        gc.save(); // saves the currentStrict state on stack, including the currentStrict transform
         rotate(gc, angle, tlpx + image.getWidth() / 2, tlpy + image.getHeight() / 2);
         gc.drawImage(image, tlpx, tlpy);
         gc.restore(); // back to original state (before rotation)

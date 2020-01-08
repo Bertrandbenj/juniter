@@ -65,7 +65,7 @@ public class BlockLoader implements BlockLocalValid {
 
 
     @Autowired
-    private RestTemplate restTemplate;
+    private RestTemplate GET;
 
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
@@ -109,7 +109,7 @@ public class BlockLoader implements BlockLocalValid {
 
     private void queueBulkQueries() {
 
-        final var currentNumber = fetchAndSaveBlock("current").getNumber();
+        final var currentNumber = fetchAndSaveBlock("currentStrict").getNumber();
 
         applicationEventPublisher.publishEvent(new CurrentBNUM((int) blockService.count()));
 
@@ -141,7 +141,7 @@ public class BlockLoader implements BlockLocalValid {
 
                     var host = peerService.nextHost(EndPointType.BMAS).get().getHost();
                     url = host + path;
-                    final var responseEntity = restTemplate.exchange(url, HttpMethod.GET, null,
+                    final var responseEntity = GET.exchange(url, HttpMethod.GET, null,
                             new ParameterizedTypeReference<List<DBBlock>>() {
                             });
 
@@ -156,7 +156,7 @@ public class BlockLoader implements BlockLocalValid {
                     final var statusCode = responseEntity.getStatusCode().getReasonPhrase();
 
 
-                    body.removeIf(block -> !checkBlockIsLocalValid(block));
+                    body.removeIf(block -> !silentCheck(block));
 
 
                     LOG.info("getBlocks " + body.size() + " from: " + url + "... Status: " + statusCode + " : " + contentType);
@@ -169,7 +169,7 @@ public class BlockLoader implements BlockLocalValid {
                 } catch (final RestClientException e) {
                     LOG.warn("fetchBlocks failed - RestClientException at " + url + " retrying .. ");
 
-                }catch (final Exception e) {
+                } catch (final Exception e) {
                     LOG.error("fetchBlocks failed at " + url + " retrying because ", e.getMessage());
                 }
             }
@@ -237,7 +237,7 @@ public class BlockLoader implements BlockLocalValid {
                 try {
                     url = host.get() + "blockchain/" + id;
 
-                    block = restTemplate.getForObject(url, DBBlock.class);
+                    block = GET.getForObject(url, DBBlock.class);
 
                     LOG.info("  Fetched ... : " + url + " => " + block.getHash());
 
@@ -272,7 +272,7 @@ public class BlockLoader implements BlockLocalValid {
             try {
                 //var host = peerService.nextHost().get();
                 url = host.get().getHost() + "blockchain/blocks/" + bulkSize + "/" + from;
-                final var responseEntity = restTemplate.exchange(url, HttpMethod.GET, null,
+                final var responseEntity = GET.exchange(url, HttpMethod.GET, null,
                         new ParameterizedTypeReference<List<DBBlock>>() {
                         });
 
@@ -287,7 +287,7 @@ public class BlockLoader implements BlockLocalValid {
                 final var statusCode = responseEntity.getStatusCode().getReasonPhrase();
 
 
-                body.removeIf(block -> !checkBlockIsLocalValid(block));
+                body.removeIf(block -> !silentCheck(block));
 
 
                 LOG.info("attempts: " + attempts + " to record " + body.size() + " from: " + url + "... Status: " + statusCode + " : " + contentType);

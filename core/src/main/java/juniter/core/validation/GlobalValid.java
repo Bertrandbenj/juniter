@@ -1624,7 +1624,7 @@ public interface GlobalValid {
             return true;
 
         assert testHead.getPreviousHash().equals(block.getPreviousHash())
-                : "BR_G52_rulePreviousHash - rule PreviousHash - " + testHead.getPreviousHash() + " " + block.getPreviousHash() + " at " + testHead;
+                : "BR_G52_rulePreviousHash - rule PreviousHash - " + testHead.getPreviousHash() + " " + block.getPreviousHash() + " at\n" + testHead;
 
         return testHead.getPreviousHash().equals(block.getPreviousHash());
     }

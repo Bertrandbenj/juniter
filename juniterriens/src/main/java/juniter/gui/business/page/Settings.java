@@ -9,6 +9,8 @@ import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import juniter.core.crypto.SecretBox;
 import juniter.core.event.ServerLogin;
+import juniter.core.model.dbo.DBBlock;
+import juniter.core.validation.BlockConstraint;
 import juniter.core.validation.BlockLocalValid;
 import juniter.gui.JuniterBindings;
 import juniter.gui.business.popup.AlertBox;
@@ -25,11 +27,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
-import java.beans.EventHandler;
+import javax.validation.Valid;
+import javax.validation.Validation;
+import javax.validation.ValidatorFactory;
 import java.net.URL;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static juniter.gui.JuniterBindings.*;
@@ -177,8 +180,8 @@ public class Settings extends AbstractJuniterFX implements Initializable {
 
     }
 
-    private void updateKey(){
-        var sb = new SecretBox(salt.getText(),pass.getText());
+    private void updateKey() {
+        var sb = new SecretBox(salt.getText(), pass.getText());
         coreEvents.publishEvent(new ServerLogin(sb));
         pk.setText(sb.getPublicKey());
     }
@@ -207,27 +210,51 @@ public class Settings extends AbstractJuniterFX implements Initializable {
 
     }
 
+    @Valid
+    @BlockConstraint
+    private DBBlock oneBlock;
+
 
     @FXML
     public void testSome() {
-        String[] ids = tstSome.getText().split(",");
+        List<Integer> bNums = Stream
+                .of(tstSome.getText().split(","))
+                .map(Integer::parseInt)
+                .collect(Collectors.toList());
 
-        Stream.of(ids) //
-                .map(Integer::parseInt)//
-                .forEach(id -> {
+        LOG.warn("block numbers founds " + test(new DBBlock()) +" "+ bNums);
+        oneBlock = blockService.currentOrTop() ;
+        LOG.warn("oneBlock " + test(oneBlock));
 
-                    blockService.block(id).ifPresent(block -> {
+
+        bNums.forEach(id -> {
+
+            blockService.block(id)
+                    .map(block -> oneBlock = test(block))
+                    .ifPresent(block -> {
+                        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+                        var executableValidator = factory.getValidator().validate(block);
+                        LOG.warn("Assertion - " + new ArrayList<>(executableValidator));
+
                         boolean result = false;
                         try {
+                            block.setNumber(420);
                             BlockLocalValid.Static.assertBlock(block);
 
                         } catch (AssertionError ea) {
                             LOG.warn("Assertion error ", ea);
-                            result = AlertBox.display("testing Blocks #"+id, "AssertionError " + ea.getMessage());
+                            result = AlertBox.display("testing Blocks #" + id, "AssertionError " + ea.getMessage());
                         }
-                     });
-                });
+                    });
+        });
 
+    }
+
+    @Valid
+    @BlockConstraint
+    private DBBlock test(@Valid DBBlock block) {
+        LOG.info("test @Valid " + block);
+        return block;
     }
 
 }

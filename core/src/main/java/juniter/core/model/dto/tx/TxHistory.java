@@ -11,5 +11,4 @@ public class TxHistory   {
 	private String pubkey ; 
 	private History history ;
 
-
 }

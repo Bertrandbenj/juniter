@@ -35,7 +35,7 @@ public interface BlockRepository extends JpaRepository<DBBlock, Long> {
 
     //@Cacheable(value = "blocks", key = "#number" )
     @Query("SELECT b FROM DBBlock b WHERE number = ?1 AND hash = ?2 ")
-    Optional<DBBlock> block(Integer number, String hash);
+    DBBlock block(Integer number, String hash);
 
 
     @Transactional
@@ -69,7 +69,7 @@ public interface BlockRepository extends JpaRepository<DBBlock, Long> {
     DBBlock current(String ccy, Integer number);
 
     /**
-     * Alias for current()
+     * Alias for currentStrict()
      *
      * @return Optional<DBBlock>
      */
@@ -83,14 +83,14 @@ public interface BlockRepository extends JpaRepository<DBBlock, Long> {
         return save(bl);
     }
 
-    /**
-     * Saves the given {@link DBBlock}. unsafe
-     *
-     * @param block the block to save
-     * @return the block saved
-     */
-    @Override
-    <S extends DBBlock> S save(S block) throws GenericJDBCException;
+//    /**
+//     * Saves the given {@link DBBlock}. unsafe
+//     *
+//     * @param block the block to save
+//     * @return the block saved
+//     */
+//    @Override
+//    <S extends DBBlock> S save(S block) throws GenericJDBCException;
 
     @Query("SELECT c FROM DBBlock c")
     Stream<DBBlock> streamAllBlocks();

@@ -32,14 +32,14 @@ public class GVABlockService {
 	 * return a node
 	 *
 	 * @param number the node number
-	 * @return the node at 'number' or current of null
+	 * @return the node at 'number' or currentStrict of null
 	 */
 	@Transactional
-	@GraphQLQuery(name = "node", description = "return the valid node for the given number or current if null ")
+	@GraphQLQuery(name = "node", description = "return the valid node for the given number or currentStrict if null ")
 	public Optional<Block> block(@GraphQLArgument(name = "number") Integer number) {
 		LOG.info(" - /graphql/block/{number} ");
 		if(number==null){
-			return blockService.current().map(b -> modelMapper.map(b, Block.class));
+			return blockService.currentStrict().map(b -> modelMapper.map(b, Block.class));
 		}else{
 			return blockService.findTop1ByNumber(number).map(b -> modelMapper.map(b, Block.class));
 		}

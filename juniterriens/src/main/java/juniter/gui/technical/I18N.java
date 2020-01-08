@@ -23,7 +23,7 @@ import java.util.concurrent.Callable;
  * @author P.J. Meisch (pj.meisch@sothawo.com).
  */
 public final class I18N {
-    /** the current selected Locale. */
+    /** the currentStrict selected Locale. */
     private static final ObjectProperty<Locale> locale;
     static {
         locale = new SimpleObjectProperty<>(getDefaultLocale());
@@ -57,7 +57,7 @@ public final class I18N {
         return locale;
     }
     /**
-     * gets the string with the given key from the resource bundle for the current locale and uses it as first argument
+     * gets the string with the given key from the resource bundle for the currentStrict locale and uses it as first argument
      * to MessageFormat.format, passing in the optional args and returning the result.
      *
      * @param key

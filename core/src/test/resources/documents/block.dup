@@ -1,0 +1,26 @@
+Version: 10
+Type: Block
+Currency: g1
+Number: 1
+PoWMin: 70
+Time: 1488987233
+MedianTime: 1488987127
+UniversalDividend: 1000
+UnitBase: 0
+Issuer: 2ny7YAdmzReQxAayyJZsyVYwYhVyax2thKcGknmQy5nQ
+IssuersFrame: 1
+IssuersFrameVar: 5
+DifferentIssuersCount: 1
+PreviousHash: 000003D02B95D3296A4F06DBAC51775C4336A4DC09D0E958DC40033BE7E20F3D
+PreviousIssuer: 2ny7YAdmzReQxAayyJZsyVYwYhVyax2thKcGknmQy5nQ
+MembersCount: 59
+Identities:
+Joiners:
+Actives:
+Leavers:
+Revoked:
+Excluded:
+Certifications:
+Transactions:
+InnerHash: 64B858824682AB9D046F31DDACF7524FCD2501AEF269EE09E95EF2414DC9F7DB
+Nonce: 10100000025565

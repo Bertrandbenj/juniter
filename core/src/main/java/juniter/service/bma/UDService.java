@@ -1,11 +1,10 @@
 package juniter.service.bma;
 
+import juniter.core.exception.UCode;
+import juniter.core.exception.DuniterException;
 import juniter.core.model.dto.tx.UdDTO;
 import juniter.core.model.dto.tx.UdHistory;
 import juniter.service.core.TransactionService;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,11 +31,15 @@ public class UDService {
     @Transactional(readOnly = true)
     @GetMapping(value = "/history/{pubkey}")
     public UdHistory UDHistory(@PathVariable("pubkey") String pubkey) {
-        return new UdHistory(pubkey, txService
-                .dividendsOf(pubkey)
-                .stream()
-                .map(ud -> new UdDTO(ud.getMedianTime(), ud.getNumber(), ud.getConsumed(), ud.getDividend(), ud.getBase()))
-                .collect(Collectors.toList()));
+        try {
+            return new UdHistory(pubkey, txService
+                    .dividendsOf(pubkey)
+                    .stream()
+                    .map(ud -> new UdDTO(ud.getMedianTime(), ud.getNumber(), ud.getConsumed(), ud.getDividend(), ud.getBase()))
+                    .collect(Collectors.toList()));
+        } catch (Exception e) {
+            throw new DuniterException(UCode.HTTP_PARAM_PUBKEY_REQUIRED);
+        }
     }
 
 

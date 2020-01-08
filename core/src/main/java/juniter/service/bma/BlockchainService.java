@@ -1,8 +1,12 @@
 package juniter.service.bma;
 
 import io.micrometer.core.annotation.Timed;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import juniter.core.exception.DuniterException;
+import juniter.core.exception.UCode;
 import juniter.core.model.dbo.DBBlock;
-import juniter.core.model.dbo.index.CertRecord;
 import juniter.core.model.dbo.index.MINDEX;
 import juniter.core.model.dto.ChainParametersDTO;
 import juniter.core.model.dto.net.DifficultiesDTO;
@@ -63,7 +67,7 @@ import static java.util.stream.Collectors.toList;
  * |   |-- node
  * |   |   `-- [NUMBER]
  * |   |-- difficulties
- * |   `-- current
+ * |   `-- currentStrict
  * </pre>
  *
  * @author ben
@@ -99,21 +103,6 @@ public class BlockchainService {
 
     @Autowired
     private WebOfTrust wotService;
-
-
-    @Transactional(readOnly = true)
-    @GetMapping(value = "/all")
-    public List<DBBlock> all() {
-
-        LOG.info("Entering /blockchain/all");
-
-        try (Stream<DBBlock> items = blockService.lastBlocks()) {
-            return items.collect(toList());
-        } catch (final Exception e) {
-            LOG.error(e);
-            return null;
-        }
-    }
 
     @CrossOrigin(origins = "*")
     @GetMapping(value = "/block/{id}", produces = "application/json")
@@ -157,9 +146,9 @@ public class BlockchainService {
 
     @CrossOrigin(origins = "*")
     @Transactional
-    @GetMapping(value = "/current")
+    @GetMapping(value = "/currentStrict")
     public Block current() {
-        LOG.info("Entering /blockchain/current");
+        LOG.info("Entering /blockchain/currentStrict");
         return modelMapper.map(blockService.currentOrFetch(), Block.class);
     }
 
@@ -178,12 +167,13 @@ public class BlockchainService {
      * @return A Wrapped List of Blocks
      */
     @CrossOrigin(origins = "*")
+    @ApiResponse(code = 1000, message = "Api response")
+    @ApiImplicitParam(example = "huhu,haha")
+    @ApiParam(example = "newcomers,certs,actives,revoked,leavers,excluded,ud,tx")
     @GetMapping(value = "/with/{what}", name = "newcomers,certs,actives,revoked,leavers,excluded,ud,tx")
     @Transactional(readOnly = true)
     public WithDTO with(@PathVariable("what") String what) {
-
         LOG.info("Entering /blockchain/with/{newcomers,certs,actives,leavers,excluded,ud,tx}");
-        Stream<DBBlock> st;
         switch (what) {
             case "newcomers":
                 return new WithDTO(memberRepo.withJoiners());
@@ -202,16 +192,10 @@ public class BlockchainService {
                 return new WithDTO(blockService.withUD());
             case "tx":
                 return new WithDTO(txRepo.withTx());
-
             default:
-                st = blockService.with(block -> !block.getTransactions().isEmpty());
-        }
-
-        try (Stream<Integer> items = st.map(DBBlock::getNumber)) {
-            return new WithDTO(items.collect(toList()));
-        } catch (final Exception e) {
-            LOG.error(e);
-            return null;
+                throw new DuniterException(new UCode(5001,
+                        "Parameter '" + what + "' unknown please pick one in : newcomers,certs,actives,revoked,leavers,excluded,ud,tx"
+                ));
         }
 
     }
@@ -220,15 +204,19 @@ public class BlockchainService {
     @Transactional(readOnly = true)
     @GetMapping(value = "/memberships/{search}")
     public Stream<MINDEX> memberships(@PathVariable("search") String search) {
+        if (search.isBlank())
+            throw new DuniterException(UCode.HTTP_PARAM_MEMBERSHIP_REQUIRED);
+
         return index.getMRepo().search(search);
     }
 
 
     @CrossOrigin(origins = "*")
-    @GetMapping(value = "/parameters/{ccy}")
-    public ChainParametersDTO parameters(@PathVariable(name = "ccy", required = false) Optional<String> ccy) {
-        return ccy.map(c -> modelMapper.map(blockService.paramsByCCY(c), ChainParametersDTO.class))
-                .orElse(parameter());
+    @GetMapping(value = "/parameters/{currency}")
+    public ChainParametersDTO parameters(@PathVariable(name = "currency", required = false) Optional<String> ccy) {
+        return ccy.or(() -> Optional.of("g1"))
+                .map(c -> modelMapper.map(blockService.paramsByCCY(c), ChainParametersDTO.class))
+                .orElseThrow(() -> new DuniterException(UCode.HTTP_PARAM_CCY_REQUIRED));
     }
 
     @CrossOrigin(origins = "*")
@@ -243,20 +231,28 @@ public class BlockchainService {
     @Transactional(readOnly = true)
     @GetMapping(value = "/difficulties")
     public DifficultiesDTO difficulties() {
-        return new DifficultiesDTO(blockService.currentBlockNumber(), List.of(new Difficulty("", 99)));
+        try {
+            return new DifficultiesDTO(blockService.currentBlockNumber(), List.of(new Difficulty("", 99)));
+        } catch (Exception e) {
+            throw new DuniterException(UCode.UNHANDLED);
+        }
     }
 
     @CrossOrigin(origins = "*")
     @Transactional(readOnly = true)
     @GetMapping(value = "/hardship")
     public HardshipDTO hardship() {
-        return new HardshipDTO(blockService.currentBlockNumber(), 99);
+        try {
+            return new HardshipDTO(blockService.currentBlockNumber(), 99);
+        } catch (Exception e) {
+            throw new DuniterException(UCode.UNHANDLED);
+        }
     }
 
 
     @GetMapping(value = "/branches")
-    public List<Block> branches() {
-        return List.of();
+    public List<Block> branches() throws DuniterException {
+        throw new DuniterException(UCode.UNHANDLED);
     }
 
 
@@ -271,7 +267,9 @@ public class BlockchainService {
             BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
             LOG.info(in.lines().collect(Collectors.joining("\n")));
         } catch (Exception e) {
+
             LOG.error("error reading blockchain/membership inputStream ", e);
+            throw new DuniterException(UCode.HTTP_PARAM_MEMBERSHIP_REQUIRED);
         }
 
         MembershipDTO membership = new MembershipDTO();
@@ -292,6 +290,8 @@ public class BlockchainService {
             LOG.info(in.lines().collect(Collectors.joining("\n")));
         } catch (Exception e) {
             LOG.error("error reading blockchain/block inputStream ", e);
+            throw new DuniterException(UCode.HTTP_PARAM_BLOCK_REQUIRED);
+
         }
 
 

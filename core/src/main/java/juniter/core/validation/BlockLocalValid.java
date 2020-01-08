@@ -28,7 +28,7 @@ public interface BlockLocalValid extends LocalValid {
      * @param block to completeGlobalScope
      * @return true if the node is valid
      */
-    default boolean checkBlockIsLocalValid(DBBlock block) {
+    default boolean silentCheck(DBBlock block) {
 
         try {
             assertBlockLocalValid(block, false);
@@ -318,6 +318,10 @@ public interface BlockLocalValid extends LocalValid {
 
         public static void assertBlock(DBBlock b) throws AssertionError {
             singletons.assertBlockLocalValid(b, true);
+        }
+
+        public static boolean  silentChecks(DBBlock b)   {
+          return  singletons.silentCheck(b );
         }
     }
 

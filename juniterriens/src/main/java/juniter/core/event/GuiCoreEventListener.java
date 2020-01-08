@@ -37,12 +37,15 @@ public class GuiCoreEventListener implements ApplicationListener<CoreEvent> {
 
         switch (event.getName()) {
             case "NewBINDEX":
-                Platform.runLater(() -> currentBindex.setValue((BINDEX) event.getWhat()));
+                var bindex = (BINDEX) event.getWhat();
+                notifTitle = "A new " + bindex.getCurrency() + " Block as been indexed ";
+                notifText = "# " + bindex.getNumber();
+                Platform.runLater(() -> currentBindex.setValue(bindex));
                 break;
 
             case "NewBlock":
                 var block = (DBBlock) event.getWhat();
-                notifTitle = "a new " + block.getCurrency() + " block as been created ";
+                notifTitle = "A new " + block.getCurrency() + " Block as been Saved ";
                 notifText = "# " + block.getNumber();
 
                 if (wallets.contains(block.getIssuer())) {
@@ -74,7 +77,7 @@ public class GuiCoreEventListener implements ApplicationListener<CoreEvent> {
             case "RenormalizedNet":
                 var list = (List<NetStats>) event.getWhat();
                 list.sort(Comparator.comparing(NetStats::getLastNormalizedScore));
-                list.subList(list.size()-10, list.size()-1);
+                list.subList(list.size() - 10, list.size() - 1);
                 Platform.runLater(() -> Network.observableNetStats.setAll(list));
                 break;
 

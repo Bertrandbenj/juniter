@@ -1,5 +1,7 @@
 package juniter.service.bma;
 
+import juniter.core.exception.UCode;
+import juniter.core.exception.DuniterException;
 import juniter.core.model.dbo.net.EndPointType;
 import juniter.core.model.dbo.net.Peer;
 import juniter.core.model.dto.net.*;
@@ -51,19 +53,24 @@ public class NetworkService {
     @Autowired
     private PeerService peerService;
 
-
     @Autowired
     private ModelMapper modelMapper;
 
+    @Autowired
+    private RestTemplate GET;
 
     @Transactional
     @GetMapping("/")
     public List<String> index() {
         LOG.info("Entering /network/ ... ");
-        return peerService.all().stream()
-                .flatMap(p -> getUris(p).stream())
-                .map(URI::toString)
-                .collect(Collectors.toList());
+        try{
+            return peerService.all().stream()
+                    .flatMap(p -> getUris(p).stream())
+                    .map(URI::toString)
+                    .collect(Collectors.toList());
+        }catch (Exception e) {
+            throw new DuniterException(e);
+        }
     }
 
     public List<URI> getUris(Peer peer) {
@@ -144,11 +151,12 @@ public class NetworkService {
     @GetMapping(value = "/peers")
     public PeersDTO peers() {
         LOG.info("Entering /network/peers ...");
-        return new PeersDTO(peerService.all().stream().map(p -> modelMapper.map(p, PeerDTO.class)).collect(Collectors.toList()));
+        try{
+            return new PeersDTO(peerService.all().stream().map(p -> modelMapper.map(p, PeerDTO.class)).collect(Collectors.toList()));
+        }catch (Exception e) {
+            throw new DuniterException(e);
+        }
     }
-
-    @Autowired
-    private RestTemplate restTemplate;
 
 
     @CrossOrigin(origins = "*")
@@ -158,11 +166,9 @@ public class NetworkService {
 
         LOG.info("Entering /ws2p/heads ...");
         // peerRepo.streamAllPeers().flatMap(p-> p.endpoints().stream())
-        var response = restTemplate.getForObject("https://g1.duniter.fr/network/ws2p/heads", WS2PHeads.class);
+        try {
+            var response = GET.getForObject("https://g1.duniter.fr/network/ws2p/heads", WS2PHeads.class);
 
-
-        //LOG.info("  ..." + response );
-        return response;
 //        var res =  WS2PHeads.builder()
 //                .heads(List.of(HeadDTO.builder()
 //                        .message("message")
@@ -174,6 +180,11 @@ public class NetworkService {
 //                ).build();
 //
 //        return res;
+            return response;
+
+        } catch (Exception e) {
+            throw new DuniterException(UCode.UNHANDLED);
+        }
     }
 
 
@@ -194,43 +205,51 @@ public class NetworkService {
     public ResponseEntity<Peer> peeringPeersPost(@RequestBody PeerBMA input) {
 
         LOG.info("POSTING /network/peering/peers ..." + input.getPeer());
+        try {
+            Peer peer = modelMapper.map(input, Peer.class);
 
-        Peer peer = new Peer();
-        final var headers = new HttpHeaders();
-
-        return new ResponseEntity<>(peer, headers, HttpStatus.OK);
+            return new ResponseEntity<>(peer, new HttpHeaders(), HttpStatus.OK);
+        } catch (Exception e) {
+            throw new DuniterException(UCode.UNHANDLED);
+        }
     }
 
 
     @Transactional(readOnly = true)
     @GetMapping(value = "/peering/peers")
     public @ResponseBody
-    ResponseEntity<PeeringPeersDTO> peeringPeersGet(HttpServletRequest request, HttpServletResponse response) {
+    ResponseEntity<PeeringPeersDTO> peeringPeersGet(
+            HttpServletRequest request,
+            HttpServletResponse response) {
 
         LOG.info("Entering /network/peering/peers ...");
-        final var headers = new HttpHeaders();
+        try {
+            final var headers = new HttpHeaders();
 
 
-        var extraParams = request.getParameterMap();
+            var extraParams = request.getParameterMap();
 
-        var peeringPeers = new PeeringPeersDTO();
-        peeringPeers.setDepth(10);
-        peeringPeers.setNodeCounts(652);
-        peeringPeers.setLeavesCount(648);
+            var peeringPeers = new PeeringPeersDTO();
+            peeringPeers.setDepth(10);
+            peeringPeers.setNodeCounts(652);
+            peeringPeers.setLeavesCount(648);
 
 
-        var leaves = extraParams.getOrDefault("leaves", new String[]{"false"})[0];
+            var leaves = extraParams.getOrDefault("leaves", new String[]{"false"})[0];
 
-        if (Boolean.valueOf(leaves)) {
-            peeringPeers.setLeaves(new ArrayList<>());
+            if (Boolean.valueOf(leaves)) {
+                peeringPeers.setLeaves(new ArrayList<>());
+            }
+
+            String leaf = extraParams.getOrDefault("leaf", new String[]{""})[0];
+            if (leaf.length() > 0) {
+                peeringPeers.setLeaf(new LeafDTO("hash", new Peer()));
+            }
+
+            return new ResponseEntity<>(peeringPeers, headers, HttpStatus.OK);
+        } catch (Exception e) {
+            throw new DuniterException(UCode.UNHANDLED);
         }
-
-        String leaf = extraParams.getOrDefault("leaf", new String[]{""})[0];
-        if (leaf.length() > 0) {
-            peeringPeers.setLeaf(new LeafDTO("hash", new Peer()));
-        }
-
-        return new ResponseEntity<>(peeringPeers, headers, HttpStatus.OK);
     }
 
 

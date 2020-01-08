@@ -16,10 +16,7 @@ import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import javax.validation.Valid;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +40,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author ben
  */
-@Entity
+ @Entity
 @Data
 @NoArgsConstructor
 @Table(name = "block", schema = "public", indexes = {
@@ -64,10 +61,10 @@ public class DBBlock implements DUPDocument, Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    // @Id
+    @Positive
     private Integer number;
 
-    // @Id
+
     @Size(max = 64)
     @Column(length = 64)
     private String hash;
@@ -92,7 +89,7 @@ public class DBBlock implements DUPDocument, Serializable {
     private Long monetaryMass;
 
     @Min(0)
-    @Max(0)
+    @Max(1000)
     private Integer unitbase;
 
     private Integer issuersCount;
@@ -204,7 +201,7 @@ public class DBBlock implements DUPDocument, Serializable {
     private List<Transaction> transactions = new ArrayList<>();
 
     public void setParameters(String string) {
-        if (string == null || string == "")
+        if (string == null || string.equals(""))
             return;
         parameters = new ChainParameters(currency);
         parameters.accept(string);

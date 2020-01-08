@@ -4,7 +4,6 @@ import io.micrometer.core.annotation.Timed;
 import juniter.core.event.DecrementCurrent;
 import juniter.core.event.NewBINDEX;
 import juniter.core.event.NewBlock;
-import juniter.core.model.technical.CcyStats;
 import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.ChainParameters;
 import juniter.core.model.dbo.DBBlock;
@@ -13,6 +12,7 @@ import juniter.core.model.dbo.wot.Certification;
 import juniter.core.model.dbo.wot.Identity;
 import juniter.core.model.dbo.wot.Member;
 import juniter.core.model.dto.node.BlockNetworkMeta;
+import juniter.core.model.technical.CcyStats;
 import juniter.core.validation.BlockLocalValid;
 import juniter.repository.jpa.block.BlockRepository;
 import juniter.repository.jpa.block.ParamsRepository;
@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
@@ -46,6 +45,10 @@ public class BlockService implements BlockLocalValid, ApplicationListener<NewBIN
 
     @Autowired
     private ParamsRepository paramsRepository;
+
+
+    @Autowired
+    private Index index;
 
 
     @Cacheable(value = "params")
@@ -80,28 +83,23 @@ public class BlockService implements BlockLocalValid, ApplicationListener<NewBIN
         return blockRepo.findTop1ByNumber(num);
     }
 
-    //public Optional<DBBlock> current(Integer num) {
+    //public Optional<DBBlock> currentStrict(Integer num) {
     //    return blockRepo.findTop1ByNumber(num);
     //}
 
 
-    private Optional<DBBlock> blockOpt(Integer num, String hash) {
+    public DBBlock block(Integer num, String hash) {
         return blockRepo.block(num, hash);
     }
 
 
-    public DBBlock block(Integer num, String hash) {
-        return blockRepo.block(num, hash).orElseThrow();
-    }
-
-
     public DBBlock block(BStamp bStamp) {
-        return blockRepo.block(bStamp.getNumber(), bStamp.getHash()).orElseThrow();
+        return block(bStamp.getNumber(), bStamp.getHash());
     }
 
 
     public Integer currentBlockNumber() {
-        return current().map(DBBlock::getNumber).orElse(0);
+        return currentStrict().map(DBBlock::getNumber).orElse(0);
     }
 
 
@@ -118,17 +116,24 @@ public class BlockService implements BlockLocalValid, ApplicationListener<NewBIN
         blockRepo.saveAll(blocksToSave);
     }
 
+
     @Timed(value = "blockservice_current")
-    public Optional<DBBlock> current() {
-        return blockRepo.findTop1ByOrderByNumberDesc();
+    public Optional<DBBlock> currentStrict() {
+        return index.head().map(b -> blockRepo.block(b.getNumber(), b.getHash()))
+                //.or(() -> blockRepo.findTop1ByOrderByNumberDesc())
+                ;
+    }
+
+    public DBBlock currentOrTop() {
+        return currentStrict().orElse(blockRepo.findTop1ByOrderByNumberDesc().orElseThrow());
     }
 
     public DBBlock currentOrFetch() {
-        return current().orElseGet(() -> blockLoader.fetchAndSaveBlock("current"));
+        return currentStrict().orElseGet(() -> blockLoader.fetchAndSaveBlock("current"));
     }
 
 
-    private DBBlock current(String ccy) {
+    private DBBlock currentStrict(String ccy) {
         return blockRepo.current(ccy, currents.get(ccy));
     }
 
@@ -149,13 +154,12 @@ public class BlockService implements BlockLocalValid, ApplicationListener<NewBIN
 
     @Transactional(readOnly = true)
     public List<DBBlock> listBlocksFromTo(int i, int i1) {
-        return blockRepo.streamBlocksFromTo(i, i1).collect(Collectors.toList());
+        return blockRepo.blocksFromTo(i, i1);
     }
 
     public Stream<DBBlock> streamBlocksFromTo(int i, int i1) {
         return blockRepo.streamBlocksFromTo(i, i1);
     }
-
 
 
     public Optional<DBBlock> safeSave(DBBlock block) throws AssertionError {
@@ -205,31 +209,26 @@ public class BlockService implements BlockLocalValid, ApplicationListener<NewBIN
             m.setWritten(block.bStamp());
         }
 
-
+        var cur = blockRepo.block(block.getNumber(), block.getHash());
         // Do the saving after some checks
-        if (checkBlockIsLocalValid(block) && blockOpt(block.getNumber(), block.getHash()).isEmpty()) {
-
+        if (silentCheck(block) && cur != null) {
             try {
+                var res = blockRepo.save(block);
 
-                var cur = blockRepo.findTop1ByOrderByNumberDesc();
-                var res = Optional.ofNullable(blockRepo.save(block));
-
-                if (res.isPresent() && cur.isPresent()) {
-                    if (cur.get().getNumber() < res.get().getNumber()) {
-                        coreEventBus.publishEvent(new NewBlock(res.get()));
-                    }
+                if (cur.getNumber() < res.getNumber()) {
+                    coreEventBus.publishEvent(new NewBlock(res));
                 }
 
-                return res;
+                return Optional.of(res);
 
             } catch (Exception e) {
-                LOG.error("Error safeSave block " + block.getNumber(), e);
+                LOG.warn("BlockRepo.safeSave  block " + block.getNumber() + " already exists");
                 return Optional.empty();
             }
         } else {
             LOG.error("Error safeSave block " + block.getNumber()
-                    + " :  BlockIsLocalValid " + checkBlockIsLocalValid(block)
-                    + ", block doesn't exists just yet " + blockOpt(block.getNumber(), block.getHash()).isEmpty());
+                    + " :  BlockIsLocalValid " + silentCheck(block)
+                    + ", block doesn't exists just yet " + cur);
         }
 
 

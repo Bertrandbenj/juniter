@@ -1,7 +1,5 @@
 package juniter.repository.jpa.index;
 
-import juniter.core.model.dbo.index.BINDEX;
-import juniter.core.model.dbo.index.CertRecord;
 import juniter.core.model.dbo.index.IINDEX;
 import juniter.core.model.dto.wot.MemberDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,56 +9,43 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 /**
  * Repository to manage {@link IINDEX} instances.
  */
 @Repository
 public interface IINDEXRepository extends JpaRepository<IINDEX, Long> {
+
     @Transactional(readOnly = true)
     @Query("FROM IINDEX")
     List<IINDEX> all();
 
-
     @Query(value = "SELECT new juniter.core.model.dto.wot.MemberDTO(pub, uid) FROM IINDEX i WHERE i.member IS NOT NULL AND i.member IS TRUE")
     List<MemberDTO> members();
 
-    @Override
-    long count();
-
-    @Override
-    void deleteAll(Iterable<? extends IINDEX> entities);
-
-    @Query(value = "SELECT iindex from IINDEX iindex WHERE hash = ?1 ")
+    @Query("FROM IINDEX iindex WHERE hash = ?1 ")
     List<IINDEX> pendingIdentityByHash(String hash);
 
-    @Query(value = "SELECT iindex from IINDEX iindex WHERE  uid = ?1 OR pub = ?2 ")
+    @Query("FROM IINDEX iindex WHERE  uid = ?1 OR pub = ?2 ")
     List<IINDEX> byUidOrPubkey(String uid, String pub);
 
-    @Query(value = "SELECT iindex from IINDEX iindex WHERE  uid = ?1 OR pub LIKE CONCAT('%',?1,'%') ")
+    @Query("FROM IINDEX iindex WHERE  uid = ?1 OR pub LIKE CONCAT('%',?1,'%') ")
     List<IINDEX> search(String search);
 
-
-    @Query(value = "SELECT iindex from IINDEX iindex WHERE  uid = ?1 ")
+    @Query("FROM IINDEX iindex WHERE  uid = ?1 ")
     List<IINDEX> byUid(String uid);
 
-    @Query(value = "SELECT iindex from IINDEX iindex WHERE pub = ?1 ")
+    @Query("FROM IINDEX iindex WHERE pub = ?1 ")
     List<IINDEX> idtyByPubkey(String pubkey);
 
-    @Query(value = "SELECT iindex from IINDEX iindex WHERE pub = ?1 ")
-    Optional<IINDEX> findFirstByPubLike(String pub);
-
-    @Query(value = "SELECT iindex from IINDEX iindex WHERE written.number = ?1 AND  written.hash = ?2 ")
+    @Query("FROM IINDEX iindex WHERE written.number = ?1 AND  written.hash = ?2 ")
     List<IINDEX> writtenOn(Integer writtenOn, String writtenHash);
 
-    @Override
-    <S extends IINDEX> S save(S entity);
+    @Query("SELECT DISTINCT pub FROM IINDEX m WHERE written.number < ?1 GROUP BY pub HAVING count(*) > 1")
+    List<String> duplicatesBelow(Integer blockNumber);
 
-    default Boolean idtyIsMember(String pubkey) {
-        return findFirstByPubLike(pubkey).map(IINDEX::getMember).orElse(false);
-    }
+    @Query("FROM IINDEX WHERE pub = ?1 ORDER BY written.number")
+    List<IINDEX> fetchTrimmed(String pub);
 
     @Transactional
     @Modifying
@@ -123,12 +108,6 @@ public interface IINDEXRepository extends JpaRepository<IINDEX, Long> {
 
     }
 
-
-    @Query("SELECT DISTINCT pub FROM IINDEX m WHERE written.number < ?1 GROUP BY pub HAVING count(*) > 1")
-    List<String> duplicatesBelow(Integer blockNumber);
-
-    @Query(value = "FROM IINDEX WHERE pub = ?1 ORDER BY written.number")
-    List<IINDEX> fetchTrimmed(String pub);
 
 }
 

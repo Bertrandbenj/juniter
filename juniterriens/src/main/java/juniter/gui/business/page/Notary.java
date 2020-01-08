@@ -66,7 +66,7 @@ public class Notary extends AbstractJuniterFX implements Initializable {
     private TextArea logGlobalValid;
 
     @Autowired
-    private RestTemplate restTemplate;
+    private RestTemplate POST;
 
     @Autowired
     private BlockService blockService;
@@ -182,7 +182,7 @@ public class Notary extends AbstractJuniterFX implements Initializable {
 
         try {
 
-            response = restTemplate.postForEntity(reqURL, request, Object.class);
+            response = POST.postForEntity(reqURL, request, Object.class);
 
             if (response.getStatusCodeValue() != 200) {
                 throw new AssertionError("post Doc error, code {} " + response);

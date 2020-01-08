@@ -47,7 +47,7 @@ public class CachedBlock {
 
     public DBBlock getCurrent() {
         if (current == null)
-            current = blockService.current().orElse(blockLoader.fetchAndSaveBlock("/current"));
+            current = blockService.currentStrict().orElse(blockLoader.fetchAndSaveBlock("/currentStrict"));
         return current;
     }
 

@@ -18,15 +18,9 @@ import java.util.stream.Stream;
 public interface MINDEXRepository extends JpaRepository<MINDEX, Long> {
 
 
-    @Override
-    long count();
-
     @Transactional(readOnly = true)
     @Query("FROM MINDEX")
     List<MINDEX> all();
-
-    @Override
-    void deleteAll(Iterable<? extends MINDEX> entities);
 
     @Query(value = "SELECT mi FROM MINDEX mi WHERE pub = ?1 ORDER BY signed DESC")
     List<MINDEX> member(String pubkey);
@@ -36,6 +30,22 @@ public interface MINDEXRepository extends JpaRepository<MINDEX, Long> {
 
     @Query(value = "SELECT m from MINDEX m WHERE  pub LIKE CONCAT('%',?1,'%')")
     Stream<MINDEX> search(String search);
+
+    @Query("SELECT DISTINCT i.uid FROM MINDEX m LEFT JOIN IINDEX i ON i.pub = m.pub WHERE m.expires_on > ?1 AND m.expires_on < ?2 ")
+    List<String> expiresBetween(Long begin, Long end);
+
+    @Query("SELECT DISTINCT pub FROM MINDEX m WHERE written.medianTime < ?1 GROUP BY pub HAVING count(*) > 1")
+    List<String> duplicatesBelow(Long blockNumber);
+
+    @Query(value = " FROM MINDEX WHERE pub = ?1 ORDER BY written.number ")
+    List<MINDEX> fetchTrimmed(String pub);
+
+    @Query(value = "SELECT pub FROM MINDEX GROUP BY pub HAVING max(expires_on) <= ?1 AND max(revokes_on) > ?1 ")
+    List<String> findPubkeysThatShouldExpire(Long mtime);
+
+
+    @Query(value = "SELECT pub FROM MINDEX WHERE revoked IS NULL AND expires_on > ?1 GROUP BY pub HAVING max(revokes_on) <= ?1 ")
+    List<String> findRevokesOnLteAndRevokedOnIsNull(Long mTime);
 
     @Query("SELECT m FROM MINDEX m WHERE expires_on <= ?1  OR revoked.medianTime > ?1 ")
     List<MINDEX> getForTrim(Long mTime);
@@ -67,16 +77,6 @@ public interface MINDEXRepository extends JpaRepository<MINDEX, Long> {
         });
     }
 
-    @Query("SELECT DISTINCT i.uid FROM MINDEX m LEFT JOIN IINDEX i ON i.pub = m.pub WHERE m.expires_on > ?1 AND m.expires_on < ?2 ")
-    List<String> expiresBetween(Long begin, Long end);
-
-
-    @Query("SELECT DISTINCT pub FROM MINDEX m WHERE written.medianTime < ?1 GROUP BY pub HAVING count(*) > 1")
-    List<String> duplicatesBelow(Long blockNumber);
-
-    @Query(value = " FROM MINDEX WHERE pub = ?1 ORDER BY written.number ")
-    List<MINDEX> fetchTrimmed(String pub);
-
 
 //    @Query(value = "SELECT *, (SELECT m2.expires_on \n" +
 //            "             FROM mindex m2 \n" +
@@ -102,15 +102,6 @@ public interface MINDEXRepository extends JpaRepository<MINDEX, Long> {
 //    List<MINDEX> findPubkeysThatShouldExpire(Long mtime);
 
 
-    @Query(value = "SELECT pub FROM MINDEX GROUP BY pub HAVING max(expires_on) <= ?1 AND max(revokes_on) > ?1 ")
-    List<String> findPubkeysThatShouldExpire3(Long mtime);
-
-    @Query(value = "SELECT pub FROM MINDEX m WHERE expires_on <= ?1 AND revokes_on > ?1 ")
-    List<String> findPubkeysThatShouldExpire2(Long mtime);
-
-
-    @Query(value = "SELECT pub FROM MINDEX WHERE revoked IS NULL AND expires_on > ?1 GROUP BY pub HAVING max(revokes_on) <= ?1 ")
-    List<String> findRevokesOnLteAndRevokedOnIsNull(Long mTime);
 
 
 }

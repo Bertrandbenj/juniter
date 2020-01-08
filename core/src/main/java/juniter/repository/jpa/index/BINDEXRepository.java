@@ -18,9 +18,6 @@ import java.util.stream.Stream;
 @Repository
 public interface BINDEXRepository extends JpaRepository<BINDEX, Long> {
 
-    @Override
-    <S extends BINDEX> List<S> saveAll(Iterable<S> entities);
-
     @Transactional(readOnly = true)
     @Query("FROM BINDEX")
     Stream<BINDEX> all();
@@ -28,11 +25,8 @@ public interface BINDEXRepository extends JpaRepository<BINDEX, Long> {
     @Query("FROM BINDEX b ORDER BY number")
     List<BINDEX> allAsc();
 
-    @Override
-    void delete(BINDEX entity);
-
-    @Override
-    long count();
+    @Query("SELECT b from BINDEX b WHERE number = ?1 AND currency = ?2")
+    Optional<BINDEX> byNum(Integer number, String ccy);
 
     Optional<BINDEX> findFirstByNumberIsNotNullOrderByNumberDesc();
 
@@ -40,9 +34,6 @@ public interface BINDEXRepository extends JpaRepository<BINDEX, Long> {
         return findFirstByNumberIsNotNullOrderByNumberDesc();
     }
 
-
-    @Query("SELECT b from BINDEX b WHERE number = ?1 AND currency = ?2")
-    Optional<BINDEX> byNum(Integer number, String ccy);
 
     @Transactional
     @Modifying
@@ -54,8 +45,6 @@ public interface BINDEXRepository extends JpaRepository<BINDEX, Long> {
                 .forEach(this::delete);
     }
 
-    @Override
-    void deleteAll();
 }
 
 	

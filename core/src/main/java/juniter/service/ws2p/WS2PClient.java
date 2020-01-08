@@ -5,7 +5,6 @@ import antlr.generated.JuniterParser;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import juniter.core.event.NewBlock;
 import juniter.core.model.dbo.net.EndPointType;
 import juniter.core.model.wso.ResponseBlock;
 import juniter.core.model.wso.ResponseBlocks;
@@ -137,8 +136,7 @@ public class WS2PClient extends WebSocketClient {
 
                     if (pool.blockService.currentBlockNumber() < current.getBody().getNumber()) {
                         pool.blockService.safeSave(current.getBody());
-                        LOG.info("New current " + current.getBody());
-                        pool.coreEventBus.publishEvent(new NewBlock(current.getBody()));
+
                     }
                     break;
                 case "WOT_REQUIREMENTS_OF_PENDING":

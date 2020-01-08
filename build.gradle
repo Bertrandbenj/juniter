@@ -61,7 +61,7 @@ subprojects {
 }
 
 
-task cleanupDaemonLog{
+task cleanupDaemonLog  {
     def gradle = project.getGradle()
     println "gradle version ${gradle.getGradleVersion()}"
     println "cleaning up folder ${gradle.getGradleUserHomeDir().getAbsolutePath()}/daemon/${gradle.getGradleVersion()}"

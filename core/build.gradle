@@ -99,8 +99,14 @@ task sourcesJar(type: Jar) {
     classifier = 'sources'
 }
 
+task testsJar(type: Jar) {
+    from "${projectDir}/build/test-results/"
+    from "${projectDir}/build/reports/tests/"
+    classifier = 'tests'
+}
+
 task javadocJar(type: Jar) {
-    //from javadoc
+    from "${projectDir}/build/docs/javadoc"
     classifier = 'javadoc'
 }
 
