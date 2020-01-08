@@ -25,7 +25,7 @@ jobs:
       - uses: actions/upload-artifact@v1.0.0
         with:
           name: junigeek-tests
-          path: core/build/libs/junigeek-1.0.0-SNAPSHOT-tests.jar
+          path: junigeek/build/libs/junigeek-1.0.0-SNAPSHOT-tests.jar
 
       - name: Test juniterriens
         run: |
@@ -34,7 +34,7 @@ jobs:
       - uses: actions/upload-artifact@v1.0.0
         with:
           name: juniterriens-tests
-          path: core/build/libs/juniterriens-1.0.0-SNAPSHOT-tests.jar
+          path: juniterriens/build/libs/juniterriens-1.0.0-SNAPSHOT-tests.jar
 
       - name: Test core
         run: |

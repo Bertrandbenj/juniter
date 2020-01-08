@@ -117,7 +117,10 @@ javadoc {
     classpath = configurations.compile
     destinationDir = new File("docs/javadoc") // inside of build
 }
-
+artifacts
+        {
+            archives javadocJar, sourcesJar
+        }
 
 //apply plugin: 'io.franzbecker.gradle-lombok'
 //apply plugin: 'net.ltgt.apt'
@@ -299,7 +302,7 @@ publishing {
             artifact javadocJar
         }
 
-//        maven(MavenPublication) {
+//        github(MavenPublication) {
 //            name = "GitHubPackages"
 //            url = uri("https://maven.pkg.github.com/BertrandBenj/Juniter")
 //            credentials {
@@ -307,6 +310,7 @@ publishing {
 //                password = project.findProperty("gpr.key") ?: System.getenv("PASSWORD")
 //            }
 //        }
+
     }
 //    publications {
 //        gpr(MavenPublication) {
@@ -319,7 +323,7 @@ publishing {
     }
     repositories {
         maven {
-            url 'repo'
+            url 'https://maven.pkg.github.com/BertrandBenj/Juniter'
         }
         mavenLocal()
     }
