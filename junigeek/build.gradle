@@ -39,9 +39,22 @@ dependencies {
 }
 
 
-//task buildAll(type: GradleBuild) {
-//    tasks = [ 'build' ]
-//}
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+    classifier = 'sources'
+}
+
+task testsJar(type: Jar) {
+    from "${projectDir}/build/test-results/"
+    from "${projectDir}/build/reports/tests/"
+    classifier = 'tests'
+}
+
+task javadocJar(type: Jar) {
+    from "${projectDir}/build/docs/javadoc"
+    classifier = 'javadoc'
+}
 
 bootJar {
     mainClassName = 'juniter.Application'
