@@ -3,7 +3,7 @@ package juniter.core.model.dbo.tx;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import juniter.core.crypto.Crypto;
 import juniter.core.model.dbo.BStamp;
-import juniter.core.model.technical.DUPDocument;
+import juniter.core.model.meta.DUPTransaction;
 import juniter.core.utils.Constants;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -37,7 +38,7 @@ import java.util.stream.Collectors;
         @Index(columnList = "comment")
 })
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Transaction implements DUPDocument, Serializable {
+public class Transaction implements DUPTransaction, Serializable {
 
     private static final Logger LOG = LogManager.getLogger(Transaction.class);
 
@@ -47,7 +48,7 @@ public class Transaction implements DUPDocument, Serializable {
 
     @Min(10)
     @Max(100)
-    private Integer version;
+    private Short version;
 
 
     @Size(max = 42)
@@ -154,6 +155,8 @@ public class Transaction implements DUPDocument, Serializable {
                 ;
     }
 
+
+
     /**
      * <pre>
      * TX:VERSION:NB_ISSUERS:NB_INPUTS:NB_UNLOCKS:NB_OUTPUTS:HAS_COMMENT:LOCKTIME
@@ -183,4 +186,8 @@ public class Transaction implements DUPDocument, Serializable {
     }
 
 
+    @Override
+    public List<String> issuers() {
+        return issuers;
+    }
 }

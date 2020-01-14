@@ -15,8 +15,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import juniter.core.model.dbo.net.NetStats;
 import juniter.core.model.dbo.net.EndPointType;
+import juniter.core.model.dbo.net.NetStats;
 import juniter.core.model.dbo.tx.Transaction;
 import juniter.core.model.dbo.tx.TxInput;
 import juniter.core.model.dbo.tx.TxOutput;
@@ -91,7 +91,7 @@ public class TxBox extends AbstractJuniterFX implements Initializable {
 
             //stage.showAndWait();
         } catch (Exception e) {
-            LOG.error("starting txBox",e);
+            LOG.error("starting txBox", e);
         }
         stage.show();
 
@@ -129,7 +129,7 @@ public class TxBox extends AbstractJuniterFX implements Initializable {
 
         tx.setCurrency("g1");
         tx.setLocktime(0);
-        tx.setVersion(10);
+        tx.setVersion((short) 10);
 
         tx.setBlockstamp(currenBlock.get().bStamp());
         tx.setIssuers(List.of(targetPubkeyLabel.getText()));

@@ -1,0 +1,168 @@
+{"namespace": "juniter.avro",
+ "type": "record",
+ "name": "ArchiveBlock",
+ "fields": [
+     {"name": "id", "type": "long" },
+     {"name": "version", "type": "int" },
+     {"name": "size", "type": "int"  },
+     {"name": "hash", "type": ["string", "null"]  },
+     {"name": "issuer", "type": "string" },
+     {"name": "time", "type": ["long", "null"] },
+     {"name": "number", "type":  "int"  },
+     {"name": "currency", "type": "string" },
+     {"name": "previousHash", "type": "string" },
+     {"name": "previousIssuer", "type":  "string"  },
+     {"name": "membersCount", "type": "int" },
+     {"name": "issuerIsMember", "type": "boolean" },
+     {"name": "issuersCount", "type": "int" },
+     {"name": "issuersFrame", "type": "int" },
+     {"name": "issuersFrameVar", "type":"int" },
+     {"name": "issuerDiff", "type": "int"  },
+     {"name": "avgBlockSize", "type": "int" },
+     {"name": "medianTime", "type": ["long", "null"] },
+     {"name": "dividend", "type": ["int", "null"] },
+     {"name": "mass", "type": "long" },
+     {"name": "massReeval", "type": "long" },
+     {"name": "unitBase", "type": "int" },
+     {"name": "powMin", "type": "int" },
+     {"name": "udTime", "type": "long" },
+     {"name": "diffNumber", "type": "long" },
+     {"name": "speed", "type": ["double", "null"] },
+     {"name": "new_dividend", "type": "int" },
+     {"name": "udReevalTime", "type": "long" },
+
+     {"namespace": "juniter.avro",
+      "name": "transactions",
+      "type": {
+        "type" : "record",
+        "name" : "ArchiveTransaction",
+        "fields" : [
+          {"name": "hash", "type" : "string"},
+          {"name": "identifier", "type" : "string"}
+        ]
+       },"default" : null
+      },
+     {"namespace": "juniter.avro",
+      "name": "members",
+      "type": {
+        "type" : "record",
+        "name" : "ArchiveMembers",
+        "fields" : [
+          {"name": "pubkey", "type" : "string"},
+          {"name": "signature", "type" : "string"},
+          {"name": "signed", "type" : "string"},
+          {"name": "uid", "type" : "string"},
+          {"name": "revoked_on", "type" : "string"},
+          {"name": "revocation", "type" : "string"},
+          {"name": "excluded", "type" : "boolean"},
+          {"name": "i_block_uid", "type" : "string"},
+          {"name": "written", "type" : "string"}
+        ]
+       },"default" : {}
+      },
+     {"namespace": "juniter.avro",
+      "name": "certifications",
+      "type": {
+        "type" : "record",
+        "name" : "ArchiveCertifications",
+        "fields" : [
+          {"name": "certifier", "type" : "string"},
+          {"name": "certified", "type" : "string"},
+          {"name": "signedOn", "type" : "int"},
+          {"name": "signature", "type" : "string"},
+          {"name": "written", "type" : "string"}
+        ]
+       },"default" : {}
+      },
+
+      {"namespace": "juniter.avro",
+      "name": "revoked",
+      "type": {
+        "type" : "record",
+        "name" : "ArchiveRevoked",
+        "fields" : [
+          {"name": "pubkey", "type" : "string"},
+          {"name": "signature", "type" : "string"},
+          {"name": "uid", "type" : "string"},
+          {"name": "revoked_on", "type" : "string"},
+          {"name": "revocation", "type" : "string"},
+          {"name": "excluded", "type" : "boolean"},
+          {"name": "i_block_uid", "type" : "string"},
+          {"name": "written", "type" : "string"}
+        ]
+       },"default" : {}
+      },
+      {"namespace": "juniter.avro",
+      "name": "leavers",
+      "type": {
+        "type" : "record",
+        "name" : "ArchiveLeavers",
+        "fields" : [
+          {"name": "pubkey", "type" : "string"},
+          {"name": "signature", "type" : "string"},
+          {"name": "signed", "type" : "string"},
+          {"name": "uid", "type" : "string"},
+          {"name": "i_block_uid", "type" : "string"}
+        ]
+       },"default" : {}
+      },
+      {"namespace": "juniter.avro",
+      "name": "excluded",
+      "type": {
+        "type" : "record",
+        "name" : "ArchiveExcluded",
+        "fields" : [
+          {"name": "hash", "type" : "string"},
+          {"name": "identifier", "type" : "string"}
+        ]
+       },"default" : {}
+      },
+      {"namespace": "juniter.avro",
+      "name": "renewed",
+      "type": {
+        "type" : "record",
+        "name" : "ArchiveRenewed",
+        "fields" : [
+          {"name": "pubkey", "type" : "string"},
+          {"name": "signature", "type" : "string"},
+          {"name": "signed", "type" : "string"},
+          {"name": "uid", "type" : "string"},
+          {"name": "i_block_uid", "type" : "string"},
+          {"name": "written", "type" : "string"}
+        ]
+       },"default" : {}
+      },
+      {"namespace": "juniter.avro",
+      "name": "joiners",
+      "type": {
+        "type" : "record",
+        "name" : "ArchiveJoiner",
+        "fields" : [
+          {"name": "pubkey", "type" : "string"},
+          {"name": "signature", "type" : "string"},
+          {"name": "signed", "type" : "string"},
+          {"name": "uid", "type" : "string"},
+          {"name": "revoked_on", "type" : "string"},
+          {"name": "revocation", "type" : "string"},
+          {"name": "excluded", "type" : "boolean"},
+          {"name": "i_block_uid", "type" : "string"},
+          {"name": "written", "type" : "string"}
+        ]
+       },"default" : {}
+      },
+      {"namespace": "juniter.avro",
+      "name": "identities",
+      "type": {
+        "type" : "record",
+        "name" : "ArchiveIdentities",
+        "fields" : [
+          {"name": "pubkey", "type" : "string"},
+          {"name": "signature", "type" : "string"},
+          {"name": "signed", "type" : "string"},
+          {"name": "uid", "type" : "string"},
+          {"name": "written", "type" : "string"}
+        ]
+       },"default" : {}
+      }
+ ]
+}

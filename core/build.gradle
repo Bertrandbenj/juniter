@@ -5,6 +5,7 @@ buildscript {
         // maven { url "https://plugins.gradle.org/m2/" }
         // maven { url 'http://repo.spring.io/plugins-release' }
         // jcenter()
+        maven { url 'https://jitpack.io' }
     }
 
     dependencies {
@@ -21,9 +22,10 @@ buildscript {
 
 plugins {
 
-    id "com.commercehub.gradle.plugin.avro" version "0.9.1" 
-   // id 'io.franzbecker.gradle-lombok' version '1.8'
+    id "com.commercehub.gradle.plugin.avro" version "0.9.1"
+    // id 'io.franzbecker.gradle-lombok' version '1.8'
     id 'maven-publish'
+    //id 'signing'
 }
 
 
@@ -35,8 +37,6 @@ apply plugin: "com.commercehub.gradle.plugin.avro"
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 
-
- 
 
 repositories {
     mavenCentral()
@@ -117,14 +117,12 @@ javadoc {
     classpath = configurations.compile
     destinationDir = new File("docs/javadoc") // inside of build
 }
-artifacts
-        {
-            archives javadocJar, sourcesJar
-        }
+artifacts {
+    archives javadocJar, sourcesJar
+}
 
 //apply plugin: 'io.franzbecker.gradle-lombok'
 //apply plugin: 'net.ltgt.apt'
-
 
 
 //// Delombok Task
@@ -142,7 +140,7 @@ artifacts
 
 dependencies {
     // PRE COMPILE
-    compileOnly  'org.projectlombok:lombok:1.18.4'
+    compileOnly 'org.projectlombok:lombok:1.18.4'
     annotationProcessor 'org.projectlombok:lombok:1.18.4'
     antlr "org.antlr:antlr4:4.7.1"
 //    apt "org.projectlombok:lombok:1.18.4"
@@ -278,7 +276,7 @@ dependencies {
 //    compile 'com.github.ipfs:java-ipfs-http-client:1.2.3'
 //    compile 'com.github.multiformats:java-multibase:v1.0.1'
 //    compile 'com.github.multiformats:java-multihash:v1.0.0'
-//    compile 'com.github.multiformats:java-multiaddr:v1.3.1'
+    compile 'com.github.multiformats:java-multiaddr:v1.3.1'
 //    compile 'com.github.ipld:java-cid:v1.1.1'
 
     compile files(projectDir.toString() + "/../lib/multihash.jar".toString())
@@ -291,8 +289,6 @@ dependencies {
 }
 
 
-
-
 publishing {
     publications {
         mavenJava(MavenPublication) {
@@ -300,37 +296,84 @@ publishing {
             from components.java
             artifact sourcesJar
             artifact javadocJar
+
+            pom {
+                name = 'Juniter'
+                description = 'A java port of Duniter'
+                url = 'https://github.com/Bertrandbenj/juniter'
+                properties = [
+                        "maven.compiler.target": '11',
+                        "maven.compiler.source": '11'
+                ]
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'BnimajneB'
+                        name = 'Benjamin Bertrand'
+                        email = 'bertrandbenj@gmail.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/Bertrandbenj/juniter.git'
+                    developerConnection = 'scm:git:ssh://example.com/my-library.git'
+                    url = 'https://github.com/Bertrandbenj/juniter'
+                }
+                distributionManagement {
+//                    repository{
+//                        id = "github"
+//                        name = "GitHub OWNER Apache Maven Packages"
+                    downloadUrl = "https://maven.pkg.github.com/Bertrandbenj/juniter"
+//                    }
+                }
+//                dependency {
+//                    groupId = 'org.hsqldb'
+//                    artifactId = 'hsqldb'
+//                    version = '2.4.0'
+//
+//                }
+
+                repositories {
+                    maven {
+                        name 'jitpack'
+                        url 'https://jitpack.io'
+                    }
+                 }
+            }
         }
 
-//        github(MavenPublication) {
-//            name = "GitHubPackages"
-//            url = uri("https://maven.pkg.github.com/BertrandBenj/Juniter")
-//            credentials {
-//                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
-//                password = project.findProperty("gpr.key") ?: System.getenv("PASSWORD")
-//            }
-//        }
 
     }
-//    publications {
-//        gpr(MavenPublication) {
-//            from(components.java)
-//        }
-//    }
+    publications {
+        gpr(MavenPublication) {
+            from(components.java)
+        }
+    }
     artifacts {
         archives sourcesJar
         archives javadocJar
     }
     repositories {
+ 
         maven {
-            url 'https://maven.pkg.github.com/BertrandBenj/Juniter'
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/BertrandBenj/Juniter")
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+                password = project.findProperty("gpr.key") ?: System.getenv("PASSWORD")
+            }
         }
-        mavenLocal()
     }
 }
 
-
-
+//signing {
+//    sign publishing.publications.mavenJava
+//}
+//
 
 
 

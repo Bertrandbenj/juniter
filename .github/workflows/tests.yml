@@ -60,8 +60,8 @@ jobs:
       - name: Javadoc core
         run: ./gradlew :core:javadocJar
 
-      - name: Maven Deploy
-        run: mvn deploy -Dregistry=https://maven.pkg.github.com/Bertrandbenj -Dtoken=GH_TOKEN
+      - name: Github Packages Maven Deploy
+        run: ./gradlew :core:publishAllPublicationsToGitHubPackagesRepository
 
       - name: Release Maven package
         uses: samuelmeuli/action-maven-publish@v1

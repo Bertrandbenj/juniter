@@ -51,7 +51,7 @@ public class WSBlock extends TextWebSocketHandler {
     protected void handleTextMessage(WebSocketSession session, TextMessage message) {
 
 
-        blockService.currentStrict().ifPresent(bl -> {
+        blockService.currentChained().ifPresent(bl -> {
             try {
                 var block = modelMapper.map(bl, Block.class);
                 LOG.info("sending node " + block.getNumber() + " to " + session);

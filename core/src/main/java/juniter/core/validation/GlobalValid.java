@@ -2628,8 +2628,8 @@ public interface GlobalValid {
     default Optional<BINDEX> head() {
         if (IndexB.size() > 0)
             return Optional.of(IndexB.get(IndexB.size() - 1));
-
-        return Optional.empty();
+        else
+            return indexBGlobal().stream().max(Comparator.comparing(BINDEX::getNumber));
     }
 
     default BINDEX head_() {
@@ -3013,6 +3013,8 @@ public interface GlobalValid {
 
     }
 
+    List<BINDEX> indexBGlobal();
+
     /**
      * read access to the GLOBAL_INDEX
      * <p>
@@ -3231,7 +3233,7 @@ public interface GlobalValid {
      * @param block to completeGlobalScope
      * @return true or false or perhaps true
      */
-    @Timed(longTask = true, histogram = true, value = "index.completeGlobalScope", description="indexing of a single Block")
+    @Timed(longTask = true, histogram = true, value = "index.completeGlobalScope", description = "indexing of a single Block")
     @Transactional
     default boolean completeGlobalScope(DBBlock block, boolean complete) {
         var quick = !complete;

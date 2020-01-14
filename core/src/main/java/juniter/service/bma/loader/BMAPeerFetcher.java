@@ -8,7 +8,6 @@ import juniter.core.model.dbo.net.EndPointType;
 import juniter.core.model.dbo.net.Peer;
 import juniter.core.model.dto.net.PeerBMA;
 import juniter.core.model.dto.net.PeersDTO;
-import juniter.core.utils.TimeUtils;
 import juniter.repository.jpa.net.EndPointsRepository;
 import juniter.repository.jpa.net.PeersRepository;
 import juniter.service.core.BlockService;
@@ -17,7 +16,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.ParameterizedTypeReference;
@@ -45,11 +43,11 @@ import java.util.Objects;
 @ConditionalOnExpression("${juniter.loader.useDefault:true}") // Must be up for dependencies
 @Component
 @Order(10)
-public class PeerLoader {
+public class BMAPeerFetcher {
 
     @Autowired
     private ApplicationEventPublisher coreEventBus;
-    public static final Logger LOG = LogManager.getLogger(PeerLoader.class);
+    public static final Logger LOG = LogManager.getLogger(BMAPeerFetcher.class);
 
     @Autowired
     private RestTemplate GET;
@@ -61,7 +59,7 @@ public class PeerLoader {
     private PeerService peerService;
 
     @Autowired
-    private BlockLoader blockLoader;
+    private BMABlockFetcher blockLoader;
 
     @Autowired
     private BlockService blockService;
@@ -71,9 +69,6 @@ public class PeerLoader {
 
     @Autowired
     private ModelMapper modelMapper;
-
-    @Value("${juniter.network.bulkSize:200}")
-    private Integer bulkSize;
 
     @Async
     @Scheduled(fixedDelay = 60 * 1000, initialDelay = 60 * 1000)
@@ -86,37 +81,19 @@ public class PeerLoader {
         while (peersDTO == null || peersDTO.getPeers().isEmpty()) {
 
             final var host = peerService.nextHost(EndPointType.BMAS).orElseThrow().getHost();
+            coreEventBus.publishEvent(new LogNetwork(host));
 
             try {
                 peersDTO = fetchPeers(host);
 
-                var maxBlockPeer = peersDTO.getPeers().stream()
+                peersDTO.getPeers().stream()
                         .map(pdto -> modelMapper.map(pdto, Peer.class))
                         .map(Peer::getBlock)
                         .mapToLong(BStamp::getNumber)
-                        .max();
+                        .max()
+                        .ifPresent(maxBlockPeer ->
+                                coreEventBus.publishEvent(new MaxPeerBlock((int) maxBlockPeer)));
 
-                var maxBlockDB = blockService.currentBlockNumber();
-
-                coreEventBus.publishEvent(new LogNetwork(host));
-
-                if (maxBlockPeer.isPresent()) {
-                    coreEventBus.publishEvent(new MaxPeerBlock((int) maxBlockPeer.getAsLong()));
-
-                    if (maxBlockDB < maxBlockPeer.getAsLong()) {
-                        var batch = (int) Math.min(maxBlockPeer.getAsLong() - maxBlockDB, bulkSize);
-                        blockLoader.fetchBlocks(batch, maxBlockDB+1)
-                                .forEach(b -> blockService.safeSave(b));
-                    }
-
-                    final var elapsed = Long.divideUnsigned(System.nanoTime() - start, 1000000);
-                    LOG.info("Max node found peers: " + maxBlockPeer +
-                            "  db: " + maxBlockDB +
-                            " Elapsed time: " + TimeUtils.format(elapsed));
-
-                } else {
-                    LOG.info("Couldn't find maxPeerBlock peers: " + host + "while having received " + peersDTO);
-                }
 
             } catch (Exception e) {
                 LOG.warn("Retrying after failing on " + host + " ", e);
@@ -155,7 +132,7 @@ public class PeerLoader {
                         var url = ep.url() + "network/peering/peers";
                         var res = technicalPost(url, asBMA);
 
-                        LOG.info("doPairing got response : " + res);
+                        LOG.info("doPairing " + url + " : " + res);
 
                         if (res != null) {
                             LOG.info(res.toDUP(true));
@@ -218,7 +195,7 @@ public class PeerLoader {
 
             var bstamp = peers.getBlock();
 
-            blockLoader.fetchBlocks(100, bstamp.getNumber() - 100)
+            blockLoader.fetchAndSaveBlocks(100, bstamp.getNumber() - 100)
                     //.flatMap(Collection::stream) // blocks individually
                     .forEach(b -> blockService//
                             .safeSave(b) //

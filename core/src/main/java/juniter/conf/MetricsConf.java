@@ -84,7 +84,7 @@ public class MetricsConf extends MetricsConfigurerAdapter {
        // compositeMeterRegistry.add(atlasMeterRegistry);
         compositeMeterRegistry.add(prometheusRegistry);
 
-//        Timer timer = compositeMeterRegistry.timer("blockchain.currentStrict");
+//        Timer timer = compositeMeterRegistry.timer("blockchain.currentChained");
 //        timer.record(() -> {
 //            try {
 //                MILLISECONDS.sleep(1500);

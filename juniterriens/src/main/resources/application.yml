@@ -20,7 +20,7 @@ juniter:
   useBMA: true
   useWS2P: true  #default false
   #useIPFS: true  #default false
-  useJenaRDF: true #default false
+  #useJenaRDF: true #default false
   utils.enabled: false
   useJavaFX: true #default false
   useForkHead: true  #default false
@@ -42,7 +42,10 @@ spark:
 ##
 ## =========================== Spring Configs ===========================
 ##
+
 spring:
+  aop:
+    proxy-target-class: true
   freemarker.checkTemplateLocation: false
   output.ansi.enabled: ALWAYS # Colored logs : DETECT|ALWAYS|NEVER
   session.store-type: none # jdbc|mongo|none|redis|hazelcast

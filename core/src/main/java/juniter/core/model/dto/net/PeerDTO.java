@@ -1,11 +1,9 @@
 package juniter.core.model.dto.net;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import juniter.core.model.dbo.net.EndPoint;
 import lombok.Data;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Data

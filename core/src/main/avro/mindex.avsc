@@ -1,6 +1,6 @@
 {"namespace": "juniter.avro",
  "type": "record",
- "name": "MINDEX",
+ "name": "ArchiveMINDEX",
  "fields": [
 
      {"name": "id", "type": "long" },

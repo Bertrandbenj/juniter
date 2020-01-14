@@ -1,7 +1,6 @@
 package juniter.core.model.dbo.sandbox;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import juniter.core.model.technical.DUPDocument;
 import juniter.core.model.dbo.BStamp;
 import juniter.core.utils.Constants;
 import lombok.AllArgsConstructor;
@@ -27,7 +26,7 @@ import javax.validation.constraints.Size;
 @Builder
 @Table(name = "sb_identity", schema = "public")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class IdentitySandboxed implements DUPDocument, Comparable<IdentitySandboxed> {
+public class IdentitySandboxed implements  Comparable<IdentitySandboxed> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -64,18 +63,5 @@ public class IdentitySandboxed implements DUPDocument, Comparable<IdentitySandbo
     }
 
 
-    public String toDUP() {
-        return pubkey + ":" + signature + ":" + signed.stamp() + ":" + uid;
-    }
-
-    @Override
-    public String toDUPdoc(boolean signed) {
-        return "";
-    }
-
-    @Override
-    public String toString() {
-        return toDUP();
-    }
 
 }

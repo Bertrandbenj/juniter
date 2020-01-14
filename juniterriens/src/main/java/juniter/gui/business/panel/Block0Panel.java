@@ -209,37 +209,34 @@ public class Block0Panel implements Initializable {
         block_0.setIssuersFrame(Integer.valueOf(issuersFrame.getText()));
         block_0.setIssuersFrameVar(Integer.valueOf(issuersFrameVar.getText()));
         block_0.setIssuersCount(Integer.valueOf(issuersCount.getText()));
-
-
         block_0.setIssuer(cIssuer.getValue().getValue().getPublicKey());
 
 
-        var params = new ChainParameters(currency.getText());
-        params.setAvgGenTime(Long.parseLong(avgGenTime.getText()));
-        params.setC(Double.parseDouble(c.getText()));
-        params.setDt(Long.parseLong(dt.getText()));
-        params.setDtDiffEval(Long.parseLong(dtDiffEval.getText()));
-        params.setDtReeval(Long.parseLong(dtReeval.getText()));
-        params.setIdtyWindow(Long.parseLong(idtyWindow.getText()));
-        params.setMedianTimeBlocks(Long.parseLong(medianTimeBlocks.getText()));
-        params.setMsPeriod(Long.parseLong(msPeriod.getText()));
-        params.setMsValidity(Long.parseLong(msValidity.getText()));
-        params.setPercentRot(Double.parseDouble(percentRot.getText()));
-        params.setUd0(Long.parseLong(ud0.getText()));
-        params.setUdReevalTime0(Long.parseLong(udReevalTime.getText()));
-        params.setSigPeriod(Long.parseLong(sigPeriod.getText()));
-        params.setSigQty(Long.parseLong(sigQty.getText()));
-        params.setSigReplay(Long.parseLong(sigReplay.getText()));
-        params.setSigStock(Long.parseLong(sigStock.getText()));
-        params.setSigValidity(Long.parseLong(sigValidity.getText()));
-        params.setStepMax(Long.parseLong(stepMax.getText()));
-        params.setXpercent(Double.parseDouble(xPercent.getText()));
-        params.setSigWindow(Long.parseLong(sigWindow.getText()));
-        params.setMsWindow(Long.parseLong(msWindow.getText()));
-        params.setUdTime0(Long.parseLong(udTime0.getText()));
-
-
-        block_0.setParameters(params);
+        block_0.setParameters(new ChainParameters(
+                currency.getText(),
+                Double.parseDouble(c.getText()),
+                Long.parseLong(dt.getText()),
+                Long.parseLong(ud0.getText()),
+                Long.parseLong(sigPeriod.getText()),
+                Long.parseLong(sigStock.getText()),
+                Long.parseLong(sigWindow.getText()),
+                Long.parseLong(sigValidity.getText()),
+                Long.parseLong(sigQty.getText()),
+                Long.parseLong(idtyWindow.getText()),
+                Long.parseLong(msWindow.getText()),
+                Double.parseDouble(xPercent.getText()),
+                Long.parseLong(msValidity.getText()),
+                Long.parseLong(stepMax.getText()),
+                Long.parseLong(medianTimeBlocks.getText()),
+                Long.parseLong(avgGenTime.getText()),
+                Long.parseLong(dtDiffEval.getText()),
+                Double.parseDouble(percentRot.getText()),
+                Long.parseLong(udTime0.getText()),
+                Long.parseLong(udReevalTime.getText()),
+                Long.parseLong(dtReeval.getText()),
+                Long.parseLong(msPeriod.getText()),
+                Long.parseLong(sigReplay.getText())
+        ));
         block_0.getIdentities().clear();
         block_0.getIdentities().addAll(
                 members.entrySet().stream()

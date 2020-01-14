@@ -75,11 +75,11 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
 
     private ExecutorService executor;
 
-    private Future<DBBlock> prover;
-
     private List<Thread> threads = new CopyOnWriteArrayList<>();
 
     private ChainParameters conf = new ChainParameters();
+
+    public AtomicBoolean isForging = new AtomicBoolean(false);
 
     @PostConstruct
     public void init() {
@@ -131,7 +131,6 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
         return block;
     }
 
-    private AtomicBoolean isForging = new AtomicBoolean(false);
 
     @Timed(longTask = true, histogram = true, value = "forkhead.parallelProver")
     private DBBlock parallelProver(String ccy) {
@@ -244,7 +243,7 @@ public class ForkHead implements ApplicationListener<CoreEvent> {
 
             if (index.getBRepo().head().get().getNumber() < bl.getNumber()) {
                 if (threads != null) {
-                    LOG.info("Killing the currentStrict PoW execution");
+                    LOG.info("Killing the currentChained PoW execution");
                     isForging.set(false);
                     threads.forEach(Thread::interrupt);
                 }

@@ -113,7 +113,7 @@ public class ScreenController {
 
         current.getIcons().add(new Image("/gui/images/logo.png"));
         current.setTitle("Juniter - " + name);
-//        if(currentStrict.getScene()!=null)currentStrict.getScene().disposePeer();
+//        if(currentChained.getScene()!=null)currentChained.getScene().disposePeer();
         current.setScene(scene);
         current.show();
     }

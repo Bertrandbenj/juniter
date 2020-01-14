@@ -1,0 +1,38 @@
+package juniter.core.model.meta;
+
+import juniter.core.model.dbo.BStamp;
+
+public interface DUPIdentity extends DUPDocument, HasPubkey, HasSignature {
+
+    String getUid();
+
+    BStamp getSigned();
+
+    @Override
+    default String issuer() {
+        return getPubkey();
+    }
+
+
+    @Override
+    default String signature() {
+        return getSignature();
+    }
+
+    @Override
+    default String getType(){
+        return "Identity";
+    }
+
+    @Override
+    default String toDUPdoc(boolean signed) {
+        return "Version: " + getVersion() + "\n" +
+                "Type: " + getType() + "\n" +
+                "Currency: " + getCurrency() + "\n" +
+                "Issuer: " + getPubkey() + "\n" +
+                "UniqueID: " + getUid() + "\n" +
+                "Timestamp: " + getSigned() + "\n" +
+                (signed?getSignature():"")
+                ;
+    }
+}

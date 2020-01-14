@@ -9,6 +9,7 @@ import juniter.core.model.dto.tx.History;
 import juniter.core.model.dto.tx.TransactionDTO;
 import juniter.core.model.dto.tx.TxHistory;
 import juniter.core.model.dto.tx.Wrapper;
+import juniter.core.model.technical.DocumentType;
 import juniter.service.core.Sandboxes;
 import juniter.service.core.TransactionService;
 import org.apache.logging.log4j.LogManager;
@@ -221,10 +222,9 @@ public class TxService {
 
         try {
             BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
-            LOG.info(in.lines().collect(Collectors.joining("\n")));
 
+            sandboxes.put(in.lines().collect(Collectors.joining("\n")), DocumentType.TRANSACTION);
 
-            sandboxes.put(new TransactionSandboxed());
             var tx = new Transaction();
             return new ResponseEntity<>(tx, new HttpHeaders(), HttpStatus.OK);
 

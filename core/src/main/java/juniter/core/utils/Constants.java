@@ -2,14 +2,6 @@ package juniter.core.utils;
 
 public interface Constants {
 
-    interface HttpStatus {
-        int SC_TOO_MANY_REQUESTS = 429;
-    }
-
-    interface Logs {
-        String INTERRUPTED = "THE UNEXPECTED HAPPENED : Thread.sleep failed";
-    }
-
 
     /**
      * FIXME using https://www.freeformatter.com/java-regex-tester.html

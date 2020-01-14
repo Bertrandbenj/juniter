@@ -31,7 +31,7 @@ public class RDFRestController extends OpenDataController {
     private OntModel ontologyOfModule;
 
 
-    @PostConstruct
+    //@PostConstruct
     public void buildOntologies() {
         initModule();
 

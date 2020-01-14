@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 
 /**
@@ -18,10 +19,10 @@ public interface ParamsRepository extends JpaRepository<ChainParameters, Long> {
     Logger LOG = LogManager.getLogger(ParamsRepository.class);
 
     @Query("FROM ChainParameters p WHERE currency = ?1")
-    ChainParameters paramsByCCY(String ccy);
+    Optional<ChainParameters> paramsByCCY(String ccy);
 
-    @Query("SELECT p.currency FROM ChainParameters p")
-    List<String> existingCCY();
+    @Query("SELECT p  FROM ChainParameters p")
+    List<ChainParameters> existingCCY();
 
 
 }

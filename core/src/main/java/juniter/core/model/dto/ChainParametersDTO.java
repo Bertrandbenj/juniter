@@ -2,7 +2,7 @@ package juniter.core.model.dto;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import juniter.core.model.technical.DUPComponent;
+import juniter.core.model.meta.DUPComponent;
 import lombok.Data;
 
 /**

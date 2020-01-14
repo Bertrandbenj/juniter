@@ -4,6 +4,7 @@ import io.micrometer.core.annotation.Timed;
 import juniter.core.event.DecrementCurrent;
 import juniter.core.event.NewBINDEX;
 import juniter.core.event.NewBlock;
+import juniter.core.exception.DuniterException;
 import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.ChainParameters;
 import juniter.core.model.dbo.DBBlock;
@@ -12,33 +13,46 @@ import juniter.core.model.dbo.wot.Certification;
 import juniter.core.model.dbo.wot.Identity;
 import juniter.core.model.dbo.wot.Member;
 import juniter.core.model.dto.node.BlockNetworkMeta;
+import juniter.core.model.meta.DUPMember;
 import juniter.core.model.technical.CcyStats;
+import juniter.core.service.BlockFetcher;
 import juniter.core.validation.BlockLocalValid;
 import juniter.repository.jpa.block.BlockRepository;
 import juniter.repository.jpa.block.ParamsRepository;
-import juniter.service.bma.loader.BlockLoader;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+
 
 @Service
 public class BlockService implements BlockLocalValid, ApplicationListener<NewBINDEX> {
+
+    private static final Logger LOG = LogManager.getLogger(BlockService.class);
+
 
     @Autowired
     private BlockRepository blockRepo;
 
     @Autowired
-    private BlockLoader blockLoader;
+    private List<BlockFetcher> blockFetchers;
 
     @Autowired
     private ApplicationEventPublisher coreEventBus;
@@ -46,6 +60,8 @@ public class BlockService implements BlockLocalValid, ApplicationListener<NewBIN
     @Autowired
     private ParamsRepository paramsRepository;
 
+    @Autowired
+    private EntityManager entityManager;
 
     @Autowired
     private Index index;
@@ -53,20 +69,34 @@ public class BlockService implements BlockLocalValid, ApplicationListener<NewBIN
 
     @Cacheable(value = "params")
     public ChainParameters paramsByCCY(String ccy) {
-        return paramsRepository.paramsByCCY(ccy);
+
+        return paramsRepository
+                .paramsByCCY(ccy)
+                .orElseThrow(() -> new DuniterException("paramsByCCY couldn't be set for currency" + ccy));
     }
 
-    //@Cacheable(value = "ccys")
-    List<String> existingCCYs() {
+
+    public List<ChainParameters> existingCCYs() {
         return paramsRepository.existingCCY();
     }
 
     public Optional<DBBlock> block(Integer num) {
-        return blockRepo.block(num);
+        var blocks = blockRepo.block_("g1", num);
+        if (blocks.isEmpty()) {
+            return Optional.empty();
+        }
+        if (blocks.size() > 1) {
+            return Optional.ofNullable(blockRepo.currentChained("g1", num));
+        }
+        return Optional.of(blocks.get(0));
     }
 
     public DBBlock blockOrFetch(Integer num) {
-        return block(num).orElseGet(() -> blockLoader.fetchAndSaveBlock(num));
+        return block(num).orElseGet(() -> blockFetchers.parallelStream()
+                .map(bl -> bl.fetchAndSaveBlock(num))
+                .findAny()
+                .get()
+        );
     }
 
 
@@ -75,15 +105,15 @@ public class BlockService implements BlockLocalValid, ApplicationListener<NewBIN
     }
 
 
-    public List<DBBlock> blocks(Integer num) {
-        return blockRepo.block_(num);
+    public List<DBBlock> blocks(String ccy, Integer num) {
+        return blockRepo.block_(ccy, num);
     }
 
     public Optional<DBBlock> findTop1ByNumber(Integer num) {
         return blockRepo.findTop1ByNumber(num);
     }
 
-    //public Optional<DBBlock> currentStrict(Integer num) {
+    //public Optional<DBBlock> currentChained(Integer num) {
     //    return blockRepo.findTop1ByNumber(num);
     //}
 
@@ -99,43 +129,59 @@ public class BlockService implements BlockLocalValid, ApplicationListener<NewBIN
 
 
     public Integer currentBlockNumber() {
-        return currentStrict().map(DBBlock::getNumber).orElse(0);
+        return currentChained().map(DBBlock::getNumber).orElse(0);
     }
 
 
-    public Stream<DBBlock> lastBlocks() {
-        return blockRepo.findTop10ByOrderByNumberDesc();
+    public Stream<DBBlock> blocksIn(List<Integer> blocksToFind) {
+        return blockRepo.findByNumberIn(blocksToFind);
     }
 
-    public Stream<DBBlock> blocksIn(List<Integer> list) {
-        return blockRepo.findByNumberIn(list);
+    public void findMissing(int from, int count) {
+        final List<Integer> blocksToFind = IntStream.range(from, from + count).boxed().collect(toList());
+        LOG.info("---blocksToFind: " + blocksToFind);
+
+        var knownBlocks = blockRepo.findByNumberIn(blocksToFind).collect(toList());
+
+
+        final List<DBBlock> blocksMissingFromRepo = blocksToFind.stream()
+                .filter(b -> knownBlocks.stream().noneMatch(kb -> kb.getNumber().equals(b)))
+                .flatMap(lg -> blockFetchers.stream().map(bl -> bl.fetchAndSaveBlock(lg)))
+                .collect(toList());
+
+
+        saveAll(blocksMissingFromRepo);
+
+        LOG.info("---known blocks: " + knownBlocks.stream().map(DBBlock::getNumber).collect(toList()));
+        LOG.info("---fetchTrimmed blocks: " + Stream.concat(blocksMissingFromRepo.stream(), knownBlocks.stream())
+                .map(b -> b.getNumber().toString()).collect(joining(",")));
     }
 
 
-    public void saveAll(List<DBBlock> blocksToSave) {
-        blockRepo.saveAll(blocksToSave);
+    private void saveAll(List<DBBlock> blocksToSave) {
+        blocksToSave.forEach(b -> safeSave(b));
     }
 
 
     @Timed(value = "blockservice_current")
-    public Optional<DBBlock> currentStrict() {
-        return index.head().map(b -> blockRepo.block(b.getNumber(), b.getHash()))
-                //.or(() -> blockRepo.findTop1ByOrderByNumberDesc())
-                ;
+    public Optional<DBBlock> currentChained() {
+        return index.head().map(b -> blockRepo.block(b.getNumber(), b.getHash()));
     }
 
     public DBBlock currentOrTop() {
-        return currentStrict().orElse(blockRepo.findTop1ByOrderByNumberDesc().orElseThrow());
+        return currentChained()
+                .orElse(blockRepo.findTop1ByOrderByNumberDesc()
+                        .orElseThrow(() -> new DuniterException("currentOrTop found neither index " + currentChained() + " nor top " + blockRepo.findTop1ByOrderByNumberDesc())));
     }
 
     public DBBlock currentOrFetch() {
-        return currentStrict().orElseGet(() -> blockLoader.fetchAndSaveBlock("current"));
+        return currentChained()
+                .orElseGet(() -> blockFetchers.stream()
+                        .map(bl -> bl.fetchAndSaveBlock("current"))
+                        .findAny()
+                        .orElseThrow(() -> new DuniterException("currentOrFetch found neither index " + currentChained() + " nor fetched ")));
     }
 
-
-    private DBBlock currentStrict(String ccy) {
-        return blockRepo.current(ccy, currents.get(ccy));
-    }
 
     public List<Integer> withUD() {
         return blockRepo.withUD();
@@ -161,7 +207,7 @@ public class BlockService implements BlockLocalValid, ApplicationListener<NewBIN
         return blockRepo.streamBlocksFromTo(i, i1);
     }
 
-
+    @Transactional
     public Optional<DBBlock> safeSave(DBBlock block) throws AssertionError {
         //LOG.error("localsavng  "+node.getNumber());
 
@@ -185,7 +231,7 @@ public class BlockService implements BlockLocalValid, ApplicationListener<NewBIN
             cert.setWritten(block.bStamp());
         }
 
-        for (Member m : block.getRenewed()) {
+        for (DUPMember m : block.getRenewed()) {
             m.setWritten(block.bStamp());
         }
 
@@ -208,27 +254,25 @@ public class BlockService implements BlockLocalValid, ApplicationListener<NewBIN
         for (Member m : block.getLeavers()) {
             m.setWritten(block.bStamp());
         }
-
-        var cur = blockRepo.block(block.getNumber(), block.getHash());
+        var dbCurrent = blockRepo.block(block.getCurrency(), block.getNumber(), block.getHash());
         // Do the saving after some checks
-        if (silentCheck(block) && cur != null) {
+        if (silentCheck(block) && dbCurrent == null) {
             try {
                 var res = blockRepo.save(block);
 
-                if (cur.getNumber() < res.getNumber()) {
-                    coreEventBus.publishEvent(new NewBlock(res));
-                }
+                coreEventBus.publishEvent(new NewBlock(res));
+
 
                 return Optional.of(res);
 
-            } catch (Exception e) {
-                LOG.warn("BlockRepo.safeSave  block " + block.getNumber() + " already exists");
+            } catch (Exception re) {
+                LOG.warn("BlockRepo.safeSave  block " + block.getNumber() + " already exists? " + re.getMessage(), re);
                 return Optional.empty();
             }
         } else {
-            LOG.error("Error safeSave block " + block.getNumber()
-                    + " :  BlockIsLocalValid " + silentCheck(block)
-                    + ", block doesn't exists just yet " + cur);
+            LOG.warn("safeSave block " + block.getNumber()
+                    + " : Local Valid? " + silentCheck(block)
+                    + ", Already Exists? " + dbCurrent);
         }
 
 
@@ -243,15 +287,28 @@ public class BlockService implements BlockLocalValid, ApplicationListener<NewBIN
         blockRepo.delete(block);
     }
 
-    public List<Integer> blockNumbers() {
-        return blockRepo.blockNumbers();
+    @Transactional
+    @Modifying
+    public void deleteAt(String ccy, Integer block) {
+        String selectQuery = "DELETE FROM DBBlock b WHERE currency = '" + ccy + "' AND number = " + block;
+        entityManager
+                .createQuery(selectQuery)
+                .getResultList()
+                .forEach(entityManager::remove);
     }
 
-    public void deleteAll() {
-        blockRepo.deleteAll();
+    public void deleteAt(Integer block) {
+        deleteAt("g1", block);
+    }
+
+
+    public List<Integer> blockNumbers(String currency, int rangeStart, int rangeEnd) {
+        return blockRepo.blockNumbers(currency, rangeStart, rangeEnd);
     }
 
     public void truncate() {
+        LOG.info(" === Reseting DB " + blockRepo.count());
+
         blockRepo.truncate();
         blockRepo.deleteAll();
         blockRepo.truncate();
@@ -260,6 +317,9 @@ public class BlockService implements BlockLocalValid, ApplicationListener<NewBIN
             //LOG.info("deleted " + b.getNumber());
             coreEventBus.publishEvent(new DecrementCurrent());
         });
+
+        LOG.info(" === Reseting DB - DONE " + blockRepo.count());
+
     }
 
     public List<DBBlock> findAll() {
@@ -275,5 +335,9 @@ public class BlockService implements BlockLocalValid, ApplicationListener<NewBIN
         var currentCCY = newBINDEX.getWhat().getCurrency();
         currents.put(currentCCY, currentNumber);
 
+    }
+
+    public void checkMissingBlocksAsync() {
+        blockFetchers.forEach(BlockFetcher::checkMissingBlocksAsync);
     }
 }

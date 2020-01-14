@@ -9,9 +9,7 @@ import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import juniter.core.crypto.SecretBox;
 import juniter.core.event.ServerLogin;
-import juniter.core.model.dbo.DBBlock;
-import juniter.core.validation.BlockConstraint;
-import juniter.core.validation.BlockLocalValid;
+import juniter.core.model.technical.TestBean;
 import juniter.gui.JuniterBindings;
 import juniter.gui.business.popup.AlertBox;
 import juniter.gui.technical.AbstractJuniterFX;
@@ -27,11 +25,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
-import javax.validation.Valid;
+import javax.validation.Configuration;
 import javax.validation.Validation;
+import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.net.URL;
-import java.util.*;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -194,8 +195,7 @@ public class Settings extends AbstractJuniterFX implements Initializable {
                 .map(Integer::parseInt)//
                 .forEach(id -> {
                     LOG.info("deleting Blocks # " + id);
-
-                    blockService.blocks(id).forEach(block -> blockService.delete(block));
+                    blockService.deleteAt(id);
                 });
     }
 
@@ -210,51 +210,42 @@ public class Settings extends AbstractJuniterFX implements Initializable {
 
     }
 
-    @Valid
-    @BlockConstraint
-    private DBBlock oneBlock;
-
 
     @FXML
     public void testSome() {
-        List<Integer> bNums = Stream
-                .of(tstSome.getText().split(","))
-                .map(Integer::parseInt)
-                .collect(Collectors.toList());
-
-        LOG.warn("block numbers founds " + test(new DBBlock()) +" "+ bNums);
-        oneBlock = blockService.currentOrTop() ;
-        LOG.warn("oneBlock " + test(oneBlock));
 
 
-        bNums.forEach(id -> {
+        boolean result = AlertBox.display(
+                "test Blocks #" + tstSome.getText(),
+                "validationResult " + Stream
+                        .of(tstSome.getText().split(","))
+                        .map(Integer::parseInt)
+                        .map(bNum -> blockService.block(bNum))
+                        .map(block -> new TestBean(block.orElseThrow()))
 
-            blockService.block(id)
-                    .map(block -> oneBlock = test(block))
-                    .ifPresent(block -> {
-                        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-                        var executableValidator = factory.getValidator().validate(block);
-                        LOG.warn("Assertion - " + new ArrayList<>(executableValidator));
-
-                        boolean result = false;
-                        try {
-                            block.setNumber(420);
-                            BlockLocalValid.Static.assertBlock(block);
-
-                        } catch (AssertionError ea) {
-                            LOG.warn("Assertion error ", ea);
-                            result = AlertBox.display("testing Blocks #" + id, "AssertionError " + ea.getMessage());
-                        }
-                    });
-        });
+                        .peek(LOG::info)
+                        .flatMap(block -> {
+                            return validator
+                                    .validate(block)
+                                    .stream()
+                                    .peek(LOG::info)
+                                    .map(tb -> block + " " + tb.getMessage());
+                        })
+                        .collect(Collectors.joining("\n<br/>")));
+        LOG.warn("AlertBox result - " + result);
 
     }
 
-    @Valid
-    @BlockConstraint
-    private DBBlock test(@Valid DBBlock block) {
-        LOG.info("test @Valid " + block);
-        return block;
+
+    private static Validator createValidator() {
+        Configuration<?> config = Validation.byDefaultProvider().configure();
+        ValidatorFactory factory = config.buildValidatorFactory();
+        Validator validator = factory.getValidator();
+        factory.close();
+        return validator;
     }
+
+    private Validator validator = createValidator();
+
 
 }

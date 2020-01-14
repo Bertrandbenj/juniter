@@ -19,16 +19,8 @@ import java.util.stream.Stream;
 public interface PeersRepository extends JpaRepository<Peer, Long> {
 
 
-    @Override
-    <S extends Peer> S save(S peer);
-
-
-    @Override
-    <S extends Peer> List<S> saveAll(Iterable<S> arg0);
-
-
     @Query("select p from Peer p")
-    Stream<Peer> streamAllPeers();
+    List<Peer> streamAllPeers();
 
     @Query("select p from Peer p where CONCAT(p.block.number,'-',p.block.hash) LIKE CONCAT('%', ?1, '%') ")
     Stream<Peer> peerWithBlock(String s);

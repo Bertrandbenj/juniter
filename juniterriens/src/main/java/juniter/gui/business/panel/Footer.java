@@ -1,5 +1,6 @@
 package juniter.gui.business.panel;
 
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -40,20 +41,7 @@ public class Footer implements Initializable {
     private Label memoryLog;
     @FXML
     private Label docPoolLog;
-    @Autowired
-    private Sandboxes sandboxes;
 
-    @Autowired
-    private WebSocketPool wsPool;
-
-    @Value("${juniter.sandboxTxField:100}")
-    private Integer sandboxTxSize;
-
-    @Value("${juniter.sandboxIMem:100}")
-    private Integer sandboxMemSize;
-
-    @Value("${juniter.sandboxIdtyField:100}")
-    private Integer sandboxIdtySize;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -79,13 +67,32 @@ public class Footer implements Initializable {
                 .concat(docPoolLogMessage));
     }
 
-    @Scheduled(fixedDelay = 1000 * 60)
-    private void refreshPools() {
-        docPoolLogMessage.setValue("Identities:" + sandboxes.getPendingIdentities().size() + "/" + sandboxIdtySize +
-                " - Transaction:" + sandboxes.getPendingTransactions().size() + "/" + sandboxTxSize +
-                " - Memberships:" + sandboxes.getPendingMemberships().size() + "/" + sandboxMemSize);
+    @Autowired
+    private Sandboxes sandboxes;
 
-        ws2pLogMessage.set(wsPool.status());
+    @Autowired
+    private WebSocketPool wsPool;
+
+    @Value("${juniter.sandboxTxField:100}")
+    private Integer sandboxTxSize;
+
+    @Value("${juniter.sandboxIMem:100}")
+    private Integer sandboxMemSize;
+
+    @Value("${juniter.sandboxIdtyField:100}")
+    private Integer sandboxIdtySize;
+
+
+    private void refreshPools() {
+
+        Platform. runLater(()->{
+            docPoolLogMessage.setValue("Identities:" + sandboxes.getPendingIdentities().size() + "/" + sandboxIdtySize +
+                    " - Transaction:" + sandboxes.getPendingTransactions().size() + "/" + sandboxTxSize +
+                    " - Memberships:" + sandboxes.getPendingMemberships().size() + "/" + sandboxMemSize);
+
+            ws2pLogMessage.set(wsPool.status());
+        });
+
     }
 
 }

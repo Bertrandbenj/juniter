@@ -2,7 +2,7 @@ package juniter.core.model.dbo.wot;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import juniter.core.model.dbo.BStamp;
-import juniter.core.model.technical.DUPDocument;
+import juniter.core.model.meta.DUPMember;
 import juniter.core.utils.Constants;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,7 +25,7 @@ import java.io.Serializable;
 @Inheritance(strategy = InheritanceType.JOINED)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Member implements DUPDocument, Serializable, Comparable<Member> {
+public class Member implements DUPMember, Serializable, Comparable<Member> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -54,17 +54,6 @@ public class Member implements DUPDocument, Serializable, Comparable<Member> {
     public int compareTo(@NonNull Member o) {
         return pubkey.compareTo(o.pubkey);
     }
-
-    @Override
-    public String toDUP() {
-        return pubkey + ":" + signature + ":" + signed.getNumber() + "-" + signed.getHash() + ":" + i_block_uid + ":" + uid;
-    }
-
-    @Override
-    public String toDUPdoc(boolean signed) {
-        return "";
-    }
-
 
     @Override
     public String toString() {

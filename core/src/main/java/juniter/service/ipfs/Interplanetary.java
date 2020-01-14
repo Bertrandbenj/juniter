@@ -2,13 +2,14 @@ package juniter.service.ipfs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.ipfs.api.IPFS;
+import io.ipfs.multiaddr.MultiAddress;
 import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dto.net.DifficultiesDTO;
 import juniter.core.model.dto.node.Block;
 import juniter.core.model.dto.node.WithDTO;
-import juniter.service.core.BlockService;
 import juniter.service.bma.BlockchainService;
-import juniter.service.bma.loader.BlockLoader;
+import juniter.service.bma.loader.BMABlockFetcher;
+import juniter.service.core.BlockService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
@@ -27,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
-@ConditionalOnExpression("${juniter.useIPFS:false}")
+@ConditionalOnExpression("${juniter.useIPFS:true}")
 public class Interplanetary {
     private static final Logger LOG = LogManager.getLogger(Interplanetary.class);
 
@@ -75,14 +76,14 @@ public class Interplanetary {
     private BlockService blockService;
 
     @Autowired
-    private BlockLoader blockLoader;
+    private BMABlockFetcher blockLoader;
 
 
     @PostConstruct
     private IPFS ipfs() {
         IPFS ipfs = null;
         try {
-//            ipfs = new IPFS(new MultiAddress("/ip4/127.0.0.1/tcp/5001"));
+            ipfs = new IPFS(new MultiAddress("/ip4/127.0.0.1/tcp/5001"));
             ipfs = new IPFS("/ip4/127.0.0.1/tcp/5001");
 //            LOG.info(" ==== IPFS INIT =====");
 

@@ -5,6 +5,7 @@ import juniter.core.crypto.SecretBox;
 import juniter.core.event.CoreEvent;
 import juniter.core.event.RenormalizedNet;
 import juniter.core.event.ServerLogin;
+import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dbo.net.EndPoint;
 import juniter.core.model.dbo.net.EndPointType;
@@ -405,7 +406,7 @@ public class PeerService implements ApplicationListener<CoreEvent> {
     public Peer endPointPeer(Integer number) {
         LOG.debug("endPointPeer " + number);
 
-        DBBlock current = blockService.block(number).or(() -> blockService.currentStrict()).orElseThrow();
+        DBBlock current = blockService.block(number).or(() -> blockService.currentChained()).orElseThrow();
         var peer = new Peer();
         peer.setVersion(10);
         peer.setBlock(current.bstamp());
@@ -453,6 +454,18 @@ public class PeerService implements ApplicationListener<CoreEvent> {
     }
 
     public List<Peer> all() {
-        return peerRepo.streamAllPeers().collect(Collectors.toList());
+        return peerRepo.streamAllPeers();
     }
+
+
+
+    public Integer topBlock(){
+        return all().stream()
+                .map(Peer::getBlock)
+                .mapToInt(BStamp::getNumber)
+                .max()
+                .getAsInt();
+    }
+
+
 }

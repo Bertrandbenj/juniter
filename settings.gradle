@@ -17,5 +17,6 @@ pluginManagement {
 include 'core'
 include 'junigeek'
 include 'juniterriens'
+include 'sample'
 //include 'spark'
 //include 'junikot'

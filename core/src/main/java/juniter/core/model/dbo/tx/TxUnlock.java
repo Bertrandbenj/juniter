@@ -1,6 +1,6 @@
 package juniter.core.model.dbo.tx;
 
-import juniter.core.model.technical.DUPComponent;
+import juniter.core.model.meta.DUPComponent;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.logging.log4j.LogManager;

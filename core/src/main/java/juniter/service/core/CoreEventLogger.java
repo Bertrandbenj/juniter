@@ -21,5 +21,6 @@ public class CoreEventLogger implements ApplicationListener<CoreEvent> {
         }else{
             LOG.debug(event.getName() + " " + event.getMessage() + " " + event.getWhat());
         }
+
     }
 }

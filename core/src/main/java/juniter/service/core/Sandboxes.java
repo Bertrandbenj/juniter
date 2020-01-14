@@ -15,7 +15,7 @@ import juniter.core.model.dbo.wot.Identity;
 import juniter.core.model.dbo.wot.Member;
 import juniter.core.model.dto.node.SandBoxesDTO;
 import juniter.core.model.dto.node.UnitDTO;
-import juniter.core.model.technical.DUPDocument;
+import juniter.core.model.meta.DUPDocument;
 import juniter.grammar.*;
 import juniter.repository.jpa.sandbox.CertsSandboxRepository;
 import juniter.repository.jpa.sandbox.IdtySandboxRepository;

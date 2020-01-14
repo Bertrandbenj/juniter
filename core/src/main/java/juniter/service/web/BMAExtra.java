@@ -1,7 +1,9 @@
 package juniter.service.web;
 
+import juniter.core.model.dbo.ChainParameters;
 import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dbo.index.CertRecord;
+import juniter.service.core.BlockService;
 import juniter.service.core.ForkHead;
 import juniter.service.core.Index;
 import juniter.service.core.WebOfTrust;
@@ -23,6 +25,8 @@ public class BMAExtra {
 
     @Autowired
     private Index index;
+    @Autowired
+    private BlockService blockService;
 
     @Autowired
     private ForkHead forkHead;
@@ -48,6 +52,12 @@ public class BMAExtra {
     @GetMapping(value = "/blockToForge/{issuer}")
     public DBBlock blockToForge(@PathVariable("issuer") String search) {
         return forkHead.forge(index.prepareIndexForForge(search));
+    }
+    @CrossOrigin(origins = "*")
+    @Transactional(readOnly = true)
+    @GetMapping(value = "/currencies")
+    public List<ChainParameters> existingCCy() {
+        return blockService.existingCCYs( );
     }
 
 

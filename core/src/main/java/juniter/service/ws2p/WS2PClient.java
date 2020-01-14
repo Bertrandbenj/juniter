@@ -136,7 +136,6 @@ public class WS2PClient extends WebSocketClient {
 
                     if (pool.blockService.currentBlockNumber() < current.getBody().getNumber()) {
                         pool.blockService.safeSave(current.getBody());
-
                     }
                     break;
                 case "WOT_REQUIREMENTS_OF_PENDING":

@@ -76,6 +76,11 @@ public class RAMIndex implements GlobalValid {
         return true;
     }
 
+    @Override
+    public List<BINDEX> indexBGlobal() {
+        return null;
+    }
+
 
     @Override
     public Stream<CINDEX> indexCGlobal() {

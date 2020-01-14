@@ -20,6 +20,12 @@ public class DuniterException extends RuntimeException {
         code = msg;
     }
 
+
+    public DuniterException(@NonNull String msg) {
+        super(msg);
+        code = new UCode(EXCEPTION.getNumber(),msg);
+    }
+
     public DuniterException(@NonNull Exception ex) {
         super(ex.getMessage());
         code = new UCode(EXCEPTION.getNumber(), ex.getMessage());

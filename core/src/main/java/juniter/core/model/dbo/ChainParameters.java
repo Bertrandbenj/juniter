@@ -2,7 +2,7 @@ package juniter.core.model.dbo;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import juniter.core.model.technical.DUPDocument;
+import juniter.core.model.meta.DUPComponent;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,14 +21,11 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Table(name = "chainparameters", schema = "public")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ChainParameters implements DUPDocument {
+public class ChainParameters implements DUPComponent {
 
-    public ChainParameters(  String ccy) {
-        currency = ccy;
-    }
 
     @Id
-    private String currency;
+    private String currency = "g1";
 
     /**
      * The %growth of the UD every [dt] period
@@ -213,10 +210,6 @@ public class ChainParameters implements DUPDocument {
         return c + ":" + dt + ":" + ud0 + ":" + sigPeriod + ":" + sigStock + ":" + sigWindow + ":" + sigValidity + ":" + sigQty + ":" + idtyWindow + ":" + msWindow + ":" + xpercent + ":" + msValidity + ":" + stepMax + ":" + medianTimeBlocks + ":" + avgGenTime + ":" + dtDiffEval + ":" + percentRot + ":" + udTime0 + ":" + udReevalTime0 + ":" + dtReeval;
     }
 
-    @Override
-    public String toDUPdoc(boolean signed) {
-        return toDUP();
-    }
 
     public double maxAcceleration() {
         return Math.ceil(maxGenTime() * medianTimeBlocks);

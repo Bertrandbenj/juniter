@@ -1,6 +1,6 @@
 {"namespace": "juniter.avro",
  "type": "record",
- "name": "SINDEX",
+ "name": "ArchiveSINDEX",
  "fields": [
 
      {"name": "id", "type": "int" },
@@ -10,8 +10,8 @@
      {"name": "pos", "type": "int" },
      {"name": "signed", "type": ["string", "null"] },
      {"name": "written", "type": ["string", "null"] },
-     {"name": "amount", "type": "string" },
-     {"name": "base", "type": "string" },
+     {"name": "amount", "type": "int" },
+     {"name": "base", "type": "int" },
      {"name": "locktime", "type": ["long", "null"] },
      {"name": "consumed", "type": "boolean" },
      {"name": "conditions", "type": "string" }

@@ -9,6 +9,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v1
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      - uses: actions/checkout@v1
+
+      - name: Build the Docker image
+        run: docker build . --file junigeek/Dockerfile --tag my-image-name:$(date +%s)
+
+      - uses: actions/upload-artifact@v1
+        with:
+          name: docker image
+          path: junigeek/build/docker/junigeek-1.0.0-SNAPSHOT.tar

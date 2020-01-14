@@ -1,6 +1,6 @@
 {"namespace": "juniter.avro",
  "type": "record",
- "name": "IINDEX",
+ "name": "ArchiveIINDEX",
  "fields": [
 
      {"name": "id", "type": "long" },

@@ -23,7 +23,7 @@ import java.util.concurrent.Callable;
  * @author P.J. Meisch (pj.meisch@sothawo.com).
  */
 public final class I18N {
-    /** the currentStrict selected Locale. */
+    /** the currentChained selected Locale. */
     private static final ObjectProperty<Locale> locale;
     static {
         locale = new SimpleObjectProperty<>(getDefaultLocale());
@@ -57,7 +57,7 @@ public final class I18N {
         return locale;
     }
     /**
-     * gets the string with the given key from the resource bundle for the currentStrict locale and uses it as first argument
+     * gets the string with the given key from the resource bundle for the currentChained locale and uses it as first argument
      * to MessageFormat.format, passing in the optional args and returning the result.
      *
      * @param key
@@ -91,7 +91,7 @@ public final class I18N {
         return Bindings.createStringBinding(func, locale);
     }
     /**
-     * creates a bound Label whose value is computed on language change.
+     * creates a bound Label whose value is computed on bl change.
      *
      * @param func
      *         the function to compute the value

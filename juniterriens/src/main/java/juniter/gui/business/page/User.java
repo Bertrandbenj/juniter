@@ -14,7 +14,6 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -40,6 +39,9 @@ import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;
 import java.net.URL;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -58,7 +60,7 @@ public class User extends AbstractJuniterFX implements Initializable {
     private LineChart txChart;
     @FXML
     private ComboBox<String> wallet;
-//    @FXML
+    //    @FXML
 //    private TextField pk;
     @FXML
     private TextField uid;
@@ -96,7 +98,7 @@ public class User extends AbstractJuniterFX implements Initializable {
     private ObservableList<Transaction> receivedTxList = FXCollections.observableArrayList();
     private ObservableList<CertRecord> sentCertList = FXCollections.observableArrayList();
     private ObservableList<CertRecord> receivedCertList = FXCollections.observableArrayList();
-    private ObjectProperty<IINDEX> idty = new SimpleObjectProperty<>();
+    private ObjectProperty<IINDEX> profileIdentity = new SimpleObjectProperty<>();
     private ObjectProperty<MINDEX> mem = new SimpleObjectProperty<>();
     private ObjectProperty<Account> acc = new SimpleObjectProperty<>();
     private XYChart.Series<Long, Integer> series = new XYChart.Series<>();
@@ -135,30 +137,36 @@ public class User extends AbstractJuniterFX implements Initializable {
         var iRec = new Image("https://g1.data.duniter.fr/user/profile/" + rec.getPub() + "/_image/avatar.png", 50, 50, true, true);
 
         b.setTooltip(new Tooltip(iss.getPub() + " -> " + rec.getPub()));
-        var res = new VBox(5,
-                new Label(iss.getUid()),
-                new ImageView(iIss),
-                new Label(Formats.DATETIME_FORMAT.format(date)),
-                new ImageView(iRec),
-                new Label(rec.getUid())//,
-               // b
-        );
-        res.setPrefHeight(100);
-        res.setPrefWidth(200);
+        var res = new VBox(5);
+        // add the issuer
+        if (!profileIdentity.getValue().getPub().equals(iss.getPub())) {
+            res.getChildren().add(new Label(iss.getUid()));
+            res.getChildren().add(new ImageView(iIss));
+        }
+
+        res.getChildren().add(new Label(Formats.DATE_FORMAT.format(date)));
+        // add the issuer
+        if (!profileIdentity.getValue().getPub().equals(rec.getPub())) {
+            res.getChildren().add(new ImageView(iRec));
+            res.getChildren().add(new Label(rec.getUid()));//,
+        }
+        res.setPrefHeight(80);
+        res.setPrefWidth(150);
         return res;
     }
 
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        idty.addListener((observable, oldValue, newValue) -> {
+        profileIdentity.addListener((observable, oldValue, newValue) -> {
             uid.setText(newValue.getUid());
 
         });
 
         wallet.setItems(FXCollections.observableArrayList(userSettings.getWallets()));
         wallet.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newWallet) -> {
-            index.reduceI(newWallet).ifPresentOrElse( i -> idty.setValue(i),()->{});
+            index.reduceI(newWallet).ifPresentOrElse(i -> profileIdentity.setValue(i), () -> {
+            });
 
             Platform.runLater(() -> {
                 sentTxList.setAll(txService.transactionsOfIssuer(newWallet));
@@ -169,11 +177,19 @@ public class User extends AbstractJuniterFX implements Initializable {
             Platform.runLater(() -> {
                 var recs = wot.certRecord(newWallet);
 
-                sentCertList.setAll(recs.stream().filter(r -> r.getIssuer().getPub().equals(newWallet)).collect(Collectors.toList()));
+                sentCertList.setAll(recs.stream()
+                        .filter(r -> r.getIssuer().getPub().equals(newWallet))
+                        .collect(Collectors.toList()));
                 receivedCertList.setAll(recs.stream().filter(r -> r.getReceiver().getPub().equals(newWallet)).collect(Collectors.toList()));
 
-                sentCerts.getChildren().setAll(sentCertList.stream().map(this::drawCert).collect(Collectors.toList()));
-                receivedCerts.getChildren().setAll(receivedCertList.stream().map(this::drawCert).collect(Collectors.toList()));
+                sentCerts.getChildren().setAll(
+                        sentCertList.stream()
+                                .map(this::drawCert)
+                                .collect(Collectors.toList()));
+                receivedCerts.getChildren().setAll(
+                        receivedCertList.stream()
+                                .map(this::drawCert)
+                                .collect(Collectors.toList()));
 
             });
 
@@ -183,12 +199,12 @@ public class User extends AbstractJuniterFX implements Initializable {
 
         });
 
-       // pk.textProperty().bind(wallet.valueProperty());
+        // pk.textProperty().bind(wallet.valueProperty());
 
 
         txSent.textProperty().bind(Bindings.createStringBinding(() -> sentTxList.size() + "", sentTxList));
         txReceived.textProperty().bind(Bindings.createStringBinding(() -> receivedTxList.size() + "", receivedTxList));
-        status.textProperty().bind(Bindings.createStringBinding(() -> idty.get() != null ? "ok" : "not ok", idty));
+        status.textProperty().bind(Bindings.createStringBinding(() -> profileIdentity.get() != null ? "ok" : "not ok", profileIdentity));
 
         wallet.getSelectionModel().selectFirst();
 
@@ -197,54 +213,76 @@ public class User extends AbstractJuniterFX implements Initializable {
 
     }
 
-    private void refreshAccountOverTime(String newValue) {
+    private void refreshAccountOverTime(String currentProfile) {
         Platform.runLater(() -> {
             series.getData().clear();
-            var data = Stream.concat(receivedTxList.stream(), sentTxList.stream()).sorted(Comparator.comparing(a -> a.getWritten().getMedianTime())).collect(Collectors.toList());
+            var transactions = Stream.concat(receivedTxList.stream(), sentTxList.stream()).sorted(Comparator.comparing(a -> a.getWritten().getMedianTime())).collect(Collectors.toList());
             List<Pair<Long, Integer>> tmp = new ArrayList<>();
-            for (var t : data) {
+
+            for (var tx : sentTxList) {
                 var sum = 0;
-                for (var j = 0; j < t.getIssuers().size(); j++) {
-                    if (t.getIssuers().get(j).equals(newValue)) {
+                for (var j = 0; j < tx.getIssuers().size(); j++) {
+                    if (tx.getIssuers().get(j).equals(currentProfile)) {
                         int finalJ = j;
-                        var unlocks = t.getUnlocks().stream().filter(un -> un.getFctParam().equals(String.valueOf(finalJ))).map(TxUnlock::getInputRef).collect(Collectors.toList());
-                        for (int in = 0; in < t.getInputs().size(); in++) {
+                        var unlocks = tx.getUnlocks().stream().filter(un -> un.getFctParam().equals(String.valueOf(finalJ))).map(TxUnlock::getInputRef).collect(Collectors.toList());
+                        for (int in = 0; in < tx.getInputs().size(); in++) {
                             if (unlocks.contains(in))
-                                sum -= t.getInputs().get(in).getAmount();
-                        }
-                        for (int out = 0; out < t.getOutputs().size(); out++) {
-                            var txOut = t.getOutputs().get(out);
-                            if (txOut.getCondition().contains("SIG(" + newValue + ")")) {
-                                sum += txOut.getAmount();
-                            }
+                                sum -= tx.getInputs().get(in).getAmount();
                         }
                     }
                 }
-
-                tmp.add(new Pair(t.getWritten().getMedianTime(), sum));
+                tmp.add(new Pair<>(tx.getWritten().getMedianTime(), sum));
 
             }
 
-            txService
-                    .dividendsOf(newValue)
+            for (var tx : receivedTxList) {
+                var sum = 0;
+                for (int out = 0; out < tx.getOutputs().size(); out++) {
+                    var txOut = tx.getOutputs().get(out);
+                    if (txOut.getCondition().contains("SIG(" + currentProfile + ")")) {
+                        sum += txOut.getAmount();
+                    }
+                }
+
+                tmp.add(new Pair<>(tx.getWritten().getMedianTime(), sum));
+
+            }
+
+            txService.dividendsOf(currentProfile)
                     .forEach(b -> {
                         //LOG.info(b);
-                        tmp.add(new Pair(b.getMedianTime(), b.getDividend()));
+                        tmp.add(new Pair<>(b.getMedianTime(), b.getDividend()));
                     });
 
-            var result = tmp.stream().collect(Collectors.groupingBy(Pair::getKey, Collectors.summingInt(Pair::getValue)));
+            var dailyVariation = tmp
+                    .stream()
+                    .collect(Collectors.groupingBy(
+                            pair -> toDay(pair.getKey()),
+                            Collectors.summingInt(Pair::getValue)))
+                    .entrySet().stream().sorted(Comparator.comparingLong(Map.Entry::getKey))
 
-            var begin = data.get(0).getWritten().getMedianTime();
-            var end = data.get(data.size() - 1).getWritten().getMedianTime();
+                   // .map(frame -> new XYChart.Data<>(frame.getKey(), frame.getValue()))
+                    .collect(Collectors.toList());
+
+            var cumulativeSum = 0  ;
+            for (Map.Entry<Long, Integer> d : dailyVariation) {
+                cumulativeSum += d.getValue();
+                series.getData().add(new XYChart.Data<>(d.getKey(), cumulativeSum));
+            }
+
+            var begin = dailyVariation.get(0).getKey() ;
+            var end = dailyVariation.get(transactions.size() - 1).getKey();
             txTime.setLowerBound(begin);
             txTime.setUpperBound(end);
             txTime.setTickUnit((end - begin) / 4.);
             txTime.setAutoRanging(false);
-            series.getData().addAll(result.entrySet().stream()
-                    .map(frame -> new XYChart.Data<>(frame.getKey(), frame.getValue()))
-                    .collect(Collectors.toList()));
+            //series.getData().addAll(dailyVariation);
         });
     }
 
+
+    public Long toDay(long medianTime) {
+        return Instant.ofEpochSecond(medianTime).truncatedTo(ChronoUnit.DAYS).atZone(ZoneId.systemDefault()).toEpochSecond();
+    }
 
 }

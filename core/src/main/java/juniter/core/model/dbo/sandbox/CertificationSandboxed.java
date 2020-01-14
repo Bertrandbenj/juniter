@@ -1,7 +1,6 @@
 package juniter.core.model.dbo.sandbox;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import juniter.core.model.technical.DUPDocument;
 import juniter.core.model.dbo.BStamp;
 import juniter.core.utils.Constants;
 import lombok.AllArgsConstructor;
@@ -20,7 +19,7 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 @Table(name = "sb_certification", schema = "public" )
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CertificationSandboxed implements DUPDocument, Comparable<CertificationSandboxed> {
+public class CertificationSandboxed implements Comparable<CertificationSandboxed> {
 
     private static final Logger LOG = LogManager.getLogger(CertificationSandboxed.class);
 
@@ -57,20 +56,6 @@ public class CertificationSandboxed implements DUPDocument, Comparable<Certifica
     @Override
     public int compareTo(CertificationSandboxed o) {
         return (certifier + " " + certified).compareTo(o.certifier + " " + o.certified);
-    }
-
-    public String toDUP() {
-        return certifier + ":" + certified + ":" + signedOn + ":" + signature;
-    }
-
-    @Override
-    public String toDUPdoc(boolean signed) {
-        return "";
-    }
-
-    @Override
-    public String toString() {
-        return toDUP();
     }
 
 

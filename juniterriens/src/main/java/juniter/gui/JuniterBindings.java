@@ -58,10 +58,12 @@ public interface JuniterBindings {
     IntegerProperty maxPeerBlock = new SimpleIntegerProperty(42);
 
 
-    DoubleBinding indexRatio = Bindings.createDoubleBinding(()-> Double.valueOf(currentBindexN.getValue()) / highestDBBlock.getValue(), currentBindexN, highestDBBlock) ;
-    DoubleBinding dlRatio = Bindings.createDoubleBinding(()-> Double.valueOf(currentDBBlockNum.getValue())/maxPeerBlock.getValue(),currentDBBlockNum,maxPeerBlock);
+    DoubleBinding indexRatio = Bindings.createDoubleBinding(() -> Double.valueOf(currentBindexN.getValue()) / highestDBBlock.getValue(), currentBindexN, highestDBBlock);
+    DoubleBinding dlRatio = Bindings.createDoubleBinding(() -> Double.valueOf(currentDBBlockNum.getValue()) / maxPeerBlock.getValue(), currentDBBlockNum, maxPeerBlock);
 
     BooleanProperty isIndexing = new SimpleBooleanProperty(false);
+    BooleanProperty isForging = new SimpleBooleanProperty(false);
+
     StringProperty rawDocument = new SimpleStringProperty("here comes the Document in DUPComponent format");
 
     StringProperty indexLogMessage = new SimpleStringProperty(" ... ");

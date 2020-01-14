@@ -133,7 +133,7 @@ public class TxPanel implements Initializable {
             var b = currenBlock.get();
 
             tx = new Transaction(null,
-                    Integer.parseInt(fieldVersion.getText()),
+                    Short.parseShort(fieldVersion.getText()),
                     fieldCurrency.getText(),
                     Integer.parseInt(fieldLocktime.getText()),
                     "",

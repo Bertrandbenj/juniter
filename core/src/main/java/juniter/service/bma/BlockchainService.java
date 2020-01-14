@@ -18,7 +18,6 @@ import juniter.core.model.dto.wot.MembershipDTO;
 import juniter.repository.jpa.block.CertsRepository;
 import juniter.repository.jpa.block.MemberRepository;
 import juniter.repository.jpa.block.TxRepository;
-import juniter.service.bma.loader.BlockLoader;
 import juniter.service.core.BlockService;
 import juniter.service.core.Index;
 import juniter.service.core.WebOfTrust;
@@ -43,7 +42,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -67,7 +65,7 @@ import static java.util.stream.Collectors.toList;
  * |   |-- node
  * |   |   `-- [NUMBER]
  * |   |-- difficulties
- * |   `-- currentStrict
+ * |   `-- currentChained
  * </pre>
  *
  * @author ben
@@ -75,7 +73,6 @@ import static java.util.stream.Collectors.toList;
 @RestController
 @ConditionalOnExpression("${juniter.useBMA:false}")
 @RequestMapping("/blockchain")
-//@Timed("blockchain.bma")
 public class BlockchainService {
 
     private static final Logger LOG = LogManager.getLogger(BlockchainService.class);
@@ -96,9 +93,6 @@ public class BlockchainService {
     private Index index;
 
     @Autowired
-    private BlockLoader defaultLoader;
-
-    @Autowired
     private ModelMapper modelMapper;
 
     @Autowired
@@ -110,8 +104,7 @@ public class BlockchainService {
 
         LOG.info("Entering /blockchain/block/{number=" + id + "}");
         final var block = blockService
-                .block(id)
-                .orElseGet(() -> defaultLoader.fetchAndSaveBlock(id));
+                .blockOrFetch(id);
 
         return modelMapper.map(block, Block.class);
     }
@@ -119,36 +112,19 @@ public class BlockchainService {
     @CrossOrigin(origins = "*")
     @Transactional
     @GetMapping(value = "/blocks/{count}/{from}")
-    public List<Block> blocks(@PathVariable("count") Integer count, @PathVariable("from") Integer from) {
-
+    public Stream<Block> blocks(@PathVariable("count") Integer count, @PathVariable("from") Integer from) {
         LOG.info("Entering /blockchain/blocks/{count=" + count + "}/{from=" + from + "}");
+        final var blocksToFind = IntStream.range(from, from + count).boxed().collect(toList());
+        return blockService.blocksIn(blocksToFind).map(b -> modelMapper.map(b, Block.class));
 
-        final List<Integer> blocksToFind = IntStream.range(from, from + count).boxed().collect(toList());
-        LOG.info("---blocksToFind: " + blocksToFind);
-
-        final List<DBBlock> knownBlocks = blockService.blocksIn(blocksToFind).collect(toList());
-        LOG.info("---known blocks: " + knownBlocks.stream().map(DBBlock::getNumber).collect(toList()));
-
-        final List<DBBlock> blocksToSave = blocksToFind.stream()
-                .filter(b -> knownBlocks.stream().noneMatch(kb -> kb.getNumber().equals(b)))
-                .map(lg -> defaultLoader.fetchAndSaveBlock(lg)).collect(toList());
-
-        LOG.info("---fetchTrimmed blocks: " + Stream.concat(blocksToSave.stream(), knownBlocks.stream())
-                .map(b -> b.getNumber().toString()).collect(joining(",")));
-
-        blockService.saveAll(blocksToSave);
-
-        return Stream.concat(blocksToSave.stream(), knownBlocks.stream()) //
-                .map(b -> modelMapper.map(b, Block.class)) //
-                .collect(toList());
     }
 
 
     @CrossOrigin(origins = "*")
     @Transactional
-    @GetMapping(value = "/currentStrict")
+    @GetMapping(value = "/block")
     public Block current() {
-        LOG.info("Entering /blockchain/currentStrict");
+        LOG.info("Entering /blockchain/block");
         return modelMapper.map(blockService.currentOrFetch(), Block.class);
     }
 

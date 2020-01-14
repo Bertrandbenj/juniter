@@ -26,6 +26,7 @@ import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.index.*;
 import juniter.gui.technical.AbstractJuniterFX;
 import juniter.service.core.BlockService;
+import juniter.service.core.ForkHead;
 import juniter.service.core.Index;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -217,6 +218,8 @@ public class Database extends AbstractJuniterFX implements Initializable {
     private ProgressBar indexBar;
     @Autowired
     private EntityManager em;
+    @Autowired
+    private ForkHead forkHead;
 
     @FXML
     public void indexUntil() {
@@ -363,6 +366,12 @@ public class Database extends AbstractJuniterFX implements Initializable {
         reverseButton.disableProperty().bind(isIndexing);
         index1Button.disableProperty().bind(isIndexing);
         pauseButton.disableProperty().bind(isIndexing.not());
+
+        isForging.addListener((observable, oldValue, newValue) -> {
+            if(!newValue){
+                forkHead.isForging.lazySet( false);
+            }
+        });
 
 //        isIndexing.addListener((v, oldValue, newValue) -> {
 //            if (!newValue)

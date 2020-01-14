@@ -13,10 +13,10 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import juniter.core.model.dbo.index.BINDEX;
+import juniter.core.service.BlockFetcher;
 import juniter.gui.technical.AbstractJuniterFX;
 import juniter.gui.technical.PageName;
-import juniter.service.bma.loader.BlockLoader;
-import juniter.service.bma.loader.MissingBlocksLoader;
+import juniter.service.bma.loader.BMABlockFetcher;
 import juniter.service.core.BlockService;
 import juniter.service.core.Index;
 import juniter.service.core.PeerService;
@@ -28,6 +28,7 @@ import org.springframework.stereotype.Component;
 
 import java.net.URL;
 import java.util.Date;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import static juniter.gui.JuniterBindings.*;
@@ -66,10 +67,7 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
     private ProgressBar loadBar;
 
     @Autowired
-    private BlockLoader blockLoader;
-
-    @Autowired
-    private MissingBlocksLoader mBlockLoader;
+    private BMABlockFetcher blockFetchers;
 
     @Autowired
     private Index index;
@@ -87,13 +85,13 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
 
     @FXML
     public void bulkLoad() {
-        blockLoader.startBulkLoad();
+        blockFetchers.startBulkLoad();
     }
 
 
     @FXML
     public void loadMissing() {
-        mBlockLoader.checkMissingBlocks();
+        blockService.checkMissingBlocksAsync();
     }
 
 
@@ -149,7 +147,7 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
 
 
         median.textProperty().bind(Bindings.createObjectBinding(() -> {
-                    var date = new Date(currentBindex.get().getMedianTime() * 1000L);
+                     var date = new Date(currentBindex.get().getMedianTime() * 1000L);
 
                     return DATETIME_FORMAT.format(date);
                 }

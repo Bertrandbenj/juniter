@@ -1,6 +1,7 @@
 package juniter.core.validation;
 
 import juniter.core.model.dbo.DBBlock;
+import juniter.core.validation.meta.BlockValidator;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

@@ -18,7 +18,7 @@ import juniter.gui.technical.AbstractJuniterFX;
 import juniter.gui.technical.I18N;
 import juniter.service.core.BlockService;
 import juniter.service.core.PeerService;
-import juniter.service.bma.loader.PeerLoader;
+import juniter.service.bma.loader.BMAPeerFetcher;
 import juniter.service.ws2p.WebSocketPool;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -87,7 +87,7 @@ public class Network extends AbstractJuniterFX implements Initializable {
 
 
     @Autowired
-    private PeerLoader peerLoader;
+    private BMAPeerFetcher peerLoader;
 
     @Autowired
     private PeerService peerService;

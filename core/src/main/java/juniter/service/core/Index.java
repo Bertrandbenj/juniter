@@ -4,17 +4,21 @@ import io.micrometer.core.annotation.Timed;
 import juniter.core.event.CurrentBNUM;
 import juniter.core.event.Indexing;
 import juniter.core.event.NewBINDEX;
+import juniter.core.exception.DuniterException;
 import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dbo.index.*;
+import juniter.core.model.meta.DUPBlock;
 import juniter.core.utils.TimeUtils;
 import juniter.core.validation.GlobalValid;
+import juniter.repository.jpa.block.ParamsRepository;
 import juniter.repository.jpa.index.*;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +37,7 @@ import java.util.stream.Stream;
  *
  * @author BnimajneB
  */
+//@DependsOn(value = {"blockService"})
 @Service
 public class Index implements GlobalValid {
 
@@ -65,6 +70,9 @@ public class Index implements GlobalValid {
     private BlockService blockService;
 
     @Autowired
+    private ParamsRepository paramsRepository;
+
+    @Autowired
     private Sandboxes sandboxes;
 
     public String hashAt(Integer number) {
@@ -88,10 +96,10 @@ public class Index implements GlobalValid {
     @Timed(value = "index_init")
     private void init(boolean resetDB, String ccy) {
         try {
-            var params = blockService.paramsByCCY(ccy);
+            var params = paramsRepository.paramsByCCY(ccy).orElseThrow(()->new DuniterException("paramRepository Unavaible yet "));
             conf.accept(params);
         } catch (Exception e) {
-            LOG.error(e, e);
+            LOG.error("index_init ", e);
         }
 
         if (resetDB) {
@@ -129,7 +137,8 @@ public class Index implements GlobalValid {
 
     @Transactional
     @Override
-    public Optional<DBBlock> createdOnBlock(BStamp bstamp) {
+    public Optional<DBBlock > createdOnBlock(BStamp bstamp) {
+
 
         if (bstamp.getNumber().equals(0))
             return blockService.block(0);
@@ -167,8 +176,8 @@ public class Index implements GlobalValid {
         return true;
     }
 
-
-    private List<BINDEX> indexBGlobal() {
+    @Override
+    public List<BINDEX> indexBGlobal() {
         return bRepo.allAsc();
     }
 
@@ -178,7 +187,6 @@ public class Index implements GlobalValid {
         return cRepo.findAll().stream();
     }
 
-    //List<IINDEX> iig = new ArrayList<>();
 
     @Override
     public Stream<IINDEX> indexIGlobal() {
@@ -319,8 +327,9 @@ public class Index implements GlobalValid {
         var baseTime = System.currentTimeMillis();
         var time = System.currentTimeMillis();
         long delta;
+        var lastHeadNumber = head().map(h -> h.getNumber() + 1).orElse(0);
 
-        for (int bnum = head().map(h -> h.getNumber() + 1).orElse(0); bnum <= syncUntil; bnum++) {
+        for (int bnum = lastHeadNumber; bnum <= syncUntil; bnum++) {
 
             final var block = blockService.blockOrFetch(bnum);
 
@@ -378,7 +387,7 @@ public class Index implements GlobalValid {
             sRepo.deleteAll(
                     sRepo.writtenOn(h.getNumber(), h.getHash())
             );
-            blockService.delete(blockService.block(h.getNumber(), h.getHash()));
+            blockService.deleteAt(ccy,  h.getNumber() );
 
             coreEventBuss.publishEvent(new CurrentBNUM(head_().getNumber()));
             coreEventBuss.publishEvent(new Indexing(false, "Reverted to " + h.getNumber() + " from " + h));

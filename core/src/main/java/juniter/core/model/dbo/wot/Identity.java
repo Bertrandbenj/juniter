@@ -2,7 +2,7 @@ package juniter.core.model.dbo.wot;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import juniter.core.model.dbo.BStamp;
-import juniter.core.model.technical.DUPDocument;
+import juniter.core.model.meta.DUPIdentity;
 import juniter.core.utils.Constants;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,7 +30,7 @@ import javax.validation.constraints.Size;
         @Index(columnList = "signed_number")
 })
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Identity implements DUPDocument, Comparable<Identity> {
+public class Identity implements DUPIdentity, Comparable<Identity> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -71,10 +71,6 @@ public class Identity implements DUPDocument, Comparable<Identity> {
         return pubkey + ":" + signature + ":" + signed.stamp() + ":" + uid;
     }
 
-    @Override
-    public String toDUPdoc(boolean signed) {
-        return "";
-    }
 
     @Override
     public String toString() {

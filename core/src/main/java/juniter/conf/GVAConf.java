@@ -98,7 +98,7 @@ public class GVAConf implements WebSocketConfigurer {
 
         if (request.getURI().getPath().endsWith("/ws/block") || request.getURI().getPath().endsWith("/block")) {
 
-            blockService.currentStrict().ifPresent(bl -> {
+            blockService.currentChained().ifPresent(bl -> {
                 try {
                     var block = modelMapper.map(bl, Block.class);
 

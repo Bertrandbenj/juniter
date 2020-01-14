@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane styleClass="pane" xmlns="http://javafx.com/javafx/8" minHeight="600" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.gui.business.page.Settings">
+<BorderPane minHeight="600" styleClass="pane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juniter.gui.business.page.Settings">
     <right>
         <fx:include fx:id="menu" source="../include/Menu.fxml" />
     </right>
@@ -21,6 +21,36 @@
             <content>
                 <VBox spacing="10.0" styleClass="pane" BorderPane.alignment="CENTER">
                     <children>
+                  <Label alignment="CENTER" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Utilities" textAlignment="CENTER">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                     <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                     </padding>
+                  </Label>
+                        <HBox spacing="15.0">
+                            <children>
+                                <TextField fx:id="delSome" prefHeight="25.0" prefWidth="370.0" promptText="ex .. 15144,31202,85448,87566,90830,109327" />
+                                <CheckBox fx:id="delLowerThan" mnemonicParsing="false" text="lower than" />
+                                <CheckBox fx:id="delHigherThan" mnemonicParsing="false" text="higher Than" />
+                                <Button mnemonicParsing="false" onAction="#deleteSome" text="delete ! " />
+                            </children>
+                            <padding>
+                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                            </padding>
+                        </HBox>
+                        <HBox spacing="15.0">
+                            <children>
+                                <TextField fx:id="tstSome" prefHeight="25.0" prefWidth="370.0" promptText="ex .. 15144,31202,85448,87566,90830,109327" />
+                                <CheckBox fx:id="testLowerThan" mnemonicParsing="false" text="lower than" />
+                                <CheckBox fx:id="testHigherThan" mnemonicParsing="false" text="higher Than" />
+                                <Button mnemonicParsing="false" onAction="#testSome" text="is / are valid ? " />
+                            </children>
+                            <padding>
+                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                            </padding>
+                        </HBox>
                         <Label alignment="CENTER" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="User Settings" textAlignment="CENTER">
                             <font>
                                 <Font size="18.0" />
@@ -137,36 +167,6 @@
                             </opaqueInsets>
                             <padding>
                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                            </padding>
-                        </HBox>
-                  <Label alignment="CENTER" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Utilities" textAlignment="CENTER">
-                     <font>
-                        <Font size="18.0" />
-                     </font>
-                     <padding>
-                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                     </padding>
-                  </Label>
-                        <HBox spacing="15.0">
-                            <children>
-                                <TextField fx:id="delSome" prefHeight="25.0" prefWidth="370.0" promptText="ex .. 15144,31202,85448,87566,90830,109327" />
-                                <CheckBox fx:id="delLowerThan" mnemonicParsing="false" text="lower than" />
-                                <CheckBox fx:id="delHigherThan" mnemonicParsing="false" text="higher Than" />
-                                <Button mnemonicParsing="false" onAction="#deleteSome" text="delete ! " />
-                            </children>
-                            <padding>
-                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                            </padding>
-                        </HBox>
-                        <HBox spacing="15.0">
-                            <children>
-                                <TextField fx:id="tstSome" prefHeight="25.0" prefWidth="370.0" promptText="ex .. 15144,31202,85448,87566,90830,109327" />
-                                <CheckBox fx:id="testLowerThan" mnemonicParsing="false" text="lower than" />
-                                <CheckBox fx:id="testHigherThan" mnemonicParsing="false" text="higher Than" />
-                                <Button mnemonicParsing="false" onAction="#testSome" text="is / are valid ? " />
-                            </children>
-                            <padding>
-                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                             </padding>
                         </HBox>
                         <Button mnemonicParsing="false" onAction="#ipfs" text="ipfs" />

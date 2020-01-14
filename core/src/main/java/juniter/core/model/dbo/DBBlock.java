@@ -6,8 +6,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import juniter.core.model.dbo.tx.Transaction;
 import juniter.core.model.dbo.wot.*;
-import juniter.core.model.technical.DUPDocument;
+import juniter.core.model.meta.DUPBlock;
 import juniter.core.utils.Constants;
+import juniter.core.validation.meta.BlockConstraint;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.LazyCollection;
@@ -40,9 +41,10 @@ import java.util.concurrent.TimeUnit;
  *
  * @author ben
  */
- @Entity
+@Entity
 @Data
 @NoArgsConstructor
+
 @Table(name = "block", schema = "public", indexes = {
         @Index(columnList = "number"),
         @Index(columnList = "hash"),
@@ -52,8 +54,9 @@ import java.util.concurrent.TimeUnit;
 }, uniqueConstraints = {
         @UniqueConstraint(columnNames = {"number", "hash"})
 })
+@BlockConstraint
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class DBBlock implements DUPDocument, Serializable {
+public class DBBlock implements DUPBlock, Serializable {
 
     private static final long serialVersionUID = -4464417074968456696L;
 
@@ -80,10 +83,13 @@ public class DBBlock implements DUPDocument, Serializable {
 
     private Integer powMin;
 
+    @Positive
     private Long time;
 
+    @Positive
     private Long medianTime;
 
+    @Positive
     private Integer membersCount;
 
     private Long monetaryMass;
@@ -108,6 +114,7 @@ public class DBBlock implements DUPDocument, Serializable {
 
     @Size(max = 88)
     @Pattern(regexp = Constants.Regex.SIGNATURE)
+    //@SignatureConstraint
     private String signature;
 
 
@@ -203,7 +210,7 @@ public class DBBlock implements DUPDocument, Serializable {
     public void setParameters(String string) {
         if (string == null || string.equals(""))
             return;
-        parameters = new ChainParameters(currency);
+        parameters = new ChainParameters();
         parameters.accept(string);
     }
 
@@ -282,15 +289,6 @@ public class DBBlock implements DUPDocument, Serializable {
     }
 
 
-    public String signedPart() {
-        return "InnerHash: " + inner_hash + "\n" +
-                "Nonce: " + nonce + "\n";
-    }
-
-    public String signedPartSigned() {
-        return signedPart() + signature + "\n";
-    }
-
     /**
      * <pre>
      * BlockSize
@@ -333,6 +331,7 @@ public class DBBlock implements DUPDocument, Serializable {
     public String toDUPdoc(boolean signed) {
         return null;
     }
+
 
     /**
      * Method returning node as a Raw format

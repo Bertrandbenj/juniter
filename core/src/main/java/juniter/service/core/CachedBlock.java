@@ -4,7 +4,8 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import juniter.core.model.dbo.DBBlock;
-import juniter.service.bma.loader.BlockLoader;
+import juniter.core.service.BlockFetcher;
+import juniter.service.bma.loader.BMABlockFetcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,7 @@ public class CachedBlock {
     private BlockService blockService;
 
     @Autowired
-    private BlockLoader blockLoader;
+    private BMABlockFetcher blockLoader;
 
     private DBBlock current;
 
@@ -47,7 +48,7 @@ public class CachedBlock {
 
     public DBBlock getCurrent() {
         if (current == null)
-            current = blockService.currentStrict().orElse(blockLoader.fetchAndSaveBlock("/currentStrict"));
+            current = blockService.currentOrFetch() ;
         return current;
     }
 

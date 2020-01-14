@@ -1,12 +1,17 @@
 package juniter.service.bma.loader;
 
+import juniter.core.event.CoreEvent;
 import juniter.core.event.CurrentBNUM;
-import juniter.core.event.DecrementCurrent;
+import juniter.core.event.MaxPeerBlock;
 import juniter.core.model.dbo.DBBlock;
-import juniter.core.model.dbo.net.NetStats;
+import juniter.core.model.dbo.index.BINDEX;
 import juniter.core.model.dbo.net.EndPointType;
+import juniter.core.model.dbo.net.NetStats;
+import juniter.core.service.BlockFetcher;
+import juniter.core.utils.TimeUtils;
 import juniter.core.validation.BlockLocalValid;
 import juniter.service.core.BlockService;
+import juniter.service.core.Index;
 import juniter.service.core.PeerService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationListener;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.jpa.repository.Modifying;
@@ -25,12 +31,12 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import javax.validation.constraints.Max;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -42,12 +48,12 @@ import java.util.stream.IntStream;
  *
  * @author ben
  */
-@ConditionalOnExpression("${juniter.loader.useDefault:true}") // Must be up for dependencies
+@ConditionalOnExpression("${juniter.useBMA:true}") // Must be up for dependencies
 @Component
 @Order(1)
-public class BlockLoader implements BlockLocalValid {
+public class BMABlockFetcher implements BlockLocalValid, BlockFetcher, ApplicationListener<CoreEvent> {
 
-    private static final Logger LOG = LogManager.getLogger(BlockLoader.class);
+    private static final Logger LOG = LogManager.getLogger(BMABlockFetcher.class);
 
 
     @Value("${bulkload:false}")
@@ -72,11 +78,13 @@ public class BlockLoader implements BlockLocalValid {
 
     @Autowired
     private BlockService blockService;
+    @Autowired
+    private Index index;
 
     @Autowired
     private PeerService peerService;
 
-    public BlockLoader() {
+    public BMABlockFetcher() {
     }
 
     @PostConstruct
@@ -91,7 +99,7 @@ public class BlockLoader implements BlockLocalValid {
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
                     LOG.error("interrupted ", e);
-                }catch (Exception e) {
+                } catch (Exception e) {
                     LOG.error("Unknown exception ", e);
                 }
             }
@@ -101,7 +109,7 @@ public class BlockLoader implements BlockLocalValid {
             new Thread(cons, "consumer" + i).start();
         }
 
-        if(bulkLoadAtStart){
+        if (bulkLoadAtStart) {
             startBulkLoad();
         }
 
@@ -109,7 +117,7 @@ public class BlockLoader implements BlockLocalValid {
 
     private void queueBulkQueries() {
 
-        final var currentNumber = fetchAndSaveBlock("currentStrict").getNumber();
+        final var currentNumber = fetchAndSaveBlock("current").getNumber();
 
         applicationEventPublisher.publishEvent(new CurrentBNUM((int) blockService.count()));
 
@@ -167,21 +175,21 @@ public class BlockLoader implements BlockLocalValid {
                     return body;
 
                 } catch (final RestClientException e) {
-                    LOG.warn("fetchBlocks failed - RestClientException at " + url + " retrying .. ");
+                    LOG.warn("fetchAndSaveBlocks failed - RestClientException at " + url + " retrying .. ");
 
                 } catch (final Exception e) {
-                    LOG.error("fetchBlocks failed at " + url + " retrying because ", e.getMessage());
+                    LOG.error("fetchAndSaveBlocks failed at " + url + " retrying because ", e.getMessage());
                 }
             }
         } catch (final Exception e) {
-            LOG.error("fetchBlocks failed at " + url + " stopping .. ", e);
+            LOG.error("fetchAndSaveBlocks failed at " + url + " stopping .. ", e);
 
         }
 
         return body;
     }
 
-
+    @Override
     public boolean bulkLoadOn() {
         return bulkLoadOn.get();
     }
@@ -189,7 +197,7 @@ public class BlockLoader implements BlockLocalValid {
     @Async
     public void startBulkLoad() {
 
-        if(bulkLoadOn.compareAndExchange(false,true)){
+        if (bulkLoadOn.compareAndExchange(false, true)) {
             resetBlockinDB();
             queueBulkQueries();
         }
@@ -243,7 +251,7 @@ public class BlockLoader implements BlockLocalValid {
 
                 } catch (Exception e) {
                     LOG.warn("Exception accessing node " + url + " " + e.getMessage());
-                    peerService.reportError(EndPointType.BMAS,host.get());
+                    peerService.reportError(EndPointType.BMAS, host.get());
                 }
             } else {
                 LOG.error("Please, connect to the internet and provide BMA configuredNodes ");
@@ -257,11 +265,12 @@ public class BlockLoader implements BlockLocalValid {
      * uses /blockchain/blocks/[count]/[from]
      *
      * @param bulkSize :
-     * @param from block number to start from (included);
+     * @param from     block number to start from (included);
      * @return .
      */
+    @Override
     @Transactional
-    List<DBBlock> fetchBlocks(int bulkSize, int from) {
+    public List<DBBlock> fetchAndSaveBlocks(@Max(500) int bulkSize, int from) {
         List<DBBlock> body = null;
         final var blacklistHosts = new ArrayList<String>();
         String url = null;
@@ -295,15 +304,15 @@ public class BlockLoader implements BlockLocalValid {
                 return body;
 
             } catch (final RestClientException e) {
-                LOG.error("fetchBlocks failed - RestClientException at " + url + " retrying .. ");
+                LOG.error("fetchAndSaveBlocks failed - RestClientException at " + url + " retrying .. ");
 
             } catch (final Exception e) {
-                LOG.error("fetchBlocks failed at " + url + " retrying .. ");
+                LOG.error("fetchAndSaveBlocks failed at " + url + " retrying .. ");
 
             }
         }
 
-        LOG.error("fetchBlocks failed - Returning empty  ");
+        LOG.error("fetchAndSaveBlocks failed - Returning empty  ");
 
         return new ArrayList<>();
     }
@@ -312,25 +321,119 @@ public class BlockLoader implements BlockLocalValid {
     @Transactional
     @Modifying
     private void resetBlockinDB() {
-        LOG.info(" === Reseting DB " + blockService.count());
 
-        blockService.deleteAll();
         blockService.truncate();
-        blockService.findAll().forEach(b -> {
-            blockService.delete(b);
-            //LOG.info("deleted " + b.getNumber());
-            applicationEventPublisher.publishEvent(new DecrementCurrent());
-        });
-
-        LOG.info(" === Reseting DB - DONE ");
-
     }
 
     public void queue(String s) {
         try {
             blockingQueue.put(s);
         } catch (InterruptedException e) {
-            LOG.error("Interrupted while queuing ",e);
+            LOG.error("Interrupted while queuing ", e);
+        }
+    }
+
+
+    // ============== MISSING BLOCK LOADER ==============
+
+    /**
+     * @return the block between the current index and the highest block number ever heard of
+     */
+    private List<Integer> missingBlockNumbers() {
+
+        final var topPeer = Math.max(peerService.topBlock(), blockService.currentBlockNumber());
+        final var topIndex = index.head().map(BINDEX::getNumber).orElse(0);
+
+        if (topPeer > topIndex) {
+            final var knownBlockInRange = blockService.blockNumbers("g1", topIndex, topPeer);
+
+            return IntStream
+                    .range(topIndex, topPeer)
+                    .boxed()
+                    .filter(i -> !knownBlockInRange.contains(i))
+                    .collect(Collectors.toList());
+
+        } else {
+            return new ArrayList<>();
+        }
+
+    }
+
+
+    @Async
+    public void checkMissingBlocksAsync() {
+
+        if (bulkLoadOn()) {
+            return;
+        }
+
+        LOG.info("checkMissingBlocksAsync ");
+        final var start = System.nanoTime();
+
+
+        final var missing = missingBlockNumbers();
+        LOG.info("found MissingBlocks : " + missing.size() + " blocks  " + (missing.size() > 20 ? "" : missing));
+
+
+        Map<Integer, Integer> map = new HashMap<>();
+        int prev = -1;
+        int bulkStart = -1;
+        int cntI = 0;
+
+        for (Integer miss : missing) {
+
+            if (bulkStart == -1) {
+                bulkStart = miss;
+                cntI++;
+            } else if (cntI >= 50 || missing.indexOf(miss) == missing.size() - 1) {
+                map.put(bulkStart, cntI);
+                bulkStart = miss;
+                cntI = 0;
+            } else if (miss != prev + 1) {
+                map.put(prev, Math.max(cntI, 1));
+                bulkStart = miss;
+                cntI = 1;
+
+            } else {
+                cntI++;
+            }
+            prev = miss;
+
+        }
+
+        map.forEach((key, value) -> queue("blockchain/blocks/" + value + "/" + key));
+
+//		missing.forEach(n -> {
+//defaultLoader.fetchAndSaveBlocks(entry.getValue(), entry.getKey())
+//                            .forEach(b -> blockService//
+//                                    .safeSave(b) //
+//                                    .ifPresent(bl -> LOG.debug("saved missing node " + bl))
+//			if(!blackList.contains(n)){
+//				LOG.info("  - doFetch for : " + n);
+//				defaultLoader.fetchAndSaveBlock(n);
+//			}
+//
+//		});
+
+        var elapsed = Long.divideUnsigned(System.nanoTime() - start, 1000000);
+        LOG.info("Elapsed time: " + TimeUtils.format(elapsed));
+    }
+
+
+    @Override
+    public void onApplicationEvent(CoreEvent event) {
+        if (event instanceof MaxPeerBlock) {
+
+            checkMissingBlocksAsync();
+//            var maxBlockDB = blockService.currentOrTop().getNumber();
+//            var maxBlockPeer = ((MaxPeerBlock) event).getWhat();
+//
+//            if (maxBlockDB  < maxBlockPeer) {
+//                var batch = (int) Math.min(maxBlockPeer - maxBlockDB, bulkSize);
+//                var from = (maxBlockDB  + 1);
+//                LOG.info("Found a peering card with higher block number ... queue fetching requests " + batch + " " + from);
+//                queue("blockchain/blocks/" + batch + "/" + (maxBlockDB + 1));
+//            }
         }
     }
 }

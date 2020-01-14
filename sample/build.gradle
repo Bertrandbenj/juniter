@@ -1,0 +1,67 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+        maven { url "https://plugins.gradle.org/m2/" }
+        maven { url 'http://repo.spring.io/plugins-release' }
+        jcenter()
+    }
+    dependencies {
+        //classpath("org.springframework.boot:spring-boot-gradle-plugin:2.0.2.RELEASE")
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:2.0.2.RELEASE")
+        // classpath("io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE")
+
+        //classpath 'me.champeau.gradle:antlr4-gradle-plugin:0.1'
+        classpath 'org.hidetake:gradle-ssh-plugin:2.9.0'
+        //classpath 'org.openjfx:javafx-plugin:0.0.7'
+    }
+
+}
+
+apply plugin: 'java'
+apply plugin: 'org.hidetake.ssh'
+apply plugin: 'org.springframework.boot'
+
+springBoot {
+    mainClassName = 'test.Test'
+}
+
+tasks.withType(JavaCompile) {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+
+bootJar {
+    mainClassName = 'test.Test'
+    enabled = true
+    baseName = "${project.name}"
+    version = "${project.version}-boot"
+
+    manifest.attributes(
+            'Multi-Release': 'true'
+    )
+
+//    doLast {
+//        filepermission.execute()
+//    }s
+
+}
+
+ dependencies{
+
+     compile 'org.duniter:juniter:1.0.0-SNAPSHOT'
+     compileOnly 'org.projectlombok:lombok:1.18.4'
+     annotationProcessor 'org.projectlombok:lombok:1.18.4'
+
+ }
+
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    maven { url "https://plugins.gradle.org/m2/" }
+    maven { url 'http://repo.spring.io/plugins-release' }
+    jcenter()
+    maven { url "https://maven.pkg.github.com/BertrandBenj/Juniter" }
+}

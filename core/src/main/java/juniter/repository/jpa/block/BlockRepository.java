@@ -24,52 +24,53 @@ public interface BlockRepository extends JpaRepository<DBBlock, Long> {
     Logger LOG = LogManager.getLogger(BlockRepository.class);
 
 
-    //@Cacheable(value = "blocks")//, unless="#getSize()<1")
-    @Query("SELECT b from DBBlock b WHERE number = ?1")
-    Optional<DBBlock> block(Integer number);
+    @Query("SELECT b FROM DBBlock b, BINDEX i  WHERE b.currency = ?1 AND b.hash = i.hash  AND i.number = ( SELECT  max(number)  FROM BINDEX p WHERE currency = ?1 )")
+    DBBlock currentChained(String currency);
 
 
-    @Query("SELECT b from DBBlock b WHERE number = ?1")
-    List<DBBlock> block_(Integer number);
+    @Query("SELECT b FROM DBBlock b, BINDEX i  WHERE b.currency = ?1 AND b.hash = i.hash AND b.number = i.number AND i.number = ?2")
+    DBBlock currentChained(String currency, Integer number);
+
+    @Query("FROM DBBlock b WHERE currency = ?1 AND number = ?2")
+    List<DBBlock> block_(String currency, Integer number);
 
 
     //@Cacheable(value = "blocks", key = "#number" )
-    @Query("SELECT b FROM DBBlock b WHERE number = ?1 AND hash = ?2 ")
-    DBBlock block(Integer number, String hash);
+    @Query("FROM DBBlock b WHERE currency = ?1 AND number = ?2 AND hash = ?3 ")
+    DBBlock block(String ccy, Integer number, String hash);
 
+    default DBBlock block(Integer number, String hash){
+        return block("g1", number, hash);
+    }
 
     @Transactional
     @Modifying
     @Query("DELETE FROM DBBlock b ")
     void truncate();
 
-
-    @Query("SELECT number FROM DBBlock")
-    List<Integer> blockNumbers();
-
-
-    @Query("SELECT number FROM DBBlock WHERE number NOT IN :notIn")
-    List<Integer> blockNumbers(List<Integer> notIn);
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM DBBlock b WHERE currency = ?1 AND number = ?2")
+    void deleteAt(String ccy, Integer num);
 
 
-
-    @Override
-    long count();
+    @Query("SELECT number FROM DBBlock WHERE currency = ?1 AND number >= ?2 AND number <= ?3")
+    List<Integer> blockNumbers(String currency, int rangeStart, int rangeEnd);
 
 
     Stream<DBBlock> findByNumberIn(List<Integer> number);
 
 
-    Stream<DBBlock> findTop10ByOrderByNumberDesc();
+    Stream<DBBlock> findTop100ByOrderByNumberDesc();
 
     // TODO clean this up
     Optional<DBBlock> findTop1ByNumber(Integer number);
 
     @Query("FROM DBBlock b WHERE b.currency = :ccy AND b.number = :number")
-    DBBlock current(String ccy, Integer number);
+    DBBlock block(String ccy, Integer number);
 
     /**
-     * Alias for currentStrict()
+     * Alias for currentChained()
      *
      * @return Optional<DBBlock>
      */

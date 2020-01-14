@@ -2,7 +2,9 @@ package juniter.service.web;
 
 
 import juniter.avro.*;
+import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dbo.index.CertRecord;
+import juniter.service.core.BlockService;
 import juniter.service.core.Index;
 import juniter.service.core.WebOfTrust;
 import org.apache.avro.Schema;
@@ -43,8 +45,8 @@ public class AvroService {
     @Value("${juniter.dataPath:${user.home}/.config/juniter/data/}")
     private String dataPath;
     private String AVRO_DATA;
-    private File AVRO_SCHEMAS = new File("src/main/avro/");
-    private Path AVRO_FILES  ;
+    private File AVRO_SCHEMAS =   new File(getClass().getResource("src/main/avro/").getFile());
+    private Path AVRO_FILES;
 
 
     @Autowired
@@ -54,19 +56,22 @@ public class AvroService {
     private Index index;
 
     @Autowired
+    private BlockService blockService;
+
+    @Autowired
     private ModelMapper modelMapper;
 
-    private Schema SCHEMAB = null, SCHEMAC = null, SCHEMAI = null, SCHEMAM = null, SCHEMAS = null;
+    private Schema SCHEMAB = null, SCHEMAC = null, SCHEMAI = null, SCHEMAM = null, SCHEMAS = null, SCHEMABLOCKS = null;
 
 
     private void dumpB() {
         var t = new Thread(() -> {
-            try (Stream<BINDEX> streamB = index.getBRepo().allAsc().stream().map(b -> modelMapper.map(b, BINDEX.class))) {
+            try (Stream<ArchiveBINDEX> streamB = index.getBRepo().allAsc().stream().map(b -> modelMapper.map(b, ArchiveBINDEX.class))) {
                 //dump(new File(AVRO_DATA, "bDump.avro"), SCHEMAB, streamB, BINDEX.class);
-                var bout = new DataFileWriter<>(new GenericDatumWriter<BINDEX>())
+                var bout = new DataFileWriter<>(new GenericDatumWriter<ArchiveBINDEX>())
                         .setCodec(CodecFactory.deflateCodec(9))
                         .create(SCHEMAB, AVRO_FILES.resolve("bDump.avro").toFile());
-                streamB.map(s -> modelMapper.map(s, BINDEX.class))
+                streamB.map(s -> modelMapper.map(s, ArchiveBINDEX.class))
                         .forEach(index -> {
                             try {
                                 bout.append(index);
@@ -86,9 +91,9 @@ public class AvroService {
 
     private void dumpI() {
         new Thread(() -> {
-            try (Stream<juniter.avro.IINDEX> streamI = index.getIRepo().all().stream().map(s -> modelMapper.map(s, IINDEX.class))) {
+            try (Stream<ArchiveIINDEX> streamI = index.getIRepo().all().stream().map(s -> modelMapper.map(s, ArchiveIINDEX.class))) {
                 //dump(new File(AVRO_DATA, "iDump.avro"), SCHEMAI, streamI, IINDEX.class);
-                var bout = new DataFileWriter<>(new GenericDatumWriter<IINDEX>())
+                var bout = new DataFileWriter<>(new GenericDatumWriter<ArchiveIINDEX>())
                         .setCodec(CodecFactory.deflateCodec(9))
                         .create(SCHEMAI, new File(AVRO_DATA, "iDump.avro"));
 
@@ -111,9 +116,9 @@ public class AvroService {
     @Transactional(readOnly = true)
     private void dumpM() {
         new Thread(() -> {
-            try (Stream<MINDEX> streamM = index.getMRepo().all().stream().map(s -> modelMapper.map(s, MINDEX.class))) {
+            try (Stream<ArchiveMINDEX> streamM = index.getMRepo().all().stream().map(s -> modelMapper.map(s, ArchiveMINDEX.class))) {
                 //dump(new File(AVRO_DATA, "iDump.avro"), SCHEMAI, streamI, IINDEX.class);
-                var bout = new DataFileWriter<>(new GenericDatumWriter<MINDEX>())
+                var bout = new DataFileWriter<>(new GenericDatumWriter<ArchiveMINDEX>())
                         .setCodec(CodecFactory.deflateCodec(9))
                         .create(SCHEMAM, new File(AVRO_DATA, "mDump.avro"));
 
@@ -137,9 +142,9 @@ public class AvroService {
     @Transactional(readOnly = true)
     private void dumpC() {
         new Thread(() -> {
-            try (Stream<CINDEX> streamM = index.getCRepo().all().stream().map(s -> modelMapper.map(s, CINDEX.class))) {
+            try (Stream<ArchiveCINDEX> streamM = index.getCRepo().all().stream().map(s -> modelMapper.map(s, ArchiveCINDEX.class))) {
 
-                var bout = new DataFileWriter<>(new GenericDatumWriter<CINDEX>())
+                var bout = new DataFileWriter<>(new GenericDatumWriter<ArchiveCINDEX>())
                         .setCodec(CodecFactory.deflateCodec(9))
                         .create(SCHEMAC, new File(AVRO_DATA, "cDump.avro"));
 
@@ -162,30 +167,30 @@ public class AvroService {
     @Async
     @Transactional(readOnly = true)
     private void dumpS() {
-            try (Stream<juniter.core.model.dbo.index.SINDEX> streamM = index.getSRepo().all()) {
+        try (Stream<juniter.core.model.dbo.index.SINDEX> streamM = index.getSRepo().all()) {
 
-                var bout = new DataFileWriter<>(new GenericDatumWriter<SINDEX>())
-                        .setCodec(CodecFactory.deflateCodec(9))
-                        .create(SCHEMAS, new File(AVRO_DATA, "sDump.avro"));
+            var bout = new DataFileWriter<>(new GenericDatumWriter<ArchiveSINDEX>())
+                    .setCodec(CodecFactory.deflateCodec(9))
+                    .create(SCHEMAS, new File(AVRO_DATA, "sDump.avro"));
 
-                streamM.map(s -> modelMapper.map(s, SINDEX.class))
-                        .forEach(index -> {
-                            try {
-                                bout.append(index);
-                            } catch (IOException e) {
-                                LOG.error("error IO ", e);
-                            }
-                        });
-                bout.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            streamM.map(s -> modelMapper.map(s, ArchiveSINDEX.class))
+                    .forEach(index -> {
+                        try {
+                            bout.append(index);
+                        } catch (IOException e) {
+                            LOG.error("error IO ", e);
+                        }
+                    });
+            bout.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @CrossOrigin(origins = "*")
     @Transactional(readOnly = true)
     @GetMapping(value = "/dumpIndex")
-    public List<?> dumpIndex(Object object) {
+    public List<?> dumpIndex() {
         LOG.info("Entering dumpIndex");
         dumpB();
         dumpI();
@@ -197,12 +202,39 @@ public class AvroService {
         return List.of(SCHEMAB, SCHEMAC, SCHEMAI, SCHEMAM, SCHEMAS);
     }
 
+    @CrossOrigin(origins = "*")
+    @Transactional(readOnly = true)
+    @GetMapping(value = "/dumpBlocks")
+    public List<?> dumpBlocks() {
+        LOG.info("Entering dumpBlocks");
+        try (Stream<DBBlock> streamM = blockService.streamBlocksFromTo(1, 100)) {
+
+            var bout = new DataFileWriter<>(new GenericDatumWriter<ArchiveBlock>())
+                    .setCodec(CodecFactory.deflateCodec(9))
+                    .create(SCHEMABLOCKS, new File(AVRO_DATA, "chainDump.avro"));
+
+            streamM.map(s -> modelMapper.map(s, ArchiveBlock.class))
+                    .forEach(index -> {
+                        try {
+                            bout.append(index);
+                        } catch (IOException e) {
+                            LOG.error("error IO ", e);
+                        }
+                    });
+            bout.close();
+        } catch (IOException e) {
+            LOG.error("dumping blocks", e);
+        }
+
+        return List.of(SCHEMAB, SCHEMAC, SCHEMAI, SCHEMAM, SCHEMAS);
+    }
+
 
     @PostConstruct
     public void buildSchemas() {
 
         AVRO_DATA = dataPath + "avro/";
-        AVRO_SCHEMAS = new File(AVRO_DATA, "schema/");
+       // AVRO_SCHEMAS = new File(AVRO_DATA, "schema/");
         AVRO_FILES = Paths.get(AVRO_DATA);
         try {
             SCHEMAB = new Schema.Parser().parse(new File(AVRO_SCHEMAS, "bindex.avsc"));
@@ -210,6 +242,7 @@ public class AvroService {
             SCHEMAI = new Schema.Parser().parse(new File(AVRO_SCHEMAS, "iindex.avsc"));
             SCHEMAM = new Schema.Parser().parse(new File(AVRO_SCHEMAS, "mindex.avsc"));
             SCHEMAS = new Schema.Parser().parse(new File(AVRO_SCHEMAS, "sindex.avsc"));
+            SCHEMABLOCKS = new Schema.Parser().parse(new File(AVRO_SCHEMAS, "blocks.avsc"));
         } catch (IOException e) {
             LOG.error("postConstruct Avro ", e);
         }
@@ -222,10 +255,10 @@ public class AvroService {
         GenericDatumWriter gdw = new GenericDatumWriter<>();
         switch (clazz.getSimpleName()) {
             case "BINDEX":
-                var bout = new DataFileWriter<>(new GenericDatumWriter<BINDEX>())
+                var bout = new DataFileWriter<>(new GenericDatumWriter<ArchiveBINDEX>())
                         .setCodec(CodecFactory.deflateCodec(9))
                         .create(schema, file);
-                data.map(s -> modelMapper.map(s, BINDEX.class))
+                data.map(s -> modelMapper.map(s, ArchiveBINDEX.class))
                         .forEach(index -> {
                             try {
                                 bout.append(index);
@@ -236,10 +269,10 @@ public class AvroService {
                 bout.close();
                 break;
             case "CINDEX":
-                var cout = new DataFileWriter<>(new GenericDatumWriter<CINDEX>())
+                var cout = new DataFileWriter<>(new GenericDatumWriter<ArchiveCINDEX>())
                         .setCodec(CodecFactory.deflateCodec(9))
                         .create(schema, file);
-                data.map(s -> modelMapper.map(s, CINDEX.class))
+                data.map(s -> modelMapper.map(s, ArchiveCINDEX.class))
                         .forEach(index -> {
                             try {
                                 cout.append(index);
@@ -250,10 +283,10 @@ public class AvroService {
                 cout.close();
                 break;
             case "IINDEX":
-                var iout = new DataFileWriter<>(new GenericDatumWriter<MINDEX>())
+                var iout = new DataFileWriter<>(new GenericDatumWriter<ArchiveMINDEX>())
                         .setCodec(CodecFactory.deflateCodec(9))
                         .create(schema, file);
-                data.map(s -> modelMapper.map(s, MINDEX.class))
+                data.map(s -> modelMapper.map(s, ArchiveMINDEX.class))
                         .forEach(index -> {
                             try {
                                 iout.append(index);
@@ -264,10 +297,10 @@ public class AvroService {
                 iout.close();
                 break;
             case "MINDEX":
-                var mout = new DataFileWriter<>(new GenericDatumWriter<MINDEX>())
+                var mout = new DataFileWriter<>(new GenericDatumWriter<ArchiveMINDEX>())
                         .setCodec(CodecFactory.deflateCodec(9))
                         .create(schema, file);
-                data.map(s -> modelMapper.map(s, MINDEX.class))
+                data.map(s -> modelMapper.map(s, ArchiveMINDEX.class))
                         .forEach(index -> {
                             try {
                                 mout.append(index);
@@ -278,10 +311,10 @@ public class AvroService {
                 mout.close();
                 break;
             case "SINDEX":
-                var sout = new DataFileWriter<>(new GenericDatumWriter<SINDEX>())
+                var sout = new DataFileWriter<>(new GenericDatumWriter<ArchiveSINDEX>())
                         .setCodec(CodecFactory.deflateCodec(9))
                         .create(schema, file);
-                data.map(s -> modelMapper.map(s, SINDEX.class))
+                data.map(s -> modelMapper.map(s, ArchiveSINDEX.class))
                         .forEach(index -> {
                             try {
                                 sout.append(index);

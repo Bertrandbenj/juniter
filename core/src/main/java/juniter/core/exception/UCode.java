@@ -34,7 +34,7 @@ public class UCode {
     public static UCode NO_MATCHING_IDENTITY = new UCode(2001, "No matching identity");
     public static UCode SELF_PEER_NOT_FOUND = new UCode(2005, "Self peering was not found");
     public static UCode NOT_A_MEMBER = new UCode(2009, "Not a member");
-    public static UCode NO_CURRENT_BLOCK = new UCode(2010, "No currentStrict node");
+    public static UCode NO_CURRENT_BLOCK = new UCode(2010, "No currentChained node");
     public static UCode PEER_NOT_FOUND = new UCode(2012, "Peer not found");
     public static UCode NO_IDTY_MATCHING_PUB_OR_UID = new UCode(2021, "No identity matching this pubkey or userid");
     public static UCode TX_NOT_FOUND = new UCode(2034, "Transaction not found");

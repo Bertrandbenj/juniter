@@ -1,0 +1,25 @@
+package test;
+
+import juniter.core.model.dbo.tx.Transaction;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class Test {
+    private static final Logger LOG = LogManager.getLogger(Test.class);
+
+    public void main(String... args) {
+
+
+        var tx = new Transaction();
+        tx.setHash("XXXXX");
+        System.out.println(tx);
+
+        var context = SpringApplication.run(Test.class, args);
+
+        LOG.info("!!! test app !!!" + context);
+    }
+
+}
