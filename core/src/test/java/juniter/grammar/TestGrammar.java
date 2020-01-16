@@ -1,8 +1,7 @@
 package juniter.grammar;
 
-import antlr.generated.JuniterLexer;
-import antlr.generated.JuniterParser;
-import antlr.generated.JuniterParser.WotContext;
+import generated.antlr.JuniterLexer;
+import generated.antlr.JuniterParser;
 import juniter.core.crypto.Crypto;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.misc.Interval;
@@ -29,7 +28,7 @@ public class TestGrammar implements BlockExamples {
     private Path documents = new File(classLoader.getResource("documents/").getFile()).toPath();
 
 
-    private String getRaw(WotContext idtc) {
+    private String getRaw(JuniterParser.WotContext idtc) {
         final CharStream cs = idtc.start.getTokenSource().getInputStream();
         final var idtyIdx = idtc.signature().start.getStartIndex() - 1;
 
@@ -44,7 +43,7 @@ public class TestGrammar implements BlockExamples {
             @Override
             public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line,
                                     int charPositionInLine, String msg, RecognitionException e) {
-                throw new IllegalStateException("failed to parse at line " + line + " due to " + msg, e);
+                throw new IllegalStateException("failed to parse at line " + line + " char " + charPositionInLine + " due to " + msg, e);
             }
         });
 

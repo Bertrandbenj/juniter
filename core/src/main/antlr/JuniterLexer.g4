@@ -283,17 +283,14 @@ CPT_COMM:   (BASE64+ |  (BASE64 | '_' | ' ' )+) ;
 
 
 mode ENDPT_MULTILN;
+  PORT:				BASE10+  ;
+
   IP4:				INT256 '.' INT256 '.' INT256 '.' INT256 ; 
-  IP6:				OCT ':' OCT ':' OCT ':' OCT ':' OCT ':' OCT ':' OCT; 
+  IP6:				OCT ':' OCT ':' OCT ':' OCT ':' OCT ':' OCT ':' OCT;
   OCT:				BASE16LC BASE16LC BASE16LC BASE16LC;
   SESSID:           OCT OCT;
   DNS: 				[a-z0-9]+ ('.' [a-z-]+)+;
-  FIELD_SEP:		' ';
-  PORT:				BASE10+  ;  // FIXME: seprator shouldnt be here
-  //PORT_NUMBER:		BASE10+;
-  // WS2P:             'WS2P';
-  //BMAS:             'BMAS';
-  //BMA:              'BASIC_MERKLED_API';
-  ENDPOINT_TYPE:	'OTHER_PROTOCOL' | 'BASIC_MERKLED_API' | [2A-Z_]+ ;
+  FIELD_SEP:		WS;
+  ENDPOINT_TYPE:	'OTHER_PROTOCOL' | 'BASIC_MERKLED_API' | [0-9A-Z_]+ ;
   ENDPT_SEP:		NL;
 //EOENDPT:			Inputs_					{System.out.println("POP ISSU_MULTILN");} -> skip, popMode, pushMode(INPT_MULTILN) ;
