@@ -49,7 +49,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-@ConditionalOnExpression("${juniter.loader.useDefault:true}") // Must be up for dependencies
+@ConditionalOnExpression("${juniter.useWS2P:true}") // Must be up for dependencies
 @Service
 @Order(10)
 public class PeerService implements ApplicationListener<CoreEvent> {

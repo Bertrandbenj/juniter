@@ -1,7 +1,7 @@
 package juniter.grammar.translate;
 
-import antlr.generated.JuniterParser.CertificationContext;
-import antlr.generated.JuniterParserBaseVisitor;
+import generated.antlr.JuniterParser;
+import generated.antlr.JuniterParserBaseVisitor;
 import juniter.grammar.Document;
 
 public class Translator extends JuniterParserBaseVisitor<Document> {
@@ -19,7 +19,7 @@ public class Translator extends JuniterParserBaseVisitor<Document> {
 
 
 	@Override
-	public Document visitCertification(CertificationContext ctx) {
+	public Document visitCertification(JuniterParser.CertificationContext ctx) {
 
 		return super.visitCertification(ctx);
 	}

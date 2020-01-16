@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  * @author ben
  */
 @RestController
-@ConditionalOnExpression("${juniter.useBMA:false}")
+@ConditionalOnExpression("${juniter.useBMA:true}")
 @RequestMapping("/ud")
 public class UDService {
 

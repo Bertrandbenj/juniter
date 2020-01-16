@@ -6,7 +6,7 @@ options {
 }
 
 @header { 
-package antlr.generated;
+package generated.antlr;
 //import juniter.crypto.CryptoUtils;
 import java.lang.Integer;
 }
@@ -95,19 +95,19 @@ block_
 	membersCount
 	{System.out.println("    membersCount: "+$membersCount.text );}
 
-	Identities_ identities
+ 	identities
 
-	Joiners_ joiners
+	joiners
 
-	Actives_ renewed
+	renewed
 
-	Leavers_ leavers
+	 leavers
 
-    Revoked_ revoked
+     revoked
 
-	Excluded_ excluded
+	 excluded
 
-	Certifications_ certifications
+	 certifications
 
 	cpt_transactions
 
@@ -138,7 +138,7 @@ locals [int i=0]
 	{
 			nbIssu=0;
 			System.out.println("      "+ $i++ +": ");
-		}
+	 }
 //COMPACT_TRANSACTION
 		compactTransaction
 	)*
@@ -238,7 +238,6 @@ issuers
 	(
 		pubkey
 		{System.out.println("      "+ nbIssu++ +": "+ $pubkey.text);}
-
 	)+
 ;
 
@@ -258,7 +257,7 @@ locals [int i=0]
 :
 	{System.out.println("    certifications: ");}
 
-
+    // Certifications_
 	(
 		{System.out.println("      "+ $i++ +": ");}
 
@@ -282,11 +281,10 @@ locals [int i=0]
 :
 	{System.out.println("    excluded: ");}
 
-
+    //  Excluded_
 	(
 		pubkey
 		{System.out.println("      "+ $i++ +".pubkey: "+$pubkey.text);}
-
 	)*
 ;
 
@@ -295,7 +293,7 @@ locals [int i=0]
 :
 	{System.out.println("    revoked: ");}
 
-
+    // Revoked_
 	(
 		pubkey signature
 	)*
@@ -306,7 +304,7 @@ locals [int i=0]
 :
 	{System.out.println("    leavers: ");}
 
-
+    //Leavers_
 	(
 		pubkey signature mBlockUid iBlockUid userid
 	)*
@@ -317,7 +315,7 @@ locals [int i=0]
 :
 	{System.out.println("    renewed: ");}
 
-
+    //Actives_
 	(
 		pubkey signature mBlockUid iBlockUid userid
 	)*
@@ -327,23 +325,21 @@ joiners
 locals [int i=0]
 :
 	{System.out.println("    joiners: ");}
-
-
+    // Joiners_
 	(
-		 cpt_joiner WOTNL
-	)+
+		 cpt_joiner
+	)*
 ;
 
 cpt_joiner:
-    pubkey WOTSEP signature  WOTSEP mBlockUid WOTSEP iBlockUid WOTSEP userid
+    pubkey   signature    mBlockUid   iBlockUid   userid
 ;
 
 identities
 locals [int i=0]
 :
 	{System.out.println("    identities: ");}
-
-
+    // Identities_
 	(
 		 cpt_idty
 	)*
@@ -351,7 +347,7 @@ locals [int i=0]
 ;
 
 cpt_idty:
-    (pubkey WOTSEP signature WOTSEP iBlockUid WOTSEP userid WOTNL)
+    testExactPK   signature   iBlockUid   userid
 ;
 
 membersCount
@@ -470,7 +466,17 @@ transaction
 	locktime
 	{System.out.println("    locktime: "+$locktime.text);}
 
-	issuers inputs unlocks outputs signatures comment
+	issuers
+
+	inputs
+
+	unlocks
+
+	outputs
+
+	signatures
+
+	comment
 	{System.out.println("    comment: "+$comment.text);}
 
 ;
@@ -950,6 +956,10 @@ userid
 :   USERID | WOTUID
 ;
 
+multipubkey:
+EXACTPUBKEY POPONE
+;
+
 pubkey
 :
 	pk = PUBKEY_INLINED
@@ -957,7 +967,10 @@ pubkey
 	| OUTPUBK
 	| WOTPUBK
 	| CPT_ISS
+	| EXACTPUBKEY
 ;
+
+testExactPK: EXACTPUBKEY ;
 
 currency
 :

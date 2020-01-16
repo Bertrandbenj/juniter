@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
-@ConditionalOnExpression("${juniter.useIPFS:true}")
+@ConditionalOnExpression("${juniter.useIPFS:false}")
 public class Interplanetary {
     private static final Logger LOG = LogManager.getLogger(Interplanetary.class);
 

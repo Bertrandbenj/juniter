@@ -71,7 +71,7 @@ import static java.util.stream.Collectors.toList;
  * @author ben
  */
 @RestController
-@ConditionalOnExpression("${juniter.useBMA:false}")
+@ConditionalOnExpression("${juniter.useBMA:true}")
 @RequestMapping("/blockchain")
 public class BlockchainService {
 

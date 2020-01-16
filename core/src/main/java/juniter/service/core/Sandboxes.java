@@ -1,8 +1,7 @@
 package juniter.service.core;
 
-import antlr.generated.JuniterLexer;
-import antlr.generated.JuniterParser;
-import juniter.core.model.technical.DocumentType;
+import generated.antlr.JuniterLexer;
+import generated.antlr.JuniterParser;
 import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dbo.sandbox.CertificationSandboxed;
@@ -16,6 +15,7 @@ import juniter.core.model.dbo.wot.Member;
 import juniter.core.model.dto.node.SandBoxesDTO;
 import juniter.core.model.dto.node.UnitDTO;
 import juniter.core.model.meta.DUPDocument;
+import juniter.core.model.technical.DocumentType;
 import juniter.grammar.*;
 import juniter.repository.jpa.sandbox.CertsSandboxRepository;
 import juniter.repository.jpa.sandbox.IdtySandboxRepository;

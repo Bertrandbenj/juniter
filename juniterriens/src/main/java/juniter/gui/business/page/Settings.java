@@ -220,9 +220,8 @@ public class Settings extends AbstractJuniterFX implements Initializable {
                 "validationResult " + Stream
                         .of(tstSome.getText().split(","))
                         .map(Integer::parseInt)
-                        .map(bNum -> blockService.block(bNum))
-                        .map(block -> new TestBean(block.orElseThrow()))
-
+                        .map(bNum -> blockService.blockOrFetch(bNum))
+                        .map(TestBean::new)
                         .peek(LOG::info)
                         .flatMap(block -> {
                             return validator

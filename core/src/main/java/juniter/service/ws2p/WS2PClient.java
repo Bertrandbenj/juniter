@@ -1,10 +1,10 @@
 package juniter.service.ws2p;
 
-import antlr.generated.JuniterLexer;
-import antlr.generated.JuniterParser;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import generated.antlr.JuniterLexer;
+import generated.antlr.JuniterParser;
 import juniter.core.model.dbo.net.EndPointType;
 import juniter.core.model.wso.ResponseBlock;
 import juniter.core.model.wso.ResponseBlocks;

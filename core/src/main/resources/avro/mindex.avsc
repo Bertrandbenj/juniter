@@ -1,0 +1,24 @@
+{"namespace": "juniter.avro",
+ "type": "record",
+ "name": "ArchiveMINDEX",
+ "fields": [
+
+     {"name": "id", "type": "long" },
+     {"name": "op", "type": "string" },
+     {"name": "type", "type": "string" },
+     {"name": "pub", "type":  "string"  },
+     {"name": "signed", "type": ["string", "null"] },
+     {"name": "written", "type":  "string"  },
+     {"name": "expires_on", "type": ["long", "null"] },
+     {"name": "expired_on", "type": ["long", "null"] },
+     {"name": "revokes_on", "type": ["long", "null"] },
+     {"name": "revoked", "type": ["string", "null"] },
+     {"name": "leaving", "type": ["boolean", "null"] },
+     {"name": "revocation", "type": ["string", "null"] },
+     {"name": "chainable_on", "type": ["long", "null"] },
+     {"name": "renewal", "type": ["long", "null"] },
+     {"name": "expiry", "type": ["long", "null"] }
+
+
+ ]
+}

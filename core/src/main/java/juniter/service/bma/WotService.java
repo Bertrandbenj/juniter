@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@ConditionalOnExpression("${juniter.useBMA:false}")
+@ConditionalOnExpression("${juniter.useBMA:true}")
 @RequestMapping("/wot")
 public class WotService {
     private static final Logger LOG = LogManager.getLogger(WotService.class);

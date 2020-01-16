@@ -306,6 +306,14 @@
                         <ProgressBar fx:id="indexBar" maxWidth="1.7976931348623157E308" progress="0.0" HBox.hgrow="ALWAYS" />
                         <Button fx:id="reverseButton" mnemonicParsing="false" onAction="#revert1" text="&lt;" />
                         <Button fx:id="pauseButton" mnemonicParsing="false" onAction="#pause" text="||" />
+                        <Button fx:id="forgeButton" mnemonicParsing="false" onAction="#forge">
+                     <graphic>
+                        <ImageView fx:id="forgeImage" fitHeight="30.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../images/forge.gif" />
+                           </image>
+                        </ImageView>
+                     </graphic></Button>
                         <Button fx:id="index1Button" mnemonicParsing="false" onAction="#index1" text="&gt;" />
                         <Button fx:id="indexUntilButton" mnemonicParsing="false" onAction="#indexUntil" text="&gt;&gt;" />
                         <TextField fx:id="indexTil" prefHeight="25.0" prefWidth="143.0" promptText="until">

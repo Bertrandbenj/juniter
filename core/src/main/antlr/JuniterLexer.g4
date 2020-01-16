@@ -4,7 +4,7 @@ options {
 	language = Java;
 }
 @header { 
-package antlr.generated;
+package generated.antlr;
 
 } 
 
@@ -32,8 +32,13 @@ TXHASH:				BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16
 					BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 
 					BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 
 					BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 
-					BASE16 BASE16 BASE16 BASE16   ;	// 64   
+					BASE16 BASE16 BASE16 BASE16   ;	// 64
 
+EXACTPUBKEY:        BASE58 BASE58 BASE58 BASE58 BASE58 BASE58 BASE58 BASE58 BASE58 BASE58
+                    BASE58 BASE58 BASE58 BASE58 BASE58 BASE58 BASE58 BASE58 BASE58 BASE58
+                    BASE58 BASE58 BASE58 BASE58 BASE58 BASE58 BASE58 BASE58 BASE58 BASE58
+                    BASE58 BASE58 BASE58 BASE58 BASE58 BASE58 BASE58 BASE58 BASE58 BASE58
+                    BASE58 BASE58 BASE58 BASE58 ;
 
 Timestamp_: 		'Timestamp' VALUE_START 	-> skip, pushMode(SIGN_INLINED),pushMode(BUID_INLINED) ;
 UniqueID_:   		'UniqueID' VALUE_START 		-> skip, pushMode(USER_INLINED) ; 
@@ -80,13 +85,13 @@ Nonce_: 			'Nonce' VALUE_START				-> skip, pushMode(NUMB_INLINED) ;
 InnerHash_: 		'InnerHash' VALUE_START			-> skip, pushMode(BUID_INLINED) ;
 Transactions_:		'Transactions' ARRAY_START		-> skip, pushMode(BLOCK_FIELD);
 Certifications_:	'Certifications' ARRAY_START	-> skip, pushMode(WOT_MULTILN) ;
-Excluded_:			'Excluded' ARRAY_START			; //-> pushMode(ISSU_MULTILN) ;
-Revoked_:			'Revoked' ARRAY_START			 ;
-Leavers_:			'Leavers' ARRAY_START			 ;
-Actives_:			'Actives' ARRAY_START			;
-Joiners_:			'Joiners' COLON NL			;//-> pushMode(WOT_MULTILN);
-Identities_:		'Identities' COLON NL		-> pushMode(WOT_MULTILN) ;
-TX: 				'TX:' 							->pushMode(BLOCK_GRP), pushMode(COMPACT_TX),pushMode(BUID_INLINED),pushMode(BLOCK_FIELD);
+Excluded_:			'Excluded' ARRAY_START			-> skip,  pushMode(WOT_MULTILN); //-> pushMode(ISSU_MULTILN) ;
+Revoked_:			'Revoked' ARRAY_START			-> skip, pushMode(WOT_MULTILN);
+Leavers_:			'Leavers' ARRAY_START			-> skip, pushMode(WOT_MULTILN);
+Actives_:			'Actives' ARRAY_START			-> skip, pushMode(WOT_MULTILN);
+Joiners_:			'Joiners' ARRAY_START		    -> skip, pushMode(WOT_MULTILN);
+Identities_:		'Identities' ARRAY_START		-> skip, pushMode(WOT_MULTILN) ;
+TX: 				'TX:' 							-> pushMode(BLOCK_GRP), pushMode(COMPACT_TX),pushMode(BUID_INLINED),pushMode(BLOCK_FIELD);
 
 
 
@@ -123,18 +128,18 @@ POPONE:           NL            {System.out.println("POP ONE " );}  -> popMode ;
 mode WOT_MULTILN;
     WOTBUID:         ( BASE10 | ( BASE9 BASE10+ ) )	'-' BASE16+ ;
   WOTNUMB:			INT;
-  WOTPUBK:			BASE58+;
+  WOTPUBK:			EXACTPUBKEY;
   WOTSIGN:			SIGNTRE;
-  WOTSEP:			COLON 							;
-  WOTUID:			BASE64+ 				;
-  WOTNL:			NL								;
-//EOWOT:				(Joiners_
-//					| Actives_
-//					| Leavers_
-//					| Revoked_
-//					| Excluded_
-//					| Certifications_) 		 		;
-EOWOT2: 			 Transactions_	 				-> popMode,  more;
+  WOTSEP:			COLON ->skip;
+  WOTUID:			BASE64+ ;
+  WOTNL:			NL -> skip;
+EOWOT:				(Joiners_
+					| Actives_
+					| Leavers_
+					| Revoked_
+					| Excluded_
+					| Certifications_) 		 		-> popMode, more;
+EOWOT2: 			 Transactions_	 				-> popMode, more;
 
 
 
@@ -167,7 +172,7 @@ mode VERS_INLINED;
 EOVERS:				NL 						 -> skip,popMode ;
 
 mode PUBK_INLINED;
-  PUBKEY_INLINED:	BASE58+; 
+  PUBKEY_INLINED:	EXACTPUBKEY;
 EOPUBK:				NL 						 -> skip,popMode ;
 
 mode CURR_INLINED;
@@ -213,7 +218,7 @@ OUTHASH: 			BASE16+; //TXHASH;
 //OUTINT:				INT;
 OUTPUT_FIELD_SEP:	COLON -> skip;
 OUTPUT_SEP:			NL;
-OUTPUBK:			BASE58+;
+OUTPUBK:			EXACTPUBKEY;
 //OUT_AMOUT_BASE:		OUTNUMB;
 EOOUTP:				Signatures_				-> skip, popMode, pushMode(SIGN_MULTILN) ;
 
@@ -243,16 +248,16 @@ INFIELD_SEP:		COLON ;
 DIVIDEND_TYPE:		':D:';
 TRANSACTION_TYPE:	':T:';
 INPUT_SEP:			NL;
-EOINPT:				Unlocks_				 -> skip, popMode, pushMode(ULCK_MULTILN) ;
+EOINPT:				Unlocks_				 ->  skip, popMode, pushMode(ULCK_MULTILN) ;
 
     //
 
 mode ISSU_MULTILN;
-  PUBKEY_MULTILN:	BASE58+;
-  ISSUER_SEP:		NL 					    ;
+  PUBKEY_MULTILN:	EXACTPUBKEY;
+  ISSUER_SEP:		NL  -> skip ;
   //
   //  ISSUER_STOP:		ISSUER_SEP 				{System.out.println("POP ISSU_MULTILN");}-> more, popMode;
-EOISSU:				( Inputs_)		{System.out.println("POP ISSU_MULTILN");} -> skip, popMode, pushMode(INPT_MULTILN) ;
+EOISSU:				 Inputs_		{System.out.println("POP ISSU_MULTILN");} -> skip, popMode, pushMode(INPT_MULTILN) ;
 
 
 mode COMPACT_TX;

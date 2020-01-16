@@ -17,6 +17,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.HBox;
@@ -52,6 +54,7 @@ import static juniter.gui.technical.Formats.DATETIME_FORMAT;
 public class Database extends AbstractJuniterFX implements Initializable {
 
     private static final Logger LOG = LogManager.getLogger(Database.class);
+    public ImageView forgeImage;
 
 
     @Autowired
@@ -96,6 +99,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
     private Button
             index1Button,
             pauseButton,
+            forgeButton,
             indexUntilButton,
             reverseButton;
     @FXML
@@ -220,6 +224,10 @@ public class Database extends AbstractJuniterFX implements Initializable {
     private EntityManager em;
     @Autowired
     private ForkHead forkHead;
+
+    Image
+            FORGING,
+            NOT_FORGING;
 
     @FXML
     public void indexUntil() {
@@ -349,6 +357,9 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+
+        FORGING = new Image("/gui/images/forge.gif");
+        NOT_FORGING = new Image("/gui/images/notforging.gif");
         tableI.getSelectionModel().setCellSelectionEnabled(true);
         tableI.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
@@ -368,10 +379,13 @@ public class Database extends AbstractJuniterFX implements Initializable {
         pauseButton.disableProperty().bind(isIndexing.not());
 
         isForging.addListener((observable, oldValue, newValue) -> {
-            if(!newValue){
-                forkHead.isForging.lazySet( false);
+            if (!newValue) {
+                forkHead.isForging.lazySet(false);
             }
+
+            forgeImage.setImage(newValue ? FORGING : NOT_FORGING);
         });
+
 
 //        isIndexing.addListener((v, oldValue, newValue) -> {
 //            if (!newValue)
@@ -658,7 +672,6 @@ public class Database extends AbstractJuniterFX implements Initializable {
     }
 
 
-
     static <S, T> Callback<TableColumn.CellDataFeatures<S, T>, ObservableValue<T>> createArrayValueFactory(Function<S, T[]> arrayExtractor, final int index) {
         if (index < 0) {
             return cd -> null;
@@ -752,6 +765,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
                 var b = new Hyperlink(i + "");
                 b.setOnAction(ev -> page.set(finalI));
                 paging.getChildren().add(b);
+                reload();
             }
 
             var bmax = new Hyperlink(">>");
@@ -779,4 +793,9 @@ public class Database extends AbstractJuniterFX implements Initializable {
     public void pause() {
         isIndexing.setValue(false);
     }
+
+    public void forge() {
+        isForging.setValue(isForging.not().get());
+    }
+
 }

@@ -32,7 +32,7 @@ import java.util.Map;
  *
  * @author ben
  */
-@ConditionalOnExpression("${juniter.useGVA:false}")
+@ConditionalOnExpression("${juniter.useGVA:true}")
 @RestController
 public class GVARestEntryPoint  {
     private static final Logger LOG = LogManager.getLogger(GVARestEntryPoint.class);

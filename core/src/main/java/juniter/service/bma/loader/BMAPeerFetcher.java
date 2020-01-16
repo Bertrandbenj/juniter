@@ -40,7 +40,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.ArrayList;
 import java.util.Objects;
 
-@ConditionalOnExpression("${juniter.loader.useDefault:true}") // Must be up for dependencies
+@ConditionalOnExpression("${juniter.useBMA:true}") // Must be up for dependencies
 @Component
 @Order(10)
 public class BMAPeerFetcher {

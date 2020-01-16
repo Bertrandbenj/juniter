@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@ConditionalOnExpression("${juniter.useBMA:false}")
+@ConditionalOnExpression("${juniter.useBMA:true}")
 public class NodeService {
 
     @Autowired

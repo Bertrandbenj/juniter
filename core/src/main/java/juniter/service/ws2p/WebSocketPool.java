@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
  *
  * @author ben
  */
-@ConditionalOnExpression("${juniter.useWS2P:false}")
+@ConditionalOnExpression("${juniter.useWS2P:true}")
 @Service
 @Order(10)
 public class WebSocketPool {

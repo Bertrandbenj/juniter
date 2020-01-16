@@ -92,11 +92,13 @@ public class BlockService implements BlockLocalValid, ApplicationListener<NewBIN
     }
 
     public DBBlock blockOrFetch(Integer num) {
-        return block(num).orElseGet(() -> blockFetchers.parallelStream()
-                .map(bl -> bl.fetchAndSaveBlock(num))
-                .findAny()
-                .get()
-        );
+        return block(num)
+                .orElseGet(() -> blockFetchers
+                        .parallelStream()
+                        .map(bl -> bl.fetchAndSaveBlock(num))
+                        .findAny()
+                        .get()
+                );
     }
 
 

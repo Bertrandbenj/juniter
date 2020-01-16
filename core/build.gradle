@@ -74,8 +74,13 @@ jar {
 
 generateGrammarSource {
     arguments << "-visitor" << "-lib" << "src/main/antlr"
-    outputDirectory = new File(projectDir.toString() + "/src/main/generated/juniter/antlr".toString())
+    outputDirectory = new File(projectDir.toString() + "/src/main/java/generated/antlr".toString())
     maxHeapSize = "64m"
+
+    println "Generate Antlr Grammar"
+    println "Sources from  src/main/antlr"
+    println "Destination  " + outputDirectory
+    println ""
 }
 
 
@@ -87,10 +92,11 @@ task generateAvro(type: com.commercehub.gradle.plugin.avro.GenerateAvroJavaTask)
     println "Generate Avro"
     println "Sources from " + srcAvro
     println "Destination  " + destAvro
+    println ""
 
     source(srcAvro)
     outputDir = file(destAvro)
-    //compileJava.source(destAvro)
+
 
 }
 

@@ -22,6 +22,7 @@ import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -37,6 +38,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Stream;
 
+@ConditionalOnExpression("${juniter.useAvro:false}")
 @RestController
 @RequestMapping("/avro")
 public class AvroService {
@@ -45,7 +47,7 @@ public class AvroService {
     @Value("${juniter.dataPath:${user.home}/.config/juniter/data/}")
     private String dataPath;
     private String AVRO_DATA;
-    private File AVRO_SCHEMAS =   new File(getClass().getResource("src/main/avro/").getFile());
+    private File AVRO_SCHEMAS =   new File(getClass().getResource("/avro/").getFile());
     private Path AVRO_FILES;
 
 
