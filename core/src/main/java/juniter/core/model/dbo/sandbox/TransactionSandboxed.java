@@ -2,7 +2,7 @@ package juniter.core.model.dbo.sandbox;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import juniter.core.model.dbo.BStamp;
-import juniter.core.model.dbo.tx.TxInput;
+import juniter.core.model.dbo.tx.SourceInput;
 import juniter.core.model.dbo.tx.TxOutput;
 import juniter.core.model.dbo.tx.TxUnlock;
 import juniter.core.utils.Constants;
@@ -42,7 +42,7 @@ public class TransactionSandboxed implements Serializable {
     @Size(max = 42)
     private String currency;
 
-    private Integer locktime;
+    private Long locktime;
 
     @Valid
     @Size(max = 64)
@@ -62,7 +62,7 @@ public class TransactionSandboxed implements Serializable {
     @LazyCollection(LazyCollectionOption.FALSE)
     @ElementCollection
     @CollectionTable(name = "tx_input", joinColumns = @JoinColumn(name = "tx_id"))
-    private List<TxInput> inputs = new ArrayList<>();
+    private List<SourceInput> inputs = new ArrayList<>();
 
     @Valid
     @LazyCollection(LazyCollectionOption.FALSE)

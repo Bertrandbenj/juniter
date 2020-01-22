@@ -3,9 +3,9 @@ package juniter.service.ws2p;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import juniter.core.model.dbo.net.EndPointType;
 import juniter.core.model.wso.Wrapper;
-import juniter.service.core.BlockService;
-import juniter.service.core.PeerService;
-import juniter.service.core.Sandboxes;
+import juniter.service.jpa.JPABlockService;
+import juniter.service.jpa.PeerService;
+import juniter.service.jpa.Sandboxes;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -85,7 +85,7 @@ public class WebSocketPool {
     public ApplicationEventPublisher coreEventBus;
 
     @Autowired
-    public BlockService blockService;
+    public JPABlockService blockService;
 
     SSLSocketFactory factory;
 
@@ -135,7 +135,7 @@ public class WebSocketPool {
             LOG.info("Refreshing Current ");
             clients.parallelStream()
                     //.peek(c -> LOG.info("Refreshing Current " + running + " on " + c.getURI() + status()))
-                    .forEach(c -> c.send(Wrapper.buildPeerDoc(peerService.endPointPeer(blockService.currentBlockNumber()).toDUP(true))));
+                    .forEach(c -> c.send(Wrapper.buildPeerDoc(peerService.endPointPeer(blockService.currentBlockNumber()).toDUPdoc(true))));
 
         }
     }

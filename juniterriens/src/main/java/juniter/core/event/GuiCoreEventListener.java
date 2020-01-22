@@ -7,16 +7,13 @@ import juniter.core.model.dbo.index.BINDEX;
 import juniter.core.model.dbo.net.NetStats;
 import juniter.gui.business.page.Network;
 import juniter.gui.technical.ScreenController;
-import juniter.service.core.Sandboxes;
-import juniter.service.ws2p.WebSocketPool;
+import juniter.service.jpa.JPABlockService;
 import juniter.user.UserSettings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.Notifications;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -35,12 +32,18 @@ public class GuiCoreEventListener implements ApplicationListener<CoreEvent> {
     private final List<String> wallets = new UserSettings().getWallets();
 
 
+    @Autowired
+    private JPABlockService blockService;
 
     @Override
     public void onApplicationEvent(CoreEvent event) {
 
+        if(blockService.isBulkLoading())
+            return;
+
         var notifTitle = "";
         var notifText = "";
+
 
         switch (event.getName()) {
             case "NewBINDEX":

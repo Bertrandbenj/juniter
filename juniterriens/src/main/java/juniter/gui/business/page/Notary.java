@@ -10,9 +10,9 @@ import juniter.core.model.dbo.net.EndPointType;
 import juniter.core.model.dto.raw.*;
 import juniter.gui.technical.AbstractJuniterFX;
 import juniter.gui.technical.I18N;
-import juniter.service.core.BlockService;
-import juniter.service.core.PeerService;
-import juniter.service.core.Sandboxes;
+import juniter.service.jpa.JPABlockService;
+import juniter.service.jpa.PeerService;
+import juniter.service.jpa.Sandboxes;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,7 +69,7 @@ public class Notary extends AbstractJuniterFX implements Initializable {
     private RestTemplate POST;
 
     @Autowired
-    private BlockService blockService;
+    private JPABlockService blockService;
 
     @Autowired
     private PeerService peers;

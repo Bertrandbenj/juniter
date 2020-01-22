@@ -5,7 +5,6 @@ options {
 }
 @header { 
 package generated.antlr;
-
 } 
 
 fragment SIGNATURE:	BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64
@@ -16,7 +15,7 @@ fragment SIGNATURE:	BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE
 					BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64
 					BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64
 					BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64
-					BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 BASE64; // 88  
+					BASE64 BASE64 BASE64 BASE64 BASE64 BASE64 ( (BASE64 BASE64) || '=='); // 88
 //J3G9oM5AKYZNLAB5Wx499w61NuUoS57JVccTShUbGpCMjCqj9yXXqNq7dyZpDWA6BxipsiaMZhujMeBfCznzyci
 
 //HASH: 				BASE16+;
@@ -24,7 +23,9 @@ HASH:				BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16
 					BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 
 					BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 
 					BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 
-					BASE16  ;	// 41   
+					BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16
+					BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16
+					BASE16 BASE16 BASE16 BASE16   ;	// 64
 					
 TXHASH:				BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 
 					BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 BASE16 
@@ -39,6 +40,8 @@ EXACTPUBKEY:        BASE58 BASE58 BASE58 BASE58 BASE58 BASE58 BASE58 BASE58 BASE
                     BASE58 BASE58 BASE58 BASE58 BASE58 BASE58 BASE58 BASE58 BASE58 BASE58
                     BASE58 BASE58 BASE58 BASE58 BASE58 BASE58 BASE58 BASE58 BASE58 BASE58
                     BASE58 BASE58 BASE58 BASE58 ;
+
+BSTAMP :     ( BASE10 | ( BASE9 BASE10+ ) )	'-' HASH;
 
 Timestamp_: 		'Timestamp' VALUE_START 	-> skip, pushMode(SIGN_INLINED),pushMode(BUID_INLINED) ;
 UniqueID_:   		'UniqueID' VALUE_START 		-> skip, pushMode(USER_INLINED) ; 
@@ -84,13 +87,13 @@ MembersCount_: 		'MembersCount' VALUE_START		-> skip, pushMode(NUMB_INLINED) ;
 Nonce_: 			'Nonce' VALUE_START				-> skip, pushMode(NUMB_INLINED) ;
 InnerHash_: 		'InnerHash' VALUE_START			-> skip, pushMode(BUID_INLINED) ;
 Transactions_:		'Transactions' ARRAY_START		-> skip, pushMode(BLOCK_FIELD);
-Certifications_:	'Certifications' ARRAY_START	-> skip, pushMode(WOT_MULTILN) ;
-Excluded_:			'Excluded' ARRAY_START			-> skip,  pushMode(WOT_MULTILN); //-> pushMode(ISSU_MULTILN) ;
-Revoked_:			'Revoked' ARRAY_START			-> skip, pushMode(WOT_MULTILN);
-Leavers_:			'Leavers' ARRAY_START			-> skip, pushMode(WOT_MULTILN);
-Actives_:			'Actives' ARRAY_START			-> skip, pushMode(WOT_MULTILN);
-Joiners_:			'Joiners' ARRAY_START		    -> skip, pushMode(WOT_MULTILN);
-Identities_:		'Identities' ARRAY_START		-> skip, pushMode(WOT_MULTILN) ;
+Certifications_:	'Certifications' ARRAY_START	-> skip, pushMode(WOT_EXCL) ;
+Excluded_:			'Excluded' ARRAY_START			;//-> pushMode(WOT_MULTILN); //-> pushMode(ISSU_MULTILN) ;
+Revoked_:			'Revoked' ARRAY_START			;//-> pushMode(WOT_MULTILN);
+Leavers_:			'Leaver' ARRAY_START			;//-> pushMode(WOT_MULTILN);
+Actives_:			'Actives' ARRAY_START			;//-> pushMode(WOT_MULTILN);
+Joiners_:			'Joiners' ARRAY_START		    ;//-> pushMode(WOT_MULTILN);
+Identities_:		'Identities' ARRAY_START		-> skip, pushMode(WOT_IDTIES) ;
 TX: 				'TX:' 							-> pushMode(BLOCK_GRP), pushMode(COMPACT_TX),pushMode(BUID_INLINED),pushMode(BLOCK_FIELD);
 
 
@@ -119,29 +122,85 @@ fragment INT: 		BASE10 | ( BASE9 BASE10+ );
 fragment INT256: 	BASE10 | ( BASE9 BASE10 ) | ( BASE2 BASE10 BASE10 );
 
 fragment SIGNTRE:	BASE64+  '=='? ;
+
+SIGNATURETK: SIGNATURE;
+
+EODOC: NL;
 //
 mode BLOCK_GRP;
 BLG_NUM : BASE10+;
 
-POPONE:           NL            {System.out.println("POP ONE " );}  -> popMode ;
+POPONE:             NL                      -> popMode ;
 
-mode WOT_MULTILN;
-    WOTBUID:         ( BASE10 | ( BASE9 BASE10+ ) )	'-' BASE16+ ;
+mode WOT_EXCL;
+  WOTBUID:          BSTAMP ;
   WOTNUMB:			INT;
   WOTPUBK:			EXACTPUBKEY;
-  WOTSIGN:			SIGNTRE;
-  WOTSEP:			COLON ->skip;
+  WOTSIGN:			SIGNATURE ;
+  WOTSEP:			COLON                   -> skip;
   WOTUID:			BASE64+ ;
-  WOTNL:			NL -> skip;
-EOWOT:				(Joiners_
-					| Actives_
-					| Leavers_
-					| Revoked_
-					| Excluded_
-					| Certifications_) 		 		-> popMode, more;
-EOWOT2: 			 Transactions_	 				-> popMode, more;
+  WOTNL:			NL                      -> skip;
+EOWOT:              Certifications_ 	    -> skip, popMode, pushMode(WOT_CERT);
 
 
+mode WOT_CERT;
+  CERTNUMB:			    INT;
+  CERTPUBK:			    EXACTPUBKEY;
+  CERTSIGN:			    SIGNATURE ;
+  CERTSEP:			    COLON               -> skip;
+  CERTNL:			    NL                  -> skip;
+EOWOT2: 			    Transactions_	 	-> popMode, more;
+
+mode WOT_IDTIES;
+  EOIDTIES:		        Joiners_ 	        -> skip, popMode, pushMode(WOT_JOIN);
+
+  IDTIESBUID:           BSTAMP ;
+  IDTIESNUMB:		    INT;
+  IDTIESPUBK:	        EXACTPUBKEY;
+  IDTIESSIGN:		    SIGNATURE;
+  IDTIESSEP:			COLON               -> skip;
+  IDTIESUID:			BASE64+ ;
+  IDTIESNL:			    NL                  -> skip;
+
+mode WOT_JOIN;
+  EOJOIN:				 Actives_ 	        -> skip, popMode, pushMode(WOT_ACTIVE);
+
+  JOINBUID:        BSTAMP ;
+  JOINNUMB:			INT;
+  JOINPUBK:			EXACTPUBKEY;
+  JOINSIGN:			SIGNATURE;
+  JOINSEP:			COLON                   -> skip;
+  JOINUID:			BASE64+ ;
+  JOINNL:			    NL                  -> skip;
+
+mode WOT_ACTIVE;
+  EOACTIVE:				 Leavers_ 	        -> skip, popMode, pushMode(WOT_LEAVERS);
+
+  ACTIVEBUID:        BSTAMP ;
+  ACTIVENUMB:			INT;
+  ACTIVEPUBK:			EXACTPUBKEY;
+  ACTIVESIGN:			SIGNATURE;
+  ACTIVESEP:			COLON               -> skip;
+  ACTIVEUID:			BASE64+ ;
+  ACTIVENL:			    NL                  -> skip;
+
+mode WOT_LEAVERS;
+  EOLEAV:		    Revoked_ 	            -> skip, popMode, pushMode(WOT_REV);
+  LEAVBUID:         BSTAMP ;
+  LEAVPUBK:		    EXACTPUBKEY;
+  LEAVSIGN:			SIGNATURE;
+  LEAVSEP:			COLON                   -> skip;
+  LEAVUID:			BASE64+ ;
+  LEAVNL:			NL                      -> skip;
+
+mode WOT_REV;
+  EOREV:		    Excluded_ 	            -> skip, popMode, pushMode(WOT_EXCL);
+  REVBUID:          BSTAMP ;
+  REVPUBK:		    EXACTPUBKEY;
+  REVSIGN:			SIGNATURE;
+  REVSEP:			COLON                   -> skip;
+  REVUID:			BASE64+ ;
+  REVNL:			NL                      -> skip;
 
 mode BUID_INLINED;
   NUMBER : 			BASE10 | ( BASE9 BASE10+ );

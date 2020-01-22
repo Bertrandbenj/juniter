@@ -1,7 +1,7 @@
 package juniter.core.model.technical;
 
 
-import juniter.core.model.dbo.DBBlock;
+import juniter.core.model.meta.DUPBlock;
 import juniter.core.validation.meta.BlockConstraint;
 import lombok.Data;
 
@@ -11,12 +11,12 @@ import javax.validation.Valid;
 public class TestBean {
     @Valid
     @BlockConstraint
-    private DBBlock bl;
+    private DUPBlock bl;
 
     @Valid
     @BlockConstraint
-    public TestBean(@Valid @BlockConstraint DBBlock language) {
-        this.bl = language;
+    public TestBean(@Valid @BlockConstraint DUPBlock b) {
+        this.bl = b;
 
     }
 

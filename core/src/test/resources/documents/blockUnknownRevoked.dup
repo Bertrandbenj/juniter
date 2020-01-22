@@ -1,0 +1,27 @@
+Version: 10
+Type: Block
+Currency: beta_brousouf
+Number: 0
+PoWMin: 1
+Time: 1411776000
+MedianTime: 1411776000
+UnitBase: 0
+Issuer: HgTTJLAQ5sqfknMq7yLPZbehtuLSsKj9CxWN7k8QvYJd
+IssuersFrame: 100
+IssuersFrameVar: 0
+DifferentIssuersCount: 3
+Parameters: 0.007376575:3600:120:0:40:604800:31536000:1:604800:604800:0.9:31536000:3:20:960:10:0.6666666666666666:1483614905:1483614905:100
+MembersCount: 3
+Identities:
+Joiners:
+Actives:
+Leaver:
+Revoked:
+HATTJLAQ5sqfknMq7yLPZbehtuLSsKj9CxWN7k8QvYJd:iSQvl1VVc6+b1AUaBJ/VTTurGGHgaIcjASBhIlzI7M/7KVQV2Wi3oGUZUzLWqCAtGUsPcsj1HCV2/sRyxHmqAw==
+Excluded:
+HATTJLAQ5sqfknMq7yLPZbehtuLSsKj9CxWN7k8QvYJd
+Certifications:
+Transactions:
+InnerHash: DE837CA3F49C423A6A6C124819ABA31A41C1C4A4E2728B5721DF891B98FA8D0D
+Nonce: 1
+kNsKdC8eH0d4zdHh1djyMzRXjFrwk3Bc3M8wo4DV/7clE9J66K/U0FljyS79SI78ZZUPaVmrImKJ9SNiubCiBg==

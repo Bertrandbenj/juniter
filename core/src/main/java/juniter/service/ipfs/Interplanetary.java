@@ -5,11 +5,11 @@ import io.ipfs.api.IPFS;
 import io.ipfs.multiaddr.MultiAddress;
 import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dto.net.DifficultiesDTO;
-import juniter.core.model.dto.node.Block;
+import juniter.core.model.dto.Block;
 import juniter.core.model.dto.node.WithDTO;
-import juniter.service.bma.BlockchainService;
+import juniter.service.bma.BlockchainBMA;
 import juniter.service.bma.loader.BMABlockFetcher;
-import juniter.service.core.BlockService;
+import juniter.service.jpa.JPABlockService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
@@ -70,10 +70,10 @@ public class Interplanetary {
 
 
     @Autowired
-    private BlockchainService blockchainService;
+    private BlockchainBMA blockchainService;
 
     @Autowired
-    private BlockService blockService;
+    private JPABlockService blockService;
 
     @Autowired
     private BMABlockFetcher blockLoader;

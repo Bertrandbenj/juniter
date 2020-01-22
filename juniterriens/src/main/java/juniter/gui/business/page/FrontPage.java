@@ -13,13 +13,13 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import juniter.core.model.dbo.index.BINDEX;
-import juniter.core.service.BlockFetcher;
 import juniter.gui.technical.AbstractJuniterFX;
 import juniter.gui.technical.PageName;
+import juniter.repository.jpa.index.AccountsRepository;
 import juniter.service.bma.loader.BMABlockFetcher;
-import juniter.service.core.BlockService;
-import juniter.service.core.Index;
-import juniter.service.core.PeerService;
+import juniter.service.jpa.JPABlockService;
+import juniter.service.jpa.Index;
+import juniter.service.jpa.PeerService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,6 @@ import org.springframework.stereotype.Component;
 
 import java.net.URL;
 import java.util.Date;
-import java.util.List;
 import java.util.ResourceBundle;
 
 import static juniter.gui.JuniterBindings.*;
@@ -73,11 +72,13 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
     private Index index;
 
     @Autowired
-    private BlockService blockService;
+    private JPABlockService blockService;
 
     @Autowired
     private PeerService peers;
 
+    @Autowired
+    private AccountsRepository rep;
 
     public FrontPage() {
     }
@@ -102,7 +103,7 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
         notifyPreloader(new Preloader.StateChangeNotification(Preloader.StateChangeNotification.Type.BEFORE_START));
 
         if (null == blockService) {
-            throw new IllegalStateException("BlockService was not injected properly");
+            throw new IllegalStateException("JPABlockService was not injected properly");
         }
 
         var scene = screenController.getMain();
@@ -126,7 +127,7 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
+        LOG.info("Accounts " + rep.accountOf("4weakHxDBMJG9NShULG1g786eeGh7wwntMeLZBDhJFni"));
         currentBindexN.bind(Bindings.createIntegerBinding(() -> currentBindex.get().getNumber(), currentBindex));
         loadBar.progressProperty().bind(dlRatio);
 
@@ -147,7 +148,7 @@ public class FrontPage extends AbstractJuniterFX implements Initializable {
 
 
         median.textProperty().bind(Bindings.createObjectBinding(() -> {
-                     var date = new Date(currentBindex.get().getMedianTime() * 1000L);
+                    var date = new Date(currentBindex.get().getMedianTime() * 1000L);
 
                     return DATETIME_FORMAT.format(date);
                 }

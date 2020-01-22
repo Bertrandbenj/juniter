@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import juniter.core.crypto.Crypto;
 import juniter.core.model.dbo.DBBlock;
 import juniter.core.validation.BlockLocalValid;
-import juniter.service.core.Index;
+import juniter.service.jpa.Index;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Before;
@@ -139,7 +139,7 @@ public class TestOnFileBlocks implements BlockLocalValid {
 
 	@Test
 	public void test109327() {
-		final String signedPart = "InnerHash: 845302B10649E0C9916AB6957CED582917AD9D46573033DF5C482E2F4950FF6E\nNonce: 770400000049856";
+		final String signedPart = "InnerHash: 845302B10649E0C9916AB6957CED582917AD9D46573033DF5C482E2F4950FF6E\nNonce: 770400000049856\n";
 		final String sign = "77oCaC+v8fY45PjK8pMHf0u3/hsP/7I4RKvPFg8Ku1HEwwUl95531SDQmh2Q5KLaZjU7uBmS7qdiGVqYINSoAw==";
 		final String iss = "GfKERHnJTYzKhKUma5h1uWhetbA8yHKymhVH2raf2aCP";
 		assert Crypto.verify(signedPart, sign, iss) : "Signature Block# 109327";
@@ -251,7 +251,5 @@ public class TestOnFileBlocks implements BlockLocalValid {
 		assertThat(_127128.getTransactions().size()).isEqualTo(9);
 		assertThat(_127128.getNumber()).isEqualTo(127128);
 	}
-
-
 
 }

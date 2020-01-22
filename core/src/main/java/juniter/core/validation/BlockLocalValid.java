@@ -2,16 +2,10 @@ package juniter.core.validation;
 
 import juniter.core.crypto.Crypto;
 import juniter.core.model.dbo.ChainParameters;
-import juniter.core.model.dbo.DBBlock;
-import juniter.core.model.dbo.tx.Transaction;
-import juniter.core.model.dbo.tx.TxInput;
-import juniter.core.model.dbo.tx.TxOutput;
-import juniter.core.model.dbo.wot.*;
-import juniter.core.model.meta.DUPBlock;
+import juniter.core.model.meta.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -25,7 +19,7 @@ public interface BlockLocalValid extends LocalValid {
     Logger LOG = LogManager.getLogger(BlockLocalValid.class);
     ChainParameters conf = new ChainParameters();
 
-    List<Short> AVAILABLE_VERSIONS = List.of((short)10,(short)11);
+    List<Short> AVAILABLE_VERSIONS = List.of((short) 10, (short) 11);
 
     /**
      * Exception safe validation to use as boolean
@@ -33,7 +27,7 @@ public interface BlockLocalValid extends LocalValid {
      * @param block to completeGlobalScope
      * @return true if the node is valid
      */
-    default boolean silentCheck(DBBlock block) {
+    default boolean silentCheck(DUPBlock block) {
 
         try {
             assertBlockLocalValid(block, false);
@@ -50,7 +44,7 @@ public interface BlockLocalValid extends LocalValid {
      * @param block                : the block to validate
      * @param checkPowAndSignature : whether or not we should check the PoW and Signatures
      */
-    default void assertBlockLocalValid(DBBlock block, boolean checkPowAndSignature) {
+    default void assertBlockLocalValid(DUPBlock block, boolean checkPowAndSignature) {
 
         assertBlockHash(block.signedPartSigned(), block.getHash());
 
@@ -109,19 +103,19 @@ public interface BlockLocalValid extends LocalValid {
 
         checkCertificationUnicity(block);
 
-        //checkCertificationIsntForLeaverOrExcluded(block);
+        checkCertificationIsntForLeaverOrExcluded(block);
 
         checkMaxTransactionChainingDepth(block);
 
     }
 
-    default void checkUniversalDividend(DBBlock block) {
+    default void checkUniversalDividend(DUPBlock block) {
         assert block.getNumber() != 0 || block.getDividend() == null
                 : "Dividend MUST BE null on Block 0 ";
     }
 
 
-    default void checkInnerHash(DBBlock block) {
+    default void checkInnerHash(DUPBlock block) {
         final var hash = Crypto.hash(block.toDUP(false, false));
 
         assert hash.equals(block.getInner_hash()) : //
@@ -134,18 +128,18 @@ public interface BlockLocalValid extends LocalValid {
     }
 
 
-    default void checkParameters(DBBlock block) {
-        assert block.getParameters() == null ^ block.getNumber() == 0
+    default void checkParameters(DUPBlock block) {
+        assert block.params() == null ^ block.getNumber() == 0
                 : "Chain Parameters MUST be present on block 0  &  MUST be null when block > 0 ";
 
     }
 
-    default void checkProofOfWork(DBBlock block) {
+    default void checkProofOfWork(DUPBlock block) {
         assert block.getHash().startsWith("0000")
                 : "check Proof of Work ";
     }
 
-    default void checkPreviousHash(DBBlock block) {
+    default void checkPreviousHash(DUPBlock block) {
         assert block.getNumber() == 0 ^ block.getPreviousHash() != null
                 : "check Previous Hash";
     }
@@ -155,7 +149,7 @@ public interface BlockLocalValid extends LocalValid {
                 : "check Previous Issuer";
     }
 
-    default void checkUnitBase(DBBlock block) {
+    default void checkUnitBase(DUPBlock block) {
         assert block.getUnitbase().equals(0) || block.getNumber() > 0 : " checkUnitBase " + block.getUnitbase();
     }
 
@@ -181,90 +175,91 @@ public interface BlockLocalValid extends LocalValid {
 
     }
 
-    default void checkIdentitiesUserIDConflict(DBBlock block) {
+    default void checkIdentitiesUserIDConflict(DUPBlock block) {
         assert block.getIdentities().size() == block.getIdentities().stream()
-                .map(Identity::getUid)
+                .map(HasPubkey::getPubkey)
                 .distinct()
                 .count()
                 : " Block must not contain twice same identity userid at " + block + " " + block.getIdentities();
     }
 
-    default void checkIdentitiesPubkeyConflict(DBBlock block) {
-        assert block.getIdentities().stream().map(Identity::getPubkey).distinct().count() == block.getIdentities().size()
+    default void checkIdentitiesPubkeyConflict(DUPBlock block) {
+        assert block.getIdentities().stream().map(HasPubkey::getPubkey).distinct().count() == block.getIdentities().size()
                 : " Block must not contain twice same identity pubkey  at " + block + " " + block.getIdentities();
     }
 
-    default void checkIdentitiesMatchJoin(DBBlock block) {
-        block.getJoiners().stream().map(Member::getPubkey).forEach(j -> {
-            assert block.getIdentities().stream().map(Identity::getPubkey).anyMatch(i -> i.equals(j))
+    default void checkIdentitiesMatchJoin(DUPBlock block) {
+        block.getJoiners().stream().map(DUPMember::getPubkey).forEach(j -> {
+            assert block.getIdentities().stream().map(HasPubkey::getPubkey).anyMatch(i -> i.equals(j))
                     : "check Identities Match Join";
         });
     }
 
-    default void checkMembershipUnicity(DBBlock block) {
-        assert block.getMembers().stream().map(Member::getPubkey).distinct().count() == block.getMembers().size()
+    default void checkMembershipUnicity(DUPBlock block) {
+        assert block.getMembers().stream().map(DUPMember::getPubkey).distinct().count() == block.getMembers().size()
                 : "check Membership Unicity ";
     }
 
-    default void checkRevokedUnicity(DBBlock block) {
-        assert block.getRevoked().stream().map(Member::getPubkey).distinct().count() == block.getRevoked().size()
+    default void checkRevokedUnicity(DUPBlock block) {
+        assert block.getRevoked().stream().map(DUPMember::getPubkey).distinct().count() == block.getRevoked().size()
                 : "check Revoked Unicity ";
     }
 
-    default void checkRevokedAreExcluded(DBBlock block) {
-        assert block.getRevoked().stream().map(Member::getPubkey)
-                .allMatch(p -> block.getExcluded().stream().map(Member::getPubkey).anyMatch(x -> x.equals(p)))
+    default void checkRevokedAreExcluded(DUPBlock block) {
+        assert block.getRevoked().stream().map(DUPMember::getPubkey)
+                .allMatch(p -> block.getExcluded().stream().map(DUPMember::getPubkey).anyMatch(x -> x.equals(p)))
                 : "check Revoked Are Excluded";
     }
 
-    default void checkMembershipsSignature(DBBlock block) {
+    default void checkMembershipsSignature(DUPBlock block) {
         block.getMembers().forEach(m -> {
             assert Crypto.verify(m.toDUPdoc(false), m.getSignature(), m.getPubkey()) : "check Memberships Signature on " + m;
         });
     }
 
 
-    default void checkCertificationOneByIssuer(DBBlock block) {
+    default void checkCertificationOneByIssuer(DUPBlock block) {
 
-        assert block.getNumber() == 0 || block.getCertifications().stream().map(Certification::getCertifier).distinct().count() == block.getCertifications().size()
+        assert block.getNumber() == 0 || block.getCertifications().stream().map(DUPCertification::getCertifier).distinct().count() == block.getCertifications().size()
                 : "checkCertificationOneByIssuer";
     }
 
-    default void checkCertificationUnicity(DBBlock block) {
+    default void checkCertificationUnicity(DUPBlock block) {
         assert block.getCertifications().stream().map(c -> c.getCertified() + c.getCertifier()).distinct().count() == block.getCertifications().size()
                 : "check Certification Unicity ";
     }
 
-    default void checkCertificationIsntForLeaverOrExcluded(DBBlock block) {
-        var excAndLeav = Stream.concat(block.getExcluded().stream().map(Excluded::getPubkey), block.getLeavers().stream().map(Leaver::getPubkey)).collect(Collectors.toList());
+    default void checkCertificationIsntForLeaverOrExcluded(DUPBlock block) {
+        var excAndLeav = Stream.concat(block.getExcluded().stream().map(DUPMember::getPubkey), block.getLeavers().stream().map(DUPMember::getPubkey)).collect(Collectors.toList());
 
-        block.getCertifications().stream().map(Certification::getCertified).forEach(c -> {
-            assert excAndLeav.contains(c) : "check Certification Isnt For Leaver Or Excluded";
+        block.getCertifications().stream().map(DUPCertification::getCertified).forEach(c -> {
+            assert !excAndLeav.contains(c) : "check Certification Isnt For Leaver Or Excluded";
         });
     }
 
-    default void checkTxVersion(Transaction tx) {
-        assert  AVAILABLE_VERSIONS.stream().anyMatch(v -> v.equals(tx.getVersion())) : "Tx must be of version 10, 11";
+    default void checkTxVersion(DUPTransaction tx) {
+        assert AVAILABLE_VERSIONS.stream().anyMatch(v -> v.equals(tx.getVersion())) : "Tx must be of getVersion 10, 11";
     }
 
-    default void checkTxIssuers(Transaction tx) {
+    default void checkTxIssuers(DUPTransaction tx) {
         assert tx.getIssuers().size() > 0 : "Tx must have at least one Issuer";
     }
 
-    default void checkTxSources(Transaction tx) {
+    default void checkTxSources(DUPTransaction tx) {
         assert tx.getInputs().size() > 0 : "Tx must have at least one Source";
     }
 
-    default void checkTxRecipients(Transaction tx) {
+    default void checkTxRecipients(DUPTransaction tx) {
         assert tx.getOutputs().size() > 0 : "Tx must have at least one recipient";
     }
 
-    default void checkTxAmounts(Transaction tx) {
-        assert tx.getInputs().stream().mapToInt(TxInput::getAmount).sum() == tx.getOutputs().stream().mapToInt(TxOutput::getAmount).sum()
+    default void checkTxAmounts(DUPTransaction tx) {
+        assert tx.getInputs().stream().mapToInt(DUPInput::getAmount).sum() ==
+                tx.getOutputs().stream().mapToInt(DUPOutput::getAmount).sum()
                 : "Tx input and output amounts must match ";
     }
 
-    default void checkTxSignature(Transaction tx) {
+    default void checkTxSignature(DUPTransaction tx) {
         for (int i = 0; i < tx.getSignatures().size(); i++) {
             final var sign = tx.getSignatures().get(i);
             final var iss = tx.getIssuers().get(i);
@@ -308,7 +303,7 @@ public interface BlockLocalValid extends LocalValid {
      *
      * @param block the input node
      */
-    default void checkMaxTransactionChainingDepth(DBBlock block) {
+    default void checkMaxTransactionChainingDepth(DUPBlock block) {
         assert block.getTransactions().size() <= 50 : "check Max Transaction Chaining Depth"; // FIXME implements
     }
 
@@ -324,11 +319,11 @@ public interface BlockLocalValid extends LocalValid {
         private Static() {
         }
 
-        public static void assertBlock(DBBlock b) throws AssertionError {
+        public static void assertBlock(DUPBlock b) throws AssertionError {
             singletons.assertBlockLocalValid(b, true);
         }
 
-        public static boolean silentChecks(DBBlock b) {
+        public static boolean silentChecks(DUPBlock b) {
             return singletons.silentCheck(b);
         }
     }

@@ -1,10 +1,12 @@
 package juniter.service.web;
 
 import juniter.core.model.dbo.DBBlock;
-import juniter.core.model.dbo.tx.*;
+import juniter.core.model.dbo.tx.Transaction;
+import juniter.core.model.meta.SourceType;
+import juniter.core.model.meta.*;
 import juniter.repository.jpa.block.CertsRepository;
-import juniter.service.core.BlockService;
-import juniter.service.core.TransactionService;
+import juniter.service.jpa.JPABlockService;
+import juniter.service.jpa.TransactionService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +42,7 @@ import static java.util.stream.Collectors.toList;
 import static juniter.core.utils.ExecUtils.run;
 
 @Controller
-@ConditionalOnExpression("${juniter.useGraphViz:false} && ${juniter.useBMA:false}")
+@ConditionalOnExpression("${juniter.useGraphViz:true} && ${juniter.useBMA:false}")
 @RequestMapping("/graphviz")
 public class GraphvizService {
 
@@ -89,7 +91,7 @@ public class GraphvizService {
     private CertsRepository certsRepo;
 
     @Autowired
-    private BlockService blockService;
+    private JPABlockService blockService;
 
     @Autowired
     private TransactionService txService;
@@ -448,7 +450,7 @@ public class GraphvizService {
 
         res.append("digraph{\n" //
                 + "\tgraph [rankdir=").append(rankdir).append("];\n");
-        res.append("\tsum [label=\"sum\\n").append(tx.getInputs().stream().mapToInt(TxInput::getAmount).sum()).append("\", tooltip=\"huhuhaha\"];\n");
+        res.append("\tsum [label=\"sum\\n").append(tx.getInputs().stream().mapToInt(DUPInput::getAmount).sum()).append("\", tooltip=\"huhuhaha\"];\n");
 
         //
         // DRAW THE ACTUAL TRANSACTION
@@ -482,17 +484,20 @@ public class GraphvizService {
                 + "\t\tlabelloc=t;\n");
 
         int i = 0;
-        for (final TxInput txi : tx.getInputs()) {
+        for (final DUPInput txi : tx.getInputs()) {
             final var input = "input_" + i;
 
-            if (txi.getType().equals(TxType.D)) {
+            if (txi.type().equals(SourceType.D)) {
+
+
                 res.append("\t\t").append(input).append(" ["//
-                ).append("label=\"UD\\n").append(txi.getAmount()).append("\", URL=\"/graphviz/svg/block/").append(txi.getDBlockID() //
+                ).append("label=\"UD\\n").append(txi.getAmount()).append("\", URL=\"/graphviz/svg/block/").append(txi.getIndex() //
                 ).append("\", shape=circle, color=yellow, style=filled, fontsize = 8];\n"); //
-                links += "\t\t_" + txi.getDsource() + " -> " + input + "[color=lightgrey];\n";
-            } else if (txi.getType().equals(TxType.T)) {
+                links += "\t\t_" + txi.getReference() + " -> " + input + "[color=lightgrey];\n";
+            } else if (txi.type().equals(SourceType.T)) {
+
                 res.append("\t\t").append(input).append(" ["//
-                ).append("label=\"").append(txi.getAmount()).append(" g1 | index :").append(txi.getTIndex()).append(" | ").append(mini(txi.getTHash().toString())).append("\", URL=\"/graphviz/svg/tx/").append(txi.getTHash() //
+                ).append("label=\"").append(txi.getAmount()).append(" g1 | index :").append(txi.getIndex()).append(" | ").append(mini(txi.getReference())).append("\", URL=\"/graphviz/svg/tx/").append(( txi).getReference() //
                 ).append("\", shape=record, fontsize = 8 ];\n"); //
 
             }
@@ -510,22 +515,22 @@ public class GraphvizService {
                 + "\t\tlabelloc=t;\n" //
                 + "\t\tdbu [label=\"useful\\nfor\\nstate\\nmachine\", shape=cylinder];\n");
         i = 0;
-        for (final String sign : tx.getSignatures()) {
+        for (final String sign : tx.signatures()) {
             res.append("\t\tsignature_").append(i).append(" [label=\"Signature:\\n").append(mini(sign)).append("\"];\n");
             links += "\t\tsignature_" + i + " -> sum; \n";
         }
 
         res.append("\t\tunlocks [shape=record, label=\"");
         i = 0;
-        for (final TxUnlock unlock : tx.getUnlocks()) {
-            res.append("{ <k").append(i).append("> ").append(unlock.getInputRef()).append(" | <v").append(i).append("> ").append(unlock.getFunction()).append(" }");
+        for (final DUPUnlock unlock : tx.getUnlocks()) {
+            res.append("{ <k").append(i).append("> ").append(unlock.getInputRef()).append(" | <v").append(i).append("> ").append(unlock.getFct()).append(" }");
             if (i != tx.getUnlocks().size() - 1) {
                 res.append(" | ");
             }
 
             // link
             links += "\t\tinput_" + i + " -> unlocks:k" + i + " [color=lightgrey, style=dashed];\n";
-            links += "\t\tunlocks:v" + i + " -> signature_" + unlock.getFctParam()
+            links += "\t\tunlocks:v" + i + " -> signature_" + unlock.getParam()
                     + " [color=lightgrey, style=dashed];\n";
         }
 
@@ -546,16 +551,16 @@ public class GraphvizService {
         res.append("\t\tlockouts [shape=record, label=\"");
 
         i = 0;
-        for (final TxOutput out : tx.getOutputs()) {
+        for (final DUPOutput out : tx.getOutputs()) {
             res.append("{<a").append(i).append("> "
 //			+ out.Amount() + " | <x" + i + "> " + out.Base() + " | <y" + i + "> "
-            ).append(mini(out.getOutputCondition())).append(" }");
+            ).append(mini(out.getConditionString())).append(" }");
             if (i != tx.getOutputs().size() - 1) {
                 res.append(" | ");
             }
 
-            if (out.getOutputCondition().startsWith("SIG(")) {
-                final var dest = out.getOutputCondition().substring(4, out.getOutputCondition().length() - 1);
+            if (out.getConditionString().startsWith("SIG(")) {
+                final var dest = out.getConditionString().substring(4, out.getConditionString().length() - 1);
                 links += "\t\tamountOut" + i + " [label=\"" + out.getAmount() + "\"" //
                         + ", URL=\"#\"" //
                         + ", shape=signature, fontsize=9];\n"; //

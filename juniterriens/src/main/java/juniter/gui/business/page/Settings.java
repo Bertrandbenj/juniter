@@ -15,7 +15,7 @@ import juniter.gui.business.popup.AlertBox;
 import juniter.gui.technical.AbstractJuniterFX;
 import juniter.gui.technical.I18N;
 import juniter.gui.technical.Theme;
-import juniter.service.core.BlockService;
+import juniter.service.jpa.JPABlockService;
 import juniter.service.ipfs.Interplanetary;
 import juniter.user.UnitDisplay;
 import org.apache.logging.log4j.LogManager;
@@ -81,7 +81,7 @@ public class Settings extends AbstractJuniterFX implements Initializable {
 
 
     @Autowired
-    private BlockService blockService;
+    private JPABlockService blockService;
 
     @Autowired
     private Optional<Interplanetary> interplanetary;
@@ -195,7 +195,7 @@ public class Settings extends AbstractJuniterFX implements Initializable {
                 .map(Integer::parseInt)//
                 .forEach(id -> {
                     LOG.info("deleting Blocks # " + id);
-                    blockService.deleteAt(id);
+                    blockService.deleteAt("g1", id);
                 });
     }
 

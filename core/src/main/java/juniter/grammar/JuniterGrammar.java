@@ -4,11 +4,21 @@ import generated.antlr.JuniterParser;
 import generated.antlr.JuniterParser.IdentityContext;
 import generated.antlr.JuniterParser.PeerContext;
 import generated.antlr.JuniterParserBaseVisitor;
+import juniter.core.model.dbo.BStamp;
+import juniter.core.model.dbo.DBBlock;
+import juniter.core.model.dbo.net.Peer;
+import juniter.core.model.dbo.wot.Certification;
+import juniter.core.model.dbo.wot.Identity;
+import juniter.core.model.dbo.wot.Member;
+import juniter.core.model.dbo.wot.Revoked;
+import juniter.core.model.meta.DUPDocument;
+import juniter.core.model.meta.DUPPeer;
+import juniter.core.model.meta.SimpleIssuer;
 import juniter.core.validation.LocalValid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class JuniterGrammar extends JuniterParserBaseVisitor<Document> implements LocalValid {
+public class JuniterGrammar extends JuniterParserBaseVisitor<DUPDocument> implements LocalValid {
 
     private static final Logger LOG = LogManager.getLogger(JuniterGrammar.class);
 
@@ -20,8 +30,8 @@ public class JuniterGrammar extends JuniterParserBaseVisitor<Document> implement
      * @return the Wot related document including signature
      */
     @Override
-    public Document visitWot(JuniterParser.WotContext ctx) {
-        Document tmp = null;
+    public DUPDocument visitWot(JuniterParser.WotContext ctx) {
+        DUPDocument tmp = null;
         try {
             tmp = visitIdentity(ctx.identity());
         } catch (Exception e) {
@@ -40,15 +50,15 @@ public class JuniterGrammar extends JuniterParserBaseVisitor<Document> implement
             }
         }
 
-        ((WotDocument) tmp).setSignature(ctx.signature.getText());
+        ((SimpleIssuer)tmp).setSignature(ctx.signature.getText());
         LOG.info("visiting visitWot " + tmp);
 
         return tmp;
     }
 
     @Override
-    public Document visitIdentity(IdentityContext ctx) {
-        return new IdentityDoc(
+    public DUPDocument visitIdentity(IdentityContext ctx) {
+        return new Identity(
                 ctx.version().getText(),
                 ctx.currency().getText(),
                 ctx.issuer().getText(),
@@ -58,53 +68,62 @@ public class JuniterGrammar extends JuniterParserBaseVisitor<Document> implement
     }
 
     @Override
-    public Document visitCertification(JuniterParser.CertificationContext ctx) {
-        return new CertificationDoc(
-                ctx.version.getText(),
-                ctx.currency.getText(),
-                ctx.issuer().getText(),
-                ctx.idtyIssuer().pubkey().getText(),
-                ctx.idtyUniqueID().USERID().getText(),
-                ctx.idtyTimestamp().buid().getText(),
-                ctx.idtySignature().getText(),
-                ctx.certTimestamp().buid().getText()
-        );
+    public DUPDocument visitCertification(JuniterParser.CertificationContext ctx) {
+        var res =  new Certification();
+        res.setVersion(Short.valueOf(ctx.version().getText()));
+        res.setSignature(ctx.idtySignature().getText());
+        res.setSignedOn(Integer.valueOf(ctx.certTimestamp().buid().bnum().getText()));
+        res.setCertifier( ctx.issuer().getText());
+        res.setCertified(ctx.idtyIssuer().pubkey().getText());
+
+
+        return res ;
     }
 
     @Override
-    public Document visitMembership(JuniterParser.MembershipContext ctx) {
-        return new MembershipDoc(
-                ctx.version.getText(),
-                ctx.currency.getText(),
-                ctx.issuer().getText(),
-                ctx.block().getText(),
-                ctx.member().getText(),
-                ctx.userID().getText(),
-                ctx.certTS().getText()
-        );
+    public DUPDocument visitMembership(JuniterParser.MembershipContext ctx) {
+        var res = new Member();
+        res.setPubkey(ctx.issuer().getText());
+        res.setWritten(new BStamp(ctx.block().getText()));
+        res.setUid(ctx.userID().getText());
+
+
+        return new Member();
+//                ctx.getVersion.getText(),
+//                ctx.currency.getText(),
+//                ctx.issuer().getText(),
+//                ctx.block().getText(),
+//                ctx.member().getText(),
+//                ctx.userID().getText(),
+//                ctx.certTS().getText()
+//        );
     }
 
     @Override
-    public Document visitRevocation(JuniterParser.RevocationContext ctx) {
-        return new RevocationDoc(
-                ctx.version.getText(),
-                ctx.currency.getText(),
-                ctx.issuer().getText(),
-                ctx.idtyUniqueID().getText(),
-                ctx.idtyTimestamp().buid().getText(),
-                ctx.idtySignature().getText()
-        );
+    public DUPDocument visitRevocation(JuniterParser.RevocationContext ctx) {
+        var res = new Revoked();
+        res.setSignature( ctx.idtySignature().getText());
+        res.setPubkey(ctx.issuer().getText());
+        res.setI_block_uid(ctx.idtyTimestamp().buid().getText());
+        res.setCurrency(ctx.currency().getText());
+
+        return res;
     }
 
     @Override
-    public Document visitPeer(PeerContext ctx) {
-        return new PeerDoc(
-                ctx.currency().getText(),
-                ctx.pubkey().getText(),
-                ctx.block().buid().getText()
-        );
-        //final var bnum = Integer.parseInt(ctx.node().buid().bnum().getText());
-        //final var bhash = ctx.node().buid().bhash().getText();
+    public DUPDocument visitPeer(PeerContext ctx) {
+
+        DUPPeer res = new Peer();
+        res.setCurrency(ctx.currency().getText());
+        res.setPubkey(ctx.pubkey().getText());
+        res.setBlock(new BStamp(ctx.block().buid().getText()));
+        return res;
+
     }
 
+
+    @Override
+    public DUPDocument visitBlock_(JuniterParser.Block_Context ctx) {
+        return new DBBlock();
+    }
 }

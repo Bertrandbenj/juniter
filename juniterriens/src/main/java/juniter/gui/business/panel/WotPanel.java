@@ -6,8 +6,12 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import juniter.core.crypto.SecretBox;
 import juniter.core.model.dbo.index.IINDEX;
-import juniter.grammar.*;
-import juniter.service.core.Index;
+import juniter.core.model.dbo.wot.Certification;
+import juniter.core.model.dbo.wot.Identity;
+import juniter.core.model.dbo.wot.Member;
+import juniter.core.model.dbo.wot.Revoked;
+import juniter.core.model.meta.DUPDocument;
+import juniter.service.jpa.Index;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
@@ -93,7 +97,7 @@ public class WotPanel implements Initializable {
     private Index index;
 
 
-    private Document doc;
+    private DUPDocument doc;
 
 
     public WotPanel() {
@@ -121,8 +125,8 @@ public class WotPanel implements Initializable {
         boxMembership.managedProperty().bind(boxMembership.visibleProperty());
         boxRevocation.managedProperty().bind(boxRevocation.visibleProperty());
         pk.textProperty().addListener(c -> {
-            var assocIdentity = index.reduceI( pk.getText()).get();
-            var assocMembership = index.reduceM(  pk.getText()).get( );
+            var assocIdentity = index.reduceI(pk.getText()).get();
+            var assocMembership = index.reduceM(pk.getText()).get();
 
             useridMem.setText(assocIdentity.getUid());
             certTSMem.setText(assocMembership.getSigned().toString());
@@ -175,64 +179,67 @@ public class WotPanel implements Initializable {
         var sb = new SecretBox(salt.getText(), password.getText());
 
         if (swIdty.isSelected()) {
-            doc = new IdentityDoc(
+            doc = new Identity(
                     version.getText(),
                     currency.getText(),
                     sb.getPublicKey(),
                     uniqueIDIdty.getText(),
                     timestampIdty.getText());
-            var idty = (IdentityDoc) doc;
+            var idty = (Identity) doc;
 
-            var sign = sb.sign(idty.unsignedDoc());
+            var sign = sb.sign(idty.toDUPdoc(false));
             idty.setSignature(sign);
             signature.setText(sign);
         }
 
         if (swCertif.isSelected()) {
-            doc = new CertificationDoc(
-                    version.getText(),
-                    currency.getText(),
-                    sb.getPublicKey(),
-                    idtyIssuerCert.getText(),
-                    idtyUniqueIDCert.getText(),
-                    idtyTimestampCert.getText(),
-                    idtySignatureCert.getText(),
-                    certTimestampCert.getText());
-            var cert = (CertificationDoc) doc;
+            doc = new Certification();
+            doc.setVersion(Short.valueOf(version.getText()));
+            doc.setCurrency(currency.getText());
 
-            var sign = sb.sign(cert.unsignedDoc());
+//                    sb.getPublicKey(),
+//                    idtyIssuerCert.getText(),
+//                    idtyUniqueIDCert.getText(),
+//                    idtyTimestampCert.getText(),
+//                    idtySignatureCert.getText(),
+//                    certTimestampCert.getText());
+            var cert = (Certification) doc;
+
+            var sign = sb.sign(cert.toDUPdoc(false));
             cert.setSignature(sign);
             signature.setText(sign);
         }
 
         if (swRevoc.isSelected()) {
-            doc = new RevocationDoc(
-                    version.getText(),
-                    currency.getText(),
-                    sb.getPublicKey(),
-                    idtyUniqueIDRev.getText(),
-                    idtyTimestampRev.getText(),
-                    idtySignatureRev.getText());
-            var rev = (RevocationDoc) doc;
+            doc = new Revoked();
+            doc.setVersion(Short.valueOf(version.getText()));
+            doc.setCurrency(currency.getText());
+            ((Revoked) doc).setPubkey(sb.getPublicKey());
+//
+//            idtyUniqueIDRev.getText(),
+//                    idtyTimestampRev.getText(),
+//                    idtySignatureRev.getText());
+            var rev = (Revoked) doc;
 
-            var sign = sb.sign(rev.unsignedDoc());
+            var sign = sb.sign(rev.toDUPdoc(false));
             rev.setSignature(sign);
             signature.setText(sign);
         }
 
 
         if (swMember.isSelected()) {
-            doc = new MembershipDoc(
-                    version.getText(),
-                    currency.getText(),
-                    sb.getPublicKey(),
-                    blockMem.getText(),
-                    "IN",
-                    useridMem.getText(),
-                    certTimestampCert.getText());
-            var mem = (MembershipDoc) doc;
+            doc = new Member();
+            ((Member) doc).setPubkey(sb.getPublicKey());
+            doc.setCurrency(currency.getText());
+            doc.setVersion(Short.valueOf(version.getText()));
 
-            var sign = sb.sign(mem.unsignedDoc());
+            ((Member) doc).setUid(useridMem.getText());
+//            ((Member) doc).setSigned(certTimestampCert.getText());
+
+
+            var mem = (Member) doc;
+
+            var sign = sb.sign(mem.toDUPdoc(false));
             mem.setSignature(sign);
             signature.setText(sign);
         }

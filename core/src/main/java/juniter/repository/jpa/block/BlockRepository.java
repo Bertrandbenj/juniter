@@ -1,11 +1,10 @@
 package juniter.repository.jpa.block;
 
-import juniter.core.model.technical.CcyStats;
 import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dto.node.BlockNetworkMeta;
+import juniter.core.model.technical.CcyStats;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.exception.GenericJDBCException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -35,7 +34,6 @@ public interface BlockRepository extends JpaRepository<DBBlock, Long> {
     List<DBBlock> block_(String currency, Integer number);
 
 
-    //@Cacheable(value = "blocks", key = "#number" )
     @Query("FROM DBBlock b WHERE currency = ?1 AND number = ?2 AND hash = ?3 ")
     DBBlock block(String ccy, Integer number, String hash);
 
@@ -48,6 +46,8 @@ public interface BlockRepository extends JpaRepository<DBBlock, Long> {
     @Query("DELETE FROM DBBlock b ")
     void truncate();
 
+
+
     @Transactional
     @Modifying
     @Query("DELETE FROM DBBlock b WHERE currency = ?1 AND number = ?2")
@@ -57,7 +57,7 @@ public interface BlockRepository extends JpaRepository<DBBlock, Long> {
     @Query("SELECT number FROM DBBlock WHERE currency = ?1 AND number >= ?2 AND number <= ?3")
     List<Integer> blockNumbers(String currency, int rangeStart, int rangeEnd);
 
-
+    @Query("FROM DBBlock WHERE number IN (?1)")
     Stream<DBBlock> findByNumberIn(List<Integer> number);
 
 

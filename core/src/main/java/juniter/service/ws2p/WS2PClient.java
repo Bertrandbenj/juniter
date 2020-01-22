@@ -57,7 +57,7 @@ public class WS2PClient extends WebSocketClient {
         pool.peerService.reportSuccess(EndPointType.WS2P, getURI().toString());
 
         send(new Request().getCurrent());
-        //send(Wrapper.buildPeerDoc(pool.peerService.endPointPeer().toDUP(true)));
+        //send(Wrapper.buildPeerDoc(pool.peerService.endPointPeer().toDUPdoc(true)));
         //send(new Request().getRequirementsPending(5));
 
     }

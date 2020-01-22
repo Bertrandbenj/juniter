@@ -2,6 +2,7 @@ package juniter.core.model.dbo.net;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import juniter.core.model.dbo.BStamp;
+import juniter.core.model.meta.DUPPeer;
 import juniter.core.utils.Constants;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,13 +11,11 @@ import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Entity
 @Data
@@ -28,7 +27,7 @@ import java.util.stream.Collectors;
 })
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Peer {
+public class Peer implements DUPPeer {
     // private static final Logger LOG = LogManager.getLogger();
 
 
@@ -36,7 +35,7 @@ public class Peer {
 //	@GeneratedValue(strategy = GenerationType.AUTO)
 //	private Long id;
 
-    private Integer version;
+    private Short version;
 
     @Size(max = 42)
     private String currency;
@@ -55,13 +54,8 @@ public class Peer {
     @Size(max = 45)
     private String pubkey;
 
-    @Valid
     @NotNull
     private BStamp block;
-
-    public void setBlock(String b){
-        block = new BStamp(b);
-    }
 
 
     @Size(max = 88)
@@ -75,23 +69,8 @@ public class Peer {
     @JoinColumn(name = "peer", referencedColumnName = "pubkey")
     private List<EndPoint> endpoints = new ArrayList<>();
 
-
-
     public List<EndPoint> endpoints() {
         return endpoints;
     }
-
-    public String toDUP(boolean signed) {
-        return "Version: " + version +
-                "\nType: Peer" +
-                "\nCurrency: " + currency + "" +
-                "\nPublicKey: " + pubkey + " " +
-                "\nBlock: " + block + "" +
-                "\nEndpoints:\n"
-                + endpoints.stream().map(EndPoint::getEndpoint).collect(Collectors.joining("\n"))
-                + "\n" +
-                (signed ? signature + "\n" : "");
-    }
-
 
 }

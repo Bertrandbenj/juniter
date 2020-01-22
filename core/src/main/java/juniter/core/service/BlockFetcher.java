@@ -25,7 +25,7 @@ public interface BlockFetcher {
      */
     void queue(String query);
 
-    boolean bulkLoadOn();
+    boolean isBulkLoading();
 
 
 }

@@ -2,7 +2,7 @@ package juniter.service.bma;
 
 import juniter.core.model.dto.node.NodeSummaryDTO;
 import juniter.core.model.dto.node.SandBoxesDTO;
-import juniter.service.core.Sandboxes;
+import juniter.service.jpa.Sandboxes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -28,7 +28,7 @@ public class NodeService {
      * {
      * "duniter": {
      * "software": "duniter",
-     * "version": "0.10.3",   require > 1.1.0
+     * "getVersion": "0.10.3",   require > 1.1.0
      * "forkWindowSize": 10
      * }
      * }

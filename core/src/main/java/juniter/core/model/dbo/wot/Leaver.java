@@ -1,6 +1,7 @@
 package juniter.core.model.dbo.wot;
 
 import juniter.core.model.dbo.BStamp;
+import juniter.core.model.meta.DUPLeaver;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
@@ -9,7 +10,7 @@ import javax.persistence.Table;
 @Entity
 @NoArgsConstructor
 @Table(name = "wot_leaver", schema = "public")
-public class Leaver extends Member  {
+public class Leaver extends Member implements DUPLeaver {
 
     public Leaver(String toDUP) {
         parse(toDUP);

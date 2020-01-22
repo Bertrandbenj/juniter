@@ -53,12 +53,22 @@ public class Identity implements DUPIdentity, Comparable<Identity> {
     @Valid
     private BStamp written;
 
+    private Short version;
+
     public Identity(String identity) {
         final var vals = identity.split(":");
         pubkey = vals[0];
         signature = vals[1];
         signed = new BStamp(vals[2]);
         uid = vals[3];
+        version = 10;
+    }
+
+    public Identity(String pubkey, String signature, String signed, String uid, String written) {
+        this.pubkey = pubkey;
+        this.signature = signature;
+        this.signed = new BStamp(signed);
+        this.uid = uid;
     }
 
     @Override

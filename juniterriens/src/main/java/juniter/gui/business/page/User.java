@@ -19,17 +19,14 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Pair;
 import javafx.util.StringConverter;
-import juniter.core.model.dbo.index.Account;
-import juniter.core.model.dbo.index.CertRecord;
-import juniter.core.model.dbo.index.IINDEX;
-import juniter.core.model.dbo.index.MINDEX;
+import juniter.core.model.dbo.index.*;
 import juniter.core.model.dbo.tx.Transaction;
 import juniter.core.model.dbo.tx.TxUnlock;
 import juniter.gui.technical.AbstractJuniterFX;
 import juniter.gui.technical.Formats;
-import juniter.service.core.Index;
-import juniter.service.core.TransactionService;
-import juniter.service.core.WebOfTrust;
+import juniter.service.jpa.Index;
+import juniter.service.jpa.TransactionService;
+import juniter.service.jpa.WebOfTrust;
 import juniter.user.UserSettings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -100,7 +97,7 @@ public class User extends AbstractJuniterFX implements Initializable {
     private ObservableList<CertRecord> receivedCertList = FXCollections.observableArrayList();
     private ObjectProperty<IINDEX> profileIdentity = new SimpleObjectProperty<>();
     private ObjectProperty<MINDEX> mem = new SimpleObjectProperty<>();
-    private ObjectProperty<Account> acc = new SimpleObjectProperty<>();
+    private ObjectProperty<Accounts> acc = new SimpleObjectProperty<>();
     private XYChart.Series<Long, Integer> series = new XYChart.Series<>();
 
 
@@ -224,7 +221,7 @@ public class User extends AbstractJuniterFX implements Initializable {
                 for (var j = 0; j < tx.getIssuers().size(); j++) {
                     if (tx.getIssuers().get(j).equals(currentProfile)) {
                         int finalJ = j;
-                        var unlocks = tx.getUnlocks().stream().filter(un -> un.getFctParam().equals(String.valueOf(finalJ))).map(TxUnlock::getInputRef).collect(Collectors.toList());
+                        var unlocks = tx.getUnlocks().stream().filter(un -> un.getParam().equals(String.valueOf(finalJ))).map(TxUnlock::getInputRef).collect(Collectors.toList());
                         for (int in = 0; in < tx.getInputs().size(); in++) {
                             if (unlocks.contains(in))
                                 sum -= tx.getInputs().get(in).getAmount();
@@ -239,7 +236,7 @@ public class User extends AbstractJuniterFX implements Initializable {
                 var sum = 0;
                 for (int out = 0; out < tx.getOutputs().size(); out++) {
                     var txOut = tx.getOutputs().get(out);
-                    if (txOut.getCondition().contains("SIG(" + currentProfile + ")")) {
+                    if (txOut.getConditionString().contains("SIG(" + currentProfile + ")")) {
                         sum += txOut.getAmount();
                     }
                 }

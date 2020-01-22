@@ -50,6 +50,9 @@ public class Member implements DUPMember, Serializable, Comparable<Member> {
 
     protected BStamp written;
 
+    protected Short version;
+
+
     @Override
     public int compareTo(@NonNull Member o) {
         return pubkey.compareTo(o.pubkey);

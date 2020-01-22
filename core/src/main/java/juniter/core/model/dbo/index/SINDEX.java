@@ -2,7 +2,7 @@ package juniter.core.model.dbo.index;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import juniter.core.model.dbo.BStamp;
-import juniter.core.model.dbo.tx.TxType;
+import juniter.core.model.meta.SourceType;
 import juniter.core.model.gva.Source;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,12 +24,12 @@ import java.util.function.BinaryOperator;
  * * Functionally:
  *
  *
- * a same source cannot be consumed twice by the block a same output cannot be
- * a same source cannot be consumed twice by the block a same output cannot be
+ * a same getSource cannot be consumed twice by the block a same output cannot be
+ * a same getSource cannot be consumed twice by the block a same output cannot be
  * produced twice by block
  *
  *
- * But a source can be both created and consumed in the same block, so a tree
+ * But a getSource can be both created and consumed in the same block, so a tree
  * of transactions can be stored at once.
  *
  * 	<h2>Double-spending control</h2>
@@ -46,9 +46,9 @@ import java.util.function.BinaryOperator;
  *
  * Each input has an InputBase, and each output has an OutputBase. These bases are to be called AmountBase.
  *
- * The CommonBase is the lowest base value among all AmountBase of the transaction.
+ * The CommonBase is the lowest getBase value among all AmountBase of the transaction.
  *
- * For any amount comparison, the respective amounts must be translated into CommonBase using the following rule:
+ * For any getAmount comparison, the respective amounts must be translated into CommonBase using the following rule:
  *
  * AMOUNT(CommonBase) = AMOUNT(AmountBase) x POW(10, AmountBase - CommonBase)
  *
@@ -112,7 +112,7 @@ import java.util.function.BinaryOperator;
  *
  *
  * Functionally: we cannot create nor lose money through transactions. We can only transfer coins we own.
- * Functionally: also, we cannot convert a superiod unit base into a lower one.
+ * Functionally: also, we cannot convert a superiod unit getBase into a lower one.
  *
  *
  * </pre>
@@ -203,8 +203,8 @@ public class SINDEX implements Comparable<SINDEX> {
     }
 
 
-    public TxType type() {
-        return tx == null ? TxType.D : TxType.T;
+    public SourceType type() {
+        return tx == null ? SourceType.D : SourceType.T;
 
     }
 

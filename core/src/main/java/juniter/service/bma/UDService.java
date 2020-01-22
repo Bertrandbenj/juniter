@@ -4,7 +4,7 @@ import juniter.core.exception.UCode;
 import juniter.core.exception.DuniterException;
 import juniter.core.model.dto.tx.UdDTO;
 import juniter.core.model.dto.tx.UdHistory;
-import juniter.service.core.TransactionService;
+import juniter.service.jpa.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.transaction.annotation.Transactional;

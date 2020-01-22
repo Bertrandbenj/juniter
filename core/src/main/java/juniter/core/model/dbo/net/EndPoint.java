@@ -36,7 +36,7 @@ public class EndPoint {
 //    @JoinColumn(name = "peer", referencedColumnName = "pubkey")
 //    private Peer peer;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.ORDINAL)
     @Column(length = 32, nullable = false)
     private EndPointType api;
 

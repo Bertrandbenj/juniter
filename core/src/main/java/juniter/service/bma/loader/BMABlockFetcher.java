@@ -10,9 +10,9 @@ import juniter.core.model.dbo.net.NetStats;
 import juniter.core.service.BlockFetcher;
 import juniter.core.utils.TimeUtils;
 import juniter.core.validation.BlockLocalValid;
-import juniter.service.core.BlockService;
-import juniter.service.core.Index;
-import juniter.service.core.PeerService;
+import juniter.service.jpa.Index;
+import juniter.service.jpa.JPABlockService;
+import juniter.service.jpa.PeerService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,14 +61,16 @@ public class BMABlockFetcher implements BlockLocalValid, BlockFetcher, Applicati
 
     private AtomicBoolean bulkLoadOn = new AtomicBoolean(false);
 
+    private AtomicBoolean loadingMissing = new AtomicBoolean(false);
+
+
     @Value("${juniter.network.bulkSize:200}")
     private Integer bulkSize;
 
     @Value("${juniter.reset:false}")
     private Boolean reset;
 
-    private BlockingQueue<String> blockingQueue = new LinkedBlockingDeque<>(200);
-
+    private BlockingQueue<String> blockingQueue = new LinkedBlockingDeque<>(1000);
 
     @Autowired
     private RestTemplate GET;
@@ -77,7 +79,8 @@ public class BMABlockFetcher implements BlockLocalValid, BlockFetcher, Applicati
     private ApplicationEventPublisher applicationEventPublisher;
 
     @Autowired
-    private BlockService blockService;
+    private JPABlockService blockService;
+
     @Autowired
     private Index index;
 
@@ -190,8 +193,8 @@ public class BMABlockFetcher implements BlockLocalValid, BlockFetcher, Applicati
     }
 
     @Override
-    public boolean bulkLoadOn() {
-        return bulkLoadOn.get();
+    public boolean isBulkLoading() {
+        return bulkLoadOn.get() || ! blockingQueue.isEmpty() || loadingMissing.get();
     }
 
     @Async
@@ -327,6 +330,7 @@ public class BMABlockFetcher implements BlockLocalValid, BlockFetcher, Applicati
 
     public void queue(String s) {
         try {
+            LOG.info("Queuing "+ s);
             blockingQueue.put(s);
         } catch (InterruptedException e) {
             LOG.error("Interrupted while queuing ", e);
@@ -363,17 +367,18 @@ public class BMABlockFetcher implements BlockLocalValid, BlockFetcher, Applicati
     @Async
     public void checkMissingBlocksAsync() {
 
-        if (bulkLoadOn()) {
+        if (isBulkLoading()) {
             return;
         }
+        loadingMissing.set(true);
 
         LOG.info("checkMissingBlocksAsync ");
         final var start = System.nanoTime();
 
 
-        final var missing = missingBlockNumbers();
+        var missing = missingBlockNumbers();
         LOG.info("found MissingBlocks : " + missing.size() + " blocks  " + (missing.size() > 20 ? "" : missing));
-
+       // missing = Lists.newArrayList(0,1,2,3);
 
         Map<Integer, Integer> map = new HashMap<>();
         int prev = -1;
@@ -385,12 +390,14 @@ public class BMABlockFetcher implements BlockLocalValid, BlockFetcher, Applicati
             if (bulkStart == -1) {
                 bulkStart = miss;
                 cntI++;
-            } else if (cntI >= 50 || missing.indexOf(miss) == missing.size() - 1) {
-                map.put(bulkStart, cntI);
+            } else if (cntI >= bulkSize || missing.indexOf(miss) == missing.size() - 1) {
+                queue("blockchain/blocks/" + cntI + "/" + bulkStart);
+                //map.put(bulkStart, cntI);
                 bulkStart = miss;
                 cntI = 0;
             } else if (miss != prev + 1) {
-                map.put(prev, Math.max(cntI, 1));
+                queue("blockchain/blocks/" +  Math.max(cntI, 1) + "/" + prev);
+                //map.put(prev, Math.max(cntI, 1));
                 bulkStart = miss;
                 cntI = 1;
 
@@ -401,19 +408,7 @@ public class BMABlockFetcher implements BlockLocalValid, BlockFetcher, Applicati
 
         }
 
-        map.forEach((key, value) -> queue("blockchain/blocks/" + value + "/" + key));
-
-//		missing.forEach(n -> {
-//defaultLoader.fetchAndSaveBlocks(entry.getValue(), entry.getKey())
-//                            .forEach(b -> blockService//
-//                                    .safeSave(b) //
-//                                    .ifPresent(bl -> LOG.debug("saved missing node " + bl))
-//			if(!blackList.contains(n)){
-//				LOG.info("  - doFetch for : " + n);
-//				defaultLoader.fetchAndSaveBlock(n);
-//			}
-//
-//		});
+        loadingMissing.set(false);
 
         var elapsed = Long.divideUnsigned(System.nanoTime() - start, 1000000);
         LOG.info("Elapsed time: " + TimeUtils.format(elapsed));

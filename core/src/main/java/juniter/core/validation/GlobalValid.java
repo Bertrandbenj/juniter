@@ -6,8 +6,8 @@ import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.ChainParameters;
 import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dbo.index.*;
-import juniter.core.model.dbo.tx.TxType;
 import juniter.core.model.dbo.wot.Revoked;
+import juniter.core.model.meta.SourceType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.transaction.annotation.Transactional;
@@ -545,7 +545,7 @@ public interface GlobalValid {
      *
      * ALL_SOURCES = CONCAT(GLOBAL_SINDEX[conditions=ACCOUNT.conditions], LOCAL_SINDEX[conditions=ACCOUNT.conditions])
      * SOURCES = REDUCE_BY(ALL_SOURCES, 'identifier', 'pos')[consumed=false]
-     * BALANCE = SUM(MAP(SOURCES => SRC: SRC.amount * POW(10, SRC.base)))
+     * BALANCE = SUM(MAP(SOURCES => SRC: SRC.getAmount * POW(10, SRC.getBase)))
      *
      * If BALANCE < 100 * POW(10, HEAD.unitBase), then
      *     for each SOURCES AS SRC add a new LOCAL_SINDEX entry:
@@ -1299,7 +1299,7 @@ public interface GlobalValid {
             revoked.setI_block_uid(reducedI.getWritten().stamp());
             revoked.setSignature(reducedI.getSig());
             revoked.setUid(reducedI.getUid());
-            entry.revocationSigOK = Crypto.verify(revoked.toDoc(false), reducedM.getRevocation(), reducedM.getPub()) || true;
+            entry.revocationSigOK = Crypto.verify(revoked.toDUPdoc(false), reducedM.getRevocation(), reducedM.getPub()) || true;
         } else {
             entry.revocationSigOK = true;
         }
@@ -1575,7 +1575,7 @@ public interface GlobalValid {
      * <pre>
      *
      *  If `HEAD.number > 0`
-     *      HEAD.version == (HEAD~1.version OR HEAD~1.version + 1)
+     *      HEAD.getVersion == (HEAD~1.getVersion OR HEAD~1.getVersion + 1)
      *
      * </pre>
      */
@@ -2215,10 +2215,10 @@ public interface GlobalValid {
 
         if ("CREATE".equals(entry.getOp())) {
 
-            assert head_1() != null : "BR_G90_ruleOutputBase - rule Output base - HEAD-1 is null ";
+            assert head_1() != null : "BR_G90_ruleOutputBase - rule Output getBase - HEAD-1 is null ";
 
             assert entry.getBase() <= head_1().getUnitBase()
-                    : "BR_G90_ruleOutputBase - rule Output base - " + entry.getBase() + " " + head_1().getUnitBase();
+                    : "BR_G90_ruleOutputBase - rule Output getBase - " + entry.getBase() + " " + head_1().getUnitBase();
 
             return entry.getBase() <= head_1().getUnitBase();
         } else
@@ -2240,8 +2240,8 @@ public interface GlobalValid {
      *         pos = HEAD.number
      *  written = BLOCKSTAMP
      * written_time = MedianTime
-     *      amount = HEAD.dividend
-     *        base = HEAD.unitBase
+     *      getAmount = HEAD.dividend
+     *        getBase = HEAD.unitBase
      *    locktime = null
      *  conditions = REQUIRE_SIG(MEMBER.pub)
      *    consumed = false
@@ -2256,8 +2256,8 @@ public interface GlobalValid {
      *         pos = HEAD.number
      *  written = BLOCKSTAMP
      * written_time = MedianTime
-     *      amount = HEAD.dividend
-     *        base = HEAD.unitBase
+     *      getAmount = HEAD.dividend
+     *        getBase = HEAD.unitBase
      *    locktime = null
      * conditions = REQUIRE_SIG(MEMBER.pub)
      *    consumed = false
@@ -2776,8 +2776,8 @@ public interface GlobalValid {
      * pos = INPUT_INDEX
      * signed = TX_BLOCKSTAMP
      * written = BLOCKSTAMP
-     * amount = INPUT_AMOUNT
-     * base = INPUT_BASE
+     * getAmount = INPUT_AMOUNT
+     * getBase = INPUT_BASE
      * conditions = null
      * consumed = true
      * )
@@ -2790,8 +2790,8 @@ public interface GlobalValid {
      * pos = OUTPUT_INDEX_IN_TRANSACTION
      * written = BLOCKSTAMP
      * written_time = MedianTime
-     * amount = OUTPUT_AMOUNT
-     * base = OUTPUT_BASE
+     * getAmount = OUTPUT_AMOUNT
+     * getBase = OUTPUT_BASE
      * locktime = LOCKTIME
      * conditions = OUTPUT_CONDITIONS
      * consumed = false
@@ -2823,7 +2823,7 @@ public interface GlobalValid {
 
 
         if (block.getNumber().equals(0)) {
-            conf.accept(block.getParameters());
+            conf.accept(block.params());
         }
 
 
@@ -2979,8 +2979,8 @@ public interface GlobalValid {
                 var input = tx.getInputs().get(indIn);
 
                 localS.add(new SINDEX("UPDATE", // op
-                        input.getType().equals(TxType.D) ? input.getDsource() : input.getTHash(), // identifier
-                        input.getType().equals(TxType.D) ? input.getDBlockID() : input.getTIndex(), // pos
+                        input.type().equals(SourceType.D) ? ( input).getReference() : ( input).getReference(), // identifier
+                        input.type().equals(SourceType.D) ? ( input).getIndex() : ( input).getIndex(), // pos
                         created_on,
                         written_on,
                         input.getAmount(),
@@ -3003,7 +3003,7 @@ public interface GlobalValid {
                         output.getAmount(),
                         output.getBase(),
                         (long) tx.getLocktime(),
-                        output.getOutputCondition(),
+                        output.getConditionString(),
                         false, // consumed
                         tx.getHash()
                 ));
@@ -3089,13 +3089,13 @@ public interface GlobalValid {
         return getC(issuer, receiver).reduce(CINDEX.reducer);
     }
 
-    Stream<Account> lowAccounts();
+    Stream<Accounts> lowAccounts();
 
     default Stream<SINDEX> sourcesByConditions(String conditions) {
         return indexSGlobal().filter(i -> i.getConditions().equals(conditions));
     }
 
-    //Stream<SINDEX> sourcesByConditions(String conditions, String amount );
+    //Stream<SINDEX> sourcesByConditions(String conditions, String getAmount );
 
 
     default Stream<SINDEX> sourcesByConditions(String identifier, Integer pos) {
@@ -3116,10 +3116,10 @@ public interface GlobalValid {
      * <pre>
      * For each LOCAL_SINDEX[op='UPDATE'] as ENTRY:
      *
-     *      INPUT_ENTRIES = LOCAL_SINDEX[op='CREATE',identifier=ENTRY.identifier,pos=ENTRY.pos,amount=ENTRY.amount,base=ENTRY.base]
+     *      INPUT_ENTRIES = LOCAL_SINDEX[op='CREATE',identifier=ENTRY.identifier,pos=ENTRY.pos,getAmount=ENTRY.getAmount,getBase=ENTRY.getBase]
      *
      *      If COUNT(INPUT_ENTRIES) == 0
-     *            INPUT_ENTRIES = GLOBAL_SINDEX[identifier=ENTRY.identifier,pos=ENTRY.pos,amount=ENTRY.amount,base=ENTRY.base]
+     *            INPUT_ENTRIES = GLOBAL_SINDEX[identifier=ENTRY.identifier,pos=ENTRY.pos,getAmount=ENTRY.getAmount,getBase=ENTRY.getBase]
      * </pre>
      *
      * @param entry:

@@ -59,19 +59,19 @@
                                 <LineChart fx:id="mMassChart" createSymbols="false" legendVisible="false"
                                            title="%ccy.stats.monetaryMass" HBox.hgrow="ALWAYS">
                                     <xAxis>
-                                        <NumberAxis fx:id="mmtime" autoRanging="false" side="BOTTOM"/>
+                                        <NumberAxis fx:id="monetaryMass" autoRanging="false" side="BOTTOM"/>
                                     </xAxis>
                                     <yAxis>
-                                        <NumberAxis fx:id="monetaryMass" side="LEFT"/>
+                                        <NumberAxis fx:id="mmTime" side="LEFT"/>
                                     </yAxis>
                                 </LineChart>
                                 <LineChart fx:id="mShareChart" createSymbols="false" legendVisible="false"
                                            title="%ccy.stats.moneyshare" HBox.hgrow="ALWAYS">
                                     <xAxis>
-                                        <NumberAxis fx:id="mstime" autoRanging="false" side="BOTTOM"/>
+                                        <NumberAxis fx:id="mShare" autoRanging="false" side="BOTTOM"/>
                                     </xAxis>
                                     <yAxis>
-                                        <NumberAxis fx:id="moneyShare" side="LEFT"/>
+                                        <NumberAxis fx:id="mShareTime" side="LEFT"/>
                                     </yAxis>
                                 </LineChart>
                             </children>

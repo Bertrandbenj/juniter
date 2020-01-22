@@ -28,6 +28,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
@@ -49,7 +50,7 @@ public class GraphPanel extends AbstractJuniterFX implements Initializable {
     private TextField uri;
 
     @Autowired
-    private GraphvizService graphvizService;
+    private Optional<GraphvizService> graphvizService;
 
     private List<String> bookmarks = new UserSettings().getBookmarks();
 
@@ -86,7 +87,7 @@ public class GraphPanel extends AbstractJuniterFX implements Initializable {
             SVGAnchor.setZoom(1);
             webEngine.load(uri.getText());    // Load page
 
-        } else if (isGraphviz()) {
+        } else if (isGraphviz() ) {
             // assume '/' starting urls relate to local juniter
 
             SVGAnchor.setZoom(0.60);
@@ -97,7 +98,8 @@ public class GraphPanel extends AbstractJuniterFX implements Initializable {
             String identifier = params[3];
 
             try {
-                webEngine.loadContent(graphvizService.build(file, out, identifier, new HashMap<>()));
+                graphvizService.ifPresent(graphvizService1 ->
+                        webEngine.loadContent(graphvizService1.build(file, out, identifier, new HashMap<>())));
 
             } catch (Exception e) {
                 LOG.error("Problem calling graphviz service ", e);

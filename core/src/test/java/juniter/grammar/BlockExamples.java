@@ -1066,6 +1066,8 @@ public interface BlockExamples {
             "IssuersFrame: 100\n" +
             "IssuersFrameVar: 0\n" +
             "DifferentIssuersCount: 3\n" +
+            "PreviousHash: 52DC8A585C5D89571C511BB83F7E7D3382F0041452064B1272E65F0B42B82D57\n" +
+            "PreviousIssuer: HgTTJLAQ5sqfknMq7yLPZbehtuLSsKj9CxWN7k8QvYJd\n" +
             "MembersCount: 3\n" +
             "Identities:\n" +
             "HgTTJLAQ5sqfknMq7yLPZbehtuLSsKj9CxWN7k8QvYJd:Die9lYNW1u/w50AfuaXwb4MJc3aKA3WfJwiy531TqHIGC+VNnRKjMmrwMptN+a+dL6INjLrhMrPqoK60IkTlDQ==:0-E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855:cat\n"
@@ -3198,8 +3200,6 @@ public interface BlockExamples {
             "IssuersFrame: 100\n" +
             "IssuersFrameVar: 0\n" +
             "DifferentIssuersCount: 3\n" +
-            "UnitBase: 0\n" +
-            "Issuer: HgTTJLAQ5sqfknMq7yLPZbehtuLSsKj9CxWN7k8QvYJd\n" +
             "PreviousHash: 2A27BD040B16B7AF59DDD88890E616987F4DD28AA47B9ABDBBEE46257B88E945\n" +
             "PreviousIssuer: HgTTJLAQ5sqfknMq7yLPZbehtuLSsKj9CxWN7k8QvYJd\n" +
             "MembersCount: 3\n" +
@@ -3227,8 +3227,6 @@ public interface BlockExamples {
             "IssuersFrame: 100\n" +
             "IssuersFrameVar: 0\n" +
             "DifferentIssuersCount: 3\n" +
-            "UnitBase: 0\n" +
-            "Issuer: HgTTJLAQ5sqfknMq7yLPZbehtuLSsKj9CxWN7k8QvYJd\n" +
             "PreviousHash: 2A27BD040B16B7AF59DDD88890E616987F4DD28AA47B9ABDBBEE46257B88E945\n" +
             "PreviousIssuer: HgTTJLAQ5sqfknMq7yLPZbehtuLSsKj9CxWN7k8QvYJd\n" +
             "MembersCount: 3\n" +
@@ -3329,8 +3327,6 @@ public interface BlockExamples {
             "IssuersFrame: 100\n" +
             "IssuersFrameVar: 0\n" +
             "DifferentIssuersCount: 3\n" +
-            "UnitBase: 0\n" +
-            "Issuer: HgTTJLAQ5sqfknMq7yLPZbehtuLSsKj9CxWN7k8QvYJd\n" +
             "PreviousHash: 2A27BD040B16B7AF59DDD88890E616987F4DD28AA47B9ABDBBEE46257B88E945\n" +
             "PreviousIssuer: HgTTJLAQ5sqfknMq7yLPZbehtuLSsKj9CxWN7k8QvYJd\n" +
             "MembersCount: 3\n" +
@@ -3448,8 +3444,6 @@ public interface BlockExamples {
             "IssuersFrame: 100\n" +
             "IssuersFrameVar: 0\n" +
             "DifferentIssuersCount: 3\n" +
-            "UnitBase: 0\n" +
-            "Issuer: HgTTJLAQ5sqfknMq7yLPZbehtuLSsKj9CxWN7k8QvYJd\n" +
             "PreviousHash: 2A27BD040B16B7AF59DDD88890E616987F4DD28AA47B9ABDBBEE46257B88E945\n" +
             "PreviousIssuer: HgTTJLAQ5sqfknMq7yLPZbehtuLSsKj9CxWN7k8QvYJd\n" +
             "MembersCount: 3\n" +

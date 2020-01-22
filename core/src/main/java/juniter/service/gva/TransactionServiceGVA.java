@@ -8,7 +8,7 @@ import io.leangen.graphql.annotations.GraphQLQuery;
 import juniter.core.model.dbo.index.SINDEX;
 import juniter.core.model.gva.Source;
 import juniter.core.model.gva.Transaction;
-import juniter.service.core.TransactionService;
+import juniter.service.jpa.TransactionService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;

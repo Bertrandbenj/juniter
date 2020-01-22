@@ -8,10 +8,10 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import juniter.core.crypto.SecretBox;
 import juniter.core.model.dbo.index.SINDEX;
-import juniter.core.model.dbo.tx.TxInput;
+import juniter.core.model.dbo.tx.SourceInput;
 import juniter.gui.game.GameBindings;
-import juniter.service.core.Index;
-import juniter.service.core.TransactionService;
+import juniter.service.jpa.Index;
+import juniter.service.jpa.TransactionService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,7 +84,7 @@ public class LoginPanel implements Initializable {
                 var ss = index.getSRepo().sourcesOfPubkeyL(sb.getPublicKey()).stream()
                         //.peek(x -> LOG.info("found SINDEX " + x))
                         .sorted(Comparator.comparingInt(SINDEX::getAmount))
-                        .map(s -> new TxInput(s.getAmount() + ":" + s.getBase() + ":" + s.type() + ":" + s.getIdentifier() + ":" + s.getPos()))
+                        .map(s -> new SourceInput(s.getAmount() + ":" + s.getBase() + ":" + s.type() + ":" + s.getIdentifier() + ":" + s.getPos()))
                         .collect(Collectors.toList());
                 sources.addAll(ss);
 

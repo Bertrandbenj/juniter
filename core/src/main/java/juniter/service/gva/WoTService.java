@@ -7,7 +7,7 @@ import io.reactivex.Observable;
 import juniter.core.model.dbo.index.IINDEX;
 import juniter.core.model.dbo.wot.Identity;
 import juniter.core.model.gva.PendingIdentity;
-import juniter.service.core.Index;
+import juniter.service.jpa.Index;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;

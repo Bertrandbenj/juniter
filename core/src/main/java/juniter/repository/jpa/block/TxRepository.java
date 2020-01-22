@@ -1,7 +1,7 @@
 package juniter.repository.jpa.block;
 
 import juniter.core.model.dbo.tx.Transaction;
-import juniter.core.model.dbo.tx.TxType;
+import juniter.core.model.meta.SourceType;
 import juniter.core.model.technical.Dividend;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,8 +29,8 @@ public interface TxRepository extends JpaRepository<Transaction, Long> {
                 .filter(t -> {
                     final var iss = t.getIssuers().iterator().next();
                     final var dest = t.getOutputs().iterator().next();
-                    LOG.info(iss + " " + dest.getOutputCondition());
-                    return iss.equals(dest.getOutputCondition());
+                    LOG.info(iss + " " + dest.getConditionString());
+                    return iss.equals(dest.getConditionString());
                 });
     }
 
@@ -39,7 +39,7 @@ public interface TxRepository extends JpaRepository<Transaction, Long> {
 
     default Stream<Transaction> findTxsHavingTxInput() {
         return streamAll() //
-                .filter(t -> t.getInputs().stream().anyMatch(tx -> tx.getType().equals(TxType.T)))//
+                .filter(t -> t.getInputs().stream().anyMatch(tx -> tx.type().equals(SourceType.T)))//
                 .filter(t -> t.getInputs().size() < 30) //
                 .limit(10);
     }
@@ -56,7 +56,7 @@ public interface TxRepository extends JpaRepository<Transaction, Long> {
 
     default Stream<Transaction> findTxWithOtherThanSig() {
         return streamAll()
-                .filter(t -> t.getOutputs().stream().anyMatch(i -> !i.getOutputCondition().startsWith("SIG")));
+                .filter(t -> t.getOutputs().stream().anyMatch(i -> !i.getConditionString().startsWith("SIG")));
     }
 
     @Query("SELECT t FROM Transaction t")

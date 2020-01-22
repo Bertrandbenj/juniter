@@ -15,7 +15,7 @@ import javafx.util.StringConverter;
 import juniter.core.model.technical.CcyStats;
 import juniter.gui.technical.AbstractJuniterFX;
 import juniter.gui.technical.I18N;
-import juniter.service.core.BlockService;
+import juniter.service.jpa.JPABlockService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,16 +43,16 @@ public class Currencies extends AbstractJuniterFX implements Initializable {
     @FXML
     private LineChart<Long, Long> mMassChart;
     @FXML
-    private NumberAxis monetaryMass;
+    private NumberAxis mmTime;
     @FXML
-    private NumberAxis mmtime;
+    private NumberAxis monetaryMass;
 
     @FXML
-    private LineChart<Long, Double> mShareChart;
+    private LineChart<Double, Long  > mShareChart;
     @FXML
-    private NumberAxis mstime;
+    private NumberAxis mShare;
     @FXML
-    private NumberAxis moneyShare;
+    private NumberAxis mShareTime;
 
     @FXML
     private StackedAreaChart<Long, Integer> popChart;
@@ -70,7 +70,7 @@ public class Currencies extends AbstractJuniterFX implements Initializable {
 
 
     @Autowired
-    private BlockService blockService;
+    private JPABlockService blockService;
 
 
     private static ObservableList<String> periodList = FXCollections.observableArrayList("Day", "Week", "Month", "Equinox", "Year", "All");
@@ -176,19 +176,19 @@ public class Currencies extends AbstractJuniterFX implements Initializable {
 
 
             LOG.info(" ======== MONETARY MASS");
-            mmtime.setTickUnit(tick);
-            mmtime.setTickLabelFormatter(new MyStringConv());
-            mmtime.setLowerBound(begin.getMedianTime());
-            mmtime.setUpperBound(end.getMedianTime());
-
-            //monetaryMass.setAutoRanging(false);
             monetaryMass.setLowerBound(0);
             monetaryMass.setUpperBound(end.getMonetaryMass());
+            monetaryMass.setTickUnit(end.getMonetaryMass()/4);
 
+            mmTime.setTickUnit((end.getMedianTime()-begin.getMedianTime())/4);
+            mmTime.setTickLabelFormatter(new MyStringConv());
+            mmTime.setLowerBound(begin.getMedianTime());
+            mmTime.setUpperBound(end.getMedianTime());
+            mmTime.setAutoRanging(false);
             XYChart.Series<Long, Long> seriesmm = new XYChart.Series<>();
 
             seriesmm.getData().addAll(list.stream()
-                    .map(frame -> new XYChart.Data<>(frame.getMedianTime(), frame.getMonetaryMass()))
+                    .map(frame -> new XYChart.Data<>(frame.getMonetaryMass(),frame.getMedianTime()))
                     //.peek(f -> Tooltip.install(f.getNode(), new Tooltip(DECIMAL_2.format(f.getYValue()) + "XX")))
 
                     .collect(Collectors.toList()));
@@ -197,17 +197,19 @@ public class Currencies extends AbstractJuniterFX implements Initializable {
 
 
             LOG.info(" ======== MEMBERS SHARE");
-            mstime.setTickUnit(tick);
-            mstime.setTickLabelFormatter(new MyStringConv());
-            mstime.setLowerBound(begin.getMedianTime());
-            mstime.setUpperBound(end.getMedianTime());
+            mShare.setLowerBound(0);
+            mShare.setUpperBound(end.getMoneyShare());
+            mShare.setTickUnit(end.getMoneyShare()/4);
 
-            moneyShare.setLowerBound(0.0);
-            moneyShare.setUpperBound(end.getMoneyShare());
-            XYChart.Series<Long, Double> seriesms = new XYChart.Series<>();
+            mShareTime.setTickUnit((end.getMedianTime()-begin.getMedianTime())/4);
+            mShareTime.setTickLabelFormatter(new MyStringConv());
+            mShareTime.setLowerBound(begin.getMedianTime());
+            mShareTime.setUpperBound(end.getMedianTime());
+            mShareTime.setAutoRanging(false);
+            XYChart.Series<Double,Long > seriesms = new XYChart.Series<>();
 
             seriesms.getData().addAll(list.stream()
-                    .map(frame -> new XYChart.Data<>(frame.getMedianTime(), frame.getMoneyShare()))
+                    .map(frame -> new XYChart.Data<>( frame.getMoneyShare(),frame.getMedianTime()))
                     .collect(Collectors.toList()));
 
             mShareChart.getData().setAll(seriesms);

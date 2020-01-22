@@ -10,8 +10,9 @@ import juniter.core.model.dto.net.PeerBMA;
 import juniter.core.model.dto.net.PeersDTO;
 import juniter.repository.jpa.net.EndPointsRepository;
 import juniter.repository.jpa.net.PeersRepository;
-import juniter.service.core.BlockService;
-import juniter.service.core.PeerService;
+import juniter.service.jpa.JPABlockService;
+import juniter.service.jpa.PeerService;
+import juniter.service.rdf.Helpers;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
@@ -37,8 +38,9 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
 
 @ConditionalOnExpression("${juniter.useBMA:true}") // Must be up for dependencies
 @Component
@@ -62,7 +64,7 @@ public class BMAPeerFetcher {
     private BMABlockFetcher blockLoader;
 
     @Autowired
-    private BlockService blockService;
+    private JPABlockService blockService;
 
     @Autowired
     private EndPointsRepository endPointRepo;
@@ -71,28 +73,28 @@ public class BMAPeerFetcher {
     private ModelMapper modelMapper;
 
     @Async
-    @Scheduled(fixedDelay = 60 * 1000, initialDelay = 60 * 1000)
+    @Scheduled(fixedDelay = 2 * 60 * 1000, initialDelay = 30 * 1000)
     public void runPeerCheck() {
 
         LOG.info("@Scheduled runPeerCheck ");
         final var start = System.nanoTime();
 
-        PeersDTO peersDTO = null;
-        while (peersDTO == null || peersDTO.getPeers().isEmpty()) {
+        AtomicBoolean found = new AtomicBoolean(false);
+        while (!found.get()) {
 
             final var host = peerService.nextHost(EndPointType.BMAS).orElseThrow().getHost();
             coreEventBus.publishEvent(new LogNetwork(host));
 
             try {
-                peersDTO = fetchPeers(host);
-
-                peersDTO.getPeers().stream()
-                        .map(pdto -> modelMapper.map(pdto, Peer.class))
+                fetchPeers(host)
                         .map(Peer::getBlock)
-                        .mapToLong(BStamp::getNumber)
+                        .mapToInt(BStamp::getNumber)
                         .max()
-                        .ifPresent(maxBlockPeer ->
-                                coreEventBus.publishEvent(new MaxPeerBlock((int) maxBlockPeer)));
+                        .ifPresent(maxBlockPeer -> {
+                                    coreEventBus.publishEvent(new MaxPeerBlock(maxBlockPeer));
+                                    found.set(true);
+                                }
+                        );
 
 
             } catch (Exception e) {
@@ -100,6 +102,8 @@ public class BMAPeerFetcher {
             }
 
         }
+
+        LOG.info("@Scheduled ranPeerCheck " + Helpers.delta(System.nanoTime() - start));
 
     }
 
@@ -122,7 +126,7 @@ public class BMAPeerFetcher {
         LOG.info("=== Found max node " + max);
 
         var peer = peerService.endPointPeer(max.getNumber() - 1);
-        var asBMA = new PeerBMA(peer.toDUP(true));
+        var asBMA = new PeerBMA(peer.toDUPdoc(true));
 
         peerRepo.peerWithBlock(max.toString())
                 .flatMap(p -> p.endpoints().stream())
@@ -135,7 +139,7 @@ public class BMAPeerFetcher {
                         LOG.info("doPairing " + url + " : " + res);
 
                         if (res != null) {
-                            LOG.info(res.toDUP(true));
+                            LOG.info(res.toDUPdoc(true));
                         }
 
                     }
@@ -211,7 +215,7 @@ public class BMAPeerFetcher {
     }
 
 
-    private PeersDTO fetchPeers(String nodeURL) {
+    private Stream<Peer> fetchPeers(String nodeURL) {
 
         LOG.info("fetching peers using BMA at " + nodeURL + "network/peers");
         try {
@@ -228,26 +232,36 @@ public class BMAPeerFetcher {
             LOG.info("Found peers: " + peers.getPeers().size() + ", status : " + statusCode.getReasonPhrase()
                     + ", ContentType: " + contentType);
 
-            save(peers);
 
-            return peers;
+            return save(peers);
 
         } catch (Exception e) {
             peerService.reportError(EndPointType.BMAS, nodeURL);
         }
 
-        return new PeersDTO(new ArrayList<>());
+        return Stream.of();
         //return peers.getPeers().stream().map(b -> modelMapper.map(b, Peer.class)).collect(Collectors.toList());
     }
 
-    private void save(PeersDTO peers) {
-        peers.getPeers()
+    private Stream<Peer> save(PeersDTO peers) {
+        return peers.getPeers()
                 .stream() // parsed peers
-                .map(pdto -> modelMapper.map(pdto, Peer.class))
-                .filter(p -> p.getBlock().getNumber() > blockService.currentBlockNumber() - 500)
+                .map(pdto -> {
+                    var res = modelMapper.map(pdto, Peer.class);
+                    res.setBlock(new BStamp(pdto.getBlock()));
+                    return res;
+                })
+                //.filter(p -> p.getBlock().getNumber() > blockService.currentBlockNumber() - 500)
                 .filter(p -> "UP".equals(p.getStatus()))
-//                .peek(c -> LOG.info("saving " + c))
-                .forEach(p -> peerRepo.saveAndFlush(p));
+                //.peek(c -> LOG.info("saving " + c))
+                .map(p -> {
+                    try {
+                        return peerRepo.saveAndFlush(p);
+                    } catch (Exception e) {
+                        LOG.warn("error saving peer "+ e.getMessage());
+                        return null;
+                    }
+                });
     }
 
 

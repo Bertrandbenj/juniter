@@ -2,9 +2,9 @@ package juniter.grammar.translate;
 
 import generated.antlr.JuniterParser;
 import generated.antlr.JuniterParserBaseVisitor;
-import juniter.grammar.Document;
+import juniter.core.model.meta.DUPDocument;
 
-public class Translator extends JuniterParserBaseVisitor<Document> {
+public class Translator extends JuniterParserBaseVisitor<DUPDocument> {
 
 	public enum LANG {
 		JSON, YAML, DUP
@@ -19,7 +19,7 @@ public class Translator extends JuniterParserBaseVisitor<Document> {
 
 
 	@Override
-	public Document visitCertification(JuniterParser.CertificationContext ctx) {
+	public DUPDocument visitCertification(JuniterParser.CertificationContext ctx) {
 
 		return super.visitCertification(ctx);
 	}

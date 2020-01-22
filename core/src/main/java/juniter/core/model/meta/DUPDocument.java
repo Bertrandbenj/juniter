@@ -7,13 +7,22 @@ public interface DUPDocument extends DUPComponent {
         return 10;
     }
 
-    String getType();
+    void setVersion(Short v);
+
+    String type();
 
     default String getCurrency() {
         return "g1";
     }
 
+    default void setCurrency(String ccy) {
+
+    }
+
     String toDUPdoc(boolean signed);
 
+    default boolean isValid(){
+        return false;
+    }
 
 }

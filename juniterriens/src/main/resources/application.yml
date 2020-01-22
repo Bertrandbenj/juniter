@@ -16,9 +16,11 @@ juniter:
     useDefault: true
     useMissing: true
   useGraphViz: true
-  useGVA: true      # FIXME:  dependencies ?
-  useBMA: true
-  useWS2P: true  #default false
+  #useGVA: false   #default true
+  #useBMA: false  #default true
+  #useWS2P: false  #default true
+
+  useAvro: true  #default false
   #useIPFS: true  #default false
   #useJenaRDF: true #default false
   utils.enabled: false

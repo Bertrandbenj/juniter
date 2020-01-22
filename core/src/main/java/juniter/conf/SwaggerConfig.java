@@ -125,7 +125,7 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
         return new ApiInfoBuilder()
                 //.title("Juniter API")
                 //.description("Juniter API ")
-                //.version("1.0")
+                //.getVersion("1.0")
                 .termsOfServiceUrl("terms of service")
                 .license("WTF PL")
                 .licenseUrl("http://www.wtfpl.net/")

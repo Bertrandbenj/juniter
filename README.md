@@ -65,11 +65,8 @@ chmod a+w /var/log/juniter
 ## Database 
 ```
 sudo -u postgres psql
-drop database junidb;
-CREATE USER juniterrien PASSWORD 'junipass';
-CREATE SCHEMA junidb;
-CREATE DATABASE junidb;
-GRANT ALL ON SCHEMA junidb TO juniterrien;
+CREATE USER juniterrien PASSWORD 'junipass'; 
+drop database junidb; CREATE SCHEMA junidb; CREATE DATABASE junidb; GRANT ALL ON SCHEMA junidb TO juniterrien;
 \q to exit
 ```
 ###  Alternatively

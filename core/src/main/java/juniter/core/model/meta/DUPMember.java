@@ -7,12 +7,13 @@ public interface DUPMember extends DUPDocument, SimpleIssuer,  HasWritten {
 
     BStamp getSigned();
 
-
     String getUid();
 
     String getI_block_uid();
 
     String getPubkey();
+
+    void setPubkey(String pk) ;
 
     @Override
     default String issuer() {
@@ -26,18 +27,19 @@ public interface DUPMember extends DUPDocument, SimpleIssuer,  HasWritten {
 
     @Override
     default String toDUP() {
-        return getPubkey() + ":" + getSignature() + ":" + getSigned().getNumber() + "-" + getSigned().getHash() + ":" + getI_block_uid() + ":" + getUid();
+        return getPubkey() + ":" + getSignature() + ":" + getSigned() + ":" + getI_block_uid() + ":" + getUid();
     }
 
     @Override
-    default String getType(){
+    default String type(){
         return "Membership";
     }
+
 
     @Override
     default String toDUPdoc(boolean signed) {
         return "Version: " + getVersion() + "\n" +
-                "Type: " + getType() + "\n" +
+                "Type: " + type() + "\n" +
                 "Currency: " + getCurrency() + "\n" +
                 "Issuer: " + getPubkey() + "\n" +
                 "UniqueID: " + getUid() + "\n" +
@@ -46,4 +48,8 @@ public interface DUPMember extends DUPDocument, SimpleIssuer,  HasWritten {
                 ;
     }
 
+    @Override
+    default void setIssuer(String iss) {
+        setPubkey(iss);
+    }
 }

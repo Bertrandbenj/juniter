@@ -10,13 +10,13 @@ import juniter.core.crypto.SecretBox;
 import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dbo.index.BINDEX;
 import juniter.core.model.dbo.index.CINDEX;
+import juniter.core.model.dbo.tx.SourceInput;
 import juniter.core.model.dbo.tx.Transaction;
-import juniter.core.model.dbo.tx.TxInput;
 import juniter.gui.technical.I18N;
 import juniter.gui.technical.PageName;
 import juniter.gui.technical.ScreenController;
 import juniter.gui.technical.Theme;
-import juniter.service.core.PeerService;
+import juniter.service.jpa.PeerService;
 
 import java.util.*;
 
@@ -104,7 +104,7 @@ public interface JuniterBindings {
     // USER DATA
     ObjectProperty<SecretBox> secretBox = new SimpleObjectProperty<>(new SecretBox("salt", "password"));
 
-    List<TxInput> sources = new ArrayList<>();
+    List<SourceInput> sources = new ArrayList<>();
     ObjectProperty<PeerService> peerProp = new SimpleObjectProperty<>();
 
     List<CINDEX> certsRelated = new ArrayList<>();

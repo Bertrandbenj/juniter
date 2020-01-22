@@ -47,6 +47,8 @@ public class Certification implements DUPCertification, Comparable<Certification
 
     private BStamp written;
 
+    private Short version ;
+
 
     public Certification(String certif) {
         LOG.debug("Parsing certif ... " + certif);
@@ -59,17 +61,8 @@ public class Certification implements DUPCertification, Comparable<Certification
     }
 
     @Override
-    public int compareTo(Certification o) {
-        return (certifier + " " + certified).compareTo(o.certifier + " " + o.certified);
-    }
-
-    public String toDUP() {
-        return certifier + ":" + certified + ":" + signedOn + ":" + signature;
-    }
-
-    @Override
-    public String toDUPdoc(boolean signed) {
-        return "";
+    public int compareTo(Certification cert) {
+        return (certifier + " " + certified).compareTo(cert.certifier + " " + cert.certified);
     }
 
     @Override

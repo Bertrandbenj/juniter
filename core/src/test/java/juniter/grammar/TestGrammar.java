@@ -3,6 +3,7 @@ package juniter.grammar;
 import generated.antlr.JuniterLexer;
 import generated.antlr.JuniterParser;
 import juniter.core.crypto.Crypto;
+import juniter.core.model.meta.DUPBlock;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.misc.Interval;
 import org.apache.logging.log4j.LogManager;
@@ -505,7 +506,7 @@ public class TestGrammar implements BlockExamples {
         parser.doc();
     }
 
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void BLOCK_WITH_WRONG_UNIT_BASE() {
         final var parser = juniterParser(CharStreams.fromString(BLOCK_WITH_WRONG_UNIT_BASE));
         parser.doc();
@@ -517,19 +518,19 @@ public class TestGrammar implements BlockExamples {
         parser.doc();
     }
 
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void BLOCK_UNLEGITIMATE_UD() {
         final var parser = juniterParser(CharStreams.fromString(BLOCK_UNLEGITIMATE_UD));
         parser.doc();
     }
 
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void BLOCK_UNLEGITIMATE_UD_2() {
         final var parser = juniterParser(CharStreams.fromString(BLOCK_UNLEGITIMATE_UD_2));
         parser.doc();
     }
 
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void FIRST_UD_BLOCK_WITH_UD_THAT_SHOULDNT() {
         final var parser = juniterParser(CharStreams.fromString(FIRST_UD_BLOCK_WITH_UD_THAT_SHOULDNT));
         parser.doc();
@@ -559,49 +560,49 @@ public class TestGrammar implements BlockExamples {
         parser.doc();
     }
 
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void BLOCK_WITH_WRONG_TRANSACTION_UNIT_BASES() {
         final var parser = juniterParser(CharStreams.fromString(BLOCK_WITH_WRONG_TRANSACTION_UNIT_BASES));
         parser.doc();
     }
 
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void BLOCK_WITH_WRONG_UD_SOURCE() {
         final var parser = juniterParser(CharStreams.fromString(BLOCK_WITH_WRONG_UD_SOURCE));
         parser.doc();
     }
 
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void BLOCK_WITH_WRONG_TX_SOURCE() {
         final var parser = juniterParser(CharStreams.fromString(BLOCK_WITH_WRONG_TX_SOURCE));
         parser.doc();
     }
 
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void BLOCK_WITH_UNAVAILABLE_UD_SOURCE() {
         final var parser = juniterParser(CharStreams.fromString(BLOCK_WITH_UNAVAILABLE_UD_SOURCE));
         parser.doc();
     }
 
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void BLOCK_WITH_UNAVAILABLE_TX_SOURCE() {
         final var parser = juniterParser(CharStreams.fromString(BLOCK_WITH_UNAVAILABLE_TX_SOURCE));
         parser.doc();
     }
 
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void TRANSACTION_WITHOUT_ISSUERS() {
         final var parser = juniterParser(CharStreams.fromString(TRANSACTION_WITHOUT_ISSUERS));
         parser.doc();
     }
 
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void TRANSACTION_WITHOUT_SOURCES() {
         final var parser = juniterParser(CharStreams.fromString(TRANSACTION_WITHOUT_SOURCES));
         parser.doc();
     }
 
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void TRANSACTION_WITHOUT_RECIPIENT() {
         final var parser = juniterParser(CharStreams.fromString(TRANSACTION_WITHOUT_RECIPIENT));
         parser.doc();
@@ -613,7 +614,7 @@ public class TestGrammar implements BlockExamples {
         parser.doc();
     }
 
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void TRANSACTION_WITH_EMPTY_TX_CONDITIONS() {
         final var parser = juniterParser(CharStreams.fromString(TRANSACTION_WITH_EMPTY_TX_CONDITIONS));
         parser.doc();
@@ -622,7 +623,9 @@ public class TestGrammar implements BlockExamples {
     @Test
     public void WRONGLY_SIGNED_IDENTITIES() {
         final var parser = juniterParser(CharStreams.fromString(WRONGLY_SIGNED_IDENTITIES));
-        parser.doc();
+
+        DUPBlock block = (DUPBlock) visitor.visitBlock_(parser.block_());
+
     }
 
     @Test
@@ -718,6 +721,7 @@ public class TestGrammar implements BlockExamples {
     @Test
     public void BLOCK_UNKNOWN_REVOKED() {
         final var parser = juniterParser(CharStreams.fromString(BLOCK_UNKNOWN_REVOKED));
+        System.out.println(BLOCK_UNKNOWN_REVOKED);
         parser.doc();
     }
 

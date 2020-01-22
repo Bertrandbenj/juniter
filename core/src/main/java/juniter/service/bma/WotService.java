@@ -11,8 +11,8 @@ import juniter.core.model.dto.wot.MemberDTO;
 import juniter.core.model.dto.wot.lookup.*;
 import juniter.core.model.dto.wot.requirements.Requirements;
 import juniter.repository.jpa.block.CertsRepository;
-import juniter.service.core.Index;
-import juniter.service.core.WebOfTrust;
+import juniter.service.jpa.Index;
+import juniter.service.jpa.WebOfTrust;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.apache.logging.log4j.LogManager;
@@ -55,6 +55,7 @@ public class WotService {
         try {
             return wot.requirements(pubkeyOrUid);
         } catch (Exception e) {
+            LOG.error("error ", e);
             throw new DuniterException(e);
         }
     }

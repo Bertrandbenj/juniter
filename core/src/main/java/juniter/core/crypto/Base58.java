@@ -8,8 +8,8 @@ package juniter.core.crypto;
  * %%
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * published by the Free Software Foundation, either getVersion 3 of the
+ * License, or (at your option) any later getVersion.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -32,7 +32,7 @@ import java.nio.charset.StandardCharsets;
  * <p>You may instead wish to work with VersionedChecksummedBytes , which adds support for testing the prefix
  * and suffix bytes commonly found in addresses.</p>
  *
- * <p>Satoshi says: why base-58 instead of standard base-64 encoding?<p>
+ * <p>Satoshi says: why getBase-58 instead of standard getBase-64 encoding?<p>
  *
  * <ul>
  * <li>Don't want 0OIl characters that look the same in some fonts and

@@ -5,7 +5,7 @@ import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dbo.index.*;
 import juniter.core.validation.GlobalValid;
-import juniter.service.core.BlockService;
+import juniter.service.jpa.JPABlockService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +36,7 @@ public class RAMIndex implements GlobalValid {
 
 
     @Autowired
-    private BlockService blockService;
+    private JPABlockService blockService;
 
 
     @Transactional(readOnly = true)
@@ -124,7 +124,7 @@ public class RAMIndex implements GlobalValid {
     }
 
     @Override
-    public Stream<Account> lowAccounts() {
+    public Stream<Accounts> lowAccounts() {
         return null;
     }
 

@@ -2,8 +2,8 @@ package juniter.service.ws2p;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import juniter.core.model.dbo.index.BINDEX;
-import juniter.service.core.Index;
-import juniter.service.core.PeerService;
+import juniter.service.jpa.Index;
+import juniter.service.jpa.PeerService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

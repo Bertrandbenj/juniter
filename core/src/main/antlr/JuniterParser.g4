@@ -33,8 +33,7 @@ import java.lang.Integer;
 	}
 }
 
-doc
-:
+doc:
 	{System.out.println("doc: " );}
 
 	wot
@@ -43,8 +42,7 @@ doc
 	| block_
 ;
 
-block_
-:
+block_:
 	{System.out.println("  block: ");}
 
 	version
@@ -101,13 +99,13 @@ block_
 
 	renewed
 
-	 leavers
+	leavers
 
-     revoked
+    revoked
 
-	 excluded
+	excluded
 
-	 certifications
+	certifications
 
 	cpt_transactions
 
@@ -120,6 +118,7 @@ block_
 	(signature
 	{System.out.println("    signature: "+$signature.text+ " # isValid? " );} //+ CryptoUtils.verify(rawUnsigned(_localctx.signature.start.getStartIndex()-1), $signature.text, issuerPK)) ;}
     )?
+    EODOC
 ;
 
 cpt_transactions:
@@ -132,14 +131,11 @@ transactions
 locals [int i=0]
 :
 	{System.out.println("    transactions: ");}
-
-
 	(
-	{
-			nbIssu=0;
-			System.out.println("      "+ $i++ +": ");
-	 }
-//COMPACT_TRANSACTION
+        {
+                nbIssu=0;
+                System.out.println("      "+ $i++ +": ");
+         }
 		compactTransaction
 	)*
 ;
@@ -179,35 +175,22 @@ locals [int nbIn=0, int nbUn=0, int nbOut=0; ]
 
 	buid
 
+    issuers_compact+
 
-	//issuers_compact
-   issuers_compact+
-
-	//{nbInputs <= 6}?
-	//inputs
     cpt_in+
-
 
     cpt_unlock+
 
 	{$nbOut++ < 2}?
-	//outputs
     cpt_out+
 
     cpt_comm?
 
 	cpt_signature
-
-
-;
-
-nbComment:
-    BLNUMB
 ;
 
 cpt_comm:
 	{System.out.println("cpt_comm:  " + nbComm);}
-
      CPT_COMM BREAK
 ;
 
@@ -231,8 +214,7 @@ cpt_unlock:
     CPT_NUM CPT_COL CPT_SIG CPT_NUM BREAK
 ;
 
-issuers
-:
+issuers:
 	{System.out.println("    issuers: ");}
 
 	(
@@ -241,15 +223,9 @@ issuers
 	)+
 ;
 
-issuers_compact
-:
+issuers_compact:
 	{System.out.println("        issuers: ");}
 	(CPT_ISS BREAK)
-;
-
-modeSwitch :
-    ( {nbIssu == nbIssuersExpected}?  )
-   // | ( {nbIssu < nbIssuersExpected}?  )
 ;
 
 certifications
@@ -257,10 +233,13 @@ locals [int i=0]
 :
 	{System.out.println("    certifications: ");}
 
-    // Certifications_
 	(
 		{System.out.println("      "+ $i++ +": ");}
+        cert
+	)*
+;
 
+cert:
 		fromPK
 		{System.out.println("        from: " +$fromPK.text);}
 
@@ -272,16 +251,12 @@ locals [int i=0]
 
 		signature
 		{System.out.println("        signature: "+$signature.text);}
-
-	)*
 ;
 
 excluded
 locals [int i=0]
 :
 	{System.out.println("    excluded: ");}
-
-    //  Excluded_
 	(
 		pubkey
 		{System.out.println("      "+ $i++ +".pubkey: "+$pubkey.text);}
@@ -292,19 +267,17 @@ revoked
 locals [int i=0]
 :
 	{System.out.println("    revoked: ");}
+	( cpt_rev )*
+;
 
-    // Revoked_
-	(
-		pubkey signature
-	)*
+cpt_rev:
+    pubkey signature
 ;
 
 leavers
 locals [int i=0]
 :
 	{System.out.println("    leavers: ");}
-
-    //Leavers_
 	(
 		pubkey signature mBlockUid iBlockUid userid
 	)*
@@ -314,8 +287,6 @@ renewed
 locals [int i=0]
 :
 	{System.out.println("    renewed: ");}
-
-    //Actives_
 	(
 		pubkey signature mBlockUid iBlockUid userid
 	)*
@@ -324,39 +295,33 @@ locals [int i=0]
 joiners
 locals [int i=0]
 :
-	{System.out.println("    joiners: ");}
-    // Joiners_
-	(
-		 cpt_joiner
-	)*
+	{System.out.println("    joiners: //" + $i);}
+	(cpt_joiner) *
 ;
 
 cpt_joiner:
-    pubkey   signature    mBlockUid   iBlockUid   userid
+    pubkey
+    signature
+    mBlockUid
+    iBlockUid
+    userid
 ;
 
 identities
 locals [int i=0]
 :
-	{System.out.println("    identities: ");}
-    // Identities_
-	(
-		 cpt_idty
-	)*
-	//EOWOT
+	{System.out.println("    identities: //" + $i);}
+    (cpt_idty) *
 ;
 
 cpt_idty:
-    testExactPK   signature   iBlockUid   userid
+    pubkey
+    signature
+    iBlockUid
+    userid
 ;
 
-membersCount
-:
-	NUMB
-;
-
-parameters
-:
+parameters:
 
 	{System.out.println("    parameters: ");}
 
@@ -419,21 +384,9 @@ parameters
 
 	dtReeval
 	{System.out.println("      dtReeval: "+$dtReeval.text+" 		# Time period between two re-evaluation of the UD. ");}
-
-	//msPeriod
-	//{System.out.println("      msPeriod: "+$msPeriod.text+" # Minimum delay between 2 memberships of a same issuer, in seconds. Must be positive or zero. ");}
-
-
-
-
-
-	//txWindow
-	//{System.out.println("      txWindow: "+$txWindow.text+" # = 3600 * 24 * 7. Maximum delay a transaction can wait before being expired for non-writing. ");}
-
 ;
 
-peer
-:
+peer:
 	{System.out.println("  peer: ");}
 
 	version
@@ -450,8 +403,7 @@ peer
 	block endpoints
 ;
 
-transaction
-:
+transaction:
 	{System.out.println("  transaction:");}
 
 	version
@@ -478,11 +430,9 @@ transaction
 
 	comment
 	{System.out.println("    comment: "+$comment.text);}
-
 ;
 
-wot
-:
+wot:
 	{System.out.println("  wot: 		#  Identity,Certification, Membership, Revocation"); }
 
 	(
@@ -491,12 +441,10 @@ wot
 		| revocation
 		| certification
 	) signature
-	{System.out.println("    signature: "+$signature.text + " # isValid? " );} //+ CryptoUtils.verify(rawUnsigned(_localctx.signature.start.getStartIndex()-1), $signature.text, issuerPK)) ;} //+  }
-
+	{System.out.println("    signature: "+$signature.text + " # isValid? " );}
 ;
 
-identity
-:
+identity:
 	{System.out.println("    identity:");}
 
 	version
@@ -516,8 +464,7 @@ identity
 	timestamp
 ;
 
-certification
-:
+certification:
 	{System.out.println("    certification: ");}
 
 	version
@@ -547,8 +494,7 @@ certification
 	CertTimestamp_ certTimestamp
 ;
 
-membership
-:
+membership:
 	{System.out.println("    membership:");}
 
 	version
@@ -573,8 +519,7 @@ membership
 	certTS
 ;
 
-revocation
-:
+revocation:
 	{System.out.println("    revocation:");}
 
 	version
@@ -593,7 +538,6 @@ revocation
 
 	idtyTimestamp IdtySignature_ idtySignature
 	{System.out.println("      idtySignature: "+$idtySignature.text);}
-
 ;
 
 endpoints
@@ -612,8 +556,7 @@ locals [int i=0]
 	| EOF
 ;
 
-enpoint
-:
+enpoint:
 	endpointType FIELD_SEP
 	{System.out.println("        type: "+$endpointType.text);}
 
@@ -634,23 +577,11 @@ enpoint
 
 	)+
 	ENDPT_SEP
-
 ;
 
-sessionid:
-    SESSID
-;
-
-idtyTimestamp
-:
+idtyTimestamp:
 	{indent="        ";}
-
 	buid
-;
-
-idtyUniqueID
-:
-	USERID
 ;
 
 signatures
@@ -667,22 +598,12 @@ locals [int i=0]
 	)+
 ;
 
-comment
-:
-	COMMENT
-;
-
-
-locktime
-:
+locktime:
 	NUMB
 	| BLNUMB
 ;
 
-blockstamp
-:
-	NUMB
-;
+
 
 inputs
 locals [int i=0]
@@ -697,8 +618,7 @@ locals [int i=0]
 	)+
 ;
 
-input
-:
+input:
 	amount
 	{System.out.println("        amount: "+$amount.text);}
 
@@ -718,8 +638,7 @@ input
 	)
 ;
 
-ud
-:
+ud:
 	{System.out.println("        ud:  # Universal Basic Income");}
 
 	pubkey
@@ -729,11 +648,9 @@ ud
 
 	bnum
 	{System.out.println("          bnum: "+$bnum.text+ " # at that block number ");}
-
 ;
 
-tx
-:
+tx:
 	{System.out.println("        tx:  # a previous Transaction");}
 
 	bhash
@@ -743,33 +660,24 @@ tx
 
 	tindex
 	{System.out.println("          tindex: "+$tindex.text+" # at that index");}
-
 ;
 
-amount
-:
+amount:
 	INNUMB
 	| OUTNUMB
 	| CPT_NUM
 ;
 
-base
-:
+base:
 	INNUMB
 	| OUTNUMB
 	| CPT_NUM
-;
-
-tindex
-:
-	INNUMB
 ;
 
 unlocks
 locals [int i=0]
 :
 	{System.out.println("    unlocks: ");}
-
 	(
 		{System.out.println("      "+ $i++ +": ");}
 
@@ -778,8 +686,7 @@ locals [int i=0]
 	)+
 ;
 
-unlock
-:
+unlock:
 	in_index
 	{System.out.println("        in_index: "+$in_index.text+"");}
 
@@ -791,32 +698,14 @@ unlock
 
 		| UNXHX unxhx
 		{System.out.println("          unxhx: "+$unxhx.text+"");}
-
 	)
 ;
 
-in_index
-:
-	UNNUMB
-;
-
-unsig
-:
-	UNNUMB
-;
-
-unxhx
-:
-	UNNUMB
-;
-
-//SIG(PUBLIC_KEY), XHX(SHA256_HASH), CLTV(INTEGER), CSV(INTEGER)
 
 outputs
 locals [int i=0]
 :
 	{System.out.println("    outputs: ");}
-
 	(
 		{System.out.println("      "+$i++ +": ");}
 
@@ -825,8 +714,7 @@ locals [int i=0]
 	)+
 ;
 
-output
-:
+output:
 	amount
 	{System.out.println("        amount: "+$amount.text+"");}
 
@@ -837,8 +725,7 @@ output
 	cond
 ;
 
-cond
-:
+cond:
 	(
 		sig
 		{System.out.println(indent+"sig: "+$sig.text+"");}
@@ -863,380 +750,230 @@ cond
 	)
 ;
 
-and
-:
+and:
 	{indent+="  ";}
 
 	OUTLP cond AND cond OUTRP
 	{indent = indent.substring(2);}
-
 ;
 
-or
-:
+or:
 	{indent+="  ";}
 
 	OUTLP cond OR cond OUTRP
 	{indent = indent.substring(2);}
-
 ;
 
-sig
-:
+sig:
 	SIG  OUTLP pubkey OUTRP
 ;
 
-xhx
-:
+xhx:
 	XHX  OUTLP bhash OUTRP
 ;
 
-csv
-:
+csv:
 	CSV OUTLP outParam OUTRP
 ;
 
-cltv
-:
+cltv:
 	CLTV OUTLP outParam OUTRP
 ;
 
-outParam
-:
-	OUTNUMB
-;
-
-block
-:
-	bl = buid
-;
-
-issuer
-:
+issuer:
 	iss =
 	(
 		PUBKEY_INLINED
 		| PUBKEY_MULTILN
 	)
 	{ issuerPK = $iss.text; }
-
 ;
 
-member
-:
-	mem = MEMBER_TYPE
-;
-
-certTS
-:
-	buid
-;
-
-userID
-:
-	uid = USERID
-;
-
-timestamp
-:
-	buid
-;
-
-signature
-:
+signature:
 	SIGN
 	| MULTISIGN
 	| WOTSIGN
-
+	| JOINSIGN
+	| CERTSIGN
+    | IDTIESSIGN
+    | REVSIGN
+    | LEAVSIGN
+    | ACTIVESIGN
+    | SIGNATURETK
 	{nbSign++;}
-
 ;
 
-userid
-:   USERID | WOTUID
-;
 
-multipubkey:
-EXACTPUBKEY POPONE
-;
-
-pubkey
-:
+pubkey:
 	pk = PUBKEY_INLINED
 	| PUBKEY_MULTILN
 	| OUTPUBK
 	| WOTPUBK
 	| CPT_ISS
 	| EXACTPUBKEY
+	| IDTIESPUBK
+	| REVPUBK
+	| LEAVPUBK
+	| ACTIVEPUBK
+	| JOINPUBK
 ;
 
-testExactPK: EXACTPUBKEY ;
-
-currency
-:
-	CURRENCY
-;
-
-version
-:
-	VERSION
-	| WOTNUMB
-	| BLNUMB
-;
-
-buid
-:
-	bnum
+buid:
+    bnum
 	{System.out.println(indent+"buid.bnum: "+$bnum.text);}
 
 	d = DASH_INLINED bhash
 	{System.out.println(indent+"buid.bhash: "+$bhash.text);}
-
 ;
 
-bnum
-:
+bnum:
 	a = NUMBER
 	| INNUMB
-	| WOTNUMB
+	| CERTNUMB
 	| CPT_NUM
 ;
 
-bhash
-:
+bhash:
 	HASH_INLINED
 	| INHASH
 	| OUTHASH
 ;
 
 
-percentRot
-:
-	BLPERCENT
-;
+currency:	    CURRENCY;
 
-dtDiffEval
-:
-	BLNUMB
-;
+version:	    VERSION	| WOTNUMB	| BLNUMB;
 
-avgGenTime
-:
-	BLNUMB
-;
+userid:         USERID | WOTUID | IDTIESUID | JOINUID;
+
+member:	        mem = MEMBER_TYPE;
+
+certTS:	        buid;
+
+userID:	        uid = USERID;
+
+timestamp:	    buid;
+
+percentRot:	    BLPERCENT;
+
+dtDiffEval:	    BLNUMB;
+
+avgGenTime:	    BLNUMB;
 
 medianTimeBlocks:	BLNUMB;
 
-stepMax:            BLNUMB;
+stepMax:        BLNUMB;
 
-msValidity:         BLNUMB;
+msValidity:     BLNUMB;
 
-xpercent:	        BLPERCENT;
+xpercent:	    BLPERCENT;
 
-msWindow:       	BLNUMB;
+msWindow:       BLNUMB;
 
-idtyWindow:     	BLNUMB;
+idtyWindow:    	BLNUMB;
 
-sigQty
-:
-	BLNUMB
-;
+sigQty:	        BLNUMB;
 
-sigValidity
-:
-	BLNUMB
-;
+sigValidity:	BLNUMB;
 
-sigWindow
-:
-	BLNUMB
-;
+sigWindow:	    BLNUMB;
 
-sigStock
-:
-	BLNUMB
-;
+sigStock:	    BLNUMB;
 
+sigPeriod:	    BLNUMB;
 
-sigPeriod
-:
-	BLNUMB
-;
+udReevalTime0:	BLNUMB;
 
-udReevalTime0
-:
-	BLNUMB
-;
+udTime0:	    BLNUMB;
 
-udTime0
-:
-	BLNUMB
-;
+dtReeval:	    BLNUMB;
 
-dtReeval
-:
-	BLNUMB
-;
+dt:	            BLNUMB;
 
-dt
-:
-	BLNUMB
-;
+c:	            BLPERCENT;
 
-c
-:
-	BLPERCENT
-;
+ud0 :           BLNUMB;
 
-ud0 : BLNUMB
-;
+previousIssuer:	pubkey;
 
-previousIssuer
-:
-	pubkey
-;
+previousHash:	bhash;
 
-previousHash
-:
-	bhash
-;
+differentIssuersCount:	NUMB;
 
-differentIssuersCount
-:
-	NUMB
-;
+issuersFrameVar:NUMB;
 
-issuersFrameVar
-:
-	NUMB
-;
+issuersFrame:	NUMB;
 
-issuersFrame
-:
-	NUMB
-;
+unitBase:	    NUMB;
 
-unitBase
-:
-	NUMB
-;
+universalDividend:	NUMB;
 
-universalDividend
-:
-	NUMB
-;
+medianTime:	    NUMB;
 
-medianTime
-:
-	NUMB
-;
+time:	        NUMB;
 
-time
-:
-	NUMB
-;
+powMin:	        NUMB;
 
-powMin
-:
-	NUMB
-;
+number:	        NUMB;
 
-number
-:
-	NUMB
-;
+nonce:	        BLNUMB | NUMB;
 
-nonce
-:
-	BLNUMB | NUMB
-;
+innerHash:	    bhash;
 
-innerHash
-:
-	bhash
-;
+certTimestamp:	buid;
 
-certTimestamp
-:
-	buid
-;
+idtyIssuer:	    pubkey;
 
-idtyIssuer
-:
-	pubkey
-;
+port:	        PORT;
 
-port
-:
-	PORT
-;
+ip6:	        IP6;
 
-ip6
-:
-	IP6
-;
+ip4:	        IP4;
 
-ip4
-:
-	IP4
-;
+dns:	        DNS;
 
-dns
-:
-	DNS
-;
+iBlockUid:      WOTBUID | IDTIESBUID | JOINBUID;
 
-iBlockUid
-:
-    WOTBUID
-;
+mBlockUid:      WOTBUID | JOINBUID;
 
-mBlockUid
-:
-    WOTBUID
-;
+endpointType:	ENDPOINT_TYPE;
 
-endpointType
-:
-	ENDPOINT_TYPE
-;
+toPK:	        CERTPUBK;
 
-toPK
-:
-	pubkey
-;
+blockstampTime:	BLNUMB;
 
-blockstampTime
-:
-	BLNUMB
-;
+nbOutput:   	BLNUMB;
 
-nbOutput
-:
-	BLNUMB
-;
+nbUnlock:   	BLNUMB;
 
-nbUnlock
-:
-	BLNUMB
-;
+nbInput:    	BLNUMB;
 
-nbInput
-:
-	BLNUMB
-;
+nbIssuer:       BLNUMB;
 
-nbIssuer
-:
-	BLNUMB
-;
+fromPK:         CERTPUBK ;
 
-fromPK
-:
-	pubkey
-;
+idtySignature:  signature ;
 
-idtySignature
-:
-	signature
-;
+comment:        COMMENT;
+
+blockstamp:     NUMB;
+
+membersCount:	NUMB;
+
+in_index:	    UNNUMB;
+
+unsig:	        UNNUMB;
+
+unxhx:	        UNNUMB;
+
+tindex:	        INNUMB;
+
+nbComment:      BLNUMB;
+
+sessionid:      SESSID;
+
+idtyUniqueID:	USERID;
+
+outParam:	    OUTNUMB;
+
+block:	        bl = buid;

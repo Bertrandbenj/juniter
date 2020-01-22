@@ -81,7 +81,7 @@ public interface SINDEXRepository extends JpaRepository<SINDEX, Long> {
 
     @Transactional
     @Modifying
-    @Query("DELETE FROM SINDEX sindex WHERE identifier = ?1 AND pos = ?2 AND amount = ?3 AND base = ?4")
+    @Query("DELETE FROM SINDEX sindex WHERE identifier = ?1 AND pos = ?2 AND getAmount = ?3 AND getBase = ?4")
     void trimCreate(String identifier, Integer pos, Integer amount, Integer base);
 
     @Transactional

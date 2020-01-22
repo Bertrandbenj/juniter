@@ -41,7 +41,7 @@ import java.util.function.BinaryOperator;
         @Index(columnList = "createdOn"),
         @Index(columnList = "written_number")
 }, uniqueConstraints = {
-       // @UniqueConstraint(columnNames = {"receiver", "issuer", "written_number"})
+        // @UniqueConstraint(columnNames = {"receiver", "issuer", "written_number"})
 })
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CINDEX implements Comparable<CINDEX> {
@@ -81,8 +81,8 @@ public class CINDEX implements Comparable<CINDEX> {
     private transient boolean fromMember;
     private transient DBBlock created_on;
     /**
-     *  introduced as of version 11
-     *  allow replaying cert prior to its expiry
+     * introduced as of getVersion 11
+     * allow replaying cert prior to its expiry
      */
     private transient boolean isReplayable;
     private Long replayable_on;

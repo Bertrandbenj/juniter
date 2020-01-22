@@ -1,6 +1,6 @@
 package juniter.core.model.meta;
 
-public interface HasSignedPart extends HasSignature{
+public interface HasSignedPart extends SimpleIssuer{
 
     String getInner_hash();
     Long getNonce();

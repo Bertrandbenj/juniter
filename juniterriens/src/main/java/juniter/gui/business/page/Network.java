@@ -16,8 +16,8 @@ import juniter.core.model.dbo.net.NetStats;
 import juniter.core.model.dto.node.BlockNetworkMeta;
 import juniter.gui.technical.AbstractJuniterFX;
 import juniter.gui.technical.I18N;
-import juniter.service.core.BlockService;
-import juniter.service.core.PeerService;
+import juniter.service.jpa.JPABlockService;
+import juniter.service.jpa.PeerService;
 import juniter.service.bma.loader.BMAPeerFetcher;
 import juniter.service.ws2p.WebSocketPool;
 import org.apache.logging.log4j.LogManager;
@@ -93,7 +93,7 @@ public class Network extends AbstractJuniterFX implements Initializable {
     private PeerService peerService;
 
     @Autowired
-    private BlockService blockService;
+    private JPABlockService blockService;
 
     @Autowired
     private WebSocketPool webSocketPool;

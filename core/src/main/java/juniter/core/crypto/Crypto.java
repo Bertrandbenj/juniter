@@ -41,12 +41,12 @@ public class Crypto extends Util {
 
 	private static final Sodium naCl = NaCl.sodium();
 
-	//	private static byte[] copyEnsureLength(byte[] source, int length) {
+	//	private static byte[] copyEnsureLength(byte[] getSource, int length) {
 	//		final byte[] result = zeros(length);
-	//		if (source.length > length) {
-	//			System.arraycopy(source, 0, result, 0, length);
+	//		if (getSource.length > length) {
+	//			System.arraycopy(getSource, 0, result, 0, length);
 	//		} else {
-	//			System.arraycopy(source, 0, result, 0, source.length);
+	//			System.arraycopy(getSource, 0, result, 0, getSource.length);
 	//		}
 	//		return result;
 	//	}
@@ -69,7 +69,7 @@ public class Crypto extends Util {
 		try {
 			return Base58.decode(data);
 		} catch (final Exception e) {
-			throw new juniter.core.exception.TechnicalException("Could decode from base 58: " + e.getMessage());
+			throw new juniter.core.exception.TechnicalException("Could decode from getBase 58: " + e.getMessage());
 		}
 	}
 

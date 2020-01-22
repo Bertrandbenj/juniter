@@ -5,8 +5,8 @@ import juniter.core.exception.DuniterException;
 import juniter.core.model.dbo.net.EndPointType;
 import juniter.core.model.dbo.net.Peer;
 import juniter.core.model.dto.net.*;
-import juniter.service.core.BlockService;
-import juniter.service.core.PeerService;
+import juniter.service.jpa.JPABlockService;
+import juniter.service.jpa.PeerService;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -48,7 +48,7 @@ public class NetworkService {
 
 
     @Autowired
-    private BlockService blockService;
+    private JPABlockService blockService;
 
     @Autowired
     private PeerService peerService;
@@ -138,7 +138,7 @@ public class NetworkService {
 
 
         var cnt1 = uriList.stream().mapToInt(u -> u.toASCIIString().length()).sum();
-        var cnt2 = peer.toDUP(true).length();
+        var cnt2 = peer.toDUPdoc(true).length();
         // LOG.info(" getUris " + cnt1 + "  -  " + cnt2 + "\n" + uriList.stream().map(URI::toString).collect(Collectors.joining("\n")));
 
 

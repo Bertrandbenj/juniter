@@ -12,11 +12,9 @@ import javafx.scene.layout.VBox;
 import javafx.util.Pair;
 import juniter.core.crypto.SecretBox;
 import juniter.core.model.dbo.index.SINDEX;
-import juniter.core.model.dbo.tx.Transaction;
-import juniter.core.model.dbo.tx.TxInput;
-import juniter.core.model.dbo.tx.TxOutput;
-import juniter.core.model.dbo.tx.TxUnlock;
-import juniter.service.core.Index;
+import juniter.core.model.dbo.tx.*;
+import juniter.core.model.meta.LockType;
+import juniter.service.jpa.Index;
 import juniter.user.UnitDisplay;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -83,7 +81,7 @@ public class TxPanel implements Initializable {
     @FXML
     private VBox sourcesActionCol;
 
-    private List<TxInput> inputs = Lists.newArrayList();
+    private List<SourceInput> inputs = Lists.newArrayList();
 
     private List<TxOutput> outputs = Lists.newArrayList();
 
@@ -135,7 +133,7 @@ public class TxPanel implements Initializable {
             tx = new Transaction(null,
                     Short.parseShort(fieldVersion.getText()),
                     fieldCurrency.getText(),
-                    Integer.parseInt(fieldLocktime.getText()),
+                    Long.valueOf(fieldLocktime.getText()),
                     "",
                     b.bStamp(),
                     // b,
@@ -190,10 +188,10 @@ public class TxPanel implements Initializable {
                                 .limit(40)
                                 .takeWhile(s -> ai.getAndAdd(s.getAmount()) < amount)
                                 //.map(SINDEX::asSourceBMA)
-                                .map(s -> new TxInput(s.getAmount() + ":" + s.getBase() + ":" + s.type() + ":" + s.getIdentifier() + ":" + s.getPos()))
+                                .map(s -> new SourceInput(s.getAmount() + ":" + s.getBase() + ":" + s.type() + ":" + s.getIdentifier() + ":" + s.getPos()))
                                 .collect(Collectors.toList()));
 
-                LOG.info("Sum keyboardInput " + sb.getPublicKey() + ": " + inputs.stream().mapToInt(TxInput::getAmount).sum());
+                LOG.info("Sum keyboardInput " + sb.getPublicKey() + ": " + inputs.stream().mapToInt(SourceInput::getAmount).sum());
 
                 for (int inCnt = 0; inCnt < inputs.size(); inCnt++) {
                     var in = inputs.get(inCnt);
@@ -201,7 +199,7 @@ public class TxPanel implements Initializable {
 
                     inputContainer.getChildren().add(txi);
 
-                    var txu = new TxUnlock(inCnt, TxUnlock.UnlockFct.SIG, i + "");
+                    var txu = new TxUnlock(inCnt, LockType.SIG, i + "");
                     var txulab = new Label(txu.toDUP());
                     unlocks.add(txu);
                     unlockContainer.getChildren().add(txulab);

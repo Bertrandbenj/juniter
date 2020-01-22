@@ -1,0 +1,531 @@
+{
+  "type" : "record",
+  "name" : "DBBlock2",
+"namespace": "juniter.avro",
+  "fields" : [ {
+    "name" : "id",
+    "type" : "long"
+  }, {
+    "name" : "number",
+    "type" : "int"
+  }, {
+    "name" : "hash",
+    "type" : "string"
+  }, {
+    "name" : "version",
+    "type" : {
+      "type" : "int",
+      "java-class" : "java.lang.Short"
+    }
+  }, {
+    "name" : "nonce",
+    "type" : "long"
+  }, {
+    "name" : "size",
+    "type" : "int"
+  }, {
+    "name" : "powMin",
+    "type" : "int"
+  }, {
+    "name" : "time",
+    "type" : "long"
+  }, {
+    "name" : "medianTime",
+    "type" : "long"
+  }, {
+    "name" : "membersCount",
+    "type" : "int"
+  }, {
+    "name" : "monetaryMass",
+    "type" : "long"
+  }, {
+    "name" : "unitbase",
+    "type" : "int"
+  }, {
+    "name" : "issuersCount",
+    "type" : "int"
+  }, {
+    "name" : "issuersFrame",
+    "type" : "int"
+  }, {
+    "name" : "issuersFrameVar",
+    "type" : "int"
+  }, {
+    "name" : "currency",
+    "type" : "string"
+  }, {
+    "name" : "issuer",
+    "type" : "string"
+  }, {
+    "name" : "signature",
+    "type" : "string"
+  },
+   {
+    "name" : "previousHash",
+    "type" : "string",
+    "default": "null"
+  }, {
+    "name" : "previousIssuer",
+    "type" : "string",
+    "default": "null"
+  }, {
+    "name" : "inner_hash",
+    "type" : "string",
+    "default": "null"
+  }, {
+    "name" : "dividend",
+    "type" : ["int", "null"]
+  }, {
+    "name" : "identities",
+    "type" : {
+      "type" : "array",
+      "items" : {
+        "type" : "record",
+        "name" : "Identity2",
+"namespace": "juniter.avro",
+        "fields" : [ {
+          "name" : "id",
+          "type" : "long"
+        }, {
+          "name" : "pubkey",
+          "type" : "string"
+        }, {
+          "name" : "signature",
+          "type" : "string"
+        }, {
+          "name" : "signed",
+          "type" : {
+            "type" : "record",
+            "name" : "BStamp2",
+"namespace": "juniter.avro",
+            "fields" : [ {
+              "name" : "number",
+              "type" : "int"
+            }, {
+              "name" : "hash",
+              "type" : "string"
+            }, {
+              "name" : "medianTime",
+              "type" : "long"
+            } ]
+          }
+        }, {
+          "name" : "uid",
+          "type" : "string"
+        }, {
+          "name" : "written",
+          "type" : "BStamp2"
+        } ]
+      },
+      "java-class" : "java.util.List"
+    }
+  }, {
+    "name" : "joiners",
+    "type" : {
+      "type" : "array",
+      "items" : {
+        "type" : "record",
+        "name" : "Joiner2",
+"namespace": "juniter.avro",
+        "fields" : [ {
+          "name" : "id",
+          "type" : "long"
+        }, {
+          "name" : "pubkey",
+          "type" : "string"
+        }, {
+          "name" : "signature",
+          "type" : "string"
+        }, {
+          "name" : "signed",
+          "type" : "BStamp2"
+        }, {
+          "name" : "i_block_uid",
+          "type" : "string"
+        }, {
+          "name" : "uid",
+          "type" : "string"
+        }, {
+          "name" : "revoked_on",
+          "type" : "string"
+        }, {
+          "name" : "revocation",
+          "type" : "string"
+        }, {
+          "name" : "excluded",
+          "type" : "boolean"
+        }, {
+          "name" : "written",
+          "type" : "BStamp2"
+        } ]
+      },
+      "java-class" : "java.util.List"
+    }
+  }, {
+    "name" : "renewed",
+    "type" : {
+      "type" : "array",
+      "items" : {
+        "type" : "record",
+        "name" : "Renew2",
+"namespace": "juniter.avro",
+        "fields" : [ {
+          "name" : "id",
+          "type" : "long"
+        }, {
+          "name" : "pubkey",
+          "type" : "string"
+        }, {
+          "name" : "signature",
+          "type" : "string"
+        }, {
+          "name" : "signed",
+          "type" : "BStamp2"
+        }, {
+          "name" : "i_block_uid",
+          "type" : "string"
+        }, {
+          "name" : "uid",
+          "type" : "string"
+        }, {
+          "name" : "revoked_on",
+          "type" : "string"
+        }, {
+          "name" : "revocation",
+          "type" : "string"
+        }, {
+          "name" : "excluded",
+          "type" : "boolean"
+        }, {
+          "name" : "written",
+          "type" : "BStamp2"
+        } ]
+      },
+      "java-class" : "java.util.List"
+    }
+  }, {
+    "name" : "leavers",
+    "type" : {
+      "type" : "array",
+      "items" : {
+        "type" : "record",
+        "name" : "Leaver2",
+"namespace": "juniter.avro",
+        "fields" : [ {
+          "name" : "id",
+          "type" : "long"
+        }, {
+          "name" : "pubkey",
+          "type" : "string"
+        }, {
+          "name" : "signature",
+          "type" : "string"
+        }, {
+          "name" : "signed",
+          "type" : "BStamp2"
+        }, {
+          "name" : "i_block_uid",
+          "type" : "string"
+        }, {
+          "name" : "uid",
+          "type" : "string"
+        }, {
+          "name" : "revoked_on",
+          "type" : "string"
+        }, {
+          "name" : "revocation",
+          "type" : "string"
+        }, {
+          "name" : "excluded",
+          "type" : "boolean"
+        }, {
+          "name" : "written",
+          "type" : "BStamp2"
+        } ]
+      },
+      "java-class" : "java.util.List"
+    }
+  }, {
+    "name" : "revoked",
+    "type" : {
+      "type" : "array",
+      "items" : {
+        "type" : "record",
+        "name" : "Revoked2",
+"namespace": "juniter.avro",
+        "fields" : [ {
+          "name" : "id",
+          "type" : "long"
+        }, {
+          "name" : "pubkey",
+          "type" : "string"
+        }, {
+          "name" : "signature",
+          "type" : "string"
+        }, {
+          "name" : "signed",
+          "type" : "BStamp2"
+        }, {
+          "name" : "i_block_uid",
+          "type" : "string"
+        }, {
+          "name" : "uid",
+          "type" : "string"
+        }, {
+          "name" : "revoked_on",
+          "type" : "string"
+        }, {
+          "name" : "revocation",
+          "type" : "string"
+        }, {
+          "name" : "excluded",
+          "type" : "boolean"
+        }, {
+          "name" : "written",
+          "type" : "BStamp2"
+        } ]
+      },
+      "java-class" : "java.util.List"
+    }
+  }, {
+    "name" : "excluded",
+    "type" : {
+      "type" : "array",
+      "items" : {
+        "type" : "record",
+        "name" : "Excluded2",
+"namespace": "juniter.avro",
+        "fields" : [ {
+          "name" : "id",
+          "type" : "long"
+        }, {
+          "name" : "pubkey",
+          "type" : "string"
+        }, {
+          "name" : "signature",
+          "type" : "string"
+        }, {
+          "name" : "signed",
+          "type" : "BStamp2"
+        }, {
+          "name" : "i_block_uid",
+          "type" : "string"
+        }, {
+          "name" : "uid",
+          "type" : "string"
+        }, {
+          "name" : "revoked_on",
+          "type" : "string"
+        }, {
+          "name" : "revocation",
+          "type" : "string"
+        }, {
+          "name" : "excluded",
+          "type" : "boolean"
+        }, {
+          "name" : "written",
+          "type" : "BStamp2"
+        } ]
+      },
+      "java-class" : "java.util.List"
+    }
+  }, {
+    "name" : "certifications",
+    "type" : {
+      "type" : "array",
+      "items" : {
+        "type" : "record",
+        "name" : "Certification2",
+"namespace": "juniter.avro",
+        "fields" : [ {
+          "name" : "id",
+          "type" : "long"
+        }, {
+          "name" : "certifier",
+          "type" : "string"
+        }, {
+          "name" : "certified",
+          "type" : "string"
+        }, {
+          "name" : "signedOn",
+          "type" : "int"
+        }, {
+          "name" : "signature",
+          "type" : "string"
+        }, {
+          "name" : "written",
+          "type" : "BStamp2"
+        } ]
+      },
+      "java-class" : "java.util.List"
+    }
+  }, {
+    "name" : "members",
+    "type" : {
+      "type" : "array",
+      "items" : {
+        "type" : "record",
+        "name" : "Member2",
+"namespace": "juniter.avro",
+        "fields" : [ {
+          "name" : "id",
+          "type" : "long"
+        }, {
+          "name" : "pubkey",
+          "type" : "string"
+        }, {
+          "name" : "signature",
+          "type" : "string"
+        }, {
+          "name" : "signed",
+          "type" : "BStamp2"
+        }, {
+          "name" : "i_block_uid",
+          "type" : "string"
+        }, {
+          "name" : "uid",
+          "type" : "string"
+        }, {
+          "name" : "revoked_on",
+          "type" : "string"
+        }, {
+          "name" : "revocation",
+          "type" : "string"
+        }, {
+          "name" : "excluded",
+          "type" : "boolean"
+        }, {
+          "name" : "written",
+          "type" : "BStamp2"
+        } ]
+      },
+      "java-class" : "java.util.List"
+    }
+  }, {
+    "name" : "transactions",
+    "type" : {
+      "type" : "array",
+      "items" : {
+        "type" : "record",
+        "name" : "Transaction2",
+"namespace": "juniter.avro",
+        "fields" : [ {
+          "name" : "id",
+          "type" : "long"
+        }, {
+          "name" : "version",
+          "type" : {
+            "type" : "int",
+            "java-class" : "java.lang.Short"
+          }
+        }, {
+          "name" : "currency",
+          "type" : "string"
+        }, {
+          "name" : "locktime",
+          "type" : "long"
+        }, {
+          "name" : "hash",
+          "type" : "string"
+        }, {
+          "name" : "blockstamp",
+          "type" : "BStamp2"
+        }, {
+          "name" : "issuers",
+          "type" : {
+            "type" : "array",
+            "items" : "string",
+            "java-class" : "java.util.List"
+          }
+        }, {
+          "name" : "inputs",
+          "type" : {
+            "type" : "array",
+            "items" : {
+              "type" : "record",
+              "name" : "SourceInput",
+              "fields" : [ {
+                "name" : "id",
+                "type" : "long"
+              }, {
+                "name" : "amount",
+                "type" : "int"
+              }, {
+                "name" : "base",
+                "type" : "int"
+              }, {
+                "name" : "type",
+                "type" : {
+                  "type" : "enum",
+                  "name" : "SourceType2",
+"namespace": "juniter.avro",
+                  "symbols" : [ "D", "T" ]
+                }
+              } ]
+            },
+            "java-class" : "java.util.List"
+          }
+        }, {
+          "name" : "outputs",
+          "type" : {
+            "type" : "array",
+            "items" : {
+              "type" : "record",
+              "name" : "TxOutput",
+              "fields" : [ {
+                "name" : "base",
+                "type" : "int"
+              }, {
+                "name" : "amount",
+                "type" : "int"
+              }, {
+                "name" : "condition",
+                "type" : "string"
+              } ]
+            },
+            "java-class" : "java.util.List"
+          }
+        }, {
+          "name" : "unlocks",
+          "type" : {
+            "type" : "array",
+            "items" : {
+              "type" : "record",
+              "name" : "TxUnlock",
+              "fields" : [ {
+                "name" : "inputRef",
+                "type" : "int"
+              }, {
+                "name" : "fct",
+                "type" : {
+                  "type" : "enum",
+                  "name" : "LockType",
+"namespace": "juniter.avro",
+                  "symbols" : [ "SIG", "XHX" ]
+                }
+              }, {
+                "name" : "param",
+                "type" : "string"
+              } ]
+            },
+            "java-class" : "java.util.List"
+          }
+        }, {
+          "name" : "signatures",
+          "type" : {
+            "type" : "array",
+            "items" : "string",
+            "java-class" : "java.util.List"
+          }
+        }, {
+          "name" : "comment",
+          "type" : "string"
+        }, {
+          "name" : "written",
+          "type" : "BStamp2"
+        } ]
+      },
+      "java-class" : "java.util.List"
+    }
+  } ]
+}

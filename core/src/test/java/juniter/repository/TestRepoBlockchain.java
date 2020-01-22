@@ -1,8 +1,8 @@
 package juniter.repository;
 
 import juniter.core.utils.TimeUtils;
-import juniter.service.core.BlockService;
-import juniter.service.core.Index;
+import juniter.service.jpa.JPABlockService;
+import juniter.service.jpa.Index;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Test;
@@ -22,7 +22,7 @@ public class TestRepoBlockchain {
     private static final Logger LOG = LogManager.getLogger(TestRepoBlockchain.class);
 
     @Autowired
-    public BlockService blockService;
+    public JPABlockService blockService;
 
     private Index idx = new Index();
 

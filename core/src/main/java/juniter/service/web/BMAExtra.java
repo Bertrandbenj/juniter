@@ -3,10 +3,10 @@ package juniter.service.web;
 import juniter.core.model.dbo.ChainParameters;
 import juniter.core.model.dbo.DBBlock;
 import juniter.core.model.dbo.index.CertRecord;
-import juniter.service.core.BlockService;
-import juniter.service.core.ForkHead;
-import juniter.service.core.Index;
-import juniter.service.core.WebOfTrust;
+import juniter.service.jpa.JPABlockService;
+import juniter.service.jpa.ForkHead;
+import juniter.service.jpa.Index;
+import juniter.service.jpa.WebOfTrust;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ public class BMAExtra {
     @Autowired
     private Index index;
     @Autowired
-    private BlockService blockService;
+    private JPABlockService blockService;
 
     @Autowired
     private ForkHead forkHead;

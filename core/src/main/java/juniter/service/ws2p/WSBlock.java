@@ -1,8 +1,8 @@
 package juniter.service.ws2p;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import juniter.core.model.dto.node.Block;
-import juniter.service.core.BlockService;
+import juniter.core.model.dto.Block;
+import juniter.service.jpa.JPABlockService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
@@ -30,7 +30,7 @@ public class WSBlock extends TextWebSocketHandler {
     private ModelMapper modelMapper;
 
     @Autowired
-    private BlockService blockService;
+    private JPABlockService blockService;
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {

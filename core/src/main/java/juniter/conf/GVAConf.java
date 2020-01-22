@@ -2,10 +2,10 @@ package juniter.conf;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import juniter.core.model.dbo.index.BINDEX;
-import juniter.core.model.dto.node.Block;
-import juniter.service.core.BlockService;
-import juniter.service.core.Index;
-import juniter.service.core.PeerService;
+import juniter.core.model.dto.Block;
+import juniter.service.jpa.JPABlockService;
+import juniter.service.jpa.Index;
+import juniter.service.jpa.PeerService;
 import juniter.service.gva.GVASubscriptionHandler;
 import juniter.service.ws2p.WSBlock;
 import juniter.service.ws2p.WSPeer;
@@ -41,7 +41,7 @@ public class GVAConf implements WebSocketConfigurer {
     private ModelMapper modelMapper;
 
     @Autowired
-    private BlockService blockService;
+    private JPABlockService blockService;
 
     @Autowired
     private PeerService peerService;

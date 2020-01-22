@@ -1,10 +1,7 @@
 package juniter;
 
 import com.sun.javafx.tk.Toolkit;
-import juniter.core.model.dbo.index.Account;
-import juniter.gui.business.page.Database;
 import juniter.gui.business.page.FrontPage;
-import juniter.gui.business.page.Notary;
 import juniter.gui.technical.AbstractJuniterFX;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,7 +9,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -44,6 +40,9 @@ public class GUIApplication {
 
         LOG.info("!!! FrontPage.launching GUI !!!");
         AbstractJuniterFX.launchGUI(FrontPage.class, context);
+
+
+
 
     }
 

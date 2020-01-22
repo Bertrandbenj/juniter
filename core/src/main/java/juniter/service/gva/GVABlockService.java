@@ -3,8 +3,8 @@ package juniter.service.gva;
 import io.leangen.graphql.annotations.GraphQLArgument;
 import io.leangen.graphql.annotations.GraphQLNonNull;
 import io.leangen.graphql.annotations.GraphQLQuery;
-import juniter.core.model.dto.node.Block;
-import juniter.service.core.BlockService;
+import juniter.core.model.dto.Block;
+import juniter.service.jpa.JPABlockService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
@@ -22,7 +22,7 @@ public class GVABlockService {
 	private static final Logger LOG = LogManager.getLogger(GVABlockService.class);
 
 	@Autowired
-	private BlockService blockService;
+	private JPABlockService blockService;
 
 	@Autowired
 	private ModelMapper modelMapper;

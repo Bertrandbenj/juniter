@@ -15,6 +15,7 @@ juniter:
   useGVA: true      # FIXME:  dependencies ?
   useBMA: true
   useWS2P: true
+  useAvro: true  #default false
   useIPFS: false
   #useJenaRDF: true #default false
   useForkHead: true

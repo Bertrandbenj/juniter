@@ -31,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 //@SpringBootTest(
-//	    classes = BlockchainService.class,
+//	    classes = BlockchainBMA.class,
 //	    webEnvironment = WebEnvironment.RANDOM_PORT
 //	)
 @SpringBootTest

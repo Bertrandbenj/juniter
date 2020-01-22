@@ -12,7 +12,7 @@ import javafx.scene.layout.VBox;
 import juniter.core.crypto.SecretBox;
 import juniter.core.model.dbo.net.EndPoint;
 import juniter.core.model.dbo.net.Peer;
-import juniter.service.core.PeerService;
+import juniter.service.jpa.PeerService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,7 +100,7 @@ public class PeerPanel implements Initializable {
                         .collect(Collectors.toList())
         );
 
-        rawDocument.setValue(peer.toDUP(true));
+        rawDocument.setValue(peer.toDUPdoc(true));
     }
 
 

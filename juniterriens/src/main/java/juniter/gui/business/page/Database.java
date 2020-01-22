@@ -27,9 +27,9 @@ import javafx.util.Callback;
 import juniter.core.model.dbo.BStamp;
 import juniter.core.model.dbo.index.*;
 import juniter.gui.technical.AbstractJuniterFX;
-import juniter.service.core.BlockService;
-import juniter.service.core.ForkHead;
-import juniter.service.core.Index;
+import juniter.service.jpa.JPABlockService;
+import juniter.service.jpa.ForkHead;
+import juniter.service.jpa.Index;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,7 +61,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
     private Index index;
 
     @Autowired
-    private BlockService blockService;
+    private JPABlockService blockService;
 
 
     private static ObservableList<IINDEX> iindex = FXCollections.observableArrayList();
@@ -225,9 +225,7 @@ public class Database extends AbstractJuniterFX implements Initializable {
     @Autowired
     private ForkHead forkHead;
 
-    Image
-            FORGING,
-            NOT_FORGING;
+    private Image FORGING, NOT_FORGING;
 
     @FXML
     public void indexUntil() {
@@ -453,8 +451,8 @@ public class Database extends AbstractJuniterFX implements Initializable {
 
         mapBStampColumn2(sWritten, "written");
         mapBStampColumn2(sSigned, "signed");
-        mapColumn(sAmountCol, "amount");
-        mapColumn(sBaseCol, "base");
+        mapColumn(sAmountCol, "getAmount");
+        mapColumn(sBaseCol, "getBase");
         mapColumn(sConsumedCol, "consumed");
         mapColumn(sIdentifierCol, "identifier");
         mapColumn(sOpCol, "op");

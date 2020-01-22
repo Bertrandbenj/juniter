@@ -46,7 +46,7 @@ public class WebSocketBlockFetcher implements BlockFetcher {
     }
 
     @Override
-    public boolean bulkLoadOn() {
+    public boolean isBulkLoading() {
         return false;
     }
 }

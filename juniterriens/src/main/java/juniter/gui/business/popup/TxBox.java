@@ -17,12 +17,13 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import juniter.core.model.dbo.net.EndPointType;
 import juniter.core.model.dbo.net.NetStats;
+import juniter.core.model.meta.LockType;
 import juniter.core.model.dbo.tx.Transaction;
-import juniter.core.model.dbo.tx.TxInput;
 import juniter.core.model.dbo.tx.TxOutput;
 import juniter.core.model.dbo.tx.TxUnlock;
 import juniter.core.model.dto.raw.WrapperResponse;
 import juniter.core.model.dto.raw.WrapperTransaction;
+import juniter.core.model.meta.DUPInput;
 import juniter.gui.game.screens.Room;
 import juniter.gui.technical.AbstractJuniterFX;
 import org.apache.logging.log4j.LogManager;
@@ -128,7 +129,7 @@ public class TxBox extends AbstractJuniterFX implements Initializable {
         var tx = new Transaction();
 
         tx.setCurrency("g1");
-        tx.setLocktime(0);
+        tx.setLocktime(0L);
         tx.setVersion((short) 10);
 
         tx.setBlockstamp(currenBlock.get().bStamp());
@@ -152,7 +153,7 @@ public class TxBox extends AbstractJuniterFX implements Initializable {
 
             // set unlocks
             for (int i = 0; i < tx.getInputs().size(); i++)
-                tx.getUnlocks().add(new TxUnlock(i + ":SIG(" + 0 + ")"));
+                tx.getUnlocks().add(new TxUnlock(i, LockType.SIG,"0")  );
 
 
             // set tax outputs
@@ -187,7 +188,7 @@ public class TxBox extends AbstractJuniterFX implements Initializable {
             // set rest output
             var rest = new TxOutput();
             rest.setBase(0);
-            rest.setAmount(tx.getInputs().stream().mapToInt(TxInput::getAmount).sum() - amo);
+            rest.setAmount(tx.getInputs().stream().mapToInt(DUPInput::getAmount).sum() - amo);
             rest.setCondition("SIG(" + targetPubkeyLabel.getText() + ")");
             tx.getOutputs().add(rest);
 
